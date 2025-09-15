@@ -2,16 +2,14 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .models import Course, Enrollment, LectureProgress, Lecture, Feedback, CourseEvent
 from django.contrib import messages
+from .forms import CourseForm, LectureForm, FeedbackForm
+from django.utils import timezone
+
 
 def course_list(request):
     courses = Course.objects.all()
     return render(request, 'courses/course_list.html', {'courses': courses})
 
-
-
-from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
-from .forms import CourseForm
 
 @login_required(login_url='/login/')
 def create_course(request):
@@ -42,11 +40,6 @@ def enroll_course(request, course_id):
     messages.success(request, f"Enrolled in {course.title}.")
     return redirect("course_list")
 
-
-from django.shortcuts import render, redirect, get_object_or_404
-from courses.models import Course, Lecture, Enrollment, Feedback
-from courses.forms import CourseForm, LectureForm, FeedbackForm
-from django.contrib.auth.decorators import login_required
 
 @login_required
 def instructor_dashboard(request):
@@ -109,10 +102,6 @@ def give_feedback(request, course_id):
 
 
 
-from django.shortcuts import get_object_or_404
-
-from .models import Course, Enrollment
-
 @login_required(login_url='/login/')
 def course_detail(request, course_id):
     course = get_object_or_404(Course, id=course_id)
@@ -133,9 +122,6 @@ def course_detail(request, course_id):
     # If neither instructor nor student
     return redirect('login')
 
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
-from .models import Course
 
 @login_required(login_url='/login/')
 def enroll_in_course(request, course_id):
@@ -182,7 +168,6 @@ def course_progress_report(request, course_id):
     return render(request, 'courses/course_progress_report.html', {'course': course, 'progress_data': progress_data})
 
 
-from django.utils import timezone
 
 @login_required(login_url='/login/')
 def add_event(request, course_id):
@@ -241,9 +226,6 @@ def mark_lecture_complete(request, lecture_id):
     )
     return redirect('student_course_detail', course_id=lecture.course.id)
 
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
-from .models import Course
 
 @login_required(login_url='/login/')
 def browse_courses(request):

@@ -3,7 +3,6 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
-
 from .forms import StudentSignUpForm, InstructorSignUpForm
 from courses.models import Course
 
@@ -34,12 +33,17 @@ def instructor_signup(request):
         form = InstructorSignUpForm(request.POST)
         if form.is_valid():
             user = form.save(commit=False)
-            user.role = "instructor"
+            user.role = "instructor"   # set role automatically
             user.save()
-            login(request, user)
-            return redirect("instructor_dashboard")
+            messages.success(request, "Instructor account created successfully!")
+            return redirect("login")   # redirect to login page 
     else:
         form = InstructorSignUpForm()
+
+    return render(request, "users/instructor_signup.html", {"form": form})
+
+    # GET request → empty form
+    form = InstructorSignUpForm()
     return render(request, "users/instructor_signup.html", {"form": form})
 
 

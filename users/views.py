@@ -68,7 +68,7 @@ def instructor_login(request):
             user = form.get_user()
             if user.role == "instructor":
                 login(request, user)
-                return redirect("instructor:instructor_dashboard")
+                return redirect("instructor_dashboard")
             else:
                 messages.error(request, "This login is only for instructors.")
     else:
@@ -88,7 +88,7 @@ def student_dashboard(request):
     if request.user.role != "student":
         return redirect("auth_page")
     enrolled_courses = Course.objects.filter(enrollments__student=request.user)
-    return render(request, "courses/student_dashboard.html", {"enrolled_courses": enrolled_courses})
+    return render(request, "courses/instructor/student_dashboard.html", {"enrolled_courses": enrolled_courses})
 
 
 @login_required(login_url="/auth/")
@@ -96,7 +96,8 @@ def instructor_dashboard(request):
     if request.user.role != "instructor":
         return redirect("auth_page")
     courses = Course.objects.filter(instructor=request.user)
-    return render(request, "courses/instructor_dashboard.html", {"courses": courses})
+    return render(request, "users/instructor_dashboard.html", {"courses": courses})
+
 
 
 @login_required(login_url="/auth/")

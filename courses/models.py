@@ -1,7 +1,5 @@
 from django.db import models
 from users.models import User
-
-from django.db import models
 from django.conf import settings
 
 class Course(models.Model):
@@ -50,11 +48,6 @@ class Enrollment(models.Model):
         return f"{self.student.username} -> {self.course.title}"
 
     
-from django.db import models
-from users.models import User
-
-from django.db import models
-from users.models import User
 
 """
 class Progress(models.Model):
@@ -77,9 +70,6 @@ class Progress(models.Model):
         return f"{self.enrollment.student.username} → {self.lecture.title} : {'Done' if self.completed else 'Pending'}"
 """
 
-
-from django.db import models
-from django.conf import settings
 
 class Feedback(models.Model):
     course = models.ForeignKey("Course", on_delete=models.CASCADE, related_name="feedbacks")

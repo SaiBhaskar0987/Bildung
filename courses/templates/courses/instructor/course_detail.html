@@ -1,27 +1,36 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>{{ course.title }} - Lectures</h2>
-<a href="{% url 'add_lecture' course.id %}" class="btn btn-primary mb-2">Add Lecture</a>
+<h2>{{ course.title }}</h2>
+<p>{{ course.description }}</p>
+<p>Price: {{ course.price }}</p>
+<p>Created on: {{ course.created_at }}</p>
 
-<table class="table">
-  <thead>
-    <tr>
-      <th>Title</th>
-      <th>Actions</th>
-    </tr>
-  </thead>
-  <tbody>
+<h3>Lectures</h3>
+<ul>
     {% for lecture in lectures %}
-      <tr>
-        <td>{{ lecture.title }}</td>
-        <td>
-          <a href="{% url 'edit_lecture' course.id lecture.id %}" class="btn btn-warning btn-sm">Edit</a>
-          <a href="{% url 'delete_lecture' course.id lecture.id %}" class="btn btn-danger btn-sm">Delete</a>
-        </td>
-      </tr>
+        <li>
+            <strong>{{ lecture.title }}</strong>
+            <br>{{ lecture.content|truncatewords:20 }}
+
+            {% if lecture.video %}
+                <br>
+                <video width="320" controls>
+                    <source src="{{ lecture.video.url }}" type="video/mp4">
+                </video>
+            {% endif %}
+
+            {% if lecture.file %}
+                <br><a href="{{ lecture.file.url }}">Download File</a>
+            {% endif %}
+        </li>
     {% empty %}
-      <tr><td colspan="2">No lectures added yet.</td></tr>
+        <li>No lectures yet.</li>
     {% endfor %}
-  </tbody>
-</table>
+</ul>
+
+<a href="{% url 'instructor:add_lecture' course.id %}">+ Add Lecture</a>
+<a href="{% url 'instructor:course_edit' course.id %}">Edit Course</a>
+<a href="{% url 'instructor:course_progress_report' course.id %}">View Progress</a>
+<a href="{% url 'instructor:add_event' course.id %}">Add Event</a>
 {% endblock %}
+

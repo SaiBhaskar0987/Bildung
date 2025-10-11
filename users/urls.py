@@ -10,12 +10,14 @@ urlpatterns = [
     path("student/login/", views.student_login, name="student_login"),
     path("student/dashboard/", views.student_dashboard, name="student_dashboard"),
 
+
     # Instructor
     path("instructor/signup/", views.instructor_signup, name="instructor_signup"),
     path("instructor/login/", views.instructor_login, name="instructor_login"),
     
     # Include all instructor dashboard & course URLs
     path("instructor/", include(("courses.instructor_urls", "instructor"), namespace="instructor")),
+    path('instructor/dashboard/', views.instructor_dashboard, name='instructor_dashboard'),
 
 
     # Admin

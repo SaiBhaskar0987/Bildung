@@ -89,18 +89,18 @@ def mark_lecture_complete(request, lecture_id):
 # Instructor Views
 # -------------------------------
 
-@instructor_required
+@login_required
 def instructor_dashboard(request):
     """Instructor dashboard"""
     courses = Course.objects.filter(instructor=request.user)
     return render(request, 'courses/instructor/home.html', {'courses': courses})
 
 
-@instructor_required
+
+@login_required
 def add_course(request):
-    """Instructor: create new course"""
     if request.method == 'POST':
-        form = CourseForm(request.POST, request.FILES)
+        form = CourseForm(request.POST)
         if form.is_valid():
             course = form.save(commit=False)
             course.instructor = request.user
@@ -112,7 +112,7 @@ def add_course(request):
     return render(request, 'courses/instructor/add_course.html', {'form': form})
 
 
-@instructor_required
+@login_required
 def course_edit(request, course_id):
     """Instructor: edit existing course"""
     course = get_object_or_404(Course, id=course_id, instructor=request.user)
@@ -127,33 +127,33 @@ def course_edit(request, course_id):
     return render(request, 'courses/instructor/course_edit.html', {'form': form, 'course': course})
 
 
-@instructor_required
+
+@login_required
 def course_detail(request, course_id):
-    """Instructor: course details + lectures"""
     course = get_object_or_404(Course, id=course_id, instructor=request.user)
-    lectures = course.lectures.all().order_by('created_at')  # Use created_at instead of order
+    lectures = course.lectures.all().order_by('created_at')
     return render(request, 'courses/instructor/course_detail.html', {'course': course, 'lectures': lectures})
 
 
 
-@instructor_required
+@login_required
 def add_lecture(request, course_id):
-    """Instructor: add lecture to course"""
     course = get_object_or_404(Course, id=course_id, instructor=request.user)
-    if request.method == "POST":
+    if request.method == 'POST':
         form = LectureForm(request.POST, request.FILES)
         if form.is_valid():
             lecture = form.save(commit=False)
             lecture.course = course
             lecture.save()
             messages.success(request, "Lecture added successfully.")
-            return redirect('course_detail', course_id=course.id)
+            return redirect('instructor:course_detail', course_id=course.id)
     else:
         form = LectureForm()
     return render(request, 'courses/instructor/add_lecture.html', {'form': form, 'course': course})
 
 
-@instructor_required
+
+@login_required
 def edit_lecture(request, course_id, lecture_id):
     lecture = get_object_or_404(Lecture, id=lecture_id, course__id=course_id, course__instructor=request.user)
     if request.method == "POST":
@@ -161,23 +161,23 @@ def edit_lecture(request, course_id, lecture_id):
         if form.is_valid():
             form.save()
             messages.success(request, "Lecture updated successfully.")
-            return redirect('course_detail', course_id=course_id)
+            return redirect('instructor:course_detail', course_id=course_id)
     else:
         form = LectureForm(instance=lecture)
     return render(request, 'courses/instructor/edit_lecture.html', {'form': form, 'course_id': course_id})
 
 
-@instructor_required
+@login_required
 def delete_lecture(request, course_id, lecture_id):
     lecture = get_object_or_404(Lecture, id=lecture_id, course__id=course_id, course__instructor=request.user)
     if request.method == "POST":
         lecture.delete()
         messages.success(request, "Lecture deleted successfully.")
-        return redirect('course_detail', course_id=course_id)
+        return redirect('instructor:course_detail', course_id=course_id)
     return render(request, 'courses/instructor/delete_lecture.html', {'lecture': lecture, 'course_id': course_id})
 
 
-@instructor_required
+@login_required
 def course_progress_report(request, course_id):
     course = get_object_or_404(Course, id=course_id, instructor=request.user)
     enrollments = Enrollment.objects.filter(course=course)
@@ -193,7 +193,7 @@ def course_progress_report(request, course_id):
     return render(request, 'courses/instructor/course_progress_report.html', {'course': course, 'progress_data': progress_data})
 
 
-@instructor_required
+@login_required
 def add_event(request, course_id):
     course = get_object_or_404(Course, id=course_id, instructor=request.user)
     if request.method == 'POST':
@@ -204,24 +204,26 @@ def add_event(request, course_id):
 
         CourseEvent.objects.create(course=course, title=title, description=description, start_time=start_time, end_time=end_time)
         messages.success(request, "Event added successfully.")
-        return redirect('course_detail', course_id=course.id)
+        return redirect('instructor:course_detail', course_id=course.id)
 
     return render(request, 'courses/instructor/add_event.html', {'course': course})
 
 
-@instructor_required
+
+@login_required
 def give_feedback(request, course_id):
     course = get_object_or_404(Course, id=course_id, instructor=request.user)
-    if request.method == "POST":
-        form = FeedbackForm(request.POST, course=course)
+
+    if request.method == 'POST':
+        form = FeedbackForm(request.POST)
         if form.is_valid():
             feedback = form.save(commit=False)
-            feedback.course = course
             feedback.instructor = request.user
+            feedback.course = course
             feedback.save()
             messages.success(request, "Feedback submitted successfully!")
-            return redirect('course_detail', course_id=course.id)
+            return redirect('instructor:course_detail', course_id=course.id)
     else:
-        form = FeedbackForm(course=course)
-
+        form = FeedbackForm()
+       
     return render(request, 'courses/instructor/give_feedback.html', {'form': form, 'course': course})

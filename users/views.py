@@ -9,7 +9,7 @@ from courses.models import Course
 
 
 
-# --- Auth Landing Page (just options, no forms) ---
+
 def auth_page(request):
     return render(request, "users/auth_page.html")
 
@@ -34,15 +34,15 @@ def instructor_signup(request):
     if request.method == "POST":
         form = InstructorSignUpForm(request.POST)
         if form.is_valid():
-            user = form.save(commit=False)
-            user.role = "instructor"
-            user.save()
+            user = form.save()
             login(request, user)
-            return redirect("instructor_dashboard")
+            return redirect("instructor:instructor_dashboard")
+        else:
+            print("Form errors:", form.errors)  
+            messages.error(request, "Please correct the errors below.")
     else:
         form = InstructorSignUpForm()
     return render(request, "users/instructor_signup.html", {"form": form})
-
 
 # --- Student Login ---
 def student_login(request):
@@ -76,7 +76,6 @@ def instructor_login(request):
     return render(request, "users/instructor_login.html", {"form": form})
 
 
-# --- Logout (works for all roles) ---
 def logout_view(request):
     logout(request)
     return redirect("auth_page")
@@ -113,5 +112,5 @@ def post_login_redirect(request):
     if role == 'instructor':
         return redirect('courses:instructor_home')
     if role == 'student':
-        return redirect('students:dashboard')   # adjust if your student dashboard URL name is different
-    return redirect('home')  # fallback
+        return redirect('students:dashboard')   
+    return redirect('home') 

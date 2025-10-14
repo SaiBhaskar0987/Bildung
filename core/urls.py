@@ -34,6 +34,7 @@ urlpatterns = [
     # Include all user-related routes (signup, login, dashboards)
     path("", include("users.urls")),
     path('', include('courses.urls')),
+    path('accounts/', include('django.contrib.auth.urls')),  # For password reset and other auth views
 ]
 
 SUBDOMAIN_URLCONFS = {

@@ -20,6 +20,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    
+    # Correct entry for the Sites framework (required by django-subdomains)
+    'django.contrib.sites', 
 
     # Your apps
     'users',
@@ -75,7 +78,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'bildung_db',
         'USER': 'root', # change with your MYSQL username
-        'PASSWORD': '00000', # change with your MYSQL password
+        'PASSWORD': '13D41A05l9@', # change with your MYSQL password
         'HOST': 'localhost',
         'PORT': '3306',
         'OPTIONS': {
@@ -141,3 +144,5 @@ USE_TZ = True
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_REDIRECT_URL = '/accounts/post-login/'
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+SITE_ID = 1

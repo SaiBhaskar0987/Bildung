@@ -6,6 +6,9 @@ from django.contrib.auth.forms import AuthenticationForm
  
 from .forms import StudentSignUpForm, InstructorSignUpForm
 from courses.models import Course
+from django.core.mail import send_mail
+from django.conf import settings
+from django.contrib.auth.models import User
  
  
  
@@ -122,3 +125,59 @@ def post_login_redirect(request):
     if role == 'student':
         return redirect('students:dashboard')   # adjust if your student dashboard URL name is different
     return redirect('home')  # fallback
+
+def signup_view(request):
+    """
+    Handles user registration and sends a welcome email.
+    The email content will be printed to the terminal because of the
+    'console.EmailBackend' setting in settings.py.
+    """
+    if request.method == 'POST':
+        # --- 1. SIMULATE FORM PROCESSING AND USER CREATION ---
+        # In a real app, you would validate the form data here.
+        username = request.POST.get('username')
+        email = request.POST.get('email')
+
+        # Dummy checks for demonstration
+        if not username or not email:
+            return render(request, 'signup.html', {'error': 'Please fill in both fields.'})
+
+        try:
+            # Simulate user creation (replace with actual User.objects.create_user)
+            # user = User.objects.create_user(username, email, 'password123')
+            
+            # --- 2. THE EMAIL SENDING COMMAND ---
+            # This is the line that triggers the email output in your console.
+            send_mail(
+                # Subject
+                'Welcome to Our Awesome Site, ' + username + '!',
+                
+                # Message (Body of the email)
+                f'Thank you for signing up for our service. We are excited to have you!\n\nYour username is: {username}',
+                
+                # From email (uses DEFAULT_FROM_EMAIL from settings.py)
+                settings.DEFAULT_FROM_EMAIL,
+                
+                # Recipient list
+                [email],
+                
+                # Fail silently? (Always keep this False in development to see errors)
+                fail_silently=False,
+            )
+            
+            # Print a confirmation message to the actual terminal
+            print(f"\n[CONSOLE EMAIL BACKEND] Successfully generated and printed welcome email for: {email}")
+
+            return redirect('/success') # Redirect to a success page
+        
+        except Exception as e:
+            # In a real app, you'd handle specific form/database errors
+            print(f"An error occurred during signup: {e}")
+            return render(request, 'signup.html', {'error': 'Signup failed due to an internal error.'})
+
+    return render(request, 'users/signup.html')
+
+
+# Placeholder for a success view (optional)
+def success_view(request):
+    return render(request, 'success.html')

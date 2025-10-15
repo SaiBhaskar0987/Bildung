@@ -135,13 +135,13 @@ CHANNEL_LAYERS = {
 }
 
 # --- EMAIL CONFIGURATION ---
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.example.com'  # e.g., 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'your_email@example.com'  # Your email address
-EMAIL_HOST_PASSWORD = 'your_email_password_or_app_specific_password' # Use environment variables for production!
-DEFAULT_FROM_EMAIL = 'your_email@example.com'
+#EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+#EMAIL_HOST = 'smtp.example.com'  # e.g., 'smtp.gmail.com'
+#EMAIL_PORT = 587
+#EMAIL_USE_TLS = True
+#EMAIL_HOST_USER = 'your_email@example.com'  # Your email address
+#EMAIL_HOST_PASSWORD = 'your_email_password_or_app_specific_password' # Use environment variables for production!
+#DEFAULT_FROM_EMAIL = 'your_email@example.com'
 
 
 # ---------------------------------------------------------------------

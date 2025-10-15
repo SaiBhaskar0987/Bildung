@@ -20,6 +20,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    
+    # Correct entry for the Sites framework (required by django-subdomains)
+    'django.contrib.sites', 
 
     # Your apps
     'users',
@@ -75,7 +78,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'bildung_db',
         'USER': 'root', # change with your MYSQL username
-        'PASSWORD': '00000', # change with your MYSQL password
+        'PASSWORD': '13D41A05l9@', # change with your MYSQL password
         'HOST': 'localhost',
         'PORT': '3306',
         'OPTIONS': {
@@ -131,6 +134,16 @@ CHANNEL_LAYERS = {
     "default": {"BACKEND": "channels.layers.InMemoryChannelLayer"},
 }
 
+# --- EMAIL CONFIGURATION ---
+#EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+#EMAIL_HOST = 'smtp.example.com'  # e.g., 'smtp.gmail.com'
+#EMAIL_PORT = 587
+#EMAIL_USE_TLS = True
+#EMAIL_HOST_USER = 'your_email@example.com'  # Your email address
+#EMAIL_HOST_PASSWORD = 'your_email_password_or_app_specific_password' # Use environment variables for production!
+#DEFAULT_FROM_EMAIL = 'your_email@example.com'
+
+
 # ---------------------------------------------------------------------
 # Internationalization
 # ---------------------------------------------------------------------
@@ -141,3 +154,5 @@ USE_TZ = True
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_REDIRECT_URL = '/accounts/post-login/'
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+SITE_ID = 1

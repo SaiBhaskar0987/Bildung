@@ -3,6 +3,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.utils.dateparse import parse_datetime
 
+
 from .models import Course, Enrollment, Lecture, LectureProgress, Feedback, CourseEvent
 from .forms import CourseForm, LectureForm, FeedbackForm
 from users.decorators import instructor_required

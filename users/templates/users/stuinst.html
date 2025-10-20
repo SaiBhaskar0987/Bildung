@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bildung - Sign Up</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+       
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="welcome-section">
+            <h1>Welcome to Bildung</h1>
+            <p>Join thousands of students and instructors in our interactive learning platform. Expand your knowledge, share your expertise, and grow together.</p>
+            
+            <div class="features">
+                <div class="feature">
+                    <i class="fas fa-graduation-cap"></i>
+                    <h3>Learn</h3>
+                </div>
+                <div class="feature">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                    <h3>Teach</h3>
+                </div>
+                <div class="feature">
+                    <i class="fas fa-certificate"></i>
+                    <h3>Certify</h3>
+                </div>
+                <div class="feature">
+                    <i class="fas fa-users"></i>
+                    <h3>Connect</h3>
+                </div>
+            </div>
+        </div>
+        
+        <div class="form-section">
+            <div class="form-container">
+                <div class="tabs">
+                    <div class="tab active" data-tab="student">Student</div>
+                    <div class="tab" data-tab="instructor">Instructor</div>
+                </div>
+                
+                <!-- Student Form -->
+                <div class="form active" id="student-form">
+                    <h2>Student Sign Up</h2>
+                    <p>Start your learning journey with us</p>
+                    
+                    <form id="studentSignupForm">
+                        <div class="input-group">
+                            <i class="fas fa-user"></i>
+                            <input type="text" placeholder="Full Name" required>
+                        </div>
+                        
+                        <div class="input-group">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" placeholder="Email Address" required>
+                        </div>
+                        
+                        <div class="input-group">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" placeholder="Password" required>
+                        </div>
+                        
+                        <div class="input-group">
+                            <i class="fas fa-book"></i>
+                            <select required>
+                                <option value="" disabled selected>Select Your Interest</option>
+                                <option value="programming">Programming</option>
+                                <option value="design">Design</option>
+                                <option value="business">Business</option>
+                                <option value="science">Science</option>
+                                <option value="arts">Arts</option>
+                            </select>
+                        </div>
+                        
+                        <div class="checkbox">
+                            <input type="checkbox" id="studentTerms" required>
+                            <label for="studentTerms">I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></label>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">Create Student Account</button>
+                    </form>
+                    
+                    <div class="divider">
+                        <span>Or sign up with</span>
+                    </div>
+                    
+                    <button class="btn btn-google">
+                        <i class="fab fa-google"></i> Continue with Google
+                    </button>
+                    
+                    <div class="login-link">
+                        Already have an account? <a href="#">Log In</a>
+                    </div>
+                </div>
+                
+                <!-- Instructor Form -->
+                <div class="form" id="instructor-form">
+                    <h2>Instructor Sign Up</h2>
+                    <p>Share your knowledge and inspire learners</p>
+                    
+                    <form id="instructorSignupForm">
+                        <div class="input-group">
+                            <i class="fas fa-user"></i>
+                            <input type="text" placeholder="Full Name" required>
+                        </div>
+                        
+                        <div class="input-group">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" placeholder="Email Address" required>
+                        </div>
+                        
+                        <div class="input-group">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" placeholder="Password" required>
+                        </div>
+                        
+                        <div class="input-group">
+                            <i class="fas fa-briefcase"></i>
+                            <input type="text" placeholder="Professional Title" required>
+                        </div>
+                        
+                        <div class="input-group">
+                            <i class="fas fa-book-open"></i>
+                            <select required>
+                                <option value="" disabled selected>Select Your Expertise</option>
+                                <option value="programming">Programming</option>
+                                <option value="design">Design</option>
+                                <option value="business">Business</option>
+                                <option value="science">Science</option>
+                                <option value="arts">Arts</option>
+                            </select>
+                        </div>
+                        
+                        <div class="checkbox">
+                            <input type="checkbox" id="instructorTerms" required>
+                            <label for="instructorTerms">I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></label>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">Create Instructor Account</button>
+                    </form>
+                    
+                    <div class="divider">
+                        <span>Or sign up with</span>
+                    </div>
+                    
+                    <button class="btn btn-google">
+                        <i class="fab fa-google"></i> Continue with Google
+                    </button>
+                    
+                    <div class="login-link">
+                        Already have an account? <a href="#">Log In</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching functionality
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Remove active class from all tabs and forms
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.form').forEach(f => f.classList.remove('active'));
+                
+                // Add active class to clicked tab
+                tab.classList.add('active');
+                
+                // Show corresponding form
+                const tabId = tab.getAttribute('data-tab');
+                document.getElementById(`${tabId}-form`).classList.add('active');
+            });
+        });
+
+        // Form submission handling
+        document.getElementById('studentSignupForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Student account creation submitted! (In a real app, this would connect to a backend)');
+        });
+
+        document.getElementById('instructorSignupForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Instructor account creation submitted! (In a real app, this would connect to a backend)');
+        });
+
+        // Google login simulation
+        document.querySelectorAll('.btn-google').forEach(button => {
+            button.addEventListener('click', () => {
+                alert('Google authentication would be implemented here');
+            });
+        });
+    </script>
+</body>
+</html>

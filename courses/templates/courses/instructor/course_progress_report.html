@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Course Progress Report: {{ course.title }}</h2>
+<table class="table">
+  <thead>
+    <tr>
+      <th>Student</th>
+      <th>Completed</th>
+      <th>Total Lectures</th>
+      <th>Progress %</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for row in progress_data %}
+      <tr>
+        <td>{{ row.student.username }}</td>
+        <td>{{ row.completed }}</td>
+        <td>{{ row.total }}</td>
+        <td>{{ row.progress|floatformat:2 }}%</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

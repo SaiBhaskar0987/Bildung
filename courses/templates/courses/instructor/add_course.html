@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container py-5">
+  <h2 class="mb-4">Add New Course</h2>
+
+  <form method="post" enctype="multipart/form-data" id="courseForm">
+    {% csrf_token %}
+    {{ course_form.as_p }}
+
+    <h3>Modules</h3>
+    <div id="modules">
+      {{ module_formset.management_form }}
+      {% for form in module_formset %}
+        <div class="module" data-module-index="{{ forloop.counter0 }}">
+          <hr>
+          <h4>Module {{ forloop.counter }}</h4>
+          {{ form.as_p }}
+
+          <div class="lectures" data-lecture-index="0"></div>
+          <button type="button" class="add-lecture btn btn-sm btn-info mb-3">Add Lecture</button>
+        </div>
+      {% endfor %}
+    </div>
+
+    <button type="button" id="addModule" class="btn btn-primary mb-3">Add Module</button>
+    <br>
+    <button type="submit" class="btn btn-success">Save Course</button>
+  </form>
+</div>
+
+<script>
+  let moduleIndex = parseInt("{{ module_formset.total_form_count|default:0 }}") || 0;
+
+  // Add Module dynamically
+  document.getElementById('addModule').addEventListener('click', function() {
+    const modulesDiv = document.getElementById('modules');
+    const moduleTemplate = `
+      <div class="module" data-module-index="${moduleIndex}">
+        <hr>
+        <h4>Module ${moduleIndex + 1}</h4>
+        <p>
+          <label for="id_modules-${moduleIndex}-title">Title:</label>
+          <input type="text" name="modules-${moduleIndex}-title" id="id_modules-${moduleIndex}-title" required>
+        </p>
+        <p>
+          <label for="id_modules-${moduleIndex}-description">Description:</label>
+          <textarea name="modules-${moduleIndex}-description" id="id_modules-${moduleIndex}-description"></textarea>
+        </p>
+
+        <div class="lectures" data-lecture-index="0"></div>
+        <button type="button" class="add-lecture btn btn-sm btn-info mb-3">Add Lecture</button>
+      </div>
+    `;
+
+    modulesDiv.insertAdjacentHTML('beforeend', moduleTemplate);
+    moduleIndex++;
+
+    // ✅ Update the correct TOTAL_FORMS field
+    const totalForms = document.getElementById('id_modules-TOTAL_FORMS');
+    if (totalForms) totalForms.value = moduleIndex;
+  });
+
+  // Add Lecture dynamically inside each module
+  document.getElementById('modules').addEventListener('click', function(e) {
+    if (e.target && e.target.classList.contains('add-lecture')) {
+      const moduleDiv = e.target.closest('.module');
+      const lecturesDiv = moduleDiv.querySelector('.lectures');
+      const moduleId = moduleDiv.dataset.moduleIndex;
+      let lectureIndex = parseInt(lecturesDiv.dataset.lectureIndex);
+
+      const lectureTemplate = `
+        <div class="lecture mb-2">
+          <p>
+            <label>Lecture Title:</label>
+            <input type="text" name="modules-${moduleId}-lectures-${lectureIndex}-title" required>
+          </p>
+          <p>
+            <label>Lecture Video:</label>
+            <input type="file" name="modules-${moduleId}-lectures-${lectureIndex}-video">
+          </p>
+        </div>
+      `;
+
+      lecturesDiv.insertAdjacentHTML('beforeend', lectureTemplate);
+      lectureIndex++;
+      lecturesDiv.dataset.lectureIndex = lectureIndex;
+    }
+  });
+</script>
+{% endblock %}

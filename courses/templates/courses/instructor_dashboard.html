@@ -1,18 +1,26 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Instructor Dashboard</h2>
+<div class="container mt-4">
+    <h2>Instructor Dashboard</h2>
+    <p>Welcome, {{ request.user.username }}!</p>
 
-<h3>Your Courses</h3>
-<ul>
-    {% for course in courses %}
-        <li>
-            {{ course.title }} - {{ course.created_at }}
-            <a href="{% url 'add_event' course.id %}">📅 Add Event</a>
-        </li>
-    {% empty %}
-        <li>No courses yet.</li>
-    {% endfor %}
-</ul>
+    <h3>Your Courses</h3>
+    <a href="{% url 'create_course' %}" class="btn btn-primary mb-3">+ Add New Course</a>
 
-<a href="{% url 'create_course' %}">+ Create New Course</a>
+    {% if courses %}
+        <ul class="list-group">
+            {% for course in courses %}
+                <li class="list-group-item">
+                    <strong>{{ course.title }}</strong> <br>
+                    {{ course.description|truncatewords:20 }}
+                    <div class="mt-2">
+                        <a href="{% url 'manage_course' course.id %}" class="btn btn-sm btn-secondary">Manage</a>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>You have not created any courses yet.</p>
+    {% endif %}
+</div>
 {% endblock %}

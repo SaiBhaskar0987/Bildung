@@ -20,6 +20,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
 
     # Your apps
     'users',
@@ -75,7 +76,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'bildung_db',
         'USER': 'root', # change with your MYSQL username
-        'PASSWORD': '00000', # change with your MYSQL password
+        'PASSWORD': '13D41A05l9', # change with your MYSQL password
         'HOST': 'localhost',
         'PORT': '3306',
         'OPTIONS': {
@@ -120,8 +121,8 @@ ALLOWED_HOSTS = ['.lvh.me', 'lvh.me', '127.0.0.1', 'localhost']
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 # ---------------------------------------------------------------------
 # Channels
@@ -131,7 +132,14 @@ CHANNEL_LAYERS = {
     "default": {"BACKEND": "channels.layers.InMemoryChannelLayer"},
 }
 
-# ---------------------------------------------------------------------
+
+
+EMAIL_HOST = 'smtp.example.com'  # e.g., 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'your_email@example.com'  # Your email address
+EMAIL_HOST_PASSWORD = 'your_email_password_or_app_specific_password' # Use environment variables for production!
+DEFAULT_FROM_EMAIL = 'your_email@example.com'# ---------------------------------------------------------------------
 # Internationalization
 # ---------------------------------------------------------------------
 LANGUAGE_CODE = 'en-us'
@@ -140,4 +148,5 @@ USE_I18N = True
 USE_TZ = True
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-LOGIN_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = '/accounts/post-login/'
+SITE_ID = 1

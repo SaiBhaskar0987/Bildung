@@ -51,7 +51,7 @@
                 {% if user.role == "student" %}
                     <a href="{% url 'student_dashboard' %}" class="btn btn-outline-success me-2">Dashboard</a>
                 {% elif user.role == "instructor" %}
-                    <a href="{% url 'instructor_dashboard' %}" class="btn btn-outline-success me-2">Dashboard</a>
+                    <a href="{% url 'instructor:instructor_dashboard' %}" class="btn btn-outline-success me-2">Dashboard</a>
                 {% elif user.role == "admin" %}
                     <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-success me-2">Admin</a>
                 {% endif %}
@@ -70,7 +70,7 @@
         <h1>Learn Anything, Anytime, Anywhere</h1>
         <p>Join thousands of learners and instructors on Bildung.</p>
         <div class="search-bar mt-4">
-            <form method="get" action="{% url 'course_list' %}">
+            <form method="get" action="{% url 'courses:course_list' %}">
                 <input type="text" class="form-control d-inline-block" name="q" placeholder="Search for courses...">
                 <button type="submit" class="btn btn-warning mt-3">Search</button>
             </form>

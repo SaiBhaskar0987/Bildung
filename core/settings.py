@@ -98,7 +98,9 @@ AUTH_PASSWORD_VALIDATORS = [
 AUTH_USER_MODEL = 'users.User'
 
 LOGIN_URL = '/login/'
+
 LOGOUT_REDIRECT_URL = '/'
+
 
 # ---------------------------------------------------------------------
 # Subdomains
@@ -141,7 +143,7 @@ USE_I18N = True
 USE_TZ = True
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-LOGIN_REDIRECT_URL = '/accounts/post-login/'
+LOGIN_REDIRECT_URL = '/post-login/'
 SITE_ID = 1
 
 #password_reset_mail local

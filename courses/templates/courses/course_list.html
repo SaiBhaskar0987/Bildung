@@ -6,13 +6,16 @@
     <div class="card">
         <h5>{{ course.title }}</h5>
         <p>{{ course.description }}</p>
-        <a href="{% url 'instructor:course_detail' course.id %}" class="btn btn-primary">View Course</a>
-            {% if user.is_authenticated and user.role == 'student' %}
-                <a href="{% url 'student:enroll_course' course.id %}">Enroll</a>
-            {% endif %}
 
-
+        {% if user.is_authenticated and user.role == 'instructor' %}
+            <a href="{% url 'instructor:course_detail' course.id %}" class="btn btn-primary">View Course</a>
+        
+        {% elif user.is_authenticated and user.role == 'student' %}
+            <a href="{% url 'student:enroll_course' course.id %}" class="btn btn-success">Enroll Now</a>
+        
+        {% endif %}
     </div>
+
 {% empty %}
     <p>No courses found.</p>
 {% endfor %}

@@ -3,13 +3,11 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
-from .models import User
-from .forms import StudentSignUpForm, InstructorSignUpForm
+from .models import User, Profile
+from .forms import StudentSignUpForm, InstructorSignUpForm, ProfileForm, UserDisplayForm
 from courses.models import Course, Enrollment
 from django.core.mail import send_mail
 from django.conf import settings
-from django.contrib.auth.models import User
-
 
 
 def auth_page(request):
@@ -47,7 +45,7 @@ def instructor_signup(request):
                 user.set_password(raw_password)      
             user.save()                     
             login(request, user)
-            return redirect("instructor_dashboard")
+            return redirect("instructor:instructor_dashboard")
     else:
         form = InstructorSignUpForm()
     return render(request, 'users/instructor_signup.html', {'form': form})
@@ -77,7 +75,7 @@ def instructor_login(request):
             user = form.get_user()
             if user.role == "instructor":
                 login(request, user)
-                return redirect("instructor_dashboard")
+                return redirect("instructor:instructor_dashboard")
             else:
                 messages.error(request, "This login is only for instructors.")
     else:
@@ -91,23 +89,15 @@ def logout_view(request):
 
 
 # --- Dashboards ---
-@login_required(login_url="/auth/")
 def student_dashboard(request):
     if request.user.role != "student":
-        return redirect("auth_page")
-
-    enrollments = Enrollment.objects.filter(student=request.user).select_related("course")
-    return render(request, "courses/student_dashboard.html", {"enrollments": enrollments})
-
-
-@login_required(login_url="/auth/")
-def instructor_dashboard(request):
-    if request.user.role != "instructor":
-        return redirect("auth_page")
-    courses = Course.objects.filter(instructor=request.user)
-    return render(request, "users/instructor_dashboard.html", {"courses": courses})
-
-
+        return redirect("login")
+    all_courses = Course.objects.all()
+    enrolled_courses = Course.objects.filter(students=request.user)
+    return render(request, 'courses/student_dashboard.html', {
+        'all_courses': all_courses,
+        'enrolled_courses': enrolled_courses
+    })
 
 @login_required(login_url="/auth/")
 def admin_dashboard(request):
@@ -116,15 +106,20 @@ def admin_dashboard(request):
     return render(request, "admin/dashboard.html")
 
 
+
 @login_required
-def post_login_redirect(request):
+def post_login_redirect_view(request):
     user = request.user
-    role = getattr(user, 'role', None)
-    if role == 'instructor':
-        return redirect('instructor_dashboard')
-    if role == 'student':
-        return redirect('student_dashboard')   
-    return redirect('home') 
+    if user.role == "student":
+        return redirect("student_dashboard")
+    elif user.role == "instructor":
+        return redirect("instructor:instructor_dashboard")
+    elif user.role == "admin":
+        return redirect("admin_dashboard")
+    else:
+        return redirect("guest_home")  # fallback
+
+
 def signup_view(request):
     """
     Handles user registration and sends a welcome email.
@@ -157,3 +152,43 @@ def signup_view(request):
             return render(request, 'signup.html', {'error': str(e)})
 
     return render(request, 'signup.html')
+
+
+
+@login_required
+def profile_view_or_edit(request, mode=None):
+    """
+    Handles both displaying the profile (default) and editing ONLY Profile fields.
+    """
+    
+    try:
+        profile = request.user.profile
+    except Profile.DoesNotExist:
+        profile = Profile.objects.create(user=request.user)
+
+    is_editing = (mode == 'edit')
+    
+    # 1. Handle POST Request (Form Submission)
+    if request.method == 'POST' and is_editing:
+        profile_form = ProfileForm(request.POST, request.FILES, instance=profile)
+        user_form = UserDisplayForm(request.POST, instance=request.user) 
+
+        if profile_form.is_valid():
+            # Only save the Profile form
+            profile_form.save()
+            
+            # Redirect to the non-edit/detail view after successful save
+            return redirect('profile_view') 
+        
+    # 2. Handle GET Request (Initial Load or Load with Errors)
+    else:
+        user_form = UserDisplayForm(instance=request.user)
+        profile_form = ProfileForm(instance=profile)
+
+    context = {
+        'profile': profile,
+        'user_form': user_form,       # Read-only user form
+        'profile_form': profile_form, # Editable profile form
+        'is_editing': is_editing,
+    }
+    return render(request, 'student/student_profile.html', context)

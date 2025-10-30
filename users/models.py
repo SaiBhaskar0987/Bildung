@@ -16,35 +16,6 @@ class User(AbstractUser):
     # Using email as unique identifier
     email = models.EmailField(unique=True)
 
-    # Additional fields
-    date_of_birth = models.DateField(null=True, blank=True)
-    GENDER_CHOICE = [
-        ('M', 'Male'),
-        ('F', 'Female'),
-        ('O', 'Other'),
-    ]
-
-    POSITION_CHOICES = (
-        ('professor', 'Professor'),
-        ('associate', 'Associate Professor'),
-        ('assistant', 'Assistant Professor'),
-        ('lecturer', 'Lecturer'),
-    )
-
-
-    EXPERIENCE_CHOICES = (
-        ('0-1', '0-1 years'),
-        ('1-2', '1-2 years'),
-        ('2-3', '2-3 years'),
-        ('3+', '3+ years'),
-    )
-    
-
-    gender = models.CharField(max_length=1, choices=GENDER_CHOICE, null=True, blank=True)
-    department = models.CharField(max_length=100, blank=True)
-    position = models.CharField(max_length=50, choices=POSITION_CHOICES, null=True, blank=True)
-    experience = models.CharField(max_length=20, choices=EXPERIENCE_CHOICES, null=True, blank=True)
-    bio = models.TextField(blank=True)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
@@ -73,3 +44,79 @@ class Course(models.Model):
     def __str__(self):
         return self.title
 """
+
+def user_resume_path(instance, filename):
+    # File will be uploaded to: resumes/user_<id>/<filename>
+    return f'resumes/user_{instance.user.id}/{filename}'
+
+def user_profile_image_path(instance, filename):
+    # File will be uploaded to: profile_images/user_<id>/<filename>
+    return f'profile_images/user_{instance.user.id}/{filename}'
+
+
+
+from django.contrib.auth import get_user_model
+    # Get the custom or default User model
+User = get_user_model()
+
+class Profile(models.Model):
+    """
+    Holds supplementary profile information for a User.
+    """
+    GENDER_CHOICES = [
+        ('M', 'Male'),
+        ('F', 'Female'),
+        ('O', 'Other'),
+    ]
+    
+    # 🌟 Core Link: Ensures every User has exactly one Profile (and vice-versa).
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.CASCADE
+    )
+    
+    # Personal Fields
+    about_me = models.TextField(
+        blank=True, 
+        null=True
+    )
+    
+    phone = models.CharField(
+        max_length=15, 
+        blank=True, 
+        null=True
+    )
+    
+    gender = models.CharField(
+        max_length=1, 
+        choices=GENDER_CHOICES, 
+        blank=True, 
+        null=True
+    )
+    
+    date_of_birth = models.DateField(
+        blank=True, 
+        null=True
+    )
+    
+    qualification = models.CharField(
+        max_length=100, 
+        blank=True, 
+        null=True
+    )
+    
+    # File Upload Field (Requires Pillow to be installed: pip install Pillow)
+    resume = models.FileField(
+        upload_to='resumes/', 
+        blank=True, 
+        null=True,
+        help_text="Upload a PDF file for your resume."
+    )
+    
+    class Meta:
+        verbose_name = "User Profile"
+        verbose_name_plural = "User Profiles"
+
+    def __str__(self):
+        return f"{self.user.username}'s Profile"
+  

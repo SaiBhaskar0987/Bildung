@@ -56,7 +56,7 @@
 {% endif %}
         <!-- Instructor Dashboard Link -->
 {% if request.user.is_authenticated and request.user.role == "instructor" %}
-    <a href="{% url 'instructor_dashboard' %}">Instructor Dashboard</a>
+    <a href="{% url 'instructor:instructor_dashboard' %}">Instructor Dashboard</a>
 {% else %}
     <a href="{% url 'instructor_login' %}">Instructor Dashboard</a>
 {% endif %}

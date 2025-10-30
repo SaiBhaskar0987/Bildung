@@ -1,4 +1,8 @@
+<<<<<<< HEAD
  {% load static %}
+=======
+{% load static %}
+>>>>>>> 38a1d1e457ec9168ea4c289412fe9049c4ae7f80
 
 
 <!DOCTYPE html>
@@ -66,6 +70,17 @@
 
         <button type="submit" class="btn btn-success w-100">Sign Up</button>
       </form>
+
+      <!-- Added Google Signup Button (No other changes made) -->
+      <div class="text-center my-3">
+        <span class="text-muted">Or sign up with</span>
+        <hr class="mt-2 mb-3">
+        <a href="{% url 'google_oauth_entry' %}?type=instructor" class="btn btn-outline-danger w-100">
+          <i class="fab fa-google"></i> Continue with Google
+        </a>
+      </div>
+      <!-- End Google Signup Section -->
+
       <p class="mt-3">Already have an account? 
         <a href="{% url 'instructor_login' %}">Instructor Login</a>
       </p>
@@ -89,4 +104,3 @@
 
 </body>
 </html>
-

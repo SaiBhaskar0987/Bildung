@@ -107,6 +107,22 @@ AUTH_USER_MODEL = 'users.User'
 LOGIN_URL = '/login/'
 LOGOUT_REDIRECT_URL = '/'
 
+# Added for Google Login
+AUTHENTICATION_BACKENDS = (
+    'social_core.backends.google.GoogleOAuth2',  # Google OAuth
+    'django.contrib.auth.backends.ModelBackend',  # Default
+)
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = ' ' # Add your key  here
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = ' '  # Add your client secret here
+SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = ['email', 'profile']
+SOCIAL_AUTH_GOOGLE_OAUTH2_AUTH_EXTRA_ARGUMENTS = {
+    'prompt': 'select_account',
+    'access_type': 'offline',
+}
+
+LOGIN_REDIRECT_URL = '/google-redirect/'  # After Google login redirect
+LOGOUT_REDIRECT_URL = '/'
 
 # ---------------------------------------------------------------------
 # Subdomains
@@ -149,7 +165,7 @@ USE_I18N = True
 USE_TZ = True
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-LOGIN_REDIRECT_URL = '/post-login/'
+LOGIN_REDIRECT_URL = '/accounts/post-login/'
 SITE_ID = 1
 
 #password_reset_mail local
@@ -160,6 +176,6 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'antharisaiteja@gmail.com'
+EMAIL_HOST_USER = ''
 EMAIL_HOST_PASSWORD ='viybdcfqakmylkus'
-DEFAULT_FROM_EMAIL = 'Bildung Platform <antharisaiteja@gmail.com>'
+DEFAULT_FROM_EMAIL = 'Bildung Platform '

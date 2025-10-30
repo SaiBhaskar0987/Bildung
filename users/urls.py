@@ -13,12 +13,9 @@ urlpatterns = [
     # Student course-related URLs (namespaced)
     #path("student/", include(("courses.student_urls", "student"), namespace="student")),
     path("student/", include(("courses.student_urls", "student_courses"), namespace="student_courses")),
-<<<<<<< HEAD
     path('profile/', views.profile_view_or_edit, name='profile_view'),
     path('profile/edit/', views.profile_view_or_edit, {'mode': 'edit'}, name='profile_edit'),
 
-=======
->>>>>>> 38a1d1e457ec9168ea4c289412fe9049c4ae7f80
 
     # Password reset
     path(
@@ -59,18 +56,15 @@ urlpatterns = [
     path("logout/", views.logout_view, name="logout_view"),
 
     # Post-login redirect
-<<<<<<< HEAD
 
 
     path("post-login/", views.post_login_redirect_view, name="post_login_redirect"),
 
 
-=======
-    path("post-login/", views.post_login_redirect, name="post_login_redirect"),
+    path("post-login/", views.post_login_redirect_view, name="post_login_redirect"),
 
     # Added Google OAuth Routes (Only Addition)
     path("social-auth/", include("social_django.urls", namespace="social")),
     path("google/login/", views.google_oauth_entry, name="google_oauth_entry"),
     path("google-redirect/", views.google_login_redirect, name="google_login_redirect"),
->>>>>>> 38a1d1e457ec9168ea4c289412fe9049c4ae7f80
 ]

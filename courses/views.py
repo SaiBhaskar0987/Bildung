@@ -1,4 +1,3 @@
-
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -7,8 +6,8 @@ from django.utils.dateparse import parse_datetime
 from .models import Course, Enrollment, Lecture, LectureProgress, Feedback, CourseEvent, Module
 from .forms import CourseForm, LectureForm, FeedbackForm, ModuleFormSet
 from users.decorators import instructor_required
-from django.db.models import Q
-
+from django.db.models import Q, Count
+from users.models import Profile
 # -------------------------------
 # Common Views
 # -------------------------------
@@ -38,13 +37,33 @@ def browse_courses(request):
 # -------------------------------
 # Student Views
 # -------------------------------
-
+'''
 @login_required(login_url="/auth/")
 def student_dashboard(request):
     if request.user.role != "student":
         return redirect("login")
-    enrolled_courses = Course.objects.filter(enrollments__student=request.user)
-    return render(request, "courses/student_dashboard.html", {"enrolled_courses": enrolled_courses})
+  enrolled_courses = Course.objects.filter(enrollments__student=request.user)
+    courses = Course.objects.filter(student=request.user)
+    return render(request, 'courses/student_dashboard.html', {'courses': courses})
+'''
+"""
+@login_required
+def student_dashboard(request):
+    if request.user.role != "student":
+        return redirect("login")
+    all_courses = Course.objects.all()   # ✅ Fetch all courses added by instructors
+    return render(request, "courses/student_dashboard.html", {
+        "all_courses": all_courses
+    })"""
+def student_dashboard(request):
+    if request.user.role != "student":
+        return redirect("login")
+    all_courses = Course.objects.all()
+    enrolled_courses = Course.objects.filter(students=request.user)
+    return render(request, 'courses/student_dashboard.html', {
+        'all_courses': all_courses,
+        'enrolled_courses': enrolled_courses
+    })
 
 @login_required(login_url='/login/')
 def enroll_course(request, course_id):
@@ -55,7 +74,14 @@ def enroll_course(request, course_id):
     course = get_object_or_404(Course, id=course_id)
     Enrollment.objects.get_or_create(student=request.user, course=course)
     messages.success(request, f"Enrolled in {course.title}")
-    return redirect('student_dashboard')
+    return redirect('student:my_courses')
+
+@login_required
+def my_courses(request):
+    enrolled_courses = Enrollment.objects.filter(student=request.user).select_related('course')
+    return render(request, "courses/student/my_courses.html", {
+        "enrolled_courses": enrolled_courses
+    })
 
 
 @login_required(login_url='/student/login/')
@@ -97,6 +123,30 @@ def student_course_detail(request, course_id):
         'progress_percent': progress_percent,
     })
 
+
+@login_required
+def my_students(request):
+    instructor_courses = Course.objects.filter(instructor=request.user)
+    enrollments = Enrollment.objects.filter(course__in=instructor_courses).select_related('student', 'course')
+
+    students = {enrollment.student for enrollment in enrollments}
+
+    context = {
+        'students': students,
+        'enrollments': enrollments,
+    }
+    return render(request, 'courses/instructor/my_students.html', context)
+
+@login_required
+def view_student_profile(request, student_id):
+    
+    student_profile = get_object_or_404(Profile, user__id=student_id)
+
+    context = {
+        'profile': student_profile,   
+        'is_instructor_view': True,   
+    }
+    return render(request, 'student/student_profile.html', context)
 
 @login_required(login_url='/login/')
 def mark_lecture_complete(request, lecture_id):
@@ -156,9 +206,18 @@ def student_progress(request, course_id):
 
 @login_required
 def instructor_dashboard(request):
-    """Instructor dashboard"""
     courses = Course.objects.filter(instructor=request.user)
-    return render(request, 'courses/instructor/home.html', {'courses': courses})
+
+    # ✅ Total unique enrolled students across all instructor courses
+    total_students = Enrollment.objects.filter(
+        course__in=courses
+    ).values('student').distinct().count()
+
+    return render(request, 'courses/instructor/instructor_dashboard.html', {
+        'courses': courses,
+        'total_students': total_students,
+    })
+
 
 @login_required
 def add_course(request):
@@ -185,7 +244,7 @@ def add_course(request):
                         Lecture.objects.create(module=module, title=lecture_title, video=lecture_file)
                         lecture_index += 1
 
-            return redirect('instructor_dashboard')
+            return redirect('instructor:instructor_dashboard')
     else:
         course_form = CourseForm()
         module_formset = ModuleFormSet()
@@ -203,13 +262,13 @@ def course_edit(request, course_id):
         if form.is_valid():
             form.save()
             messages.success(request, "Course updated successfully.")
-            return redirect('instructor_dashboard')
+            return redirect('instructor:instructor_dashboard')
     else:
         form = CourseForm(instance=course)
     return render(request, 'courses/instructor/course_edit.html', {'form': form, 'course': course})
 
 
-
+@login_required
 def course_detail(request, course_id):
     course = get_object_or_404(Course, id=course_id, instructor=request.user)
     modules = course.modules.all()
@@ -340,3 +399,4 @@ def student_course_list(request):
         course.is_enrolled = course.id in enrolled_ids
 
     return render(request, 'courses/student/student_course_list.html', {'courses': courses})
+

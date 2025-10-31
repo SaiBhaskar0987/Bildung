@@ -2,7 +2,6 @@ from django.urls import path, include
 from . import views
 from django.contrib.auth import views as auth_views
 
-
 urlpatterns = [
     # Landing / Auth
     path("auth/", views.auth_page, name="auth_page"),
@@ -14,6 +13,9 @@ urlpatterns = [
     # Student course-related URLs (namespaced)
     #path("student/", include(("courses.student_urls", "student"), namespace="student")),
     path("student/", include(("courses.student_urls", "student_courses"), namespace="student_courses")),
+    path('profile/', views.profile_view_or_edit, name='profile_view'),
+    path('profile/edit/', views.profile_view_or_edit, {'mode': 'edit'}, name='profile_edit'),
+
 
     # Password reset
     path(
@@ -46,7 +48,6 @@ urlpatterns = [
     
     # Include all instructor dashboard & course URLs
     path("instructor/", include(("courses.instructor_urls", "instructor"), namespace="instructor")),
-    path('instructor/dashboard/', views.instructor_dashboard, name='instructor_dashboard'),
 
     # Admin
     path("admin/dashboard/", views.admin_dashboard, name="admin_dashboard"),
@@ -55,7 +56,12 @@ urlpatterns = [
     path("logout/", views.logout_view, name="logout_view"),
 
     # Post-login redirect
-    path("post-login/", views.post_login_redirect, name="post_login_redirect"),
+
+
+    path("post-login/", views.post_login_redirect_view, name="post_login_redirect"),
+
+
+    path("post-login/", views.post_login_redirect_view, name="post_login_redirect"),
 
     # Added Google OAuth Routes (Only Addition)
     path("social-auth/", include("social_django.urls", namespace="social")),

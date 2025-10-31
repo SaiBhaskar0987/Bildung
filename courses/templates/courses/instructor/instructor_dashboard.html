@@ -1,26 +1,155 @@
-{% extends "base.html" %}
-{% block content %}
-<div class="container mt-4">
-    <h2>Instructor Dashboard</h2>
-    <p>Welcome, {{ request.user.username }}!</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Instructor Dashboard</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    <h3>Your Courses</h3>
-    <a href="{% url 'create_course' %}" class="btn btn-primary mb-3">+ Add New Course</a>
+</head>
+<body class="bg-light">
+<div class="d-flex justify-content-between align-items-center p-3 bg-white shadow-sm">
+    <h3 class="m-0 fw-bold">Bildung</h3>
+     
 
-    {% if courses %}
-        <ul class="list-group">
-            {% for course in courses %}
-                <li class="list-group-item">
-                    <strong>{{ course.title }}</strong> <br>
-                    {{ course.description|truncatewords:20 }}
-                    <div class="mt-2">
-                        <a href="{% url 'manage_course' course.id %}" class="btn btn-sm btn-secondary">Manage</a>
-                    </div>
-                </li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>You have not created any courses yet.</p>
-    {% endif %}
+        <div class="dropdown">
+            <button class="btn rounded-circle shadow" style="background:gray;color:white;width:45px;height:45px;" type="button" data-bs-toggle="dropdown">
+                {{ request.user.username|first|upper }}
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="{% url 'profile_view' %}">Profile</a></li>
+                <li><a class="dropdown-item" href="{% url 'instructor:add_course' %}">Create New Course</a></li>
+                <li><a class="dropdown-item" href="{% url 'instructor:my_students' %}">My Students</a></li>
+                <li><a class="dropdown-item" href="#">Notifications</a></li>
+                <li><a class="dropdown-item" href="#">Earnings & Payments</a></li>
+                <li><a class="dropdown-item" href="#">Help & Support</a></li>
+                <li><a class="dropdown-item" href="#">Account Settings</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item text-danger" href="{% url 'instructor:instructor_dashboard' %}">Home</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item text-danger" href="{% url 'logout_view' %}">Logout</a></li>
+            </ul>
+        </div>
+    </div>
 </div>
-{% endblock %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Page Container -->
+
+<div class="container-fluid bg-light py-5 min-vh-100">
+
+  <!-- Header -->
+
+  <div class="d-flex justify-content-between align-items-center mb-5">
+    <div>
+      <h2 class="fw-bold text-dark mb-1">Instructor Dashboard</h2>
+      <p class="text-muted">Welcome back, {{ request.user.get_full_name|default:request.user.username }}! Manage your courses and performance.</p>
+    </div>
+
+  </div>
+
+  <!-- Instructor Summary -->
+
+  <div class="card shadow-sm border-0 mb-5 rounded-4">
+    <div class="card-body">
+      <div class="row text-center">
+        <div class="col-md-3 border-end">
+          <h6 class="text-muted">Total Courses</h6>
+          <h3 class="fw-bold text-primary">{{ courses|length }}</h3>
+        </div>
+        <div class="col-md-3 border-end">
+          <h6 class="text-muted">Total Students</h6>
+          <h3 class="fw-bold text-success">{{ total_students|default:"0" }}</h3>
+        </div>
+        <div class="col-md-3 border-end">
+          <h6 class="text-muted">Total Earnings</h6>
+          <h3 class="fw-bold text-warning">₹{{ total_earnings|default:"0" }}</h3>
+        </div>
+        <div class="col-md-3">
+          <h6 class="text-muted">Average Rating</h6>
+          <h3 class="fw-bold text-secondary">
+            <i class="bi bi-star-fill text-warning"></i> {{ instructor_rating|default:"4.6" }}
+          </h3>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Course Grid -->
+
+  <h4 class="fw-semibold mb-4 text-dark">Your Courses</h4>
+
+{% if courses %}
+
+  <div class="row g-4">
+    {% for course in courses %}
+    <div class="col-md-4">
+      <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100 course-card">
+        <div class="position-relative">
+          <a href="{% url 'instructor:course_detail' course.id %}">
+            <img src="{{ course.thumbnail.url|default:'https://via.placeholder.com/400x220?text=Course+Image' }}" 
+                 class="card-img-top" alt="{{ course.title }}">
+          </a>
+          <span class="position-absolute top-0 end-0 bg-primary text-white px-2 py-1 small rounded-bottom-start">
+            {{ course.level|default:"All Levels" }}
+          </span>
+        </div>
+
+```
+    <div class="card-body">
+      <h5 class="fw-bold text-dark mb-2">{{ course.title }}</h5>
+      <p class="text-muted small mb-3">{{ course.description|truncatewords:18 }}</p>
+
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <span class="text-muted small"><i class="bi bi-people"></i> {{ course.students.count|default:"0" }} Students</span>
+        <span class="fw-bold text-success">₹{{ course.price|default:"Free" }}</span>
+      </div>
+
+      <div class="d-grid gap-2 mt-3">
+        <a href="{% url 'instructor:course_detail' course.id %}" class="btn btn-outline-primary btn-sm">
+          <i class="bi bi-eye"></i> View Course
+        </a>
+        <a href="{% url 'instructor:course_edit' course.id %}" class="btn btn-outline-warning btn-sm">
+          <i class="bi bi-pencil-square"></i> Edit Details
+        </a>
+        <a href="{% url 'instructor:course_progress_report' course.id %}" class="btn btn-outline-success btn-sm">
+          <i class="bi bi-graph-up"></i> Progress
+        </a>
+        <a href="{% url 'instructor:give_feedback' course.id %}" class="btn btn-outline-secondary btn-sm">
+          <i class="bi bi-chat-dots"></i> Feedback
+        </a>
+        <a href="{% url 'instructor:add_event' course.id %}" class="btn btn-outline-dark btn-sm">
+          <i class="bi bi-calendar-event"></i> Add Event
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endfor %}
+```
+
+  </div>
+  {% else %}
+  <div class="alert alert-info text-center mt-5 shadow-sm rounded-3">
+    <h5 class="fw-semibold">No Courses Found</h5>
+    <p class="mb-0">You haven’t added any courses yet. <a href="{% url 'instructor:add_course' %}" class="text-primary fw-semibold">Create your first course</a> now!</p>
+  </div>
+  {% endif %}
+
+</div>
+
+<style>
+  .course-card:hover {
+    transform: translateY(-5px);
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+  }
+  .course-card img {
+    transition: transform 0.3s ease;
+  }
+  .course-card:hover img {
+    transform: scale(1.03);
+  }
+</style>
+
+</body>
+</html>

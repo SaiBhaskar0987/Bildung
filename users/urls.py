@@ -12,38 +12,39 @@ urlpatterns = [
     path("student/login/", views.student_login, name="student_login"),
     path("student/dashboard/", views.student_dashboard, name="student_dashboard"),
     # Student course-related URLs (namespaced)
-    #path("student/", include(("courses.student_urls", "student"), namespace="student")),
     path("student/", include(("courses.student_urls", "student_courses"), namespace="student_courses")),
 
-    # Password reset
+    # --- Password reset (Using custom template for the first step) ---
     path(
-        'password-reset/', 
-        auth_views.PasswordResetView.as_view(template_name='password_reset.html'), 
-        name='password_reset'
+        'password-reset/',
+        # Using the custom template path for the initial password reset form
+        auth_views.PasswordResetView.as_view(template_name='users/forgot_password_reset.html'),
+        # IMPORTANT: This name now matches 'forgot_password_reset_view' used in student_login.html
+        name='forgot_password_reset_view'
     ),
     path(
-        'password-reset/done/', 
-        auth_views.PasswordResetDoneView.as_view(template_name='password_reset_done.html'), 
+        'password-reset/done/',
+        auth_views.PasswordResetDoneView.as_view(template_name='password_reset_done.html'),
         name='password_reset_done'
     ),
     path(
-        'reset/<uidb64>/<token>/', 
-        auth_views.PasswordResetConfirmView.as_view(template_name='password_reset_confirm.html'), 
+        'reset/<uidb64>/<token>/',
+        auth_views.PasswordResetConfirmView.as_view(template_name='password_reset_confirm.html'),
         name='password_reset_confirm'
     ),
-
     path(
-        'accounts/reset/done/',
+        'reset/done/',
         auth_views.PasswordResetCompleteView.as_view(
             template_name="password_reset_complete.html"
         ),
         name='password_reset_complete'
     ),
+    # -----------------------------------------------------------------
 
     # Instructor
     path("instructor/signup/", views.instructor_signup, name="instructor_signup"),
     path("instructor/login/", views.instructor_login, name="instructor_login"),
-    
+
     # Include all instructor dashboard & course URLs
     path("instructor/", include(("courses.instructor_urls", "instructor"), namespace="instructor")),
     path('instructor/dashboard/', views.instructor_dashboard, name='instructor_dashboard'),
@@ -57,7 +58,7 @@ urlpatterns = [
     # Post-login redirect
     path("post-login/", views.post_login_redirect, name="post_login_redirect"),
 
-    # Added Google OAuth Routes (Only Addition)
+    # Added Google OAuth Routes
     path("social-auth/", include("social_django.urls", namespace="social")),
     path("google/login/", views.google_oauth_entry, name="google_oauth_entry"),
     path("google-redirect/", views.google_login_redirect, name="google_login_redirect"),

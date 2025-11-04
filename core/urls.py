@@ -23,7 +23,6 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
 
-
 # Fallback view for the main domain
 def home(request):
     return HttpResponse("Main Site - Bildung")
@@ -35,7 +34,7 @@ urlpatterns = [
     path("chat/", include("chat.urls")),
 
     # Main site root
-    path('', home_views.guest_home, name='guest_home'),
+    path('', home_views.smart_home, name='smart_home'),
 
     # Include all user-related routes (signup, login, dashboards)
     path("", include("users.urls")),

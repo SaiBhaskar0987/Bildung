@@ -58,7 +58,7 @@ MIDDLEWARE = [
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -83,7 +83,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'bildung_db',
         'USER': 'root', # change with your MYSQL username
-        'PASSWORD': ' ', # change with your MYSQL password
+        'PASSWORD': '13D41A05l9@', # change with your MYSQL password
         'HOST': 'localhost',
         'PORT': '3306',
         'OPTIONS': {
@@ -176,6 +176,6 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'antharisaiteja@gmail.com'
+EMAIL_HOST_USER = ''
 EMAIL_HOST_PASSWORD ='viybdcfqakmylkus'
-DEFAULT_FROM_EMAIL = 'Bildung Platform <antharisaiteja@gmail.com>'
+DEFAULT_FROM_EMAIL = 'Bildung Platform '

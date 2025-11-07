@@ -22,6 +22,7 @@ from home import views as home_views
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
+from courses import views as course_views
 
 # Fallback view for the main domain
 def home(request):
@@ -34,8 +35,10 @@ urlpatterns = [
     path("chat/", include("chat.urls")),
 
     # Main site root
-    path('', home_views.smart_home, name='smart_home'),
+   # path('', home_views.smart_home, name='smart_home'),
 
+    path('', course_views.smart_home, name='smart_home'),
+    
     # Include all user-related routes (signup, login, dashboards)
     path("", include("users.urls")),
     path('courses/', include('courses.urls')),

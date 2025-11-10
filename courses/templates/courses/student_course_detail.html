@@ -26,12 +26,44 @@
     </div>
   </div>
 
-  <!-- Modules & Lectures -->
-  <div id="modulesContainer">
-    {% if course.modules.all %}
-      {% for module in course.modules.all %}
+  <!-- ✅ Course Progress Section -->
+  <div class="card shadow-sm border-0 mb-4 p-4 rounded-4" id="course-progress-card">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <h5 class="mb-0 text-secondary fw-semibold">Your Progress</h5>
+      <span class="text-muted small" id="progress-text">
+        {{ completed }} / {{ total }} lectures completed ({{ progress_percent }}%)
+      </span>
+    </div>
+
+    <div class="progress" style="height: 15px; border-radius: 10px; overflow: hidden;">
+      <div id="progress-bar" class="progress-bar bg-success progress-bar-striped progress-bar-animated"
+           role="progressbar"
+           style="width: {{ progress_percent }}%;"
+           aria-valuenow="{{ progress_percent }}" aria-valuemin="0" aria-valuemax="100">
+        {{ progress_percent }}%
+      </div>
+    </div>
+
+    {% if progress_percent == 100 %}
+    <div class="text-center mt-4">
+      <a href="{% url 'student:get_certificate' course.id %}" class="btn btn-success btn-lg shadow-sm">
+        🎓 Get Certificate
+      </a>
+    </div>
+    {% endif %}
+  </div>
+
+<!-- 🔒 Modules & Lectures -->
+<div id="modulesContainer">
+  {% if modules %}
+    {% for module in modules %}
+      {% if module.id in unlocked_modules %}
+        {% comment %} ✅ Module is unlocked {% endcomment %}
         <div class="module mb-4">
-          <h4 class="fw-bold text-primary mb-3">Module {{ forloop.counter }}: {{ module.title }}</h4>
+          <h4 class="fw-bold text-primary mb-3">
+            Module {{ forloop.counter }}: {{ module.title }}
+            <span class="badge bg-success ms-2">✅ Unlocked</span>
+          </h4>
           <p class="text-muted mb-3">{{ module.description|default:"No description provided." }}</p>
 
           <div class="row g-3">
@@ -40,7 +72,7 @@
                 <div class="col-md-3 col-sm-6">
                   <div class="card h-100 shadow-sm rounded-4">
                     {% if lecture.video %}
-                      <video controls width="100%" class="rounded-top">
+                      <video id="video-{{ lecture.id }}" width="100%" controls class="rounded-top">
                         <source src="{{ lecture.video.url }}" type="video/mp4">
                         Your browser does not support the video tag.
                       </video>
@@ -51,7 +83,7 @@
                         {% if lecture.id in progress_map %}
                           <span class="badge bg-success">✅ Completed</span>
                         {% else %}
-                          <a href="{% url 'student:mark_lecture_complete' lecture.id %}" class="btn btn-outline-primary btn-sm">Mark as Complete</a>
+                          <span id="lecture-status-{{ lecture.id }}" class="badge bg-secondary">⏸️ In Progress</span>
                         {% endif %}
                       </div>
                     </div>
@@ -63,32 +95,63 @@
             {% endif %}
           </div>
         </div>
-      {% endfor %}
-    {% else %}
-      <p class="text-muted">No modules added for this course yet.</p>
-    {% endif %}
-  </div>
 
-  <!-- Upcoming Events -->
-  <div class="mt-4">
-    <h4>Upcoming Events</h4>
-    <ul>
-      {% for event in course.events.all %}
-        <li>
-          <strong>{{ event.title }}</strong> <br>
-          {{ event.start_time }} - {{ event.end_time }} <br>
-          {{ event.description }}
-        </li>
-      {% empty %}
-        <li>No upcoming events</li>
-      {% endfor %}
-    </ul>
-  </div>
+      {% else %}
+        {% comment %} 🔒 Module is locked {% endcomment %}
+        <div class="module mb-4 locked-module">
+          <h4 class="fw-bold text-primary mb-3">
+            Module {{ forloop.counter }}: {{ module.title }}
+            <span class="badge bg-danger ms-2">🔒 Locked</span>
+          </h4>
+          <p class="text-muted mb-3">{{ module.description|default:"No description provided." }}</p>
 
-  <!-- Back Button -->
-  <div class="text-end mt-4">
-    <a href="{% url 'student_dashboard' %}" class="btn btn-outline-primary">Back to Dashboard</a>
-  </div>
-
+          <div class="row g-3">
+            {% if module.lectures.all %}
+              {% for lecture in module.lectures.all %}
+                <div class="col-md-3 col-sm-6">
+                  <div class="card h-100 shadow-sm rounded-4 position-relative">
+                    <div class="locked-overlay d-flex flex-column justify-content-center align-items-center text-white">
+                      <span class="fs-4">🔒</span>
+                      <small>Complete previous module to unlock</small>
+                    </div>
+                    {% if lecture.video %}
+                      <video id="video-{{ lecture.id }}" width="100%" class="rounded-top" muted>
+                        <source src="{{ lecture.video.url }}" type="video/mp4">
+                        Your browser does not support the video tag.
+                      </video>
+                    {% endif %}
+                    <div class="card-body">
+                      <h6 class="card-title fw-bold mb-2">{{ lecture.title }}</h6>
+                    </div>
+                  </div>
+                </div>
+              {% endfor %}
+            {% else %}
+              <p class="text-muted">No lectures added for this module.</p>
+            {% endif %}
+          </div>
+        </div>
+      {% endif %}
+    {% endfor %}
+  {% else %}
+    <p class="text-muted">No modules added for this course yet.</p>
+  {% endif %}
 </div>
+
+<style>
+  .locked-module {
+    opacity: 0.6;
+    position: relative;
+  }
+  .locked-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 1rem;
+    text-align: center;
+    z-index: 10;
+  }
+</style>
+
+
 {% endblock %}

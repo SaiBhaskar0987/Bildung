@@ -9,4 +9,7 @@ urlpatterns = [
     path('lectures/<int:lecture_id>/complete/', views.mark_lecture_complete, name='mark_lecture_complete'),
     path('courses/<int:course_id>/progress/', views.student_progress, name='student_progress'),
     path("my-courses/", views.my_courses, name="my_courses"),
+    path('get-certificate/<int:course_id>/', views.get_certificate, name='get_certificate'),
+    path('my-certificates/', views.my_certificates, name='my_certificates'),
+
 ]

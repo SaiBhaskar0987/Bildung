@@ -4,26 +4,59 @@ from .models import Course, Lecture, Feedback, Enrollment, Module
 from django.forms import inlineformset_factory
 
 
+# --------------------------
+# Course Form (with category)
+# --------------------------
 class CourseForm(forms.ModelForm):
     class Meta:
         model = Course
-        fields = ['title', 'description', 'price']
+        fields = ['title', 'description', 'price', 'category']  # Added 'category'
         widgets = {'description': forms.Textarea(attrs={'rows': 4})}
 
+
+# --------------------------
+# Module Form
+# --------------------------
 class ModuleForm(forms.ModelForm):
     class Meta:
         model = Module
         fields = ['title', 'description']
 
+
+# --------------------------
+# Lecture Form
+# --------------------------
 class LectureForm(forms.ModelForm):
     class Meta:
         model = Lecture
         fields = ['title', 'video', 'file']
 
 
-ModuleFormSet = inlineformset_factory(Course, Module, form=ModuleForm, extra=1, can_delete=True)
-LectureFormSet = inlineformset_factory(Module, Lecture, form=LectureForm, extra=1, can_delete=True)
+# --------------------------
+# Inline Formsets
+# --------------------------
+# Added fk_name='course' to fix: "'Module' has no ForeignKey to 'Course'"
+ModuleFormSet = inlineformset_factory(
+    parent_model=Course,
+    model=Module,
+    form=ModuleForm,
+    fk_name='course',
+    extra=1,
+    can_delete=True
+)
 
+LectureFormSet = inlineformset_factory(
+    parent_model=Module,
+    model=Lecture,
+    form=LectureForm,
+    extra=1,
+    can_delete=True
+)
+
+
+# --------------------------
+# Feedback Form
+# --------------------------
 class FeedbackForm(forms.ModelForm):
     class Meta:
         model = Feedback

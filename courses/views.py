@@ -483,3 +483,68 @@ def my_students(request):
     return render(request, 'courses/instructor/my_students.html', {
         'students_data': students.values(),  
     })
+  
+def add_course(request):
+    if request.method == 'POST':
+        course_form = CourseForm(request.POST, request.FILES)
+        if course_form.is_valid():
+            course = course_form.save(commit=False)
+            course.instructor = request.user
+
+            # Added line to explicitly set the category from form or POST
+            selected_category = request.POST.get('category')
+            other_category = request.POST.get('other_category')
+
+            if selected_category == "others" and other_category:
+                course.category = other_category.strip()
+            else:
+                course.category = selected_category
+            course.save()
+
+            module_total = int(request.POST.get('modules-TOTAL_FORMS', 0))
+            for i in range(module_total):
+                title = request.POST.get(f'modules-{i}-title')
+                desc = request.POST.get(f'modules-{i}-description')
+                if title:
+                    module = Module.objects.create(course=course, title=title, description=desc)
+
+                    lecture_index = 0
+                    while True:
+                        lecture_title = request.POST.get(f'modules-{i}-lectures-{lecture_index}-title')
+                        lecture_file = request.FILES.get(f'modules-{i}-lectures-{lecture_index}-video')
+                        if not lecture_title:
+                            break
+                        Lecture.objects.create(module=module, title=lecture_title, video=lecture_file)
+                        lecture_index += 1
+
+            return redirect('instructor:instructor_dashboard')
+    else:
+        course_form = CourseForm()
+        module_formset = ModuleFormSet()
+
+    context = {'course_form': course_form, 'module_formset': module_formset}
+    return render(request, 'courses/instructor/add_course.html', context)
+
+
+def smart_home(request):
+   
+    # Step 1: Get top 4 popular courses based on title repetition
+    popular_titles_qs = (
+        Course.objects
+        .values('title', 'category')
+        .annotate(count=Count('title'))
+        .order_by('-count', '-id')[:4]
+    )
+
+    popular_titles = list(popular_titles_qs)
+    print("Popular courses queryset:", popular_titles)
+
+    courses = Course.objects.all()
+
+    context = {
+        'courses': courses,
+        'popular_courses': popular_titles,
+    }
+
+    # Use your existing home template
+    return render(request, 'home/guest_home.html', context)

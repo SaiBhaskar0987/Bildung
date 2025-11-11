@@ -86,16 +86,12 @@ class Feedback(models.Model):
     def __str__(self):
         return f"Feedback from {self.instructor.username} to {self.student.username} ({self.course.title})"
 
-
+    
 class LectureProgress(models.Model):
-    student = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        limit_choices_to={'role': 'student'}
-    )
-    lecture = models.ForeignKey(
-        Lecture, on_delete=models.CASCADE, related_name="lecture_progress"
-    )
+    student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, limit_choices_to={'role': 'student'})
+    lecture = models.ForeignKey(Lecture, on_delete=models.CASCADE, related_name="lecture_progress")
+    progress = models.FloatField(default=0.0)
+    duration = models.FloatField(default=0.0)
     completed = models.BooleanField(default=False)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -104,6 +100,7 @@ class LectureProgress(models.Model):
 
     def __str__(self):
         return f"{self.student.username} - {self.lecture.title} ({'Done' if self.completed else 'Pending'})"
+
 
 
 class CourseEvent(models.Model):
@@ -118,5 +115,19 @@ class CourseEvent(models.Model):
 
     def __str__(self):
         return f"{self.course.title} - {self.title} ({self.start_time})"
+
+import uuid
+
+class Certificate(models.Model):
+    student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    certificate_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    issued_on = models.DateField(auto_now_add=True)
+
     def __str__(self):
-        return self.title
+        return f"{self.student.username} - {self.course.title}"
+
+    class Meta:
+        unique_together = ('student', 'course')
+
+        

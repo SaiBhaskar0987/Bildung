@@ -64,7 +64,7 @@ class Enrollment(models.Model):
     enrolled_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ('student', 'course')  # prevent duplicate enrollments
+        unique_together = ('student', 'course')  
 
     def __str__(self):
         return f"{self.student.username} -> {self.course.title}"
@@ -94,6 +94,7 @@ class LectureProgress(models.Model):
     duration = models.FloatField(default=0.0)
     completed = models.BooleanField(default=False)
     updated_at = models.DateTimeField(auto_now=True)
+    last_position = models.FloatField(default=0.0)
 
     class Meta:
         unique_together = ('student', 'lecture')
@@ -131,3 +132,13 @@ class Certificate(models.Model):
         unique_together = ('student', 'course')
 
         
+class LiveClass(models.Model):
+    instructor = models.ForeignKey(User, on_delete=models.CASCADE, related_name='instructor_classes')
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='live_classes')
+    topic = models.CharField(max_length=255)
+    date = models.DateField()
+    time = models.TimeField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.topic} ({self.course.title}) on {self.date} at {self.time}"

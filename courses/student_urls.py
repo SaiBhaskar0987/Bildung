@@ -11,5 +11,9 @@ urlpatterns = [
     path("my-courses/", views.my_courses, name="my_courses"),
     path('get-certificate/<int:course_id>/', views.get_certificate, name='get_certificate'),
     path('my-certificates/', views.my_certificates, name='my_certificates'),
+    path('lectures/<int:lecture_id>/undo/', views.undo_lecture_completion, name='undo_lecture_completion'),
+    path('lecture/<int:lecture_id>/auto_complete/', views.auto_mark_complete, name='auto_mark_complete'),
+    path('upcoming-classes/', views.student_upcoming_classes, name='student_upcoming_classes'),
+
 
 ]

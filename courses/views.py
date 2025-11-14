@@ -8,7 +8,7 @@ from .forms import CourseForm, LectureForm, FeedbackForm, ModuleFormSet
 from users.decorators import instructor_required
 from django.db.models import Q, Count
 from users.models import Profile
-
+from datetime import date
 from io import BytesIO
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import A4
@@ -25,7 +25,7 @@ def course_list(request):
 
     if query:
         courses = courses.filter(
-            Q(title__icontains=query) | Q(description__icontains=query)
+            Q(title__icontains=query)
         )
 
     return render(request, 'courses/course_list.html', {'courses': courses, 'query': query})
@@ -89,10 +89,8 @@ def my_courses(request):
         "enrolled_courses": enrolled_courses
     })
 
-
 @login_required(login_url='/student/login/')
 def student_course_detail(request, course_id):
-
     enrollment = get_object_or_404(Enrollment, course_id=course_id, student=request.user)
     course = enrollment.course
     modules = course.modules.prefetch_related('lectures').all()
@@ -106,20 +104,23 @@ def student_course_detail(request, course_id):
     ).values_list('lecture_id', flat=True)
 
     completed = len(completed_lectures)
-    progress_map = {lp.lecture_id: lp.completed for lp in LectureProgress.objects.filter(student=request.user, lecture__in=lectures)}
+    progress_map = set(completed_lectures)
     progress_percent = int((completed / total * 100) if total else 0)
 
-    # 🔒 Sequential Module Unlock Logic
+    # ✅ Sequential module unlock logic (enhanced)
     unlocked_modules = []
-    for i, module in enumerate(modules):
-        if i == 0:
-            unlocked_modules.append(module.id)  
+    all_previous_complete = True
+
+    for module in modules:
+        if all_previous_complete:
+            unlocked_modules.append(module.id)
         else:
-            previous_module = modules[i - 1]
-            prev_lectures = previous_module.lectures.all()
-            prev_completed = all(l.id in completed_lectures for l in prev_lectures)
-            if prev_completed:
-                unlocked_modules.append(module.id)
+            continue
+
+        module_lectures = module.lectures.all()
+        module_complete = all(l.id in completed_lectures for l in module_lectures)
+        if not module_complete:
+            all_previous_complete = False
 
     return render(request, 'courses/student_course_detail.html', {
         'course': course,
@@ -129,7 +130,7 @@ def student_course_detail(request, course_id):
         'completed': completed,
         'progress_map': progress_map,
         'progress_percent': progress_percent,
-        'unlocked_modules': unlocked_modules, 
+        'unlocked_modules': unlocked_modules,
     })
 
 
@@ -159,7 +160,68 @@ def mark_lecture_complete(request, lecture_id):
         lecture=lecture,
         defaults={'completed': True}
     )
+
     return redirect('student:student_course_detail', course_id=lecture.module.course.id)
+from django.http import JsonResponse
+
+@login_required(login_url='/student/login/')
+def auto_mark_complete(request, lecture_id):
+    """Auto-mark lecture complete when video ends and update progress bar."""
+    if request.method == "POST":
+        lecture = get_object_or_404(Lecture, id=lecture_id)
+        course = lecture.module.course
+
+        # Get current playback info
+        watched_time = float(request.POST.get("watched_time", 0))
+        duration = float(request.POST.get("duration", 0))
+
+        # Save or update LectureProgress
+        progress, created = LectureProgress.objects.update_or_create(
+            student=request.user,
+            lecture=lecture,
+            defaults={
+                "completed": True,
+                "last_position": duration  # final position = full watch
+            }
+        )
+
+        # Recalculate course progress
+        total_lectures = Lecture.objects.filter(module__course=course).count()
+        completed_lectures = LectureProgress.objects.filter(
+            student=request.user,
+            lecture__module__course=course,
+            completed=True
+        ).count()
+        progress_percent = int((completed_lectures / total_lectures) * 100) if total_lectures > 0 else 0
+
+        return JsonResponse({
+            "status": "success",
+            "message": "Lecture marked complete.",
+            "completed": completed_lectures,
+            "total": total_lectures,
+            "progress_percent": progress_percent
+        })
+
+    return JsonResponse({"status": "error", "message": "Invalid request."}, status=400)
+
+
+
+@login_required(login_url='/login/')
+def undo_lecture_completion(request, lecture_id):
+    """Student: undo completed lecture"""
+    lecture = get_object_or_404(Lecture, id=lecture_id)
+    course = lecture.module.course
+
+    if getattr(request.user, 'role', None) != 'student':
+        return redirect('login')
+
+    progress = LectureProgress.objects.filter(student=request.user, lecture=lecture).first()
+    if progress:
+        progress.delete()
+
+    return redirect('student:student_course_detail', course_id=course.id)
+
+
 
 @login_required(login_url='/student/login/')
 def student_progress(request, course_id):
@@ -253,6 +315,34 @@ def get_certificate(request, course_id):
 def my_certificates(request):
     certs = Certificate.objects.filter(student=request.user)
     return render(request, 'courses/student/my_certificates.html', {'certificates': certs})
+
+@login_required(login_url='/login/')
+def student_upcoming_classes(request):
+    user = request.user
+    enrolled_course_ids = Enrollment.objects.filter(student=user).values_list('course_id', flat=True)
+
+    upcoming_classes = (
+        LiveClass.objects
+        .filter(course_id__in=list(enrolled_course_ids), date__gte=date.today())
+        .select_related('course', 'instructor')
+        .order_by('date', 'time')
+    )
+
+    events = []
+    for cls in upcoming_classes:
+        events.append({
+            "id": cls.id,
+            "title": f"{cls.course.title}",
+            "topic": cls.topic,
+            "start": f"{cls.date}T{cls.time}",
+            "instructor": cls.instructor.get_full_name() or cls.instructor.username,
+            "course_id": cls.course.id,
+            "course_name": cls.course.title,
+        })
+
+    return render(request, 'courses/student/upcoming_classes.html', {
+        'events': events,
+    })
 
 # -------------------------------
 # Instructor Views
@@ -354,7 +444,7 @@ def add_lecture(request, course_id):
 
 @login_required
 def edit_lecture(request, course_id, lecture_id):
-    lecture = get_object_or_404(Lecture, id=lecture_id, course__id=course_id, course__instructor=request.user)
+    lecture = get_object_or_404(Lecture, id=lecture_id, course_id=course_id, course_instructor=request.user)
     if request.method == "POST":
         form = LectureForm(request.POST, request.FILES, instance=lecture)
         if form.is_valid():
@@ -368,7 +458,7 @@ def edit_lecture(request, course_id, lecture_id):
 
 @login_required
 def delete_lecture(request, course_id, lecture_id):
-    lecture = get_object_or_404(Lecture, id=lecture_id, course__id=course_id, course__instructor=request.user)
+    lecture = get_object_or_404(Lecture, id=lecture_id, course_id=course_id, course_instructor=request.user)
     if request.method == "POST":
         lecture.delete()
         messages.success(request, "Lecture deleted successfully.")
@@ -483,7 +573,8 @@ def my_students(request):
     return render(request, 'courses/instructor/my_students.html', {
         'students_data': students.values(),  
     })
-  
+
+@login_required
 def add_course(request):
     if request.method == 'POST':
         course_form = CourseForm(request.POST, request.FILES)
@@ -525,26 +616,26 @@ def add_course(request):
     context = {'course_form': course_form, 'module_formset': module_formset}
     return render(request, 'courses/instructor/add_course.html', context)
 
+from .forms import LiveClassForm
+from .models import LiveClass
 
-def smart_home(request):
-   
-    # Step 1: Get top 4 popular courses based on title repetition
-    popular_titles_qs = (
-        Course.objects
-        .values('title', 'category')
-        .annotate(count=Count('title'))
-        .order_by('-count', '-id')[:4]
-    )
+@login_required(login_url='/login/')
+def schedule_live_class(request, course_id):
+    if request.method == 'POST':
+        form = LiveClassForm(request.POST)
+        if form.is_valid():
+            live_class = form.save(commit=False)
+            live_class.instructor = request.user
+            live_class.save()
+            messages.success(request, f"✅ Live class '{live_class.topic}' scheduled successfully!")
+            return redirect('instructor:instructor_dashboard')
+        else:
+            messages.error(request, "❌ " + str(form.errors.get('__all__', ['Invalid data'])[0]))
+    else:
+        form = LiveClassForm(initial={'course': course_id})
+    return render(request, 'courses/instructor/schedule_live_class.html', {'form': form})
 
-    popular_titles = list(popular_titles_qs)
-    print("Popular courses queryset:", popular_titles)
-
-    courses = Course.objects.all()
-
-    context = {
-        'courses': courses,
-        'popular_courses': popular_titles,
-    }
-
-    # Use your existing home template
-    return render(request, 'home/guest_home.html', context)
+@login_required(login_url='/login/')
+def my_activity(request):
+    live_classes = LiveClass.objects.filter(instructor=request.user).order_by('-date', '-time')
+    return render(request, 'courses/instructor/my_activity.html', {'live_classes': live_classes})

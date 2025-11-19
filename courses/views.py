@@ -15,6 +15,7 @@ from io import BytesIO
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import A4
 from django.http import FileResponse
+import json
 
 # -------------------------------
 # Common Views
@@ -291,27 +292,23 @@ def my_certificates(request):
     certs = Certificate.objects.filter(student=request.user)
     return render(request, 'courses/student/my_certificates.html', {'certificates': certs})
 
-
 @login_required(login_url='/login/')
 def student_upcoming_classes(request):
     user = request.user
+
     enrolled_course_ids = Enrollment.objects.filter(
         student=user
     ).values_list('course_id', flat=True)
 
-    upcoming_classes = (
-        LiveClass.objects
-        .filter(course_id__in=enrolled_course_ids, date__gte=date.today())
-        .select_related('course', 'instructor')
-        .order_by('date', 'time')
-    )
+    upcoming_classes = LiveClass.objects.filter(
+        course_id__in=enrolled_course_ids,
+        date__gte=date.today()
+    ).select_related('course', 'instructor').order_by('date', 'time')
 
-    upcoming_events = (
-        CourseEvent.objects
-        .filter(course_id__in=enrolled_course_ids, start_time__gte=timezone.now())
-        .select_related('course')
-        .order_by('start_time')
-    )
+    upcoming_events = CourseEvent.objects.filter(
+        course_id__in=enrolled_course_ids,
+        start_time__gte=timezone.now()
+    ).select_related('course').order_by('start_time')
 
     events = []
     for cls in upcoming_classes:
@@ -323,29 +320,31 @@ def student_upcoming_classes(request):
             "course_name": cls.course.title,
             "instructor": cls.instructor.get_full_name() or cls.instructor.username,
             "start": f"{cls.date}T{cls.time}",
+            "join_link": cls.meeting_link or "", 
             "course_id": cls.course.id,
             "backgroundColor": "#0d6efd",
             "borderColor": "#0d6efd",
         })
 
-    for event in upcoming_events:
+    for ev in upcoming_events:
         events.append({
-            "id": event.id,
+            "id": ev.id,
             "type": "event",
-            "title": event.title,
-            "event_title": event.title,
-            "event_description": event.description,
-            "course_name": event.course.title,
-            "start": event.start_time.isoformat(),
-            "end": event.end_time.isoformat(),
-            "course_id": event.course.id,
+            "title": ev.title,
+            "event_title": ev.title,
+            "event_description": ev.description,
+            "course_name": ev.course.title,
+            "start": ev.start_time.isoformat(),
+            "end": ev.end_time.isoformat(),
+            "course_id": ev.course.id,
             "backgroundColor": "#198754",
             "borderColor": "#198754",
         })
 
     return render(request, 'courses/student/student_calendar.html', {
-        'events': events,
+        'events_json': json.dumps(events)  
     })
+
 
 # -------------------------------
 # Instructor Views
@@ -603,7 +602,6 @@ def add_course(request):
             course = course_form.save(commit=False)
             course.instructor = request.user
 
-            # Added line to explicitly set the category from form or POST
             selected_category = request.POST.get('category')
             other_category = request.POST.get('other_category')
 
@@ -639,48 +637,66 @@ def add_course(request):
 
 @login_required(login_url='/login/')
 def schedule_live_class(request, course_id):
+    course = get_object_or_404(Course, pk=course_id)
+
     if request.method == 'POST':
         form = LiveClassForm(request.POST)
         if form.is_valid():
             live_class = form.save(commit=False)
             live_class.instructor = request.user
+            live_class.course = course
+            live_class.meeting_link = request.POST.get('meeting_link')  # 🔥 Save manual field
             live_class.save()
+
             messages.success(request, f"✅ Live class '{live_class.topic}' scheduled successfully!")
             return redirect('instructor:instructor_dashboard')
-        else:
-            messages.error(request, "❌ " + str(form.errors.get('__all__', ['Invalid data'])[0]))
     else:
-        form = LiveClassForm(initial={'course': course_id})
-    return render(request, 'courses/instructor/schedule_live_class.html', {'form': form})
+        form = LiveClassForm()
+
+    return render(request, 'courses/instructor/schedule_live_class.html', {
+        'form': form,
+        'course': course
+    })
+
+
 
 @login_required(login_url='/login/')
 def my_activity(request):
     live_classes = LiveClass.objects.filter(instructor=request.user).order_by('-date', '-time')
     return render(request, 'courses/instructor/my_activity.html', {'live_classes': live_classes})
 
+import json
+
 def calendar_view(request):
     instructor = request.user
-    live_classes = LiveClass.objects.filter(course__instructor=instructor, date__gte=date.today())
-    events_qs = CourseEvent.objects.filter(course__instructor=instructor, start_time__gte=timezone.now())
+
+    live_classes = LiveClass.objects.filter(
+        course__instructor=instructor,
+        date__gte=date.today()
+    )
+
+    events_qs = CourseEvent.objects.filter(
+        course__instructor=instructor,
+        start_time__gte=timezone.now()
+    )
+
     calendar_events = []
 
     for cls in live_classes:
         calendar_events.append({
             "title": cls.topic,
-            "start": f"{cls.date}T{cls.time}",
+            "start": f"{cls.date}T{cls.time.strftime('%H:%M:%S')}",
             "type": "live_class",
-
             "topic": cls.topic,
             "course_name": cls.course.title,
             "course_id": cls.course.id,
-
-            "backgroundColor": "#0d6efd", 
-            "borderColor": "#0d6efd",
+            "join_url": cls.meeting_link or "",  
         })
+
 
     for ev in events_qs:
         calendar_events.append({
-            "title": ev.title,  
+            "title": ev.title,
             "start": ev.start_time.isoformat(),
             "end": ev.end_time.isoformat(),
             "type": "event",
@@ -689,11 +705,10 @@ def calendar_view(request):
             "event_description": ev.description,
             "course_name": ev.course.title,
             "course_id": ev.course.id,
-
-            "backgroundColor": "#198754",  
+            "backgroundColor": "#198754", 
             "borderColor": "#198754",
         })
 
     return render(request, "courses/instructor/instructor_schedule.html", {
-        "events": calendar_events,
+        "events": json.dumps(calendar_events)  
     })

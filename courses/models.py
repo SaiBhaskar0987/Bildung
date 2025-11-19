@@ -138,6 +138,7 @@ class LiveClass(models.Model):
     instructor = models.ForeignKey(User, on_delete=models.CASCADE, related_name='instructor_classes')
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='live_classes')
     topic = models.CharField(max_length=255)
+    meeting_link = models.URLField(max_length=500, blank=True, null=True)
     date = models.DateField()
     time = models.TimeField()
     created_at = models.DateTimeField(auto_now_add=True)

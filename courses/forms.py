@@ -85,12 +85,13 @@ class CourseEventForm(forms.ModelForm):
 class LiveClassForm(forms.ModelForm):
     class Meta:
         model = LiveClass
-        fields = ['course', 'topic', 'date', 'time']
+        fields = ['course', 'topic', 'date', 'time', 'meeting_link']
         widgets = {
             'date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
             'time': forms.TimeInput(attrs={'type': 'time', 'class': 'form-control'}),
             'topic': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Topic Name'}),
             'course': forms.Select(attrs={'class': 'form-select'}),
+            'meeting_link': forms.TextInput(attrs={'class': 'form-control'})
         }
     def clean(self):
  

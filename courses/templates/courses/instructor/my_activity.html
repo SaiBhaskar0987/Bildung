@@ -57,8 +57,18 @@
           <td>{{ session.date }}</td>
           <td>{{ session.time }}</td>
           <td>
-            <a href="#" class="btn btn-success btn-sm">Click here</a>
+            {% if session.meeting_link %}
+               <a href="{{ session.meeting_link }}" target="_blank" class="btn btn-success btn-sm">
+              Join </a>
+            {% else %}
+                 <a href="" onclick="return false;" class="btn btn-secondary btn-sm">
+                No Link
+                    </a>
+            {% endif %}
+
           </td>
+
+
         </tr>
       {% endfor %}
     </tbody>

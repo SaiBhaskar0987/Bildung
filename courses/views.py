@@ -1,18 +1,21 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.utils.dateparse import parse_datetime
+from django.utils.dateparse import parse_datetime, parse_date, parse_time
 
-from .models import Course, Enrollment, Lecture, LectureProgress, Feedback, CourseEvent, Module, Certificate
-from .forms import CourseForm, LectureForm, FeedbackForm, ModuleFormSet
+from .models import Course, Enrollment, Lecture, LectureProgress, Feedback, CourseEvent, Module, Certificate,LiveClass
+from .forms import CourseForm, LectureForm, FeedbackForm, ModuleFormSet, LiveClassForm
 from users.decorators import instructor_required
 from django.db.models import Q, Count
 from users.models import Profile
 from datetime import date
+from django.utils import timezone
+
 from io import BytesIO
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import A4
 from django.http import FileResponse
+import json
 
 # -------------------------------
 # Common Views
@@ -43,24 +46,7 @@ def browse_courses(request):
 # -------------------------------
 # Student Views
 # -------------------------------
-'''
-@login_required(login_url="/auth/")
-def student_dashboard(request):
-    if request.user.role != "student":
-        return redirect("login")
-  enrolled_courses = Course.objects.filter(enrollments__student=request.user)
-    courses = Course.objects.filter(student=request.user)
-    return render(request, 'courses/student_dashboard.html', {'courses': courses})
-'''
-"""
-@login_required
-def student_dashboard(request):
-    if request.user.role != "student":
-        return redirect("login")
-    all_courses = Course.objects.all()   # ✅ Fetch all courses added by instructors
-    return render(request, "courses/student_dashboard.html", {
-        "all_courses": all_courses
-    })"""
+
 def student_dashboard(request):
     if request.user.role != "student":
         return redirect("login")
@@ -252,13 +238,11 @@ def student_progress(request, course_id):
     return render(request, 'courses/student/student_course_progress.html', context)
 
 
-
 @login_required
 def get_certificate(request, course_id):
     course = get_object_or_404(Course, id=course_id)
     user = request.user
 
-    # Calculate progress
     lectures = Lecture.objects.filter(module__course=course)
     total = lectures.count()
     completed = LectureProgress.objects.filter(student=user, lecture__in=lectures, completed=True).count()
@@ -267,35 +251,28 @@ def get_certificate(request, course_id):
         messages.warning(request, "You must complete all lectures to get your certificate.")
         return redirect('student:student_course_detail', course_id)
 
-    # Check if already generated
     certificate, created = Certificate.objects.get_or_create(student=user, course=course)
 
-    # Create PDF
     buffer = BytesIO()
     p = canvas.Canvas(buffer, pagesize=A4)
     width, height = A4
 
-    # Title
     p.setFont("Helvetica-Bold", 28)
     p.drawCentredString(width/2, height - 150, "Certificate of Completion")
 
-    # Subtitle
     p.setFont("Helvetica", 16)
     p.drawCentredString(width/2, height - 200, "This is to certify that")
 
-    # Student Name
     p.setFont("Helvetica-Bold", 20)
     full_name = f"{user.first_name} {user.last_name}".strip() or user.username
     p.drawCentredString(width/2, height - 250, full_name)
 
-    # Course Name
     p.setFont("Helvetica", 16)
     p.drawCentredString(width/2, height - 300, "has successfully completed the course")
 
     p.setFont("Helvetica-Bold", 20)
     p.drawCentredString(width/2, height - 340, course.title)
 
-    # Footer info
     p.setFont("Helvetica", 12)
     p.drawCentredString(width/2, height - 400, f"Issued on: {certificate.issued_on.strftime('%B %d, %Y')}")
     p.drawCentredString(width/2, height - 420, f"Certificate ID: {certificate.certificate_id}")
@@ -308,7 +285,6 @@ def get_certificate(request, course_id):
     p.save()
     buffer.seek(0)
 
-    # Return file as PDF download
     return FileResponse(buffer, as_attachment=True, filename=f"{course.title}_Certificate.pdf")
 
 @login_required
@@ -319,30 +295,56 @@ def my_certificates(request):
 @login_required(login_url='/login/')
 def student_upcoming_classes(request):
     user = request.user
-    enrolled_course_ids = Enrollment.objects.filter(student=user).values_list('course_id', flat=True)
 
-    upcoming_classes = (
-        LiveClass.objects
-        .filter(course_id__in=list(enrolled_course_ids), date__gte=date.today())
-        .select_related('course', 'instructor')
-        .order_by('date', 'time')
-    )
+    enrolled_course_ids = Enrollment.objects.filter(
+        student=user
+    ).values_list('course_id', flat=True)
+
+    upcoming_classes = LiveClass.objects.filter(
+        course_id__in=enrolled_course_ids,
+        date__gte=date.today()
+    ).select_related('course', 'instructor').order_by('date', 'time')
+
+    upcoming_events = CourseEvent.objects.filter(
+        course_id__in=enrolled_course_ids,
+        start_time__gte=timezone.now()
+    ).select_related('course').order_by('start_time')
 
     events = []
     for cls in upcoming_classes:
         events.append({
             "id": cls.id,
-            "title": f"{cls.course.title}",
+            "type": "live_class",
+            "title": cls.topic,
             "topic": cls.topic,
-            "start": f"{cls.date}T{cls.time}",
-            "instructor": cls.instructor.get_full_name() or cls.instructor.username,
-            "course_id": cls.course.id,
             "course_name": cls.course.title,
+            "instructor": cls.instructor.get_full_name() or cls.instructor.username,
+            "start": f"{cls.date}T{cls.time}",
+            "join_link": cls.meeting_link or "", 
+            "course_id": cls.course.id,
+            "backgroundColor": "#0d6efd",
+            "borderColor": "#0d6efd",
         })
 
-    return render(request, 'courses/student/upcoming_classes.html', {
-        'events': events,
+    for ev in upcoming_events:
+        events.append({
+            "id": ev.id,
+            "type": "event",
+            "title": ev.title,
+            "event_title": ev.title,
+            "event_description": ev.description,
+            "course_name": ev.course.title,
+            "start": ev.start_time.isoformat(),
+            "end": ev.end_time.isoformat(),
+            "course_id": ev.course.id,
+            "backgroundColor": "#198754",
+            "borderColor": "#198754",
+        })
+
+    return render(request, 'courses/student/student_calendar.html', {
+        'events_json': json.dumps(events)  
     })
+
 
 # -------------------------------
 # Instructor Views
@@ -493,20 +495,38 @@ def course_progress_report(request, course_id):
         'progress_data': progress_data
     })
 
+
 @login_required
 def add_event(request, course_id):
     course = get_object_or_404(Course, id=course_id, instructor=request.user)
+
     if request.method == 'POST':
         title = request.POST.get('title')
         description = request.POST.get('description')
-        start_time = parse_datetime(request.POST.get('start_time'))
-        end_time = parse_datetime(request.POST.get('end_time'))
+        event_date = request.POST.get('event_date')   
+        start_time_raw = request.POST.get('start_time')
+        end_time_raw = request.POST.get('end_time')
 
-        CourseEvent.objects.create(course=course, title=title, description=description, start_time=start_time, end_time=end_time)
+        event_date_obj = parse_date(event_date)
+        start_time = parse_time(start_time_raw)
+        end_time = parse_time(end_time_raw)
+
+        start_datetime = datetime.combine(event_date_obj, start_time)
+        end_datetime = datetime.combine(event_date_obj, end_time)
+
+        CourseEvent.objects.create(
+             course=course,
+            title=title,
+            description=description,
+            date=event_date_obj,        
+            start_time=start_datetime,
+            end_time=end_datetime)
+
         messages.success(request, "Event added successfully.")
         return redirect('instructor:course_detail', course_id=course.id)
 
     return render(request, 'courses/instructor/add_event.html', {'course': course})
+
 
 
 
@@ -582,7 +602,6 @@ def add_course(request):
             course = course_form.save(commit=False)
             course.instructor = request.user
 
-            # Added line to explicitly set the category from form or POST
             selected_category = request.POST.get('category')
             other_category = request.POST.get('other_category')
 
@@ -616,26 +635,80 @@ def add_course(request):
     context = {'course_form': course_form, 'module_formset': module_formset}
     return render(request, 'courses/instructor/add_course.html', context)
 
-from .forms import LiveClassForm
-from .models import LiveClass
-
 @login_required(login_url='/login/')
 def schedule_live_class(request, course_id):
+    course = get_object_or_404(Course, pk=course_id)
+
     if request.method == 'POST':
         form = LiveClassForm(request.POST)
         if form.is_valid():
             live_class = form.save(commit=False)
             live_class.instructor = request.user
+            live_class.course = course
+            live_class.meeting_link = request.POST.get('meeting_link')  # 🔥 Save manual field
             live_class.save()
+
             messages.success(request, f"✅ Live class '{live_class.topic}' scheduled successfully!")
             return redirect('instructor:instructor_dashboard')
-        else:
-            messages.error(request, "❌ " + str(form.errors.get('__all__', ['Invalid data'])[0]))
     else:
-        form = LiveClassForm(initial={'course': course_id})
-    return render(request, 'courses/instructor/schedule_live_class.html', {'form': form})
+        form = LiveClassForm()
+
+    return render(request, 'courses/instructor/schedule_live_class.html', {
+        'form': form,
+        'course': course
+    })
+
+
 
 @login_required(login_url='/login/')
 def my_activity(request):
     live_classes = LiveClass.objects.filter(instructor=request.user).order_by('-date', '-time')
     return render(request, 'courses/instructor/my_activity.html', {'live_classes': live_classes})
+
+import json
+
+def calendar_view(request):
+    instructor = request.user
+
+    live_classes = LiveClass.objects.filter(
+        course__instructor=instructor,
+        date__gte=date.today()
+    )
+
+    events_qs = CourseEvent.objects.filter(
+        course__instructor=instructor,
+        start_time__gte=timezone.now()
+    )
+
+    calendar_events = []
+
+    for cls in live_classes:
+        calendar_events.append({
+            "title": cls.topic,
+            "start": f"{cls.date}T{cls.time.strftime('%H:%M:%S')}",
+            "type": "live_class",
+            "topic": cls.topic,
+            "course_name": cls.course.title,
+            "course_id": cls.course.id,
+            "join_url": cls.meeting_link or "",  
+        })
+
+
+    for ev in events_qs:
+        calendar_events.append({
+            "title": ev.title,
+            "start": ev.start_time.isoformat(),
+            "end": ev.end_time.isoformat(),
+            "type": "event",
+
+            "event_title": ev.title,
+            "event_description": ev.description,
+            "course_name": ev.course.title,
+            "course_id": ev.course.id,
+            "backgroundColor": "#198754", 
+            "borderColor": "#198754",
+        })
+
+    return render(request, "courses/instructor/instructor_schedule.html", {
+        "events": json.dumps(calendar_events)  
+    })

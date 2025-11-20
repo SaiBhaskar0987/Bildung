@@ -56,9 +56,8 @@
                     <a href="{% url 'student:student_progress' enroll.course.id %}" class="btn btn-primary w-100 mb-2">
                         View Progress
                     </a>
-                    
-                    <a href="{% url 'student_dashboard' %}" class="btn btn-secondary w-100">
-                        Back to dashboard
+                    <a href="{% url 'student:course_qna' enroll.course.id %}" class="btn btn-primary w-100 mb-2">
+                        Q and A
                     </a>
                 </div>
             </div>

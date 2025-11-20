@@ -1,6 +1,6 @@
 from django import forms
 from django.utils.text import slugify
-from .models import Course, Lecture, Feedback, Enrollment, Module, LiveClass, CourseEvent
+from .models import Course, Lecture, Feedback, Enrollment, Module, LiveClass, CourseEvent, CourseReview
 from django.forms import inlineformset_factory
 
 
@@ -126,3 +126,9 @@ class LiveClassForm(forms.ModelForm):
             )
 
         return cleaned_data
+
+
+class CourseReviewForm(forms.ModelForm):
+    class Meta:
+        model = CourseReview
+        fields = ["rating", "comment"]

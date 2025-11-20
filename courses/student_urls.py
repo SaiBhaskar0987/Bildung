@@ -14,6 +14,8 @@ urlpatterns = [
     path('lectures/<int:lecture_id>/undo/', views.undo_lecture_completion, name='undo_lecture_completion'),
     path('lecture/<int:lecture_id>/auto_complete/', views.auto_mark_complete, name='auto_mark_complete'),
     path('upcoming-classes/', views.student_upcoming_classes, name='student_upcoming_classes'),
+    path('account-settings/', views.account_settings, name='account_settings'),
+    path('my-activity/', views.my_activity, name='my_activity'),
 
 
 ]

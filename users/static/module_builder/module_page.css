@@ -1,0 +1,254 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap");
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+
+body {
+  background: linear-gradient(135deg, #b5bedd, #d6dbe7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.container {
+  width: 90%;
+  max-width: 1200px;
+  background: #f5fbfc;
+  border-radius: 20px;
+  padding: 25px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ==== Header ==== */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #eef2ff;
+  padding-bottom: 10px;
+}
+
+header h1 {
+  font-size: 1.7rem;
+  color: #444;
+}
+
+.top-controls {
+  display: flex;
+  gap: 10px;
+}
+
+button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #b3b0f1, #a3b9e7);
+  color:black;
+  font-weight: 500;
+  font-size: 15px;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(91, 141, 239, 0.2);
+}
+
+.inactive {
+  background: #ccc !important;
+  cursor: not-allowed !important;
+}
+
+/* ==== Workspace ==== */
+.workspace {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  padding: 15px;
+  min-height: 300px;
+  justify-content: flex-start;
+}
+
+/* ==== Module Card ==== */
+.module {
+  background: #f8f9ff;
+  border-radius: 15px;
+  box-shadow: 0 5px 12px rgba(0, 0, 0, 0.05);
+  padding: 15px;
+  width: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  border-left: 6px solid #5b8def;
+  transition: 0.3s ease;
+}
+
+.module:hover {
+  transform: translateY(-4px);
+}
+
+.module h2 {
+  color: #030305;
+  font-size: 1.2rem;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+/* ==== Lectures Section ==== */
+.lectures {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ==== Individual Lecture ==== */
+.lecture {
+  background: #fff;
+  border: 1px solid #d5dcfa;
+  border-radius: 10px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: relative;
+  transition: 0.2s ease;
+}
+
+.lecture:hover {
+  border-color: #5b8def;
+  box-shadow: 0 3px 8px rgba(91, 141, 239, 0.1);
+}
+
+.lecture-input {
+  padding: 8px 10px;
+  border: 1px solid #0e0e11;
+  border-radius: 8px;
+  outline: none;
+  font-size: 0.9rem;
+  width: 100%;
+}
+
+label.upload {
+  padding: 8px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #5b8def, #6c63ff);
+  color: white;
+  text-align: center;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+
+label.upload:hover {
+  transform: scale(1.03);
+}
+
+input[type="file"] {
+  display: none;
+}
+
+/* ==== Lecture Buttons ==== */
+.addLectureBtn {
+  background: linear-gradient(135deg, #6c63ff, #5b8def);
+  font-size: 0.9rem;
+  padding: 8px;
+  border-radius: 8px;
+}
+
+.removeLectureBtn {
+  background: #ff5b5b;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 8px;
+  align-self: flex-end;
+  font-size: 0.8rem;
+  transition: 0.3s ease;
+}
+
+.removeLectureBtn:hover {
+  background: #e04848;
+}
+
+/* ==== Output ==== */
+.output {
+  display: none;
+  flex-direction: column;
+  gap: 10px;
+  background: #f4f7ff;
+  border: 2px solid #d1d8ff;
+  border-radius: 10px;
+  padding: 15px;
+}
+
+.output h3 {
+  color: #333;
+}
+
+.output h4 {
+  color: #5b63b7;
+  margin-top: 10px;
+}
+
+.output p {
+  background: #fff;
+  padding: 8px 10px;
+  border-left: 5px solid #6c63ff;
+  border-radius: 5px;
+}
+
+/* ==== Modal ==== */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+}
+
+.modal-content {
+  background: white;
+  padding: 25px;
+  border-radius: 15px;
+  width: 350px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.modal-content h2 {
+  color: #444;
+  text-align: center;
+}
+
+.modal-content input {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #bbb;
+  outline: none;
+  font-size: 1rem;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: space-between;
+}
+
+.modal-actions .cancel {
+  background: #ccc;
+  color: #333;
+}

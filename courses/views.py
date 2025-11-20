@@ -347,6 +347,183 @@ def student_upcoming_classes(request):
     return render(request, 'courses/student/student_calendar.html', {
         'events_json': json.dumps(events)  
     })
+    
+@login_required
+def account_settings(request):
+    """Student: Account settings page"""
+    if request.user.role != "student":
+        return redirect("login")
+    
+    user = request.user
+    profile, created = Profile.objects.get_or_create(user=user)
+    
+    if request.method == 'POST':
+        # Handle form submissions
+        if 'update_profile' in request.POST:
+            user.first_name = request.POST.get('first_name', user.first_name)
+            user.last_name = request.POST.get('last_name', user.last_name)
+            user.email = request.POST.get('email', user.email)
+            user.save()
+            
+            profile.phone = request.POST.get('phone', profile.phone)
+            profile.bio = request.POST.get('bio', profile.bio)
+            if 'profile_picture' in request.FILES:
+                profile.profile_picture = request.FILES['profile_picture']
+            profile.save()
+            
+            messages.success(request, "Profile updated successfully!")
+            return redirect('student:account_settings')
+            
+        elif 'change_password' in request.POST:
+            old_password = request.POST.get('old_password')
+            new_password1 = request.POST.get('new_password1')
+            new_password2 = request.POST.get('new_password2')
+            
+            if user.check_password(old_password):
+                if new_password1 == new_password2:
+                    if len(new_password1) >= 8:
+                        user.set_password(new_password1)
+                        user.save()
+                        update_session_auth_hash(request, user)  # Important!
+                        messages.success(request, "Password changed successfully!")
+                    else:
+                        messages.error(request, "Password must be at least 8 characters long.")
+                else:
+                    messages.error(request, "New passwords do not match.")
+            else:
+                messages.error(request, "Current password is incorrect.")
+            return redirect('student:account_settings')
+            
+        elif 'update_notifications' in request.POST:
+            # Handle notification preferences
+            email_notifications = 'email_notifications' in request.POST
+            course_updates = 'course_updates' in request.POST
+            messages.success(request, "Notification preferences updated!")
+            return redirect('student:account_settings')
+    
+    context = {
+        'user': user,
+        'profile': profile,
+    }
+    return render(request, 'courses/student/account_settings.html', context)
+
+@login_required
+def my_activity(request):
+    """Student: View comprehensive activity tracking"""
+    if request.user.role != "student":
+        return redirect("login")
+    
+    # Get enrolled courses with progress
+    enrolled_courses = Course.objects.filter(students=request.user)
+    
+    # Calculate progress for each course
+    course_progress = []
+    for course in enrolled_courses:
+        lectures = Lecture.objects.filter(module__course=course)
+        total_lectures = lectures.count()
+        completed_lectures = LectureProgress.objects.filter(
+            student=request.user,
+            lecture__in=lectures,
+            completed=True
+        ).count()
+        
+        progress_percent = int((completed_lectures / total_lectures * 100) if total_lectures else 0)
+        
+        course_progress.append({
+            'course': course,
+            'progress_percent': progress_percent,
+            'completed_lectures': completed_lectures,
+            'total_lectures': total_lectures
+        })
+    
+    # Get recent video progress
+    recent_videos = LectureProgress.objects.filter(
+        student=request.user
+    ).select_related('lecture', 'lecture__module', 'lecture__module__course').order_by('-updated_at')[:10]
+    
+    # Get login history (placeholder data since we don't have LoginHistory model)
+    login_history = [
+        {
+            'date': '2025-11-12',
+            'login_time': '14:30:00',
+            'status': 'Success',
+            'device': 'Chrome on Win 11',
+            'logout_time': '15:15:00'
+        },
+        {
+            'date': '2025-11-11',
+            'login_time': '09:05:00',
+            'status': 'Success',
+            'device': 'Safari on iPhone',
+            'logout_time': '10:20:00'
+        },
+        {
+            'date': '2025-11-10',
+            'login_time': '19:45:00',
+            'status': 'Failed',
+            'device': 'Edge on Mac',
+            'logout_time': 'N/A'
+        }
+    ]
+    
+    # Get attendance data (placeholder data)
+    attendance_data = {
+        'total_classes': 20,
+        'classes_attended': 17,
+        'attendance_percentage': 85,
+        'absences': 3,
+        'live_classes': [
+            {
+                'title': 'Calculus Mid-Term Review',
+                'date_time': '2025-11-05 10:00 AM',
+                'status': 'Joined',
+                'duration': '55 min'
+            },
+            {
+                'title': 'Web Dev: CSS Grid Deep Dive',
+                'date_time': '2025-10-28 14:00 PM',
+                'status': 'Missed',
+                'duration': 'N/A'
+            },
+            {
+                'title': 'Data Science: Python Basics',
+                'date_time': '2025-10-20 18:30 PM',
+                'status': 'Joined',
+                'duration': '40 min'
+            }
+        ]
+    }
+    
+    # Get Q&A activity (placeholder data)
+    qna_activity = [
+        {
+            'question': 'What are the convergence criteria for a Taylor Series?',
+            'course': 'Advanced Calculus',
+            'date_posted': '2025-11-10'
+        },
+        {
+            'question': 'Why does setting `display: flex;` affect block-level elements?',
+            'course': 'Web Dev Fundamentals',
+            'date_posted': '2025-11-05'
+        }
+    ]
+    
+    context = {
+        'course_progress': course_progress,
+        'recent_videos': recent_videos,
+        'login_history': login_history,
+        'attendance_data': attendance_data,
+        'qna_activity': qna_activity,
+        'total_enrolled_courses': enrolled_courses.count(),
+        'total_completed_lectures': sum(progress['completed_lectures'] for progress in course_progress),
+        'overall_progress': int(sum(progress['progress_percent'] for progress in course_progress) / len(course_progress)) if course_progress else 0,
+    }
+    
+
+    return render(request, 'courses/student/my_activity.html', context)
+
+
+
 
 @login_required
 def ask_question(request, lecture_id):

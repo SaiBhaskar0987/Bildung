@@ -1,127 +1,82 @@
-{% extends "base.html" %}
 {% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Course Module Builder</title>
 
-{% block content %}
-<div class="container py-5">
-  <h2 class="mb-4">Add New Course</h2>
+  <!-- CSS FILES -->
+  <link rel="stylesheet" href="{% static 'module_builder/module_builder.css' %}">
+  <link rel="stylesheet" href="{% static 'module_builder/module_page.css' %}">
+</head>
 
-  <form method="post" enctype="multipart/form-data" id="courseForm">
-    {% csrf_token %}
+<body>
 
-    <!-- Course Details Section -->
-    <div class="card shadow-sm border-0 mb-4 p-4 rounded-4">
-      <h5 class="mb-3">Course Details</h5>
-      {{ course_form.as_p }}
+  <!-- ========================= MODULE BUILDER SECTION (module_builder.html content) ========================= -->
 
-      <!-- Show only when "Others" is selected -->
-      <div id="otherCategoryDiv" class="mt-3" style="display: none;">
-        <label for="otherCategoryInput" class="form-label fw-bold">Enter Other Category:</label>
-        <input
-          type="text"
-          id="otherCategoryInput"
-          name="other_category"
-          class="form-control"
-          value="{{ request.POST.other_category }}"
-          placeholder="Type your category here"
-        />
+  <div id="builderSection">
+    <div class="paper">
+      <h1 class="title">MODULE BUILDER</h1>
+
+      <div class="top-row" id="topRow">
+        <div class="plus-box" data-index="0"><div class="plus">+</div></div>
+        <div class="plus-box" data-index="1"><div class="plus">+</div></div>
+        <div class="plus-box" data-index="2"><div class="plus">+</div></div>
+        <div class="plus-box" data-index="3"><div class="plus">+</div></div>
+        <div class="plus-box" data-index="4"><div class="plus">+</div></div>
       </div>
-    </div>
 
-    <!-- Modules Section -->
-    <h3>Modules</h3>
-    <div id="modules">
-      {{ module_formset.management_form }}
-      {% for form in module_formset %}
-      <div class="module card p-3 mb-4 shadow-sm rounded-4" data-module-index="{{ forloop.counter0 }}">
-        <h5>Module {{ forloop.counter }}</h5>
-        {{ form.as_p }}
-
-        <div class="lectures" data-lecture-index="0"></div>
-        <button type="button" class="add-lecture btn btn-sm btn-info mt-2">+ Add Lecture</button>
-      </div>
-      {% endfor %}
-    </div>
-
-    <button type="button" id="addModule" class="btn btn-primary mb-3">+ Add Module</button>
-    <br>
-    <button type="submit" class="btn btn-success btn-lg">Save Course</button>
-  </form>
-</div>
-
-<script>
-  // Show "Other Category" text field only when 'others' is selected
-  document.addEventListener("DOMContentLoaded", function () {
-    const categorySelect = document.getElementById("id_category");
-    const otherDiv = document.getElementById("otherCategoryDiv");
-    const otherInput = document.getElementById("otherCategoryInput");
-
-    if (categorySelect) {
-      function toggleOtherCategory() {
-        if (categorySelect.value === "others") {
-          otherDiv.style.display = "block";
-          otherInput.required = true;
-        } else {
-          otherDiv.style.display = "none";
-          otherInput.required = false;
-          otherInput.value = "";
-        }
-      }
-      toggleOtherCategory();
-      categorySelect.addEventListener("change", toggleOtherCategory);
-    }
-  });
-
-  // 🔹 Existing dynamic module & lecture logic (unchanged)
-  let moduleIndex = parseInt("{{ module_formset.total_form_count|default:0 }}") || 0;
-
-  document.getElementById("addModule").addEventListener("click", function () {
-    const modulesDiv = document.getElementById("modules");
-    const moduleTemplate = `
-      <div class="module card p-3 mb-4 shadow-sm rounded-4" data-module-index="${moduleIndex}">
-        <h5>Module ${moduleIndex + 1}</h5>
-        <p>
-          <label for="id_modules-${moduleIndex}-title">Title:</label>
-          <input type="text" name="modules-${moduleIndex}-title" id="id_modules-${moduleIndex}-title" class="form-control" required>
-        </p>
-        <p>
-          <label for="id_modules-${moduleIndex}-description">Description:</label>
-          <textarea name="modules-${moduleIndex}-description" id="id_modules-${moduleIndex}-description" class="form-control"></textarea>
-        </p>
-        <div class="lectures" data-lecture-index="0"></div>
-        <button type="button" class="add-lecture btn btn-sm btn-info mt-2">+ Add Lecture</button>
-      </div>
-    `;
-    modulesDiv.insertAdjacentHTML("beforeend", moduleTemplate);
-    moduleIndex++;
-
-    const totalForms = document.getElementById("id_modules-TOTAL_FORMS");
-    if (totalForms) totalForms.value = moduleIndex;
-  });
-
-  document.getElementById("modules").addEventListener("click", function (e) {
-    if (e.target && e.target.classList.contains("add-lecture")) {
-      const moduleDiv = e.target.closest(".module");
-      const lecturesDiv = moduleDiv.querySelector(".lectures");
-      const moduleId = moduleDiv.dataset.moduleIndex;
-      let lectureIndex = parseInt(lecturesDiv.dataset.lectureIndex);
-
-      const lectureTemplate = `
-        <div class="lecture border p-3 mb-3 rounded">
-          <p>
-            <label>Lecture Title:</label>
-            <input type="text" name="modules-${moduleId}-lectures-${lectureIndex}-title" class="form-control" required>
-          </p>
-          <p>
-            <label>Lecture Video:</label>
-            <input type="file" name="modules-${moduleId}-lectures-${lectureIndex}-video" class="form-control">
-          </p>
+      <div class="bottom-area">
+        <div class="drag-row">
+          <div class="draggable-btn module-btn" draggable="true" data-type="Module">Module</div>
+          <div class="draggable-btn quiz-btn" draggable="true" data-type="Quiz">Quiz</div>
+          <div class="draggable-btn assignment-btn" draggable="true" data-type="Assignment">Assignment</div>
+          <div class="draggable-btn liveclass-btn" draggable="true" data-type="Live Class">Live Class</div>
+          <div class="draggable-btn save-btn" draggable="true" data-type="Save">Save</div>
         </div>
-      `;
+        <div class="note">💡 Drag a button onto a + box to create items</div>
+      </div>
+    </div>
+  </div>
 
-      lecturesDiv.insertAdjacentHTML("beforeend", lectureTemplate);
-      lectureIndex++;
-      lecturesDiv.dataset.lectureIndex = lectureIndex;
-    }
-  });
-</script>
-{% endblock %}
+  <!-- ========================= MODULE PAGE SECTION (module_page.html content) ========================= -->
+
+  <div id="modulePageSection" style="display:none; margin-top:30px;">
+
+    <div class="container">
+      <header>
+        <h1>📘 Module Builder</h1>
+        <div class="top-controls">
+          <button id="addModuleBtn">➕ Add Lecture</button>
+          <button id="saveBtn" class="inactive">💾 Save</button>
+          <button id="editBtn">✏️ Edit</button>
+          <button id="postBtn" class="inactive">📤 Post</button>
+        </div>
+      </header>
+
+      <main id="workspace" class="workspace"></main>
+
+      <section id="output" class="output"></section>
+    </div>
+
+    <!-- Modal for adding module name -->
+    <div class="modal" id="moduleModal">
+      <div class="modal-content">
+        <h2>Enter Lecture Name</h2>
+        <input type="text" id="moduleNameInput" placeholder="e.g.python" />
+        <div class="modal-actions">
+          <button id="createModuleBtn">Create</button>
+          <button id="cancelModuleBtn" class="cancel">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ========================= JS FILES ========================= -->
+  <script src="{% static 'module_builder/module_builder.js' %}?v=1"></script>
+  <script src="{% static 'module_builder/module_page.js' %}?v=1"></script>
+
+</body>
+</html>

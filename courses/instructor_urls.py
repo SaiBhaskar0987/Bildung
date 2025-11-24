@@ -25,4 +25,10 @@ urlpatterns = [
     path('my_activity/', views.my_activity, name='my_activity'),
     path("calendar/", views.calendar_view, name="calendar_view"),
 
+    path("course/<int:course_id>/qna/instructor/", views.instructor_qna, name="instructor_qna"),
+    path("question/<int:question_id>/reply/", views.add_reply, name="add_reply"),
+    path("reply/<int:reply_id>/edit/", views.edit_reply, name="edit_reply"),
+    path("reply/<int:reply_id>/delete/", views.delete_reply, name="delete_reply"),
+    path("course/<int:course_id>/review/", views.course_overview, name="course_overview"),
+
 ]

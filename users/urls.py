@@ -10,37 +10,17 @@ urlpatterns = [
     path("student/signup/", views.student_signup, name="student_signup"),
     path("student/login/", views.student_login, name="student_login"),
     path("student/dashboard/", views.student_dashboard, name="student_dashboard"),
+    
     # Student course-related URLs (namespaced)
     path("student/", include(("courses.student_urls", "student_courses"), namespace="student_courses")),
     path('profile/', views.profile_view_or_edit, name='profile_view'),
     path('profile/edit/', views.profile_view_or_edit, {'mode': 'edit'}, name='profile_edit'),
 
-
-    # --- Password reset (Using custom template for the first step) ---
-    path(
-        'password-reset/',
-        # Using the custom template path for the initial password reset form
-        auth_views.PasswordResetView.as_view(template_name='users/forgot_password_reset.html'),
-        # IMPORTANT: This name now matches 'forgot_password_reset_view' used in student_login.html
-        name='forgot_password_reset_view'
-    ),
-    path(
-        'password-reset/done/',
-        auth_views.PasswordResetDoneView.as_view(template_name='password_reset_done.html'),
-        name='password_reset_done'
-    ),
-    path(
-        'reset/<uidb64>/<token>/',
-        auth_views.PasswordResetConfirmView.as_view(template_name='password_reset_confirm.html'),
-        name='password_reset_confirm'
-    ),
-    path(
-        'reset/done/',
-        auth_views.PasswordResetCompleteView.as_view(
-            template_name="password_reset_complete.html"
-        ),
-        name='password_reset_complete'
-    ),
+    # --- CUSTOM PASSWORD RESET URLs ---
+    path('forgot-password/', views.custom_password_reset, name='forgot_password'),
+    path('password-reset-sent/', views.password_reset_sent, name='password_reset_sent'),
+    path('password-reset-confirm/<uidb64>/<token>/', views.custom_password_reset_confirm, name='password_reset_confirm'),
+    path("student/login/", views.student_login, name="student_login"),
     # -----------------------------------------------------------------
 
     # Instructor
@@ -57,14 +37,9 @@ urlpatterns = [
     path("logout/", views.logout_view, name="logout_view"),
 
     # Post-login redirect
-
-
     path("post-login/", views.post_login_redirect_view, name="post_login_redirect"),
 
-
-    path("post-login/", views.post_login_redirect_view, name="post_login_redirect"),
-
-    # Added Google OAuth Routes
+    # Google OAuth Routes
     path("social-auth/", include("social_django.urls", namespace="social")),
     path("google/login/", views.google_oauth_entry, name="google_oauth_entry"),
     path("google-redirect/", views.google_login_redirect, name="google_login_redirect"),

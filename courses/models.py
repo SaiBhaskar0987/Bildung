@@ -126,6 +126,7 @@ class Certificate(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     certificate_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     issued_on = models.DateField(auto_now_add=True)
+    downloaded_at = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.student.username} - {self.course.title}"
@@ -145,3 +146,50 @@ class LiveClass(models.Model):
 
     def __str__(self):
         return f"{self.topic} ({self.course.title}) on {self.date} at {self.time}"
+
+class LectureQuestion(models.Model):
+    lecture = models.ForeignKey(Lecture, on_delete=models.CASCADE, related_name="questions")
+    student = models.ForeignKey(User, on_delete=models.CASCADE)
+    question = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.student.username} - {self.question[:30]}"
+
+class QuestionReply(models.Model):
+    question = models.ForeignKey(LectureQuestion, on_delete=models.CASCADE, related_name="replies")
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    reply = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    upvotes = models.ManyToManyField(User, related_name="reply_upvotes", blank=True)
+
+    def is_instructor(self):
+        return self.user == self.question.lecture.module.course.instructor
+
+    def likes(self):
+        return self.upvotes.count()
+
+    def __str__(self):
+        return self.reply[:40]
+    
+    class Meta:
+        ordering = ["-created_at"]
+
+
+
+class CourseReview(models.Model):
+    course = models.ForeignKey("courses.Course", on_delete=models.CASCADE, related_name="reviews")
+    student = models.ForeignKey(User, on_delete=models.CASCADE, related_name="course_reviews")
+    rating = models.IntegerField(default=5)   
+    comment = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("course", "student")  
+
+    def __str__(self):
+        return f"{self.student} → {self.course} ({self.rating} stars)"

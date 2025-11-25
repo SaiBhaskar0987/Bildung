@@ -3,7 +3,9 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.utils.dateparse import parse_datetime, parse_date, parse_time
 
-from .models import Course, Enrollment, Lecture, LectureProgress, Feedback, CourseEvent, Module, Certificate,LiveClass, LectureQuestion, QuestionReply, CourseReview
+from quizzes.models import QuizResult
+from .models import Course, Enrollment, Lecture, LectureProgress, Feedback, CourseEvent, Module, Certificate,LiveClass, LectureQuestion, QuestionReply, CourseReview, LiveClassAttendance
+from users.models import LoginHistory, User
 from .forms import CourseForm, LectureForm, FeedbackForm, ModuleFormSet, LiveClassForm, CourseReviewForm
 from io import BytesIO
 from users.decorators import instructor_required
@@ -17,6 +19,8 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import A4
 from django.http import FileResponse, HttpResponseForbidden
 import json
+from django.contrib.auth import update_session_auth_hash
+
 
 # -------------------------------
 # Common Views
@@ -395,7 +399,6 @@ def account_settings(request):
             return redirect('student:account_settings')
             
         elif 'update_notifications' in request.POST:
-            # Handle notification preferences
             email_notifications = 'email_notifications' in request.POST
             course_updates = 'course_updates' in request.POST
             messages.success(request, "Notification preferences updated!")
@@ -408,121 +411,99 @@ def account_settings(request):
     return render(request, 'courses/student/account_settings.html', context)
 
 @login_required
-def my_activity(request):
-    """Student: View comprehensive activity tracking"""
-    if request.user.role != "student":
-        return redirect("login")
-    
-    # Get enrolled courses with progress
-    enrolled_courses = Course.objects.filter(students=request.user)
-    
-    # Calculate progress for each course
+def student_my_activity(request):
+    user = request.user
+    enrollments = Enrollment.objects.filter(student=user)
+
     course_progress = []
-    for course in enrolled_courses:
+    for enroll in enrollments:
+        course = enroll.course
         lectures = Lecture.objects.filter(module__course=course)
         total_lectures = lectures.count()
-        completed_lectures = LectureProgress.objects.filter(
-            student=request.user,
-            lecture__in=lectures,
-            completed=True
+
+        completed = LectureProgress.objects.filter(
+            student=user, lecture__in=lectures, completed=True
         ).count()
-        
-        progress_percent = int((completed_lectures / total_lectures * 100) if total_lectures else 0)
-        
+
+        percent = round((completed / total_lectures) * 100, 2) if total_lectures > 0 else 0
+
         course_progress.append({
-            'course': course,
-            'progress_percent': progress_percent,
-            'completed_lectures': completed_lectures,
-            'total_lectures': total_lectures
+            "course": course,
+            "total_lectures": total_lectures,
+            "completed_lectures": completed,
+            "progress_percent": percent,
         })
-    
-    # Get recent video progress
+
     recent_videos = LectureProgress.objects.filter(
-        student=request.user
-    ).select_related('lecture', 'lecture__module', 'lecture__module__course').order_by('-updated_at')[:10]
-    
-    # Get login history (placeholder data since we don't have LoginHistory model)
-    login_history = [
-        {
-            'date': '2025-11-12',
-            'login_time': '14:30:00',
-            'status': 'Success',
-            'device': 'Chrome on Win 11',
-            'logout_time': '15:15:00'
-        },
-        {
-            'date': '2025-11-11',
-            'login_time': '09:05:00',
-            'status': 'Success',
-            'device': 'Safari on iPhone',
-            'logout_time': '10:20:00'
-        },
-        {
-            'date': '2025-11-10',
-            'login_time': '19:45:00',
-            'status': 'Failed',
-            'device': 'Edge on Mac',
-            'logout_time': 'N/A'
-        }
-    ]
-    
-    # Get attendance data (placeholder data)
+        student=user, completed=True
+    ).select_related("lecture", "lecture__module__course").order_by("-updated_at")[:10]
+
+    video_lessons_watched = LectureProgress.objects.filter(
+        student=user, completed=True
+    ).select_related("lecture", "lecture__module__course").order_by("-updated_at")
+
+    enrolled_course_ids = enrollments.values_list("course_id", flat=True)
+
+    all_live_classes = LiveClass.objects.filter(course_id__in=enrolled_course_ids)
+
+    total_classes = all_live_classes.count()
+
+    attendance_records = (
+        LiveClassAttendance.objects
+        .filter(user=user, live_class__in=all_live_classes)
+        .select_related("live_class", "live_class__course")
+    )
+
+    attended_count = attendance_records.exclude(joined_at=None).count()
+
+    attendance_percent = round((attended_count / total_classes) * 100, 2) if total_classes > 0 else 0
+
     attendance_data = {
-        'total_classes': 20,
-        'classes_attended': 17,
-        'attendance_percentage': 85,
-        'absences': 3,
-        'live_classes': [
+        "total_classes": total_classes,
+        "classes_attended": attended_count,
+        "attendance_percentage": attendance_percent,
+        "absences": total_classes - attended_count,
+        "live_classes": [
             {
-                'title': 'Calculus Mid-Term Review',
-                'date_time': '2025-11-05 10:00 AM',
-                'status': 'Joined',
-                'duration': '55 min'
-            },
-            {
-                'title': 'Web Dev: CSS Grid Deep Dive',
-                'date_time': '2025-10-28 14:00 PM',
-                'status': 'Missed',
-                'duration': 'N/A'
-            },
-            {
-                'title': 'Data Science: Python Basics',
-                'date_time': '2025-10-20 18:30 PM',
-                'status': 'Joined',
-                'duration': '40 min'
+                "title": rec.live_class.title,
+                "course": rec.live_class.course.title,
+                "date": rec.live_class.date,
+                "status": "Joined" if rec.joined_at else "Missed",
+                "joined_at": rec.joined_at,
+                "duration": f"{rec.duration} mins" if rec.duration else "—",
             }
+            for rec in attendance_records
         ]
     }
-    
-    # Get Q&A activity (placeholder data)
-    qna_activity = [
-        {
-            'question': 'What are the convergence criteria for a Taylor Series?',
-            'course': 'Advanced Calculus',
-            'date_posted': '2025-11-10'
-        },
-        {
-            'question': 'Why does setting `display: flex;` affect block-level elements?',
-            'course': 'Web Dev Fundamentals',
-            'date_posted': '2025-11-05'
-        }
-    ]
-    
+
+    login_history = LoginHistory.objects.filter(user=user).order_by("-login_time")[:25]
+
+    qna_activity = (
+        LectureQuestion.objects.filter(student=user)
+        .select_related("lecture", "lecture__module", "lecture__module__course")
+        .prefetch_related("replies__user")
+        .order_by("-created_at")
+    )
+
+    total_completed = LectureProgress.objects.filter(student=user, completed=True).count()
+    total_lectures = Lecture.objects.count()
+    overall_progress = (
+        round((total_completed / total_lectures) * 100, 2) if total_lectures > 0 else 0
+    )
+
     context = {
-        'course_progress': course_progress,
-        'recent_videos': recent_videos,
-        'login_history': login_history,
-        'attendance_data': attendance_data,
-        'qna_activity': qna_activity,
-        'total_enrolled_courses': enrolled_courses.count(),
-        'total_completed_lectures': sum(progress['completed_lectures'] for progress in course_progress),
-        'overall_progress': int(sum(progress['progress_percent'] for progress in course_progress) / len(course_progress)) if course_progress else 0,
+        "total_enrolled_courses": enrollments.count(),
+        "total_completed_lectures": total_completed,
+        "overall_progress": overall_progress,
+        "course_progress": course_progress,
+        "recent_videos": recent_videos,
+        "video_lessons_watched": video_lessons_watched,
+        "attendance_data": attendance_data,
+        "login_history": login_history,
+        "qna_activity": qna_activity,
     }
-    
 
-    return render(request, 'courses/student/my_activity.html', context)
-
-
+    return render(request, "courses/student/my_activity.html", context)
 
 
 @login_required
@@ -817,8 +798,6 @@ def add_event(request, course_id):
     return render(request, 'courses/instructor/add_event.html', {'course': course})
 
 
-
-
 @login_required
 def give_feedback(request, course_id):
     course = get_object_or_404(Course, id=course_id, instructor=request.user)
@@ -882,6 +861,97 @@ def my_students(request):
     return render(request, 'courses/instructor/my_students.html', {
         'students_data': students.values(),  
     })
+
+@login_required
+def students_list(request):
+    instructor = request.user
+    query = request.GET.get("q", "").strip()
+    instructor_courses = Course.objects.filter(instructor=instructor)
+
+    enrollments = Enrollment.objects.filter(
+        course__in=instructor_courses
+    ).select_related("student", "course")
+
+    if query:
+        enrollments = enrollments.filter(
+            Q(student__first_name__icontains=query) |
+            Q(student__last_name__icontains=query) |
+            Q(student__username__icontains=query) |
+            Q(student__email__icontains=query)
+        )
+
+    students_map = {}
+
+    for e in enrollments:
+        student = e.student
+
+        if student.id not in students_map:
+            last_login_obj = LoginHistory.objects.filter(
+                user=student
+            ).order_by("-login_time").first()
+
+            students_map[student.id] = {
+                "student": student,
+                "courses": [],
+                "completed_courses": 0,
+                "last_login": last_login_obj.login_time if last_login_obj else None,
+                "total_progress": 0,
+                "course_count": 0,
+            }
+
+        course = e.course
+        lectures = Lecture.objects.filter(module__course=course)
+        total_lectures = lectures.count()
+        completed_lectures = LectureProgress.objects.filter(
+            student=student,
+            lecture__in=lectures,
+            completed=True
+        ).count()
+
+        progress = round((completed_lectures / total_lectures) * 100) if total_lectures else 0
+
+        students_map[student.id]["courses"].append({
+            "course": course,
+            "course_id": course.id,
+            "title": course.title,
+            "progress": progress,
+        })
+
+        students_map[student.id]["total_progress"] += progress
+        students_map[student.id]["course_count"] += 1
+
+        if progress == 100:
+            students_map[student.id]["completed_courses"] += 1
+
+    students_data = []
+    for s in students_map.values():
+        if s["course_count"]:
+            avg = s["total_progress"] / s["course_count"]
+        else:
+            avg = 0
+        s["average_progress"] = round(avg)
+        students_data.append(s)
+
+    total_courses = instructor_courses.count()
+
+    if students_data:
+        overall_avg_progress = round(
+            sum(s["average_progress"] for s in students_data) / len(students_data)
+        )
+    else:
+        overall_avg_progress = 0
+
+    total_assignments = 0  # no assignments model yet → keep 0
+
+    context = {
+        "students_data": students_data,
+        "query": query,
+        "total_courses": total_courses,
+        "average_progress": overall_avg_progress,
+        "total_assignments": total_assignments,
+    }
+
+    return render(request, "courses/instructor/students_list.html", context)
 
 @login_required
 def add_course(request):
@@ -1103,3 +1173,73 @@ def course_overview(request, course_id):
         "reviews": reviews,
 
     })
+
+from django.db.models import Count, Sum, Q
+from datetime import timedelta, date
+
+@login_required
+def student_history(request, course_id, student_id):
+    course = get_object_or_404(Course, id=course_id)
+    student = get_object_or_404(User, id=student_id)
+
+    if course.instructor != request.user:
+        return render(request, "403.html", status=403)
+
+    lectures = Lecture.objects.filter(module__course=course)
+    total_lectures = lectures.count()
+
+    completed_lectures = LectureProgress.objects.filter(
+        student=student,
+        lecture__in=lectures,
+        completed=True
+    ).count()
+
+    progress_percent = (
+        (completed_lectures / total_lectures * 100) if total_lectures > 0 else 0
+    )
+
+    quiz_results = QuizResult.objects.filter(student=student, quiz__course=course).select_related("quiz")
+
+    live_classes = LiveClass.objects.filter(course=course)
+    attendance_list = LiveClassAttendance.objects.filter(
+        live_class__in=live_classes, user=student
+    ).select_related("live_class")
+
+    total_classes = live_classes.count()
+    attended = attendance_list.count()
+    missed = total_classes - attended
+
+    activity = LectureProgress.objects.filter(
+       student=student,
+       lecture__in=lectures).select_related("lecture")
+
+    total_watch_time = activity.aggregate(
+    total=Sum("last_position"))["total"] or 0
+
+
+    questions = LectureQuestion.objects.filter(
+        student=student,
+        lecture__module__course=course).select_related("lecture")
+
+    login_history = LoginHistory.objects.filter(
+          user=student).order_by("-login_time")
+
+
+    context = {
+        "course": course,
+        "student": student,
+        "progress_percent": progress_percent,
+        "total_lectures": total_lectures,
+        "completed_lectures": completed_lectures,
+        "quiz_results": quiz_results,
+        "attendance_list": attendance_list,
+        "total_classes": total_classes,
+        "attended": attended,
+        "missed": missed,
+        "activity": activity,
+        "total_watch_time": total_watch_time,
+        "questions": questions,
+        "login_history": login_history,
+    }
+
+    return render(request, "courses/instructor/student_history.html", context)

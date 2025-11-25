@@ -3,14 +3,14 @@ from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
-from .models import User, Profile
+from .models import User, Profile, LoginHistory
 from .forms import StudentSignUpForm, InstructorSignUpForm, ProfileForm, UserDisplayForm
-from courses.models import Course, Enrollment
+from courses.models import Course
 from django.core.mail import send_mail
 from django.conf import settings
 # Added for Google OAuth
 from urllib.parse import urlparse, parse_qs
-from django.contrib.auth.backends import ModelBackend
+from django.utils import timezone
 
 
 def auth_page(request):
@@ -64,6 +64,7 @@ def student_login(request):
             user = form.get_user()
             if user.role == "student":
                 login(request, user)
+                record_login(request, user)
                 return redirect("student_dashboard")
             else:
                 messages.error(request, "This login is only for students.")
@@ -80,6 +81,7 @@ def instructor_login(request):
             user = form.get_user()
             if user.role == "instructor":
                 login(request, user)
+                record_login(request, user)
                 return redirect("instructor:instructor_dashboard")
             else:
                 messages.error(request, "This login is only for instructors.")
@@ -89,6 +91,7 @@ def instructor_login(request):
 
 
 def logout_view(request):
+    record_logout(request)
     logout(request)
     return redirect("auth_page")
 
@@ -116,24 +119,20 @@ def admin_dashboard(request):
 def post_login_redirect_view(request):
     user = request.user
     if user.role == "student":
+        record_login(request, user)
         return redirect("student_dashboard")
     elif user.role == "instructor":
+        record_login(request, user)
         return redirect("instructor:instructor_dashboard")
     elif user.role == "admin":
+        record_login(request, user)
         return redirect("admin_dashboard")
     else:
-        return redirect("guest_home")  # fallback
+        return redirect("guest_home")  
 
 
 def signup_view(request):
-    """
-    Handles user registration and sends a welcome email.
-    The email content will be printed to the terminal because of the
-    'console.EmailBackend' setting in settings.py.
-    """
     if request.method == 'POST':
-        # --- 1. SIMULATE FORM PROCESSING AND USER CREATION ---
-        # In a real app, you would validate the form data here.
         username = request.POST.get('username')
         email = request.POST.get('email')
 
@@ -172,20 +171,16 @@ def profile_view_or_edit(request, mode=None):
         profile = Profile.objects.create(user=request.user)
 
     is_editing = (mode == 'edit')
-    
-    # 1. Handle POST Request (Form Submission)
+
     if request.method == 'POST' and is_editing:
         profile_form = ProfileForm(request.POST, request.FILES, instance=profile)
         user_form = UserDisplayForm(request.POST, instance=request.user) 
 
         if profile_form.is_valid():
-            # Only save the Profile form
             profile_form.save()
-            
-            # Redirect to the non-edit/detail view after successful save
+
             return redirect('profile_view') 
         
-    # 2. Handle GET Request (Initial Load or Load with Errors)
     else:
         user_form = UserDisplayForm(instance=request.user)
         profile_form = ProfileForm(instance=profile)
@@ -205,7 +200,7 @@ def google_oauth_entry(request):
     next_url = request.GET.get('next', '/google-redirect/').strip()
 
     if role:
-        request.session['google_role'] = role  # Save role temporarily in session
+        request.session['google_role'] = role  
 
     redirect_url = f"/social-auth/login/google-oauth2/?next={next_url}&prompt=select_account"
     return redirect(redirect_url)
@@ -234,3 +229,26 @@ def google_login_redirect(request):
         return redirect('student_dashboard')
     else:
         return redirect('auth_page')
+    
+
+def record_login(request, user):
+    device = request.META.get("HTTP_USER_AGENT", "Unknown Device")
+
+    LoginHistory.objects.create(
+        user=user,
+        status="Success",
+        device=device,
+        login_time=timezone.now(),
+    )
+
+
+def record_logout(request):
+    if request.user.is_authenticated:
+        last_login_entry = LoginHistory.objects.filter(
+            user=request.user,
+            logout_time__isnull=True
+        ).order_by('-login_time').first()
+
+        if last_login_entry:
+            last_login_entry.logout_time = timezone.now()
+            last_login_entry.save()

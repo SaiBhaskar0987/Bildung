@@ -15,7 +15,7 @@ urlpatterns = [
     path('lecture/<int:lecture_id>/auto_complete/', views.auto_mark_complete, name='auto_mark_complete'),
     path('upcoming-classes/', views.student_upcoming_classes, name='student_upcoming_classes'),
     path('account-settings/', views.account_settings, name='account_settings'),
-    path('my-activity/', views.my_activity, name='my_activity'),
+    path('my-activity/', views.student_my_activity, name='student_my_activity'),
 
     path('lecture/<int:lecture_id>/ask/', views.ask_question, name='ask_question'),
     path('question/<int:question_id>/edit/', views.edit_question, name='edit_question'),

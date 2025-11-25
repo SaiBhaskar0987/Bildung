@@ -103,7 +103,6 @@ class LectureProgress(models.Model):
         return f"{self.student.username} - {self.lecture.title} ({'Done' if self.completed else 'Pending'})"
 
 
-
 class CourseEvent(models.Model):
     course = models.ForeignKey(
         Course, on_delete=models.CASCADE, related_name="events"
@@ -180,7 +179,6 @@ class QuestionReply(models.Model):
         ordering = ["-created_at"]
 
 
-
 class CourseReview(models.Model):
     course = models.ForeignKey("courses.Course", on_delete=models.CASCADE, related_name="reviews")
     student = models.ForeignKey(User, on_delete=models.CASCADE, related_name="course_reviews")
@@ -193,3 +191,10 @@ class CourseReview(models.Model):
 
     def __str__(self):
         return f"{self.student} → {self.course} ({self.rating} stars)"
+    
+class LiveClassAttendance(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    live_class = models.ForeignKey(LiveClass, on_delete=models.CASCADE)
+    joined_at = models.DateTimeField(null=True, blank=True)
+    duration = models.IntegerField(default=0)  
+

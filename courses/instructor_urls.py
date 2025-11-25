@@ -1,7 +1,7 @@
 from django.urls import path
 from courses import views
 
-app_name = 'instructor'  # <- THIS IS REQUIRED
+app_name = 'instructor'  
 
 urlpatterns = [
     # Instructor Dashboard
@@ -13,6 +13,7 @@ urlpatterns = [
     path('courses/<int:course_id>/add-lecture/', views.add_lecture, name='add_lecture'),
     path('courses/<int:course_id>/feedback/', views.give_feedback, name='give_feedback'),
     path('my-students/', views.my_students, name='my_students'),
+    path('students-list/', views.students_list, name='students_list'),
     path('student/<int:student_id>/', views.view_student_profile, name='view_student_profile'),
 
     # Course progress report for instructor
@@ -30,5 +31,12 @@ urlpatterns = [
     path("reply/<int:reply_id>/edit/", views.edit_reply, name="edit_reply"),
     path("reply/<int:reply_id>/delete/", views.delete_reply, name="delete_reply"),
     path("course/<int:course_id>/review/", views.course_overview, name="course_overview"),
+
+    path(
+        "course/<int:course_id>/student/<int:student_id>/history/",
+        views.student_history,
+        name="student_history"
+    ),
+    
 
 ]

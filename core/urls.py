@@ -35,13 +35,12 @@ urlpatterns = [
     path("chat/", include("chat.urls")),
 
     # Main site root
-   path('', home_views.smart_home, name='smart_home'),
+    path('', home_views.smart_home, name='smart_home'),
     
-    # Include all user-related routes (signup, login, dashboards)
+    # Include all user-related routes (signup, login, dashboards, password reset)
     path("", include("users.urls")),
     path('courses/', include('courses.urls')),
-    path('accounts/', include('django.contrib.auth.urls')),  # For password reset and other auth views
-    ]
+]
 
 SUBDOMAIN_URLCONFS = {
     'instructor': 'courses.instructor_urls',

@@ -956,43 +956,64 @@ def students_list(request):
 @login_required
 def add_course(request):
     if request.method == 'POST':
-        course_form = CourseForm(request.POST, request.FILES)
-        if course_form.is_valid():
-            course = course_form.save(commit=False)
-            course.instructor = request.user
 
-            selected_category = request.POST.get('category')
-            other_category = request.POST.get('other_category')
+        # Read form fields manually (because your HTML does NOT use CourseForm)
+        title = request.POST.get("title")
+        description = request.POST.get("description")
+        price = request.POST.get("price")
+        selected_category = request.POST.get("category")
+        other_category = request.POST.get("other_category")
 
-            if selected_category == "others" and other_category:
-                course.category = other_category.strip()
-            else:
-                course.category = selected_category
-            course.save()
+        # Handle category (normal or custom)
+        if selected_category == "others" and other_category:
+            category = other_category.strip()
+        else:
+            category = selected_category
 
-            module_total = int(request.POST.get('modules-TOTAL_FORMS', 0))
-            for i in range(module_total):
-                title = request.POST.get(f'modules-{i}-title')
-                desc = request.POST.get(f'modules-{i}-description')
-                if title:
-                    module = Module.objects.create(course=course, title=title, description=desc)
+        # ---- SAVE COURSE ----
+        course = Course.objects.create(
+            instructor=request.user,
+            title=title,
+            description=description,
+            price=price,
+            category=category
+        )
 
-                    lecture_index = 0
-                    while True:
-                        lecture_title = request.POST.get(f'modules-{i}-lectures-{lecture_index}-title')
-                        lecture_file = request.FILES.get(f'modules-{i}-lectures-{lecture_index}-video')
-                        if not lecture_title:
-                            break
-                        Lecture.objects.create(module=module, title=lecture_title, video=lecture_file)
-                        lecture_index += 1
+        # ---- SAVE MODULES AND LECTURES ----
+        module_total = int(request.POST.get('modules-TOTAL_FORMS', 0))
 
-            return redirect('instructor:instructor_dashboard')
-    else:
-        course_form = CourseForm()
-        module_formset = ModuleFormSet()
+        for i in range(module_total):
+            module_title = request.POST.get(f'modules-{i}-title')
+            module_desc = request.POST.get(f'modules-{i}-description')
 
-    context = {'course_form': course_form, 'module_formset': module_formset}
-    return render(request, 'courses/instructor/add_course.html', context)
+            if module_title:
+                module = Module.objects.create(
+                    course=course,
+                    title=module_title,
+                    description=module_desc
+                )
+
+                # Save lectures under each module
+                lecture_index = 0
+                while True:
+                    lecture_title = request.POST.get(f'modules-{i}-lectures-{lecture_index}-title')
+                    lecture_video = request.FILES.get(f'modules-{i}-lectures-{lecture_index}-video')
+
+                    if not lecture_title:
+                        break
+
+                    Lecture.objects.create(
+                        module=module,
+                        title=lecture_title,
+                        video=lecture_video
+                    )
+
+                    lecture_index += 1
+
+        messages.success(request, "Course created successfully!")
+        return redirect('instructor:instructor_dashboard')
+
+    return render(request, 'courses/instructor/add_course.html')
 
 @login_required(login_url='/login/')
 def schedule_live_class(request, course_id):
@@ -1243,3 +1264,35 @@ def student_history(request, course_id, student_id):
     }
 
     return render(request, "courses/instructor/student_history.html", context)
+
+
+def smart_home(request):
+    # --- Popular Categories (Dynamic Top 4) ---
+    popular_categories = (
+        Course.objects
+        .values('category')
+        .annotate(course_count=Count('id'))
+        .order_by('-course_count')[:4]
+    )
+
+    # --- Top 4 Most Repeated Titles ---
+    popular_courses = (
+        Course.objects
+        .values('title', 'category')
+        .annotate(count=Count('title'))
+        .order_by('-count', '-id')[:4]
+    )
+
+    # Featured courses (all)
+    courses = Course.objects.all()
+
+    context = {
+        'popular_categories': popular_categories,
+        'popular_courses': popular_courses,
+        'courses': courses,
+    }
+
+    print("Popular categories:", list(popular_categories))
+    print("Popular courses queryset:", list(popular_courses))
+
+    return render(request, 'home/guest_home.html', context)

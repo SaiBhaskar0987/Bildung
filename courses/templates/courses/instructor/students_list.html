@@ -266,6 +266,16 @@ body {
     border-radius: 10px;
     text-decoration: none;
 }
+.popup-section-title {
+    margin-top: 12px;
+    margin-bottom: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #374151; /* gray-700 */
+    border-left: 3px solid #4f46e5; /* purple accent */
+    padding-left: 6px;
+}
+
 </style>
 
 </head>
@@ -371,6 +381,9 @@ body {
                     <div>Enrolled: {{ s.courses|length }}</div>
                     <div>Completed: {{ s.completed_courses }}</div>
                     <div>Last active: {{ s.last_login }}</div>
+                </div>
+                <div class="popup-section-title">
+                  Track Engagement
                 </div>
 
                 <div class="popup-courses">

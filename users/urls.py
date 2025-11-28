@@ -26,6 +26,8 @@ urlpatterns = [
     # Instructor
     path("instructor/signup/", views.instructor_signup, name="instructor_signup"),
     path("instructor/login/", views.instructor_login, name="instructor_login"),
+    path("instructor/profile/", views.instructor_profile_view_or_edit, name="instructor_profile_view"),
+    path("instructor/profile/<str:mode>/", views.instructor_profile_view_or_edit, name="instructor_profile_edit"),
 
     # Include all instructor dashboard & course URLs
     path("instructor/", include(("courses.instructor_urls", "instructor"), namespace="instructor")),

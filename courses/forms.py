@@ -72,15 +72,20 @@ class FeedbackForm(forms.ModelForm):
             enrolled_students = Enrollment.objects.filter(course=course).values_list("student", flat=True)
             self.fields['student'].queryset = course.students.filter(id__in=enrolled_students)
 
-
 class CourseEventForm(forms.ModelForm):
-    event_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}))
-    start_time_input = forms.TimeField(widget=forms.TimeInput(attrs={'type': 'time'}))
-    end_time_input = forms.TimeField(widget=forms.TimeInput(attrs={'type': 'time'}))
+
+    start_time = forms.DateTimeField(
+        widget=forms.DateTimeInput(attrs={'type': 'datetime-local'})
+    )
+
+    end_time = forms.DateTimeField(
+        widget=forms.DateTimeInput(attrs={'type': 'datetime-local'})
+    )
 
     class Meta:
         model = CourseEvent
-        fields = ['title', 'description']
+        fields = ['title', 'description', 'start_time', 'end_time']
+
 
 class LiveClassForm(forms.ModelForm):
     class Meta:

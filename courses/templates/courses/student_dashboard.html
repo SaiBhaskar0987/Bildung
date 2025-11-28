@@ -4,303 +4,146 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Student Dashboard</title>
+
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
 <style>
-    :root {
-        --primary: #4361ee;
-        --secondary: #3a0ca3;
-        --accent: #4cc9f0;
-        --light: #f8f9fa;
-        --dark: #212529;
-        --success: #4bb543;
-        --warning: #ffcc00;
-        --danger: #dc3545;
-        --gray: #6c757d;
-        --light-gray: #e9ecef;
+    .hero {
+        background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),
+                     url("https://images.unsplash.com/photo-1522202176988-66273c2fd55f");
+        background-size: cover;
+        background-position: center;
+        padding: 100px 20px;
+        text-align: center;
+        color: white;
     }
-    
-    .hero { 
-        background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), 
-        url("https://images.unsplash.com/photo-1522202176988-66273c2fd55f"); 
-        background-size: cover; 
-        background-position: center; 
-        color: white; 
-        padding: 100px 20px; 
-        text-align: center; 
+
+    .course-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
     }
-    .hero h1 { font-size: 3rem; font-weight: bold; }
-    .search-bar input { width: 60%; max-width: 500px; }
-    .course-card { transition: transform 0.2s ease; }
-    .course-card:hover { transform: translateY(-5px); box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-    footer { background: #f8f9fa; padding: 20px 0; text-align: center; margin-top: 50px; }
-    
-    /* Enhanced Course Card Styles */
+
     .course-image {
         height: 180px;
-        width: 100%;
         background-size: cover;
         background-position: center;
     }
-    
-    .course-category {
-        display: inline-block;
-        background: var(--light-gray);
-        color: var(--gray);
-        padding: 0.3rem 0.8rem;
-        border-radius: 30px;
-        font-size: 0.8rem;
-        margin-bottom: 0.8rem;
-    }
-    
-    .course-meta {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 1rem;
-        font-size: 0.9rem;
-        color: var(--gray);
-    }
-    
-    .course-rating {
-        color: var(--warning);
-    }
-    
-    /* Modal Styles */
-    .modal {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.7);
-        z-index: 1000;
+
+    .notif-panel {
+        width: 360px !important;
+        max-height: 400px !important;
+        padding: 0;
         overflow-y: auto;
-        padding: 2rem 0;
     }
-    
-    .modal-content {
-        background: white;
-        width: 90%;
-        max-width: 900px;
-        margin: 0 auto;
-        border-radius: 15px;
-        overflow: hidden;
-        position: relative;
-        animation: modalFadeIn 0.5s;
+
+    .notif-item {
+        padding: 10px 14px;
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
     }
-    
-    @keyframes modalFadeIn {
-        from { opacity: 0; transform: translateY(-50px); }
-        to { opacity: 1; transform: translateY(0); }
+
+    .notif-item.unread {
+        background: #fff6da;
     }
-    
-    .close-modal {
-        position: absolute;
-        top: 20px;
-        right: 20px;
-        background: rgba(255, 255, 255, 0.8);
-        width: 40px;
-        height: 40px;
+
+    .notif-item.read {
+        background: #ffffff;
+    }
+
+    .notif-item:hover {
+        background: #f3f3f3;
+        cursor: pointer;
+    }
+
+    .notif-avatar {
+        width: 32px;
+        height: 32px;
         border-radius: 50%;
+        background: #d7d7d7;
         display: flex;
         align-items: center;
         justify-content: center;
-        cursor: pointer;
-        z-index: 10;
-        font-size: 1.2rem;
-        transition: all 0.3s;
+        font-weight: bold;
+        font-size: 14px;
     }
-    
-    .close-modal:hover {
-        background: white;
-        transform: rotate(90deg);
-    }
-    
-    .course-detail-header {
-        padding: 2rem;
-        background: linear-gradient(135deg, var(--primary), var(--secondary));
-        color: white;
-    }
-    
-    .course-detail-header h2 {
-        font-size: 2rem;
-        margin-bottom: 0.5rem;
-    }
-    
-    .course-detail-meta {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 1.5rem;
-        margin: 1rem 0;
-    }
-    
-    .course-detail-meta div {
-        display: flex;
-        align-items: center;
-    }
-    
-    .course-detail-meta i {
-        margin-right: 8px;
-        color: var(--accent);
-    }
-    
-    .course-detail-body {
-        padding: 2rem;
-    }
-    
-    .course-detail-section {
-        margin-bottom: 2rem;
-    }
-    
-    .course-detail-section h3 {
-        font-size: 1.5rem;
-        margin-bottom: 1rem;
-        color: var(--secondary);
-        border-bottom: 2px solid var(--light-gray);
-        padding-bottom: 0.5rem;
-    }
-    
-    .syllabus-list {
-        list-style: none;
-    }
-    
-    .syllabus-list li {
-        padding: 0.8rem 0;
-        border-bottom: 1px solid var(--light-gray);
-        display: flex;
-        align-items: center;
-    }
-    
-    .syllabus-list li:last-child {
-        border-bottom: none;
-    }
-    
-    .syllabus-list i {
-        margin-right: 10px;
-        color: var(--success);
-    }
-    
-    .course-detail-actions {
-        display: flex;
-        gap: 1rem;
-        margin-top: 2rem;
-    }
-    
-    .btn-large {
-        padding: 1rem 2rem;
-        font-size: 1.1rem;
-    }
-    
-    /* Payment Modal */
-    .payment-form {
-        padding: 2rem;
-    }
-    
-    .form-group {
-        margin-bottom: 1.5rem;
-    }
-    
-    .form-group label {
-        display: block;
-        margin-bottom: 0.5rem;
-        font-weight: 500;
-    }
-    
-    .form-control {
-        width: 100%;
-        padding: 0.8rem 1rem;
-        border: 1px solid var(--light-gray);
-        border-radius: 8px;
-        font-size: 1rem;
-        transition: all 0.3s;
-    }
-    
-    .form-control:focus {
-        outline: none;
-        border-color: var(--primary);
-        box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.2);
-    }
-    
-    .payment-methods {
-        display: flex;
-        gap: 1rem;
-        margin: 1.5rem 0;
-    }
-    
-    .payment-method {
+
+    .notif-text {
         flex: 1;
-        text-align: center;
-        padding: 1rem;
-        border: 1px solid var(--light-gray);
-        border-radius: 8px;
-        cursor: pointer;
-        transition: all 0.3s;
+        font-size: 14px;
+        line-height: 1.3;
     }
-    
-    .payment-method:hover, .payment-method.active {
-        border-color: var(--primary);
-        background: rgba(67, 97, 238, 0.05);
+
+    .notif-time {
+        font-size: 12px;
+        color: #888;
+        margin-top: 2px;
     }
-    
-    .payment-method i {
-        font-size: 2rem;
-        margin-bottom: 0.5rem;
-        color: var(--primary);
-    }
-    
-    /* Success Modal */
-    .success-content {
-        text-align: center;
-        padding: 3rem 2rem;
-    }
-    
-    .success-icon {
-        width: 100px;
-        height: 100px;
-        background: var(--success);
-        color: white;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 2rem;
-        font-size: 3rem;
-    }
-    
-    .success-content h2 {
-        font-size: 2rem;
-        margin-bottom: 1rem;
-        color: var(--success);
-    }
-    
-    .success-content p {
-        margin-bottom: 2rem;
-        font-size: 1.1rem;
+
+    .notif-read-btn {
+        font-size: 11px;
+        padding: 0;
     }
 </style>
 </head>
+
 <body class="bg-light">
 
-<!-- Header -->
+<!-- HEADER -->
 <div class="d-flex justify-content-between align-items-center p-3 bg-white shadow-sm">
+
     <a href="{% url 'student_dashboard' %}" class="text-decoration-none text-dark">
         <h3 class="m-0 fw-bold"><i class="fas fa-graduation-cap"></i> Bildung</h3>
     </a>
 
-    <div class="d-flex align-items-center gap-3">
-        <h4 class="m-0">Hello, {{ user.first_name }} {{ user.last_name }} </h4>
+    <div class="d-flex align-items-center gap-4">
+
+        <div class="position-relative me-3 dropdown">
+
+            <a href="#" class="text-dark fs-4" id="notifBell" data-bs-toggle="dropdown">
+                <i class="fa-solid fa-bell"></i>
+
+                {% if unread_count > 0 %}
+                <span class="badge bg-danger rounded-circle"
+                      style="font-size:10px; position:absolute; top:-5px; right:-6px;">
+                    {{ unread_count }}
+                </span>
+                {% endif %}
+            </a>
+
+            <div class="dropdown-menu dropdown-menu-end shadow notif-panel"
+                 aria-labelledby="notifBell">
+
+                <h6 class="dropdown-header d-flex justify-content-between align-items-center">
+                    Notifications
+                    <a href="{% url 'student:student_notifications' %}" class="small">View All</a>
+                </h6>
+
+                <div id="notifList"></div>
+
+                <div class="p-2 text-center border-top">
+                    <button class="btn btn-sm btn-outline-primary w-100" id="markAllBtn">
+                        Mark all as read
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <div class="dropdown">
-            <button class="btn rounded-circle shadow" style="background:gray;color:white;width:45px;height:45px;" type="button" data-bs-toggle="dropdown">
+            <button class="btn rounded-circle shadow-sm"
+                    style="background:gray;color:white;width:45px;height:45px;"
+                    data-bs-toggle="dropdown">
                 {{ request.user.username|first|upper }}
             </button>
+
             <ul class="dropdown-menu dropdown-menu-end">
                 <li><a class="dropdown-item" href="{% url 'profile_view' %}">Profile</a></li>
                 <li><a class="dropdown-item" href="{% url 'student:my_courses' %}">My Courses</a></li>
-                <li><a class="dropdown-item" href="{% url 'student:student_my_activity' %}">My activity</a></li>
                 <li><a class="dropdown-item" href="{% url 'student:student_upcoming_classes' %}">My_schedules</a></li>
+                <li><a class="dropdown-item" href="{% url 'student:student_my_activity' %}">My activity</a></li>
                 <li><a class="dropdown-item" href="{% url 'student:my_certificates' %}">My Certificates</a></li>
-                <li><a class="dropdown-item" href="#">Notifications</a></li>
+                <li><a class="dropdown-item" href="{% url 'student:student_notifications' %}">Notifications</a></li>
                 <li><a class="dropdown-item" href="#">Payments</a></li>
                 <li><a class="dropdown-item" href="#">Help and Support</a></li>
                 <li><a class="dropdown-item" href="#">Feedback</a></li>
@@ -309,393 +152,148 @@
                 <li><a class="dropdown-item text-danger" href="{% url 'logout_view' %}">Logout</a></li>
             </ul>
         </div>
+
     </div>
+
 </div>
+
+<section class="hero">
+    <h1 class="fw-bold">Welcome, {{ user.first_name }} {{ user.last_name }}!</h1>
+    <p>Learn Anything, Anytime, Anywhere</p>
+
+    <form method="get" action="{% url 'courses:course_list' %}" class="d-flex justify-content-center mt-4">
+        <input type="text" name="q" class="form-control w-50" placeholder="Search for courses..." required>
+        <button class="btn btn-warning ms-2">Search</button>
+    </form>
+</section>
+
+<!-- FEATURED COURSES -->
+<section class="container my-5">
+    <div class="d-flex justify-content-between mb-4">
+        <h3 class="fw-bold">Featured Courses</h3>
+    </div>
+
+    <div class="row g-4">
+        {% for course in all_courses %}
+        <div class="col-md-3 col-sm-6">
+            <div class="card course-card border-0 shadow-sm h-100">
+
+                <div class="course-image" style="background-image:url('{{ course.thumbnail.url }}');"></div>
+
+                <div class="card-body d-flex flex-column">
+                    <h5 class="fw-bold">{{ course.title }}</h5>
+                    <p class="text-muted small">{{ course.description|truncatewords:15 }}</p>
+
+                    {% if course.id in enrolled_course_ids %}
+                    <a href="{% url 'student:student_course_detail' course.id %}" class="btn btn-primary mt-auto w-100">
+                        View Course
+                    </a>
+                    {% else %}
+                    <a href="{% url 'student:enroll_course' course.id %}" class="btn btn-success mt-auto w-100">
+                        Enroll Now
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- Hero Section -->
-<section class="hero">
-    <h1>Learn Anything, Anytime, Anywhere</h1>
-    <p>Join thousands of learners and instructors on Bildung.</p>
-    <div class="search-bar mt-4">
-        <form method="get" action="{% url 'courses:course_list' %}">
-            <input type="text" class="form-control d-inline-block" name="q" placeholder="Search for courses..." required>
-            <button type="submit" class="btn btn-warning mt-3">Search</button>
-        </form>
-    </div>
-</section>
-
-<!-- Popular Categories -->
-<section class="container my-5">
-    <h2 class="mb-4">Popular Categories</h2>
-    <div class="row text-center">
-      <div class="col-md-3 mb-3">
-        <button class="btn btn-outline-primary w-100 py-3 rounded-3">Programming</button>
-      </div>
-      <div class="col-md-3 mb-3">
-        <button class="btn btn-outline-success w-100 py-3 rounded-3">Business</button>
-      </div>
-      <div class="col-md-3 mb-3">
-        <button class="btn btn-outline-warning w-100 py-3 rounded-3">Design</button>
-      </div>
-      <div class="col-md-3 mb-3">
-        <button class="btn btn-outline-danger w-100 py-3 rounded-3">Music</button>
-      </div>
-    </div>
-</section>
-
-<!-- Featured Courses -->
-<section class="container my-5">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="mb-0">Featured Courses</h2>
-    <a href="#" class="btn btn-outline-primary btn-sm">More Courses →</a>
-  </div>
-
-  <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
-    {% for course in all_courses %}
-    <div class="col">
-      <div class="card course-card h-100 shadow-sm border-0">
-        <div class="course-image" style="background-image: url('{{ course.thumbnail.url|default:"https://via.placeholder.com/300x180?text=Course+Image" }}')"></div>
-        <div class="card-body d-flex flex-column">
-          <span class="course-category">{{ course.category|default:"General" }}</span>
-          <h5 class="card-title fw-bold">{{ course.title }}</h5>
-          <p class="card-text text-muted small mb-3">{{ course.description|truncatewords:15 }}</p>
-          
-          <div class="course-meta">
-            <div><i class="fas fa-clock"></i> {{ course.duration|default:"10 hours" }}</div>
-            <div><i class="fas fa-video"></i> {{ course.lessons|default:"15" }} lessons</div>
-            <div class="course-rating"><i class="fas fa-star"></i> {{ course.rating|default:"4.5" }}</div>
-          </div>
-          
-          <p class="fw-semibold mb-3">💰 ${{ course.price|default:"Free" }}</p>
-
-          <div class="mt-auto">
-              <button class="btn btn-outline-primary w-100 view-details-btn" data-course-id="{{ course.id }}">
-                  <i class="fas fa-eye"></i> View Details
-              </button>
-          </div>
-        </div>
-      </div>
-    </div>
-    {% empty %}
-      <p class="text-center text-muted">No courses available yet.</p>
-    {% endfor %}
-  </div>
-</section>
-
-<!-- Course Detail Modal -->
-<div class="modal" id="course-detail-modal">
-    <div class="modal-content">
-        <span class="close-modal" id="close-detail-modal">&times;</span>
-        <div class="course-detail-header">
-            <h2 id="detail-title">Complete Web Development Bootcamp</h2>
-            <p id="detail-instructor">Instructor: Madan</p>
-            <div class="course-detail-meta">
-                <div><i class="fas fa-clock"></i> <span id="detail-duration">60 hours</span></div>
-                <div><i class="fas fa-video"></i> <span id="detail-lessons">45 lessons</span></div>
-                <div><i class="fas fa-star"></i> <span id="detail-rating">4.8 (2,450 reviews)</span></div>
-                <div><i class="fas fa-users"></i> <span id="detail-students">15,230 students</span></div>
-            </div>
-        </div>
-        <div class="course-detail-body">
-            <div class="course-detail-section">
-                <h3>About This Course</h3>
-                <p id="detail-description">This comprehensive course will take you from beginner to advanced in web development. You'll learn HTML, CSS, JavaScript, React, Node.js, and much more through hands-on projects and real-world examples.</p>
-            </div>
-            <div class="course-detail-section">
-                <h3>Syllabus</h3>
-                <ul class="syllabus-list" id="syllabus-list">
-                    <!-- Syllabus items will be dynamically added here -->
-                </ul>
-            </div>
-            <div class="course-detail-actions">
-                <button class="btn btn-primary btn-large" id="enroll-btn">
-                    <i class="fas fa-shopping-cart"></i> Enroll Now
-                </button>
-                <button class="btn btn-outline btn-large" id="wishlist-btn">
-                    <i class="far fa-heart"></i> Add to Wishlist
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Payment Modal -->
-<div class="modal payment-modal" id="payment-modal">
-    <div class="modal-content">
-        <span class="close-modal" id="close-payment-modal">&times;</span>
-        <div class="course-detail-header">
-            <h2>Complete Your Enrollment</h2>
-            <p id="payment-course-title">Complete Web Development Bootcamp</p>
-            <div class="course-price">$89.99</div>
-        </div>
-        <div class="payment-form">
-            <h3>Payment Information</h3>
-            <div class="payment-methods">
-                <div class="payment-method active">
-                    <i class="fab fa-cc-visa"></i>
-                    <p>Credit Card</p>
-                </div>
-                <div class="payment-method">
-                    <i class="fab fa-paypal"></i>
-                    <p>PayPal</p>
-                </div>
-                <div class="payment-method">
-                    <i class="fas fa-university"></i>
-                    <p>Bank Transfer</p>
-                </div>
-            </div>
-            <form id="payment-form">
-                <div class="form-group">
-                    <label for="card-number">Card Number</label>
-                    <input type="text" class="form-control" id="card-number" placeholder="1234 5678 9012 3456">
-                </div>
-                <div class="form-group">
-                    <label for="card-name">Name on Card</label>
-                    <input type="text" class="form-control" id="card-name" placeholder="John Doe">
-                </div>
-                <div class="form-group" style="display: flex; gap: 1rem;">
-                    <div style="flex: 1;">
-                        <label for="expiry-date">Expiry Date</label>
-                        <input type="text" class="form-control" id="expiry-date" placeholder="MM/YY">
-                    </div>
-                    <div style="flex: 1;">
-                        <label for="cvv">CVV</label>
-                        <input type="text" class="form-control" id="cvv" placeholder="123">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <button type="button" class="btn btn-primary btn-large" id="complete-payment" style="width: 100%;">
-                        <i class="fas fa-lock"></i> Complete Payment
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<!-- Success Modal -->
-<div class="modal success-modal" id="success-modal">
-    <div class="modal-content">
-        <div class="success-content">
-            <div class="success-icon">
-                <i class="fas fa-check"></i>
-            </div>
-            <h2>Enrollment Successful!</h2>
-            <p>You have successfully enrolled in <strong id="success-course-title">Complete Web Development Bootcamp</strong>. You can now access the course from your dashboard.</p>
-            <button class="btn btn-primary btn-large" id="go-to-dashboard">
-                <i class="fas fa-tachometer-alt"></i> Go to Dashboard
-            </button>
-        </div>
-    </div>
-</div>
-
-<footer>
-    <p>&copy; 2025 Bildung. All rights reserved.</p>
-</footer>
-
 <script>
-    // Sample course data (in a real app, this would come from your backend)
-    const courses = [
-        {
-            id: 1,
-            title: "Complete Web Development Bootcamp",
-            instructor: "Sai",
-            category: "web-dev",
-            level: "beginner",
-            rating: 4.8,
-            reviews: 2450,
-            students: 15230,
-            duration: "60 hours",
-            lessons: 45,
-            price: 89.99,
-            image: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80",
-            description: "This comprehensive course will take you from beginner to advanced in web development. You'll learn HTML, CSS, JavaScript, React, Node.js, and much more through hands-on projects and real-world examples.",
-            syllabus: [
-                "HTML Fundamentals",
-                "CSS Styling and Layouts",
-                "JavaScript Basics",
-                "Advanced JavaScript Concepts",
-                "React.js Fundamentals",
-                "Node.js and Express",
-                "Database Integration",
-                "Deployment and DevOps"
-            ]
-        },
-        {
-            id: 2,
-            title: "Data Science with Python",
-            instructor: "Sagarika",
-            category: "data-science",
-            level: "intermediate",
-            rating: 4.7,
-            reviews: 1820,
-            students: 11250,
-            duration: "50 hours",
-            lessons: 38,
-            price: 94.99,
-            image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80",
-            description: "Master data science with Python. Learn data analysis, visualization, machine learning, and statistical modeling to extract insights from data.",
-            syllabus: [
-                "Python for Data Science",
-                "Data Analysis with Pandas",
-                "Data Visualization with Matplotlib and Seaborn",
-                "Statistical Analysis",
-                "Machine Learning Fundamentals",
-                "Regression Models",
-                "Classification Algorithms",
-                "Clustering Techniques"
-            ]
-        },
-        {
-            id: 3,
-            title: "UI/UX Design Masterclass",
-            instructor: "Mit",
-            category: "design",
-            level: "beginner",
-            rating: 4.9,
-            reviews: 1560,
-            students: 9850,
-            duration: "45 hours",
-            lessons: 32,
-            price: 79.99,
-            image: "https://images.unsplash.com/photo-1561070791-2526d30994b5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1300&q=80",
-            description: "Learn the principles of user interface and user experience design. Create beautiful, functional designs that users love.",
-            syllabus: [
-                "Design Thinking Process",
-                "User Research Methods",
-                "Wireframing and Prototyping",
-                "Visual Design Principles",
-                "Interaction Design",
-                "Usability Testing",
-                "Design Systems",
-                "Portfolio Development"
-            ]
-        }
-    ];
+document.addEventListener("DOMContentLoaded", function () {
 
-    // DOM Elements
-    const courseDetailModal = document.getElementById('course-detail-modal');
-    const paymentModal = document.getElementById('payment-modal');
-    const successModal = document.getElementById('success-modal');
-    const closeDetailModal = document.getElementById('close-detail-modal');
-    const closePaymentModal = document.getElementById('close-payment-modal');
-    const enrollBtn = document.getElementById('enroll-btn');
-    const completePaymentBtn = document.getElementById('complete-payment');
-    const goToDashboardBtn = document.getElementById('go-to-dashboard');
+    function loadNotifications() {
+        fetch("{% url 'student:recent_notifications' %}")
+            .then(res => res.json())
+            .then(data => {
 
-    // State
-    let currentCourse = null;
+                let bell = document.getElementById("notifBell");
+                let badge = bell.querySelector(".badge");
 
-    // Initialize the page
-    function init() {
-        setupEventListeners();
-    }
+                // Update badge
+                if (data.unread > 0) {
+                    if (!badge) {
+                        badge = document.createElement("span");
+                        badge.className = "badge bg-danger rounded-circle";
+                        badge.style.cssText = "font-size:10px; position:absolute; top:-5px; right:-6px;";
+                        bell.appendChild(badge);
+                    }
+                    badge.textContent = data.unread;
+                } else if (badge) {
+                    badge.remove();
+                }
 
-    // Show course details in modal
-    function showCourseDetails(courseId) {
-        currentCourse = courses.find(course => course.id === courseId);
-        
-        if (!currentCourse) return;
-        
-        // Update modal content
-        document.getElementById('detail-title').textContent = currentCourse.title;
-        document.getElementById('detail-instructor').textContent = `Instructor: ${currentCourse.instructor}`;
-        document.getElementById('detail-duration').textContent = currentCourse.duration;
-        document.getElementById('detail-lessons').textContent = `${currentCourse.lessons} lessons`;
-        document.getElementById('detail-rating').textContent = `${currentCourse.rating} (${currentCourse.reviews} reviews)`;
-        document.getElementById('detail-students').textContent = `${currentCourse.students.toLocaleString()} students`;
-        document.getElementById('detail-description').textContent = currentCourse.description;
-        
-        // Update syllabus
-        const syllabusList = document.getElementById('syllabus-list');
-        syllabusList.innerHTML = '';
-        currentCourse.syllabus.forEach(item => {
-            const li = document.createElement('li');
-            li.innerHTML = `<i class="fas fa-check-circle"></i> ${item}`;
-            syllabusList.appendChild(li);
-        });
-        
-        // Update payment modal course title
-        document.getElementById('payment-course-title').textContent = currentCourse.title;
-        
-        // Show modal
-        courseDetailModal.style.display = 'block';
-    }
+                let list = document.getElementById("notifList");
+                list.innerHTML = "";
 
-    // Setup event listeners
-    function setupEventListeners() {
-        // View details buttons
-        document.querySelectorAll('.view-details-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const courseId = parseInt(e.target.closest('.view-details-btn').getAttribute('data-course-id'));
-                showCourseDetails(courseId);
-            });
-        });
-        
-        // Modal controls
-        closeDetailModal.addEventListener('click', () => {
-            courseDetailModal.style.display = 'none';
-        });
-        
-        closePaymentModal.addEventListener('click', () => {
-            paymentModal.style.display = 'none';
-        });
-        
-        // Enrollment flow
-        enrollBtn.addEventListener('click', () => {
-            courseDetailModal.style.display = 'none';
-            paymentModal.style.display = 'block';
-        });
-        
-        completePaymentBtn.addEventListener('click', completeEnrollment);
-        
-        goToDashboardBtn.addEventListener('click', () => {
-            successModal.style.display = 'none';
-            // In a real app, you would redirect to the dashboard
-            // For now, we'll just show an alert
-            alert('Redirecting to dashboard...');
-        });
-        
-        // Close modals when clicking outside
-        window.addEventListener('click', (e) => {
-            if (e.target === courseDetailModal) {
-                courseDetailModal.style.display = 'none';
-            }
-            if (e.target === paymentModal) {
-                paymentModal.style.display = 'none';
-            }
-            if (e.target === successModal) {
-                successModal.style.display = 'none';
-            }
-        });
-        
-        // Payment method selection
-        document.querySelectorAll('.payment-method').forEach(method => {
-            method.addEventListener('click', () => {
-                document.querySelectorAll('.payment-method').forEach(m => {
-                    m.classList.remove('active');
+                if (data.notifications.length === 0) {
+                    list.innerHTML = `
+                        <div class="dropdown-item text-muted text-center py-3">
+                            No notifications yet.
+                        </div>
+                    `;
+                    return;
+                }
+
+                data.notifications.forEach(n => {
+
+                    let actionHtml = "";
+                    if (n.is_read) {
+                        actionHtml = `<span class="text-muted notif-read-btn">Read</span>`;
+                    } else {
+                        actionHtml = `
+                            <button class="btn btn-link notif-read-btn"
+                                    onclick="event.stopPropagation(); markRead(${n.id});">
+                                Mark as read
+                            </button>
+                        `;
+                    }
+
+                    const targetUrl = n.url && n.url !== ""
+                        ? n.url
+                        : "{% url 'student:student_notifications' %}";
+
+                    list.innerHTML += `
+                        <div class="notif-item ${n.is_read ? "read" : "unread"}"
+                             onclick="window.location.href='${targetUrl}'">
+                            <div class="notif-avatar">${n.message.charAt(0)}</div>
+                            <div class="notif-text">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="me-2">
+                                        <strong>${n.message}</strong>
+                                        <div class="notif-time">${n.created_at}</div>
+                                    </div>
+                                    <div>
+                                        ${actionHtml}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
                 });
-                method.classList.add('active');
             });
-        });
     }
 
-    // Complete enrollment
-    function completeEnrollment() {
-        if (!currentCourse) return;
-        
-        // Update success modal
-        document.getElementById('success-course-title').textContent = currentCourse.title;
-        
-        // Show success modal
-        paymentModal.style.display = 'none';
-        successModal.style.display = 'block';
-    }
+    window.markRead = function (id) {
+        const url = "{% url 'student:mark_notification_read' 0 %}".replace("0", id);
+        fetch(url)
+            .then(() => loadNotifications());
+    };
 
-    // Initialize the application
-    init();
+    document.getElementById("markAllBtn").addEventListener("click", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        fetch("{% url 'student:mark_notifications_read' %}")
+            .then(() => loadNotifications());
+    });
+
+    setInterval(loadNotifications, 4000);
+    loadNotifications();
+});
 </script>
+
 </body>
 </html>

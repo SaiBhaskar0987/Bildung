@@ -3,37 +3,69 @@
 
 {% block content %}
 <div class="container py-5">
+
     <h2>Add Event for {{ course.title }}</h2>
 
     <form method="post" class="mt-4">
         {% csrf_token %}
 
         <div class="mb-3">
-            <label>Title</label>
-            <input type="text" name="title" class="form-control" required>
+            <label class="form-label">Title</label>
+            <input 
+                type="text"
+                name="{{ form.title.name }}"
+                value="{{ form.title.value|default_if_none:'' }}"
+                class="form-control"
+                required
+            >
+            {% if form.title.errors %}
+                <div class="text-danger small">{{ form.title.errors.0 }}</div>
+            {% endif %}
         </div>
 
         <div class="mb-3">
-            <label>Description</label>
-            <textarea name="description" class="form-control"></textarea>
+            <label class="form-label">Description</label>
+            <textarea 
+                name="{{ form.description.name }}"
+                class="form-control"
+            >{{ form.description.value|default_if_none:'' }}</textarea>
+
+            {% if form.description.errors %}
+                <div class="text-danger small">{{ form.description.errors.0 }}</div>
+            {% endif %}
         </div>
 
         <div class="mb-3">
-            <label>Event Date</label>
-            <input type="date" name="event_date" class="form-control" required>
+            <label class="form-label">Start Date & Time</label>
+            <input 
+                type="datetime-local"
+                name="{{ form.start_time.name }}"
+                value="{{ form.start_time.value|default_if_none:'' }}"
+                class="form-control"
+                required
+            >
+            {% if form.start_time.errors %}
+                <div class="text-danger small">{{ form.start_time.errors.0 }}</div>
+            {% endif %}
         </div>
 
         <div class="mb-3">
-            <label>Start Time</label>
-            <input type="time" name="start_time" class="form-control" required>
+            <label class="form-label">End Date & Time</label>
+            <input 
+                type="datetime-local"
+                name="{{ form.end_time.name }}"
+                value="{{ form.end_time.value|default_if_none:'' }}"
+                class="form-control"
+                required
+            >
+            {% if form.end_time.errors %}
+                <div class="text-danger small">{{ form.end_time.errors.0 }}</div>
+            {% endif %}
         </div>
 
-        <div class="mb-3">
-            <label>End Time</label>
-            <input type="time" name="end_time" class="form-control" required>
-        </div>
 
         <button class="btn btn-primary">Create Event</button>
     </form>
 </div>
 {% endblock %}
+

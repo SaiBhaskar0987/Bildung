@@ -46,10 +46,6 @@
 
   {{ form.as_p }}
 
-  <div class="mb-3">
-    <label class="form-label fw-bold">Meeting Link (Zoom / Google Meet / Others)</label>
-    <input type="url" name="meeting_link" class="form-control" placeholder="https://zoom.us/xxxx" required>
-  </div>
 
   <button type="submit" class="btn btn-success">💡 Schedule</button>
   <a href="{% url 'instructor:instructor_dashboard' %}" class="btn btn-secondary">Cancel</a>

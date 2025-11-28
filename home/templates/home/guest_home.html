@@ -55,6 +55,168 @@
     }
 
     .popular-course:hover { transform: translateY(-5px); }
+    
+    /* Chatbot Button */
+    /* Floating Buttons – FIXED RIGHT SIDE */
+    .floating-btn {
+        position: fixed;
+        right: 25px;
+        width: 55px;
+        height: 55px;
+        background: #4c6ef5;
+        color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 50%;
+        cursor: pointer;
+        z-index: 9999;
+        font-size: 26px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+
+    /* Chatbot button bottom */
+    #aiChatBtn { bottom: 25px; }
+
+    /* Notepad button above chatbot */
+    #noteBtn { bottom: 95px; }
+
+    /* Chatbox Common Styling (Container Only) */
+    .chatbox {
+        position: fixed;
+        right: 90px;
+        width: 320px;
+        background: white;
+        border-radius: 12px;
+        display: none;
+        flex-direction: column;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+        z-index: 9998;
+        overflow: hidden;         /* PREVENT layout breaking */
+    }
+
+    /* Chatbot Height */
+    #aiChatBox {
+        bottom: 90px;
+        height: 400px;
+    }
+
+    /* Notepad Height */
+    #noteBox {
+        bottom: 160px;
+        height: 360px;
+    }
+
+    /* -------------------------------------- */
+    /* INTERNAL CHATBOT UI (Isolated CSS)     */
+    /* -------------------------------------- */
+
+    .chatbox .chat-header {
+        background: #4c6ef5;
+        color: white;
+        padding: 12px;
+        font-weight: 600;
+        font-size: 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .chatbox .close-btn {
+        background: transparent;
+        border: none;
+        color: white;
+        font-size: 18px;
+        cursor: pointer;
+        padding: 0;
+    }
+
+    .chatbox .chat-body {
+        padding: 10px;
+        height: 270px;
+        overflow-y: auto;
+        font-size: 14px;
+    }
+
+    .chatbox .chat-footer {
+        display: flex;
+        padding: 10px;
+        gap: 5px;
+        border-top: 1px solid #ddd;
+    }
+
+    .chatbox .chat-footer input {
+        flex: 1;
+        padding: 8px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+        outline: none;
+    }
+
+    .chatbox .chat-footer button {
+        background: #4c6ef5;
+        color: white;
+        padding: 7px 16px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+
+    /* -------------------------------------- */
+    /* NOTEPAD INSIDE STYLING                 */
+    /* -------------------------------------- */
+
+    #noteBox .note-info {
+        padding: 8px 12px;
+        background: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+        font-size: 12px;
+        color: #6c757d;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    #noteBox .note-area {
+        width: 100%;
+        height: 220px;
+        padding: 10px;
+        border-radius: 10px;
+        border: 1px solid #bbb;
+        resize: none;
+        outline: none;
+    }
+
+    #noteBox .note-footer {
+        text-align: right;
+        padding: 8px 0;
+    }
+
+    #noteBox .save-note-btn {
+        background: #4c6ef5;
+        color: white;
+        padding: 7px 14px;
+        border-radius: 6px;
+        border: none;
+        cursor: pointer;
+    }
+
+    #noteBox .bullet-btn {
+        background: #198754;
+        color: white;
+        padding: 6px 12px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        margin-bottom:10px;
+    }
+
+    #noteBox .storage-warning {
+        color: #dc3545;
+        font-size: 11px;
+        margin-top: 5px;
+        display: none;
+        padding: 0 10px;
+    }
   </style>
 </head>
 <body>
@@ -193,6 +355,54 @@
     </div>
   </div>
 
+<!-- Floating Buttons -->
+<div id="aiChatBtn" class="floating-btn">🤖</div>
+<div id="noteBtn" class="floating-btn">📝</div>
+
+<!-- Chatbot Window -->
+<div id="aiChatBox" class="chatbox">
+    <div class="chat-header">
+        <span>AI Chatbot</span>
+        <button class="close-btn" onclick="toggleAIChat()">✖</button>
+    </div>
+    <div class="chat-body" id="aiMessages">
+        <p><b>AI:</b> Hi! How can I help you today?</p>
+    </div>
+    <div class="chat-footer">
+        <input type="text" id="aiInput" placeholder="Type message..." />
+        <button onclick="sendAIMessage()">Send</button>
+    </div>
+</div>
+
+<!-- Notepad Window -->
+<div id="noteBox" class="chatbox">
+    <div class="chat-header">
+        <span>Quick Notepad</span>
+        <button class="close-btn" onclick="toggleNote()">✖</button>
+    </div>
+    
+    <!-- memory info bar -->
+    <div class="note-info">
+        <span id="storageInfo">Storage: 0/200MB</span>
+        <span id="expiryInfo">Expires: -</span>
+    </div>
+    
+    <textarea id="noteArea" class="note-area" placeholder="Write notes here..."></textarea>
+    
+    <!-- Storage warning -->
+    <div id="storageWarning" class="storage-warning">
+        ⚠️ Approaching storage limit (200MB)
+    </div>
+    
+    <!-- Save Button Section -->
+    <div class="note-footer">
+        <button class="save-note-btn" onclick="saveNote()">Save</button>
+    </div>
+    <div class="note-tools">
+        <button class="bullet-btn" onclick="addBullet()"><h6>•Bullet point</h6></button>
+    </div>
+</div>
+
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -250,6 +460,218 @@
 
       new bootstrap.Modal(document.getElementById("courseModal")).show();
     }
+
+    // Notepad with 200MB storage and 14-day expiry
+    const NOTEPAD_CONFIG = {
+        MAX_STORAGE: 200 * 1024 * 1024, // 200MB in bytes
+        EXPIRY_DAYS: 14,
+        STORAGE_KEY: 'quickNoteData'
+    };
+
+    function toggleAIChat() {
+        const box = document.getElementById('aiChatBox');
+        box.style.display = box.style.display === 'flex' ? 'none' : 'flex';
+    }
+
+    function toggleNote() {
+        const box = document.getElementById('noteBox');
+        box.style.display = box.style.display === 'flex' ? 'none' : 'flex';
+        if (box.style.display === 'flex') {
+            updateStorageInfo();
+        }
+    }
+
+    // Enhanced save function with storage limits
+    function saveNote() {
+        const text = document.getElementById("noteArea").value;
+        const textSize = new Blob([text]).size;
+        
+        // Check storage limit
+        if (textSize > NOTEPAD_CONFIG.MAX_STORAGE) {
+            alert(`Note too large! Maximum size is 200MB. Your note is ${formatBytes(textSize)}.`);
+            return;
+        }
+        
+        const noteData = {
+            text: text,
+            timestamp: new Date().toISOString(),
+            expiry: new Date(Date.now() + NOTEPAD_CONFIG.EXPIRY_DAYS * 24 * 60 * 60 * 1000).toISOString(),
+            size: textSize
+        };
+        
+        try {
+            localStorage.setItem(NOTEPAD_CONFIG.STORAGE_KEY, JSON.stringify(noteData));
+            updateStorageInfo();
+            showTemporaryMessage("Note Saved! (Expires in 14 days)");
+        } catch (e) {
+            if (e.name === 'QuotaExceededError') {
+                alert("Storage limit exceeded! Please reduce the note size.");
+            } else {
+                alert("Error saving note: " + e.message);
+            }
+        }
+    }
+
+    // Load note with expiry check
+    function loadNote() {
+        try {
+            const saved = localStorage.getItem(NOTEPAD_CONFIG.STORAGE_KEY);
+            if (saved) {
+                const noteData = JSON.parse(saved);
+                const now = new Date();
+                const expiry = new Date(noteData.expiry);
+                
+                // Check if note has expired
+                if (now > expiry) {
+                    localStorage.removeItem(NOTEPAD_CONFIG.STORAGE_KEY);
+                    document.getElementById("noteArea").value = "";
+                    updateStorageInfo();
+                    showTemporaryMessage("Previous note has expired and was cleared.");
+                    return;
+                }
+                
+                document.getElementById("noteArea").value = noteData.text;
+                updateStorageInfo();
+            }
+        } catch (e) {
+            console.error("Error loading note:", e);
+        }
+    }
+
+    // Update storage information display
+    function updateStorageInfo() {
+        const saved = localStorage.getItem(NOTEPAD_CONFIG.STORAGE_KEY);
+        const storageInfo = document.getElementById("storageInfo");
+        const expiryInfo = document.getElementById("expiryInfo");
+        const warning = document.getElementById("storageWarning");
+        
+        if (saved) {
+            try {
+                const noteData = JSON.parse(saved);
+                const textSize = noteData.size;
+                const expiry = new Date(noteData.expiry);
+                
+                // Update storage info
+                storageInfo.textContent = `Storage: ${formatBytes(textSize)}/200MB`;
+                
+                // Update expiry info
+                const daysLeft = Math.ceil((expiry - new Date()) / (1000 * 60 * 60 * 24));
+                expiryInfo.textContent = `Expires: ${daysLeft} day${daysLeft !== 1 ? 's' : ''}`;
+                
+                // Show warning if approaching limit
+                const usagePercent = (textSize / NOTEPAD_CONFIG.MAX_STORAGE) * 100;
+                if (usagePercent > 80) {
+                    warning.style.display = 'block';
+                } else {
+                    warning.style.display = 'none';
+                }
+                
+            } catch (e) {
+                console.error("Error parsing note data:", e);
+            }
+        } else {
+            storageInfo.textContent = "Storage: 0/200MB";
+            expiryInfo.textContent = "Expires: -";
+            warning.style.display = 'none';
+        }
+    }
+
+    // Utility functions
+    function formatBytes(bytes, decimals = 2) {
+        if (bytes === 0) return '0 Bytes';
+        
+        const k = 1024;
+        const dm = decimals < 0 ? 0 : decimals;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+    }
+
+    function showTemporaryMessage(message) {
+        const tempMsg = document.createElement('div');
+        tempMsg.textContent = message;
+        tempMsg.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            z-index: 10000;
+            font-size: 14px;
+        `;
+        document.body.appendChild(tempMsg);
+        
+        setTimeout(() => {
+            document.body.removeChild(tempMsg);
+        }, 3000);
+    }
+
+    // Auto-clean expired notes on page load
+    function cleanupExpiredNotes() {
+        const saved = localStorage.getItem(NOTEPAD_CONFIG.STORAGE_KEY);
+        if (saved) {
+            try {
+                const noteData = JSON.parse(saved);
+                const now = new Date();
+                const expiry = new Date(noteData.expiry);
+                
+                if (now > expiry) {
+                    localStorage.removeItem(NOTEPAD_CONFIG.STORAGE_KEY);
+                    console.log("Expired note cleaned up");
+                }
+            } catch (e) {
+                console.error("Error during cleanup:", e);
+            }
+        }
+    }
+
+    function sendAIMessage() {
+        let input = document.getElementById("aiInput");
+        let messages = document.getElementById("aiMessages");
+
+        if (input.value.trim() === "") return;
+
+        messages.innerHTML += `<p><b>You:</b> ${input.value}</p>`;
+        messages.innerHTML += `<p><b>AI:</b> Thinking...</p>`;
+
+        setTimeout(() => {
+            messages.innerHTML += `<p><b>AI:</b> This is AI response for: '${input.value}'</p>`;
+            messages.scrollTop = messages.scrollHeight;
+        }, 600);
+
+        input.value = "";
+    }
+
+    function addBullet() {
+        const textarea = document.getElementById("noteArea");
+
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+
+        let text = textarea.value;
+
+        const bullet = "• ";
+
+        textarea.value = text.substring(0, start) + bullet + text.substring(end);
+
+        textarea.selectionStart = textarea.selectionEnd = start + bullet.length;
+
+        textarea.focus();
+    }
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        cleanupExpiredNotes();
+        loadNote();
+        
+        // Set up button event listeners
+        document.getElementById("aiChatBtn").onclick = toggleAIChat;
+        document.getElementById("noteBtn").onclick = toggleNote;
+    });
   </script>
 
 </body>

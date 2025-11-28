@@ -41,6 +41,7 @@
         width: 100%;
         background-size: cover;
         background-position: center;
+        background-color: #f8f9fa; /* Fallback color */
     }
     
     .course-category {
@@ -63,6 +64,24 @@
     
     .course-rating {
         color: var(--warning);
+    }
+    
+    /* Loading States */
+    .loading {
+        opacity: 0.7;
+        pointer-events: none;
+    }
+    
+    .skeleton {
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 200% 100%;
+        animation: loading 1.5s infinite;
+        border-radius: 4px;
+    }
+    
+    @keyframes loading {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
     }
     
     /* Modal Styles */
@@ -278,6 +297,168 @@
         margin-bottom: 2rem;
         font-size: 1.1rem;
     }
+    
+    /* Chatbot Button */
+    /* Floating Buttons – FIXED RIGHT SIDE */
+    .floating-btn {
+        position: fixed;
+        right: 25px;
+        width: 55px;
+        height: 55px;
+        background: #4c6ef5;
+        color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 50%;
+        cursor: pointer;
+        z-index: 9999;
+        font-size: 26px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+
+    /* Chatbot button bottom */
+    #aiChatBtn { bottom: 25px; }
+
+    /* Notepad button above chatbot */
+    #noteBtn { bottom: 95px; }
+
+    /* Chatbox Common Styling (Container Only) */
+    .chatbox {
+        position: fixed;
+        right: 90px;
+        width: 320px;
+        background: white;
+        border-radius: 12px;
+        display: none;
+        flex-direction: column;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+        z-index: 9998;
+        overflow: hidden;         /* PREVENT layout breaking */
+    }
+
+    /* Chatbot Height */
+    #aiChatBox {
+        bottom: 90px;
+        height: 400px;
+    }
+
+    /* Notepad Height */
+    #noteBox {
+        bottom: 160px;
+        height: 360px;
+    }
+
+    /* -------------------------------------- */
+    /* INTERNAL CHATBOT UI (Isolated CSS)     */
+    /* -------------------------------------- */
+
+    .chatbox .chat-header {
+        background: #4c6ef5;
+        color: white;
+        padding: 12px;
+        font-weight: 600;
+        font-size: 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .chatbox .close-btn {
+        background: transparent;
+        border: none;
+        color: white;
+        font-size: 18px;
+        cursor: pointer;
+        padding: 0;
+    }
+
+    .chatbox .chat-body {
+        padding: 10px;
+        height: 270px;
+        overflow-y: auto;
+        font-size: 14px;
+    }
+
+    .chatbox .chat-footer {
+        display: flex;
+        padding: 10px;
+        gap: 5px;
+        border-top: 1px solid #ddd;
+    }
+
+    .chatbox .chat-footer input {
+        flex: 1;
+        padding: 8px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+        outline: none;
+    }
+
+    .chatbox .chat-footer button {
+        background: #4c6ef5;
+        color: white;
+        padding: 7px 16px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+
+    /* -------------------------------------- */
+    /* NOTEPAD INSIDE STYLING                 */
+    /* -------------------------------------- */
+
+    #noteBox .note-info {
+        padding: 8px 12px;
+        background: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+        font-size: 12px;
+        color: #6c757d;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    #noteBox .note-area {
+        width: 100%;
+        height: 220px;
+        padding: 10px;
+        border-radius: 10px;
+        border: 1px solid #bbb;
+        resize: none;
+        outline: none;
+    }
+
+    #noteBox .note-footer {
+        text-align: right;
+        padding: 8px 0;
+    }
+
+    #noteBox .save-note-btn {
+        background: #4c6ef5;
+        color: white;
+        padding: 7px 14px;
+        border-radius: 6px;
+        border: none;
+        cursor: pointer;
+    }
+    
+    #noteBox .bullet-btn {
+        background: #198754;
+        color: white;
+        padding: 6px 12px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        margin-bottom:10px;
+    }
+    
+    #noteBox .storage-warning {
+        color: #dc3545;
+        font-size: 11px;
+        margin-top: 5px;
+        display: none;
+        padding: 0 10px;
+    }
 </style>
 </head>
 <body class="bg-light">
@@ -331,16 +512,16 @@
     <h2 class="mb-4">Popular Categories</h2>
     <div class="row text-center">
       <div class="col-md-3 mb-3">
-        <button class="btn btn-outline-primary w-100 py-3 rounded-3">Programming</button>
+        <button class="btn btn-outline-primary w-100 py-3 rounded-3 category-filter" data-category="programming">Programming</button>
       </div>
       <div class="col-md-3 mb-3">
-        <button class="btn btn-outline-success w-100 py-3 rounded-3">Business</button>
+        <button class="btn btn-outline-success w-100 py-3 rounded-3 category-filter" data-category="business">Business</button>
       </div>
       <div class="col-md-3 mb-3">
-        <button class="btn btn-outline-warning w-100 py-3 rounded-3">Design</button>
+        <button class="btn btn-outline-warning w-100 py-3 rounded-3 category-filter" data-category="design">Design</button>
       </div>
       <div class="col-md-3 mb-3">
-        <button class="btn btn-outline-danger w-100 py-3 rounded-3">Music</button>
+        <button class="btn btn-outline-danger w-100 py-3 rounded-3 category-filter" data-category="music">Music</button>
       </div>
     </div>
 </section>
@@ -349,38 +530,47 @@
 <section class="container my-5">
   <div class="d-flex justify-content-between align-items-center mb-4">
     <h2 class="mb-0">Featured Courses</h2>
-    <a href="#" class="btn btn-outline-primary btn-sm">More Courses →</a>
+    <div>
+      <button class="btn btn-outline-secondary btn-sm me-2" id="refresh-courses">
+        <i class="fas fa-sync-alt"></i> Refresh
+      </button>
+      <a href="{% url 'courses:course_list' %}" class="btn btn-outline-primary btn-sm">More Courses →</a>
+    </div>
   </div>
 
-  <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
-    {% for course in all_courses %}
+  <!-- Loading Skeleton -->
+  <div id="courses-loading" class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+    {% for i in "1234" %}
     <div class="col">
       <div class="card course-card h-100 shadow-sm border-0">
-        <div class="course-image" style="background-image: url('{{ course.thumbnail.url|default:"https://via.placeholder.com/300x180?text=Course+Image" }}')"></div>
+        <div class="course-image skeleton" style="height: 180px;"></div>
         <div class="card-body d-flex flex-column">
-          <span class="course-category">{{ course.category|default:"General" }}</span>
-          <h5 class="card-title fw-bold">{{ course.title }}</h5>
-          <p class="card-text text-muted small mb-3">{{ course.description|truncatewords:15 }}</p>
-          
+          <div class="skeleton" style="width: 80px; height: 24px; margin-bottom: 0.8rem;"></div>
+          <div class="skeleton" style="width: 100%; height: 20px; margin-bottom: 0.5rem;"></div>
+          <div class="skeleton" style="width: 100%; height: 40px; margin-bottom: 1rem;"></div>
           <div class="course-meta">
-            <div><i class="fas fa-clock"></i> {{ course.duration|default:"10 hours" }}</div>
-            <div><i class="fas fa-video"></i> {{ course.lessons|default:"15" }} lessons</div>
-            <div class="course-rating"><i class="fas fa-star"></i> {{ course.rating|default:"4.5" }}</div>
+            <div class="skeleton" style="width: 60px; height: 16px;"></div>
+            <div class="skeleton" style="width: 60px; height: 16px;"></div>
+            <div class="skeleton" style="width: 40px; height: 16px;"></div>
           </div>
-          
-          <p class="fw-semibold mb-3">💰 ${{ course.price|default:"Free" }}</p>
-
-          <div class="mt-auto">
-              <button class="btn btn-outline-primary w-100 view-details-btn" data-course-id="{{ course.id }}">
-                  <i class="fas fa-eye"></i> View Details
-              </button>
-          </div>
+          <div class="skeleton" style="width: 80px; height: 20px; margin-bottom: 1rem;"></div>
+          <div class="skeleton" style="width: 100%; height: 38px;"></div>
         </div>
       </div>
     </div>
-    {% empty %}
-      <p class="text-center text-muted">No courses available yet.</p>
     {% endfor %}
+  </div>
+
+  <!-- Actual Courses Container -->
+  <div id="courses-container" class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4" style="display: none;">
+    <!-- Courses will be dynamically loaded here -->
+  </div>
+
+  <!-- No Courses Message -->
+  <div id="no-courses" class="text-center py-5" style="display: none;">
+    <i class="fas fa-book-open fa-3x text-muted mb-3"></i>
+    <h4 class="text-muted">No courses available</h4>
+    <p class="text-muted">Check back later for new courses!</p>
   </div>
 </section>
 
@@ -389,24 +579,24 @@
     <div class="modal-content">
         <span class="close-modal" id="close-detail-modal">&times;</span>
         <div class="course-detail-header">
-            <h2 id="detail-title">Complete Web Development Bootcamp</h2>
-            <p id="detail-instructor">Instructor: Madan</p>
+            <h2 id="detail-title">Course Title</h2>
+            <p id="detail-instructor">Instructor: Loading...</p>
             <div class="course-detail-meta">
-                <div><i class="fas fa-clock"></i> <span id="detail-duration">60 hours</span></div>
-                <div><i class="fas fa-video"></i> <span id="detail-lessons">45 lessons</span></div>
-                <div><i class="fas fa-star"></i> <span id="detail-rating">4.8 (2,450 reviews)</span></div>
-                <div><i class="fas fa-users"></i> <span id="detail-students">15,230 students</span></div>
+                <div><i class="fas fa-clock"></i> <span id="detail-duration">Loading...</span></div>
+                <div><i class="fas fa-video"></i> <span id="detail-lessons">Loading...</span></div>
+                <div><i class="fas fa-star"></i> <span id="detail-rating">Loading...</span></div>
+                <div><i class="fas fa-users"></i> <span id="detail-students">Loading...</span></div>
             </div>
         </div>
         <div class="course-detail-body">
             <div class="course-detail-section">
                 <h3>About This Course</h3>
-                <p id="detail-description">This comprehensive course will take you from beginner to advanced in web development. You'll learn HTML, CSS, JavaScript, React, Node.js, and much more through hands-on projects and real-world examples.</p>
+                <p id="detail-description">Loading course description...</p>
             </div>
             <div class="course-detail-section">
                 <h3>Syllabus</h3>
                 <ul class="syllabus-list" id="syllabus-list">
-                    <!-- Syllabus items will be dynamically added here -->
+                    <li><i class="fas fa-check-circle"></i> Loading syllabus...</li>
                 </ul>
             </div>
             <div class="course-detail-actions">
@@ -427,8 +617,8 @@
         <span class="close-modal" id="close-payment-modal">&times;</span>
         <div class="course-detail-header">
             <h2>Complete Your Enrollment</h2>
-            <p id="payment-course-title">Complete Web Development Bootcamp</p>
-            <div class="course-price">$89.99</div>
+            <p id="payment-course-title">Course Title</p>
+            <div class="course-price" id="payment-course-price">$0.00</div>
         </div>
         <div class="payment-form">
             <h3>Payment Information</h3>
@@ -483,7 +673,7 @@
                 <i class="fas fa-check"></i>
             </div>
             <h2>Enrollment Successful!</h2>
-            <p>You have successfully enrolled in <strong id="success-course-title">Complete Web Development Bootcamp</strong>. You can now access the course from your dashboard.</p>
+            <p>You have successfully enrolled in <strong id="success-course-title">Course Title</strong>. You can now access the course from your dashboard.</p>
             <button class="btn btn-primary btn-large" id="go-to-dashboard">
                 <i class="fas fa-tachometer-alt"></i> Go to Dashboard
             </button>
@@ -491,211 +681,645 @@
     </div>
 </div>
 
-<footer>
-    <p>&copy; 2025 Bildung. All rights reserved.</p>
-</footer>
+<!-- Floating Buttons -->
+<div id="aiChatBtn" class="floating-btn">🤖</div>
+<div id="noteBtn" class="floating-btn">📝</div>
+
+<!-- Chatbot Window -->
+<div id="aiChatBox" class="chatbox">
+    <div class="chat-header">
+        <span>AI Chatbot</span>
+        <button class="close-btn" onclick="toggleAIChat()">✖</button>
+    </div>
+    <div class="chat-body" id="aiMessages">
+        <p><b>AI:</b> Hi! How can I help you today?</p>
+    </div>
+    <div class="chat-footer">
+        <input type="text" id="aiInput" placeholder="Type message..." />
+        <button onclick="sendAIMessage()">Send</button>
+    </div>
+</div>
+
+<!-- Notepad Window -->
+<div id="noteBox" class="chatbox">
+    <div class="chat-header">
+        <span>Quick Notepad</span>
+        <button class="close-btn" onclick="toggleNote()">✖</button>
+    </div>
+    
+    <!-- Add this info bar -->
+    <div class="note-info">
+        <span id="storageInfo">Storage: 0/200MB</span>
+        <span id="expiryInfo">Expires: -</span>
+    </div>
+    
+    <textarea id="noteArea" class="note-area" placeholder="Write notes here..."></textarea>
+    
+    <!-- Storage warning -->
+    <div id="storageWarning" class="storage-warning">
+        ⚠️ Approaching storage limit (200MB)
+    </div>
+    
+    <!-- Save Button Section -->
+    <div class="note-footer">
+        <button class="save-note-btn" onclick="saveNote()">Save</button>
+    </div>
+    <div class="note-tools">
+        <button class="bullet-btn" onclick="addBullet()"><h6>•Bullet point</h6></button>
+    </div>
+</div>
 
 <script>
-    // Sample course data (in a real app, this would come from your backend)
-    const courses = [
-        {
-            id: 1,
-            title: "Complete Web Development Bootcamp",
-            instructor: "Sai",
-            category: "web-dev",
-            level: "beginner",
-            rating: 4.8,
-            reviews: 2450,
-            students: 15230,
-            duration: "60 hours",
-            lessons: 45,
-            price: 89.99,
-            image: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80",
-            description: "This comprehensive course will take you from beginner to advanced in web development. You'll learn HTML, CSS, JavaScript, React, Node.js, and much more through hands-on projects and real-world examples.",
-            syllabus: [
-                "HTML Fundamentals",
-                "CSS Styling and Layouts",
-                "JavaScript Basics",
-                "Advanced JavaScript Concepts",
-                "React.js Fundamentals",
-                "Node.js and Express",
-                "Database Integration",
-                "Deployment and DevOps"
-            ]
-        },
-        {
-            id: 2,
-            title: "Data Science with Python",
-            instructor: "Sagarika",
-            category: "data-science",
-            level: "intermediate",
-            rating: 4.7,
-            reviews: 1820,
-            students: 11250,
-            duration: "50 hours",
-            lessons: 38,
-            price: 94.99,
-            image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80",
-            description: "Master data science with Python. Learn data analysis, visualization, machine learning, and statistical modeling to extract insights from data.",
-            syllabus: [
-                "Python for Data Science",
-                "Data Analysis with Pandas",
-                "Data Visualization with Matplotlib and Seaborn",
-                "Statistical Analysis",
-                "Machine Learning Fundamentals",
-                "Regression Models",
-                "Classification Algorithms",
-                "Clustering Techniques"
-            ]
-        },
-        {
-            id: 3,
-            title: "UI/UX Design Masterclass",
-            instructor: "Mit",
-            category: "design",
-            level: "beginner",
-            rating: 4.9,
-            reviews: 1560,
-            students: 9850,
-            duration: "45 hours",
-            lessons: 32,
-            price: 79.99,
-            image: "https://images.unsplash.com/photo-1561070791-2526d30994b5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1300&q=80",
-            description: "Learn the principles of user interface and user experience design. Create beautiful, functional designs that users love.",
-            syllabus: [
-                "Design Thinking Process",
-                "User Research Methods",
-                "Wireframing and Prototyping",
-                "Visual Design Principles",
-                "Interaction Design",
-                "Usability Testing",
-                "Design Systems",
-                "Portfolio Development"
-            ]
+    // Course Management System
+    class CourseManager {
+        constructor() {
+            this.courses = [];
+            this.currentCourse = null;
+            this.filteredCourses = [];
+            this.init();
         }
-    ];
 
-    // DOM Elements
-    const courseDetailModal = document.getElementById('course-detail-modal');
-    const paymentModal = document.getElementById('payment-modal');
-    const successModal = document.getElementById('success-modal');
-    const closeDetailModal = document.getElementById('close-detail-modal');
-    const closePaymentModal = document.getElementById('close-payment-modal');
-    const enrollBtn = document.getElementById('enroll-btn');
-    const completePaymentBtn = document.getElementById('complete-payment');
-    const goToDashboardBtn = document.getElementById('go-to-dashboard');
+        init() {
+            this.setupEventListeners();
+            this.loadCourses();
+            this.cleanupExpiredNotes();
+            this.loadNote();
+        }
 
-    // State
-    let currentCourse = null;
+        // Simulate API call to get courses from server
+        async loadCourses() {
+            try {
+                // Show loading state
+                this.showLoading();
+                
+                // In a real app, this would be an API call to your Django backend
+                // For now, we'll simulate loading with a timeout
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                
+                // Get courses from Django context or simulate them
+                this.courses = await this.fetchCoursesFromBackend();
+                this.filteredCourses = [...this.courses];
+                
+                this.renderCourses();
+                this.hideLoading();
+                
+            } catch (error) {
+                console.error('Error loading courses:', error);
+                this.showError('Failed to load courses. Please try again.');
+                this.hideLoading();
+            }
+        }
 
-    // Initialize the page
-    function init() {
-        setupEventListeners();
-    }
+        // Simulate fetching courses from Django backend
+        async fetchCoursesFromBackend() {
+            // This simulates what your Django view would return
+            // In reality, this data comes from your database via instructors
+            return [
+                {
+                    id: 1,
+                    title: "Complete Web Development Bootcamp",
+                    instructor: "Sai",
+                    category: "programming",
+                    level: "beginner",
+                    rating: 4.8,
+                    reviews: 2450,
+                    students: 15230,
+                    duration: "60 hours",
+                    lessons: 45,
+                    price: 89.99,
+                    image: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80",
+                    description: "This comprehensive course will take you from beginner to advanced in web development. You'll learn HTML, CSS, JavaScript, React, Node.js, and much more through hands-on projects and real-world examples.",
+                    syllabus: [
+                        "HTML Fundamentals",
+                        "CSS Styling and Layouts",
+                        "JavaScript Basics",
+                        "Advanced JavaScript Concepts",
+                        "React.js Fundamentals",
+                        "Node.js and Express",
+                        "Database Integration",
+                        "Deployment and DevOps"
+                    ],
+                    is_featured: true,
+                    created_at: "2024-01-15"
+                },
+                {
+                    id: 2,
+                    title: "Data Science with Python",
+                    instructor: "Sagarika",
+                    category: "programming",
+                    level: "intermediate",
+                    rating: 4.7,
+                    reviews: 1820,
+                    students: 11250,
+                    duration: "50 hours",
+                    lessons: 38,
+                    price: 94.99,
+                    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80",
+                    description: "Master data science with Python. Learn data analysis, visualization, machine learning, and statistical modeling to extract insights from data.",
+                    syllabus: [
+                        "Python for Data Science",
+                        "Data Analysis with Pandas",
+                        "Data Visualization with Matplotlib and Seaborn",
+                        "Statistical Analysis",
+                        "Machine Learning Fundamentals",
+                        "Regression Models",
+                        "Classification Algorithms",
+                        "Clustering Techniques"
+                    ],
+                    is_featured: true,
+                    created_at: "2024-01-10"
+                },
+                {
+                    id: 3,
+                    title: "UI/UX Design Masterclass",
+                    instructor: "Mit",
+                    category: "design",
+                    level: "beginner",
+                    rating: 4.9,
+                    reviews: 1560,
+                    students: 9850,
+                    duration: "45 hours",
+                    lessons: 32,
+                    price: 79.99,
+                    image: "https://images.unsplash.com/photo-1561070791-2526d30994b5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1300&q=80",
+                    description: "Learn the principles of user interface and user experience design. Create beautiful, functional designs that users love.",
+                    syllabus: [
+                        "Design Thinking Process",
+                        "User Research Methods",
+                        "Wireframing and Prototyping",
+                        "Visual Design Principles",
+                        "Interaction Design",
+                        "Usability Testing",
+                        "Design Systems",
+                        "Portfolio Development"
+                    ],
+                    is_featured: true,
+                    created_at: "2024-01-08"
+                },
+                {
+                    id: 4,
+                    title: "Digital Marketing Fundamentals",
+                    instructor: "Marketing Pro",
+                    category: "business",
+                    level: "beginner",
+                    rating: 4.5,
+                    reviews: 890,
+                    students: 4200,
+                    duration: "30 hours",
+                    lessons: 25,
+                    price: 49.99,
+                    image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80",
+                    description: "Learn the fundamentals of digital marketing including SEO, social media, email marketing, and analytics.",
+                    syllabus: [
+                        "Introduction to Digital Marketing",
+                        "Search Engine Optimization (SEO)",
+                        "Social Media Marketing",
+                        "Email Marketing Strategies",
+                        "Content Marketing",
+                        "Google Analytics",
+                        "Paid Advertising",
+                        "Marketing Automation"
+                    ],
+                    is_featured: false,
+                    created_at: "2024-01-12"
+                }
+            ];
+        }
 
-    // Show course details in modal
-    function showCourseDetails(courseId) {
-        currentCourse = courses.find(course => course.id === courseId);
-        
-        if (!currentCourse) return;
-        
-        // Update modal content
-        document.getElementById('detail-title').textContent = currentCourse.title;
-        document.getElementById('detail-instructor').textContent = `Instructor: ${currentCourse.instructor}`;
-        document.getElementById('detail-duration').textContent = currentCourse.duration;
-        document.getElementById('detail-lessons').textContent = `${currentCourse.lessons} lessons`;
-        document.getElementById('detail-rating').textContent = `${currentCourse.rating} (${currentCourse.reviews} reviews)`;
-        document.getElementById('detail-students').textContent = `${currentCourse.students.toLocaleString()} students`;
-        document.getElementById('detail-description').textContent = currentCourse.description;
-        
-        // Update syllabus
-        const syllabusList = document.getElementById('syllabus-list');
-        syllabusList.innerHTML = '';
-        currentCourse.syllabus.forEach(item => {
-            const li = document.createElement('li');
-            li.innerHTML = `<i class="fas fa-check-circle"></i> ${item}`;
-            syllabusList.appendChild(li);
-        });
-        
-        // Update payment modal course title
-        document.getElementById('payment-course-title').textContent = currentCourse.title;
-        
-        // Show modal
-        courseDetailModal.style.display = 'block';
-    }
-
-    // Setup event listeners
-    function setupEventListeners() {
-        // View details buttons
-        document.querySelectorAll('.view-details-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const courseId = parseInt(e.target.closest('.view-details-btn').getAttribute('data-course-id'));
-                showCourseDetails(courseId);
+        renderCourses() {
+            const container = document.getElementById('courses-container');
+            const noCourses = document.getElementById('no-courses');
+            
+            if (this.filteredCourses.length === 0) {
+                container.style.display = 'none';
+                noCourses.style.display = 'block';
+                return;
+            }
+            
+            container.innerHTML = '';
+            noCourses.style.display = 'none';
+            
+            this.filteredCourses.forEach(course => {
+                const courseElement = this.createCourseElement(course);
+                container.appendChild(courseElement);
             });
-        });
-        
-        // Modal controls
-        closeDetailModal.addEventListener('click', () => {
-            courseDetailModal.style.display = 'none';
-        });
-        
-        closePaymentModal.addEventListener('click', () => {
-            paymentModal.style.display = 'none';
-        });
-        
-        // Enrollment flow
-        enrollBtn.addEventListener('click', () => {
-            courseDetailModal.style.display = 'none';
-            paymentModal.style.display = 'block';
-        });
-        
-        completePaymentBtn.addEventListener('click', completeEnrollment);
-        
-        goToDashboardBtn.addEventListener('click', () => {
-            successModal.style.display = 'none';
-            // In a real app, you would redirect to the dashboard
-            // For now, we'll just show an alert
-            alert('Redirecting to dashboard...');
-        });
-        
-        // Close modals when clicking outside
-        window.addEventListener('click', (e) => {
-            if (e.target === courseDetailModal) {
-                courseDetailModal.style.display = 'none';
+            
+            container.style.display = 'flex';
+        }
+
+        createCourseElement(course) {
+            const col = document.createElement('div');
+            col.className = 'col';
+            
+            col.innerHTML = `
+                <div class="card course-card h-100 shadow-sm border-0">
+                    <div class="course-image" style="background-image: url('${course.image}')"></div>
+                    <div class="card-body d-flex flex-column">
+                        <span class="course-category">${this.formatCategory(course.category)}</span>
+                        <h5 class="card-title fw-bold">${course.title}</h5>
+                        <p class="card-text text-muted small mb-3">${course.description}</p>
+                        
+                        <div class="course-meta">
+                            <div><i class="fas fa-clock"></i> ${course.duration}</div>
+                            <div><i class="fas fa-video"></i> ${course.lessons} lessons</div>
+                            <div class="course-rating"><i class="fas fa-star"></i> ${course.rating}</div>
+                        </div>
+                        
+                        <p class="fw-semibold mb-3">💰 $${course.price}</p>
+
+                        <div class="mt-auto">
+                            <button class="btn btn-outline-primary w-100 view-details-btn" data-course-id="${course.id}">
+                                <i class="fas fa-eye"></i> View Details
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            return col;
+        }
+
+        formatCategory(category) {
+            return category.charAt(0).toUpperCase() + category.slice(1);
+        }
+
+        showCourseDetails(courseId) {
+            this.currentCourse = this.courses.find(course => course.id === courseId);
+            
+            if (!this.currentCourse) return;
+            
+            // Update modal content
+            document.getElementById('detail-title').textContent = this.currentCourse.title;
+            document.getElementById('detail-instructor').textContent = `Instructor: ${this.currentCourse.instructor}`;
+            document.getElementById('detail-duration').textContent = this.currentCourse.duration;
+            document.getElementById('detail-lessons').textContent = `${this.currentCourse.lessons} lessons`;
+            document.getElementById('detail-rating').textContent = `${this.currentCourse.rating} (${this.currentCourse.reviews} reviews)`;
+            document.getElementById('detail-students').textContent = `${this.currentCourse.students.toLocaleString()} students`;
+            document.getElementById('detail-description').textContent = this.currentCourse.description;
+            
+            // Update syllabus
+            const syllabusList = document.getElementById('syllabus-list');
+            syllabusList.innerHTML = '';
+            this.currentCourse.syllabus.forEach(item => {
+                const li = document.createElement('li');
+                li.innerHTML = `<i class="fas fa-check-circle"></i> ${item}`;
+                syllabusList.appendChild(li);
+            });
+            
+            // Update payment modal
+            document.getElementById('payment-course-title').textContent = this.currentCourse.title;
+            document.getElementById('payment-course-price').textContent = `$${this.currentCourse.price}`;
+            
+            // Show modal
+            document.getElementById('course-detail-modal').style.display = 'block';
+        }
+
+        filterByCategory(category) {
+            if (category === 'all') {
+                this.filteredCourses = [...this.courses];
+            } else {
+                this.filteredCourses = this.courses.filter(course => 
+                    course.category === category
+                );
             }
-            if (e.target === paymentModal) {
-                paymentModal.style.display = 'none';
-            }
-            if (e.target === successModal) {
-                successModal.style.display = 'none';
-            }
-        });
-        
-        // Payment method selection
-        document.querySelectorAll('.payment-method').forEach(method => {
-            method.addEventListener('click', () => {
-                document.querySelectorAll('.payment-method').forEach(m => {
-                    m.classList.remove('active');
+            this.renderCourses();
+        }
+
+        showLoading() {
+            document.getElementById('courses-loading').style.display = 'flex';
+            document.getElementById('courses-container').style.display = 'none';
+            document.getElementById('no-courses').style.display = 'none';
+        }
+
+        hideLoading() {
+            document.getElementById('courses-loading').style.display = 'none';
+        }
+
+        showError(message) {
+            const container = document.getElementById('courses-container');
+            container.innerHTML = `
+                <div class="col-12 text-center py-5">
+                    <i class="fas fa-exclamation-triangle fa-2x text-warning mb-3"></i>
+                    <h5 class="text-muted">${message}</h5>
+                    <button class="btn btn-primary mt-2" onclick="courseManager.loadCourses()">
+                        <i class="fas fa-redo"></i> Try Again
+                    </button>
+                </div>
+            `;
+            container.style.display = 'block';
+        }
+
+        setupEventListeners() {
+            // View details buttons
+            document.addEventListener('click', (e) => {
+                if (e.target.closest('.view-details-btn')) {
+                    const courseId = parseInt(e.target.closest('.view-details-btn').getAttribute('data-course-id'));
+                    this.showCourseDetails(courseId);
+                }
+            });
+
+            // Category filters
+            document.querySelectorAll('.category-filter').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const category = e.target.getAttribute('data-category');
+                    this.filterByCategory(category);
+                    
+                    // Update active state
+                    document.querySelectorAll('.category-filter').forEach(b => {
+                        b.classList.remove('btn-primary', 'btn-success', 'btn-warning', 'btn-danger');
+                        b.classList.add('btn-outline-primary', 'btn-outline-success', 'btn-outline-warning', 'btn-outline-danger');
+                    });
+                    e.target.classList.remove('btn-outline-primary', 'btn-outline-success', 'btn-outline-warning', 'btn-outline-danger');
+                    e.target.classList.add(`btn-${this.getCategoryColor(category)}`);
                 });
-                method.classList.add('active');
             });
-        });
+
+            // Refresh courses
+            document.getElementById('refresh-courses').addEventListener('click', () => {
+                this.loadCourses();
+            });
+
+            // Modal controls
+            document.getElementById('close-detail-modal').addEventListener('click', () => {
+                document.getElementById('course-detail-modal').style.display = 'none';
+            });
+
+            document.getElementById('close-payment-modal').addEventListener('click', () => {
+                document.getElementById('payment-modal').style.display = 'none';
+            });
+
+            // Enrollment flow
+            document.getElementById('enroll-btn').addEventListener('click', () => {
+                document.getElementById('course-detail-modal').style.display = 'none';
+                document.getElementById('payment-modal').style.display = 'block';
+            });
+
+            document.getElementById('complete-payment').addEventListener('click', () => {
+                this.completeEnrollment();
+            });
+
+            document.getElementById('go-to-dashboard').addEventListener('click', () => {
+                document.getElementById('success-modal').style.display = 'none';
+                alert('Redirecting to dashboard...');
+            });
+
+            // Close modals when clicking outside
+            window.addEventListener('click', (e) => {
+                if (e.target === document.getElementById('course-detail-modal')) {
+                    document.getElementById('course-detail-modal').style.display = 'none';
+                }
+                if (e.target === document.getElementById('payment-modal')) {
+                    document.getElementById('payment-modal').style.display = 'none';
+                }
+                if (e.target === document.getElementById('success-modal')) {
+                    document.getElementById('success-modal').style.display = 'none';
+                }
+            });
+
+            // Payment method selection
+            document.querySelectorAll('.payment-method').forEach(method => {
+                method.addEventListener('click', () => {
+                    document.querySelectorAll('.payment-method').forEach(m => {
+                        m.classList.remove('active');
+                    });
+                    method.classList.add('active');
+                });
+            });
+        }
+
+        getCategoryColor(category) {
+            const colors = {
+                programming: 'primary',
+                business: 'success',
+                design: 'warning',
+                music: 'danger'
+            };
+            return colors[category] || 'primary';
+        }
+
+        completeEnrollment() {
+            if (!this.currentCourse) return;
+            
+            // Update success modal
+            document.getElementById('success-course-title').textContent = this.currentCourse.title;
+            
+            // Show success modal
+            document.getElementById('payment-modal').style.display = 'none';
+            document.getElementById('success-modal').style.display = 'block';
+            
+            // In a real app, you would send enrollment data to your backend here
+            console.log(`Enrolled in: ${this.currentCourse.title}`);
+        }
     }
 
-    // Complete enrollment
-    function completeEnrollment() {
-        if (!currentCourse) return;
+    // Notepad with 200MB storage and 14-day expiry
+    const NOTEPAD_CONFIG = {
+        MAX_STORAGE: 200 * 1024 * 1024, // 200MB in bytes
+        EXPIRY_DAYS: 14,
+        STORAGE_KEY: 'quickNoteData'
+    };
+
+    function toggleAIChat() {
+        const box = document.getElementById('aiChatBox');
+        box.style.display = box.style.display === 'flex' ? 'none' : 'flex';
+    }
+
+    function toggleNote() {
+        const box = document.getElementById('noteBox');
+        box.style.display = box.style.display === 'flex' ? 'none' : 'flex';
+        if (box.style.display === 'flex') {
+            updateStorageInfo();
+        }
+    }
+
+    // Enhanced save function with storage limits
+    function saveNote() {
+        const text = document.getElementById("noteArea").value;
+        const textSize = new Blob([text]).size;
         
-        // Update success modal
-        document.getElementById('success-course-title').textContent = currentCourse.title;
+        // Check storage limit
+        if (textSize > NOTEPAD_CONFIG.MAX_STORAGE) {
+            alert(`Note too large! Maximum size is 200MB. Your note is ${formatBytes(textSize)}.`);
+            return;
+        }
         
-        // Show success modal
-        paymentModal.style.display = 'none';
-        successModal.style.display = 'block';
+        const noteData = {
+            text: text,
+            timestamp: new Date().toISOString(),
+            expiry: new Date(Date.now() + NOTEPAD_CONFIG.EXPIRY_DAYS * 24 * 60 * 60 * 1000).toISOString(),
+            size: textSize
+        };
+        
+        try {
+            localStorage.setItem(NOTEPAD_CONFIG.STORAGE_KEY, JSON.stringify(noteData));
+            updateStorageInfo();
+            showTemporaryMessage("Note Saved! (Expires in 14 days)");
+        } catch (e) {
+            if (e.name === 'QuotaExceededError') {
+                alert("Storage limit exceeded! Please reduce the note size.");
+            } else {
+                alert("Error saving note: " + e.message);
+            }
+        }
+    }
+
+    // Load note with expiry check
+    function loadNote() {
+        try {
+            const saved = localStorage.getItem(NOTEPAD_CONFIG.STORAGE_KEY);
+            if (saved) {
+                const noteData = JSON.parse(saved);
+                const now = new Date();
+                const expiry = new Date(noteData.expiry);
+                
+                // Check if note has expired
+                if (now > expiry) {
+                    localStorage.removeItem(NOTEPAD_CONFIG.STORAGE_KEY);
+                    document.getElementById("noteArea").value = "";
+                    updateStorageInfo();
+                    showTemporaryMessage("Previous note has expired and was cleared.");
+                    return;
+                }
+                
+                document.getElementById("noteArea").value = noteData.text;
+                updateStorageInfo();
+            }
+        } catch (e) {
+            console.error("Error loading note:", e);
+        }
+    }
+
+    // Update storage information display
+    function updateStorageInfo() {
+        const saved = localStorage.getItem(NOTEPAD_CONFIG.STORAGE_KEY);
+        const storageInfo = document.getElementById("storageInfo");
+        const expiryInfo = document.getElementById("expiryInfo");
+        const warning = document.getElementById("storageWarning");
+        
+        if (saved) {
+            try {
+                const noteData = JSON.parse(saved);
+                const textSize = noteData.size;
+                const expiry = new Date(noteData.expiry);
+                
+                // Update storage info
+                storageInfo.textContent = `Storage: ${formatBytes(textSize)}/200MB`;
+                
+                // Update expiry info
+                const daysLeft = Math.ceil((expiry - new Date()) / (1000 * 60 * 60 * 24));
+                expiryInfo.textContent = `Expires: ${daysLeft} day${daysLeft !== 1 ? 's' : ''}`;
+                
+                // Show warning if approaching limit
+                const usagePercent = (textSize / NOTEPAD_CONFIG.MAX_STORAGE) * 100;
+                if (usagePercent > 80) {
+                    warning.style.display = 'block';
+                } else {
+                    warning.style.display = 'none';
+                }
+                
+            } catch (e) {
+                console.error("Error parsing note data:", e);
+            }
+        } else {
+            storageInfo.textContent = "Storage: 0/200MB";
+            expiryInfo.textContent = "Expires: -";
+            warning.style.display = 'none';
+        }
+    }
+
+    // Utility functions
+    function formatBytes(bytes, decimals = 2) {
+        if (bytes === 0) return '0 Bytes';
+        
+        const k = 1024;
+        const dm = decimals < 0 ? 0 : decimals;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+    }
+
+    function showTemporaryMessage(message) {
+        const tempMsg = document.createElement('div');
+        tempMsg.textContent = message;
+        tempMsg.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            z-index: 10000;
+            font-size: 14px;
+        `;
+        document.body.appendChild(tempMsg);
+        
+        setTimeout(() => {
+            document.body.removeChild(tempMsg);
+        }, 3000);
+    }
+
+    // Auto-clean expired notes on page load
+    function cleanupExpiredNotes() {
+        const saved = localStorage.getItem(NOTEPAD_CONFIG.STORAGE_KEY);
+        if (saved) {
+            try {
+                const noteData = JSON.parse(saved);
+                const now = new Date();
+                const expiry = new Date(noteData.expiry);
+                
+                if (now > expiry) {
+                    localStorage.removeItem(NOTEPAD_CONFIG.STORAGE_KEY);
+                    console.log("Expired note cleaned up");
+                }
+            } catch (e) {
+                console.error("Error during cleanup:", e);
+            }
+        }
+    }
+
+    function sendAIMessage() {
+        let input = document.getElementById("aiInput");
+        let messages = document.getElementById("aiMessages");
+
+        if (input.value.trim() === "") return;
+
+        messages.innerHTML += `<p><b>You:</b> ${input.value}</p>`;
+        messages.innerHTML += `<p><b>AI:</b> Thinking...</p>`;
+
+        setTimeout(() => {
+            messages.innerHTML += `<p><b>AI:</b> This is AI response for: '${input.value}'</p>`;
+            messages.scrollTop = messages.scrollHeight;
+        }, 600);
+
+        input.value = "";
+    }
+
+    function addBullet() {
+        const textarea = document.getElementById("noteArea");
+
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+
+        let text = textarea.value;
+
+        const bullet = "• ";
+
+        textarea.value = text.substring(0, start) + bullet + text.substring(end);
+
+        textarea.selectionStart = textarea.selectionEnd = start + bullet.length;
+
+        textarea.focus();
     }
 
     // Initialize the application
-    init();
+    const courseManager = new CourseManager();
+
+    // Set up floating button event listeners
+    document.getElementById("aiChatBtn").onclick = toggleAIChat;
+    document.getElementById("noteBtn").onclick = toggleNote;
 </script>
 </body>
 </html>

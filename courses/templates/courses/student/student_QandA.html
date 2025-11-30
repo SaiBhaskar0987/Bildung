@@ -13,6 +13,7 @@
     <a href="{% url 'student_dashboard' %}" class="text-decoration-none text-dark">
         <h3 class="m-0 fw-bold">Bildung</h3>
     </a>
+    
 
     <div class="d-flex align-items-center gap-3">
         <h4 class="m-0">Hello, {{ user.first_name }} {{ user.last_name }} </h4>
@@ -26,7 +27,7 @@
                 <li><a class="dropdown-item" href="{% url 'student:student_upcoming_classes' %}">My_schedules</a></li>
                 <li><a class="dropdown-item" href="{% url 'student:student_my_activity' %}">My activity</a></li>
                 <li><a class="dropdown-item" href="{% url 'student:my_certificates' %}">My Certificates</a></li>
-                <li><a class="dropdown-item" href="#">Notifications</a></li>
+                <li><a class="dropdown-item" href="{% url 'student:student_notifications' %}">Notifications</a></li>
                 <li><a class="dropdown-item" href="#">Payments</a></li>
                 <li><a class="dropdown-item" href="#">Help and Support</a></li>
                 <li><a class="dropdown-item" href="#">Feedback</a></li>

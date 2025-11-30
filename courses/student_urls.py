@@ -23,5 +23,10 @@ urlpatterns = [
     path('course/<int:course_id>/qna/', views.course_qna, name='course_qna'),
     path("reply/<int:reply_id>/upvote/", views.upvote_reply, name="upvote_reply"),
     path("course/<int:course_id>/leave-review/", views.leave_review, name="leave_review"),
+    path("notifications/", views.student_notifications, name="student_notifications"),
+    path("notifications/recent/", views.get_recent_notifications, name="recent_notifications"),
+    path("notifications/mark-read/", views.mark_notifications_read, name="mark_notifications_read"),
+    path("notifications/mark/<int:notif_id>/",views.mark_notification_read,name="mark_notification_read",),
+
 
 ]

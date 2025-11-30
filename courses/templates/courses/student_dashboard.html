@@ -1,0 +1,1325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Dashboard</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+    :root {
+        --primary: #4361ee;
+        --secondary: #3a0ca3;
+        --accent: #4cc9f0;
+        --light: #f8f9fa;
+        --dark: #212529;
+        --success: #4bb543;
+        --warning: #ffcc00;
+        --danger: #dc3545;
+        --gray: #6c757d;
+        --light-gray: #e9ecef;
+    }
+    
+    .hero { 
+        background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), 
+        url("https://images.unsplash.com/photo-1522202176988-66273c2fd55f"); 
+        background-size: cover; 
+        background-position: center; 
+        color: white; 
+        padding: 100px 20px; 
+        text-align: center; 
+    }
+    .hero h1 { font-size: 3rem; font-weight: bold; }
+    .search-bar input { width: 60%; max-width: 500px; }
+    .course-card { transition: transform 0.2s ease; }
+    .course-card:hover { transform: translateY(-5px); box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+    footer { background: #f8f9fa; padding: 20px 0; text-align: center; margin-top: 50px; }
+    
+    /* Enhanced Course Card Styles */
+    .course-image {
+        height: 180px;
+        width: 100%;
+        background-size: cover;
+        background-position: center;
+        background-color: #f8f9fa; /* Fallback color */
+    }
+    
+    .course-category {
+        display: inline-block;
+        background: var(--light-gray);
+        color: var(--gray);
+        padding: 0.3rem 0.8rem;
+        border-radius: 30px;
+        font-size: 0.8rem;
+        margin-bottom: 0.8rem;
+    }
+    
+    .course-meta {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+        color: var(--gray);
+    }
+    
+    .course-rating {
+        color: var(--warning);
+    }
+    
+    /* Loading States */
+    .loading {
+        opacity: 0.7;
+        pointer-events: none;
+    }
+    
+    .skeleton {
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 200% 100%;
+        animation: loading 1.5s infinite;
+        border-radius: 4px;
+    }
+    
+    @keyframes loading {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+    }
+    
+    /* Modal Styles */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 1000;
+        overflow-y: auto;
+        padding: 2rem 0;
+    }
+    
+    .modal-content {
+        background: white;
+        width: 90%;
+        max-width: 900px;
+        margin: 0 auto;
+        border-radius: 15px;
+        overflow: hidden;
+        position: relative;
+        animation: modalFadeIn 0.5s;
+    }
+    
+    @keyframes modalFadeIn {
+        from { opacity: 0; transform: translateY(-50px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .close-modal {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: rgba(255, 255, 255, 0.8);
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        z-index: 10;
+        font-size: 1.2rem;
+        transition: all 0.3s;
+    }
+    
+    .close-modal:hover {
+        background: white;
+        transform: rotate(90deg);
+    }
+    
+    .course-detail-header {
+        padding: 2rem;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: white;
+    }
+    
+    .course-detail-header h2 {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .course-detail-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+        margin: 1rem 0;
+    }
+    
+    .course-detail-meta div {
+        display: flex;
+        align-items: center;
+    }
+    
+    .course-detail-meta i {
+        margin-right: 8px;
+        color: var(--accent);
+    }
+    
+    .course-detail-body {
+        padding: 2rem;
+    }
+    
+    .course-detail-section {
+        margin-bottom: 2rem;
+    }
+    
+    .course-detail-section h3 {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        color: var(--secondary);
+        border-bottom: 2px solid var(--light-gray);
+        padding-bottom: 0.5rem;
+    }
+    
+    .syllabus-list {
+        list-style: none;
+    }
+    
+    .syllabus-list li {
+        padding: 0.8rem 0;
+        border-bottom: 1px solid var(--light-gray);
+        display: flex;
+        align-items: center;
+    }
+    
+    .syllabus-list li:last-child {
+        border-bottom: none;
+    }
+    
+    .syllabus-list i {
+        margin-right: 10px;
+        color: var(--success);
+    }
+    
+    .course-detail-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+    
+    .btn-large {
+        padding: 1rem 2rem;
+        font-size: 1.1rem;
+    }
+    
+    /* Payment Modal */
+    .payment-form {
+        padding: 2rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 0.8rem 1rem;
+        border: 1px solid var(--light-gray);
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: all 0.3s;
+    }
+    
+    .form-control:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.2);
+    }
+    
+    .payment-methods {
+        display: flex;
+        gap: 1rem;
+        margin: 1.5rem 0;
+    }
+    
+    .payment-method {
+        flex: 1;
+        text-align: center;
+        padding: 1rem;
+        border: 1px solid var(--light-gray);
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    
+    .payment-method:hover, .payment-method.active {
+        border-color: var(--primary);
+        background: rgba(67, 97, 238, 0.05);
+    }
+    
+    .payment-method i {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+        color: var(--primary);
+    }
+    
+    /* Success Modal */
+    .success-content {
+        text-align: center;
+        padding: 3rem 2rem;
+    }
+    
+    .success-icon {
+        width: 100px;
+        height: 100px;
+        background: var(--success);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 2rem;
+        font-size: 3rem;
+    }
+    
+    .success-content h2 {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+        color: var(--success);
+    }
+    
+    .success-content p {
+        margin-bottom: 2rem;
+        font-size: 1.1rem;
+    }
+    
+    /* Chatbot Button */
+    /* Floating Buttons – FIXED RIGHT SIDE */
+    .floating-btn {
+        position: fixed;
+        right: 25px;
+        width: 55px;
+        height: 55px;
+        background: #4c6ef5;
+        color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 50%;
+        cursor: pointer;
+        z-index: 9999;
+        font-size: 26px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+
+    /* Chatbot button bottom */
+    #aiChatBtn { bottom: 25px; }
+
+    /* Notepad button above chatbot */
+    #noteBtn { bottom: 95px; }
+
+    /* Chatbox Common Styling (Container Only) */
+    .chatbox {
+        position: fixed;
+        right: 90px;
+        width: 320px;
+        background: white;
+        border-radius: 12px;
+        display: none;
+        flex-direction: column;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+        z-index: 9998;
+        overflow: hidden;         /* PREVENT layout breaking */
+    }
+
+    /* Chatbot Height */
+    #aiChatBox {
+        bottom: 90px;
+        height: 400px;
+    }
+
+    /* Notepad Height */
+    #noteBox {
+        bottom: 160px;
+        height: 360px;
+    }
+
+    /* -------------------------------------- */
+    /* INTERNAL CHATBOT UI (Isolated CSS)     */
+    /* -------------------------------------- */
+
+    .chatbox .chat-header {
+        background: #4c6ef5;
+        color: white;
+        padding: 12px;
+        font-weight: 600;
+        font-size: 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .chatbox .close-btn {
+        background: transparent;
+        border: none;
+        color: white;
+        font-size: 18px;
+        cursor: pointer;
+        padding: 0;
+    }
+
+    .chatbox .chat-body {
+        padding: 10px;
+        height: 270px;
+        overflow-y: auto;
+        font-size: 14px;
+    }
+
+    .chatbox .chat-footer {
+        display: flex;
+        padding: 10px;
+        gap: 5px;
+        border-top: 1px solid #ddd;
+    }
+
+    .chatbox .chat-footer input {
+        flex: 1;
+        padding: 8px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+        outline: none;
+    }
+
+    .chatbox .chat-footer button {
+        background: #4c6ef5;
+        color: white;
+        padding: 7px 16px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+
+    /* -------------------------------------- */
+    /* NOTEPAD INSIDE STYLING                 */
+    /* -------------------------------------- */
+
+    #noteBox .note-info {
+        padding: 8px 12px;
+        background: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+        font-size: 12px;
+        color: #6c757d;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    #noteBox .note-area {
+        width: 100%;
+        height: 220px;
+        padding: 10px;
+        border-radius: 10px;
+        border: 1px solid #bbb;
+        resize: none;
+        outline: none;
+    }
+
+    #noteBox .note-footer {
+        text-align: right;
+        padding: 8px 0;
+    }
+
+    #noteBox .save-note-btn {
+        background: #4c6ef5;
+        color: white;
+        padding: 7px 14px;
+        border-radius: 6px;
+        border: none;
+        cursor: pointer;
+    }
+    
+    #noteBox .bullet-btn {
+        background: #198754;
+        color: white;
+        padding: 6px 12px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        margin-bottom:10px;
+    }
+    
+    #noteBox .storage-warning {
+        color: #dc3545;
+        font-size: 11px;
+        margin-top: 5px;
+        display: none;
+        padding: 0 10px;
+    }
+</style>
+</head>
+<body class="bg-light">
+
+<!-- Header -->
+<div class="d-flex justify-content-between align-items-center p-3 bg-white shadow-sm">
+    <a href="{% url 'student_dashboard' %}" class="text-decoration-none text-dark">
+        <h3 class="m-0 fw-bold"><i class="fas fa-graduation-cap"></i> Bildung</h3>
+    </a>
+
+    <div class="d-flex align-items-center gap-3">
+        <h4 class="m-0">Hello, {{ user.first_name }} {{ user.last_name }} </h4>
+        <div class="dropdown">
+            <button class="btn rounded-circle shadow" style="background:gray;color:white;width:45px;height:45px;" type="button" data-bs-toggle="dropdown">
+                {{ request.user.username|first|upper }}
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="{% url 'profile_view' %}">Profile</a></li>
+                <li><a class="dropdown-item" href="{% url 'student:my_courses' %}">My Courses</a></li>
+                <li><a class="dropdown-item" href="{% url 'student:student_my_activity' %}">My activity</a></li>
+                <li><a class="dropdown-item" href="{% url 'student:student_upcoming_classes' %}">My_schedules</a></li>
+                <li><a class="dropdown-item" href="{% url 'student:my_certificates' %}">My Certificates</a></li>
+                <li><a class="dropdown-item" href="#">Notifications</a></li>
+                <li><a class="dropdown-item" href="#">Payments</a></li>
+                <li><a class="dropdown-item" href="#">Help and Support</a></li>
+                <li><a class="dropdown-item" href="#">Feedback</a></li>
+                <li><a class="dropdown-item" href="{% url 'student:account_settings' %}">Account Settings</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item text-danger" href="{% url 'logout_view' %}">Logout</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Hero Section -->
+<section class="hero">
+    <h1>Learn Anything, Anytime, Anywhere</h1>
+    <p>Join thousands of learners and instructors on Bildung.</p>
+    <div class="search-bar mt-4">
+        <form method="get" action="{% url 'courses:course_list' %}">
+            <input type="text" class="form-control d-inline-block" name="q" placeholder="Search for courses..." required>
+            <button type="submit" class="btn btn-warning mt-3">Search</button>
+        </form>
+    </div>
+</section>
+
+<!-- Popular Categories -->
+<section class="container my-5">
+    <h2 class="mb-4">Popular Categories</h2>
+    <div class="row text-center">
+      <div class="col-md-3 mb-3">
+        <button class="btn btn-outline-primary w-100 py-3 rounded-3 category-filter" data-category="programming">Programming</button>
+      </div>
+      <div class="col-md-3 mb-3">
+        <button class="btn btn-outline-success w-100 py-3 rounded-3 category-filter" data-category="business">Business</button>
+      </div>
+      <div class="col-md-3 mb-3">
+        <button class="btn btn-outline-warning w-100 py-3 rounded-3 category-filter" data-category="design">Design</button>
+      </div>
+      <div class="col-md-3 mb-3">
+        <button class="btn btn-outline-danger w-100 py-3 rounded-3 category-filter" data-category="music">Music</button>
+      </div>
+    </div>
+</section>
+
+<!-- Featured Courses -->
+<section class="container my-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0">Featured Courses</h2>
+    <div>
+      <button class="btn btn-outline-secondary btn-sm me-2" id="refresh-courses">
+        <i class="fas fa-sync-alt"></i> Refresh
+      </button>
+      <a href="{% url 'courses:course_list' %}" class="btn btn-outline-primary btn-sm">More Courses →</a>
+    </div>
+  </div>
+
+  <!-- Loading Skeleton -->
+  <div id="courses-loading" class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+    {% for i in "1234" %}
+    <div class="col">
+      <div class="card course-card h-100 shadow-sm border-0">
+        <div class="course-image skeleton" style="height: 180px;"></div>
+        <div class="card-body d-flex flex-column">
+          <div class="skeleton" style="width: 80px; height: 24px; margin-bottom: 0.8rem;"></div>
+          <div class="skeleton" style="width: 100%; height: 20px; margin-bottom: 0.5rem;"></div>
+          <div class="skeleton" style="width: 100%; height: 40px; margin-bottom: 1rem;"></div>
+          <div class="course-meta">
+            <div class="skeleton" style="width: 60px; height: 16px;"></div>
+            <div class="skeleton" style="width: 60px; height: 16px;"></div>
+            <div class="skeleton" style="width: 40px; height: 16px;"></div>
+          </div>
+          <div class="skeleton" style="width: 80px; height: 20px; margin-bottom: 1rem;"></div>
+          <div class="skeleton" style="width: 100%; height: 38px;"></div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Actual Courses Container -->
+  <div id="courses-container" class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4" style="display: none;">
+    <!-- Courses will be dynamically loaded here -->
+  </div>
+
+  <!-- No Courses Message -->
+  <div id="no-courses" class="text-center py-5" style="display: none;">
+    <i class="fas fa-book-open fa-3x text-muted mb-3"></i>
+    <h4 class="text-muted">No courses available</h4>
+    <p class="text-muted">Check back later for new courses!</p>
+  </div>
+</section>
+
+<!-- Course Detail Modal -->
+<div class="modal" id="course-detail-modal">
+    <div class="modal-content">
+        <span class="close-modal" id="close-detail-modal">&times;</span>
+        <div class="course-detail-header">
+            <h2 id="detail-title">Course Title</h2>
+            <p id="detail-instructor">Instructor: Loading...</p>
+            <div class="course-detail-meta">
+                <div><i class="fas fa-clock"></i> <span id="detail-duration">Loading...</span></div>
+                <div><i class="fas fa-video"></i> <span id="detail-lessons">Loading...</span></div>
+                <div><i class="fas fa-star"></i> <span id="detail-rating">Loading...</span></div>
+                <div><i class="fas fa-users"></i> <span id="detail-students">Loading...</span></div>
+            </div>
+        </div>
+        <div class="course-detail-body">
+            <div class="course-detail-section">
+                <h3>About This Course</h3>
+                <p id="detail-description">Loading course description...</p>
+            </div>
+            <div class="course-detail-section">
+                <h3>Syllabus</h3>
+                <ul class="syllabus-list" id="syllabus-list">
+                    <li><i class="fas fa-check-circle"></i> Loading syllabus...</li>
+                </ul>
+            </div>
+            <div class="course-detail-actions">
+                <button class="btn btn-primary btn-large" id="enroll-btn">
+                    <i class="fas fa-shopping-cart"></i> Enroll Now
+                </button>
+                <button class="btn btn-outline btn-large" id="wishlist-btn">
+                    <i class="far fa-heart"></i> Add to Wishlist
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Payment Modal -->
+<div class="modal payment-modal" id="payment-modal">
+    <div class="modal-content">
+        <span class="close-modal" id="close-payment-modal">&times;</span>
+        <div class="course-detail-header">
+            <h2>Complete Your Enrollment</h2>
+            <p id="payment-course-title">Course Title</p>
+            <div class="course-price" id="payment-course-price">$0.00</div>
+        </div>
+        <div class="payment-form">
+            <h3>Payment Information</h3>
+            <div class="payment-methods">
+                <div class="payment-method active">
+                    <i class="fab fa-cc-visa"></i>
+                    <p>Credit Card</p>
+                </div>
+                <div class="payment-method">
+                    <i class="fab fa-paypal"></i>
+                    <p>PayPal</p>
+                </div>
+                <div class="payment-method">
+                    <i class="fas fa-university"></i>
+                    <p>Bank Transfer</p>
+                </div>
+            </div>
+            <form id="payment-form">
+                <div class="form-group">
+                    <label for="card-number">Card Number</label>
+                    <input type="text" class="form-control" id="card-number" placeholder="1234 5678 9012 3456">
+                </div>
+                <div class="form-group">
+                    <label for="card-name">Name on Card</label>
+                    <input type="text" class="form-control" id="card-name" placeholder="John Doe">
+                </div>
+                <div class="form-group" style="display: flex; gap: 1rem;">
+                    <div style="flex: 1;">
+                        <label for="expiry-date">Expiry Date</label>
+                        <input type="text" class="form-control" id="expiry-date" placeholder="MM/YY">
+                    </div>
+                    <div style="flex: 1;">
+                        <label for="cvv">CVV</label>
+                        <input type="text" class="form-control" id="cvv" placeholder="123">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <button type="button" class="btn btn-primary btn-large" id="complete-payment" style="width: 100%;">
+                        <i class="fas fa-lock"></i> Complete Payment
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Success Modal -->
+<div class="modal success-modal" id="success-modal">
+    <div class="modal-content">
+        <div class="success-content">
+            <div class="success-icon">
+                <i class="fas fa-check"></i>
+            </div>
+            <h2>Enrollment Successful!</h2>
+            <p>You have successfully enrolled in <strong id="success-course-title">Course Title</strong>. You can now access the course from your dashboard.</p>
+            <button class="btn btn-primary btn-large" id="go-to-dashboard">
+                <i class="fas fa-tachometer-alt"></i> Go to Dashboard
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Floating Buttons -->
+<div id="aiChatBtn" class="floating-btn">🤖</div>
+<div id="noteBtn" class="floating-btn">📝</div>
+
+<!-- Chatbot Window -->
+<div id="aiChatBox" class="chatbox">
+    <div class="chat-header">
+        <span>AI Chatbot</span>
+        <button class="close-btn" onclick="toggleAIChat()">✖</button>
+    </div>
+    <div class="chat-body" id="aiMessages">
+        <p><b>AI:</b> Hi! How can I help you today?</p>
+    </div>
+    <div class="chat-footer">
+        <input type="text" id="aiInput" placeholder="Type message..." />
+        <button onclick="sendAIMessage()">Send</button>
+    </div>
+</div>
+
+<!-- Notepad Window -->
+<div id="noteBox" class="chatbox">
+    <div class="chat-header">
+        <span>Quick Notepad</span>
+        <button class="close-btn" onclick="toggleNote()">✖</button>
+    </div>
+    
+    <!-- Add this info bar -->
+    <div class="note-info">
+        <span id="storageInfo">Storage: 0/200MB</span>
+        <span id="expiryInfo">Expires: -</span>
+    </div>
+    
+    <textarea id="noteArea" class="note-area" placeholder="Write notes here..."></textarea>
+    
+    <!-- Storage warning -->
+    <div id="storageWarning" class="storage-warning">
+        ⚠️ Approaching storage limit (200MB)
+    </div>
+    
+    <!-- Save Button Section -->
+    <div class="note-footer">
+        <button class="save-note-btn" onclick="saveNote()">Save</button>
+    </div>
+    <div class="note-tools">
+        <button class="bullet-btn" onclick="addBullet()"><h6>•Bullet point</h6></button>
+    </div>
+</div>
+
+<script>
+    // Course Management System
+    class CourseManager {
+        constructor() {
+            this.courses = [];
+            this.currentCourse = null;
+            this.filteredCourses = [];
+            this.init();
+        }
+
+        init() {
+            this.setupEventListeners();
+            this.loadCourses();
+            this.cleanupExpiredNotes();
+            this.loadNote();
+        }
+
+        // Simulate API call to get courses from server
+        async loadCourses() {
+            try {
+                // Show loading state
+                this.showLoading();
+                
+                // In a real app, this would be an API call to your Django backend
+                // For now, we'll simulate loading with a timeout
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                
+                // Get courses from Django context or simulate them
+                this.courses = await this.fetchCoursesFromBackend();
+                this.filteredCourses = [...this.courses];
+                
+                this.renderCourses();
+                this.hideLoading();
+                
+            } catch (error) {
+                console.error('Error loading courses:', error);
+                this.showError('Failed to load courses. Please try again.');
+                this.hideLoading();
+            }
+        }
+
+        // Simulate fetching courses from Django backend
+        async fetchCoursesFromBackend() {
+            // This simulates what your Django view would return
+            // In reality, this data comes from your database via instructors
+            return [
+                {
+                    id: 1,
+                    title: "Complete Web Development Bootcamp",
+                    instructor: "Sai",
+                    category: "programming",
+                    level: "beginner",
+                    rating: 4.8,
+                    reviews: 2450,
+                    students: 15230,
+                    duration: "60 hours",
+                    lessons: 45,
+                    price: 89.99,
+                    image: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80",
+                    description: "This comprehensive course will take you from beginner to advanced in web development. You'll learn HTML, CSS, JavaScript, React, Node.js, and much more through hands-on projects and real-world examples.",
+                    syllabus: [
+                        "HTML Fundamentals",
+                        "CSS Styling and Layouts",
+                        "JavaScript Basics",
+                        "Advanced JavaScript Concepts",
+                        "React.js Fundamentals",
+                        "Node.js and Express",
+                        "Database Integration",
+                        "Deployment and DevOps"
+                    ],
+                    is_featured: true,
+                    created_at: "2024-01-15"
+                },
+                {
+                    id: 2,
+                    title: "Data Science with Python",
+                    instructor: "Sagarika",
+                    category: "programming",
+                    level: "intermediate",
+                    rating: 4.7,
+                    reviews: 1820,
+                    students: 11250,
+                    duration: "50 hours",
+                    lessons: 38,
+                    price: 94.99,
+                    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80",
+                    description: "Master data science with Python. Learn data analysis, visualization, machine learning, and statistical modeling to extract insights from data.",
+                    syllabus: [
+                        "Python for Data Science",
+                        "Data Analysis with Pandas",
+                        "Data Visualization with Matplotlib and Seaborn",
+                        "Statistical Analysis",
+                        "Machine Learning Fundamentals",
+                        "Regression Models",
+                        "Classification Algorithms",
+                        "Clustering Techniques"
+                    ],
+                    is_featured: true,
+                    created_at: "2024-01-10"
+                },
+                {
+                    id: 3,
+                    title: "UI/UX Design Masterclass",
+                    instructor: "Mit",
+                    category: "design",
+                    level: "beginner",
+                    rating: 4.9,
+                    reviews: 1560,
+                    students: 9850,
+                    duration: "45 hours",
+                    lessons: 32,
+                    price: 79.99,
+                    image: "https://images.unsplash.com/photo-1561070791-2526d30994b5?ixlib=rb-4.0.3&auto=format&fit=crop&w=1300&q=80",
+                    description: "Learn the principles of user interface and user experience design. Create beautiful, functional designs that users love.",
+                    syllabus: [
+                        "Design Thinking Process",
+                        "User Research Methods",
+                        "Wireframing and Prototyping",
+                        "Visual Design Principles",
+                        "Interaction Design",
+                        "Usability Testing",
+                        "Design Systems",
+                        "Portfolio Development"
+                    ],
+                    is_featured: true,
+                    created_at: "2024-01-08"
+                },
+                {
+                    id: 4,
+                    title: "Digital Marketing Fundamentals",
+                    instructor: "Marketing Pro",
+                    category: "business",
+                    level: "beginner",
+                    rating: 4.5,
+                    reviews: 890,
+                    students: 4200,
+                    duration: "30 hours",
+                    lessons: 25,
+                    price: 49.99,
+                    image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80",
+                    description: "Learn the fundamentals of digital marketing including SEO, social media, email marketing, and analytics.",
+                    syllabus: [
+                        "Introduction to Digital Marketing",
+                        "Search Engine Optimization (SEO)",
+                        "Social Media Marketing",
+                        "Email Marketing Strategies",
+                        "Content Marketing",
+                        "Google Analytics",
+                        "Paid Advertising",
+                        "Marketing Automation"
+                    ],
+                    is_featured: false,
+                    created_at: "2024-01-12"
+                }
+            ];
+        }
+
+        renderCourses() {
+            const container = document.getElementById('courses-container');
+            const noCourses = document.getElementById('no-courses');
+            
+            if (this.filteredCourses.length === 0) {
+                container.style.display = 'none';
+                noCourses.style.display = 'block';
+                return;
+            }
+            
+            container.innerHTML = '';
+            noCourses.style.display = 'none';
+            
+            this.filteredCourses.forEach(course => {
+                const courseElement = this.createCourseElement(course);
+                container.appendChild(courseElement);
+            });
+            
+            container.style.display = 'flex';
+        }
+
+        createCourseElement(course) {
+            const col = document.createElement('div');
+            col.className = 'col';
+            
+            col.innerHTML = `
+                <div class="card course-card h-100 shadow-sm border-0">
+                    <div class="course-image" style="background-image: url('${course.image}')"></div>
+                    <div class="card-body d-flex flex-column">
+                        <span class="course-category">${this.formatCategory(course.category)}</span>
+                        <h5 class="card-title fw-bold">${course.title}</h5>
+                        <p class="card-text text-muted small mb-3">${course.description}</p>
+                        
+                        <div class="course-meta">
+                            <div><i class="fas fa-clock"></i> ${course.duration}</div>
+                            <div><i class="fas fa-video"></i> ${course.lessons} lessons</div>
+                            <div class="course-rating"><i class="fas fa-star"></i> ${course.rating}</div>
+                        </div>
+                        
+                        <p class="fw-semibold mb-3">💰 $${course.price}</p>
+
+                        <div class="mt-auto">
+                            <button class="btn btn-outline-primary w-100 view-details-btn" data-course-id="${course.id}">
+                                <i class="fas fa-eye"></i> View Details
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            return col;
+        }
+
+        formatCategory(category) {
+            return category.charAt(0).toUpperCase() + category.slice(1);
+        }
+
+        showCourseDetails(courseId) {
+            this.currentCourse = this.courses.find(course => course.id === courseId);
+            
+            if (!this.currentCourse) return;
+            
+            // Update modal content
+            document.getElementById('detail-title').textContent = this.currentCourse.title;
+            document.getElementById('detail-instructor').textContent = `Instructor: ${this.currentCourse.instructor}`;
+            document.getElementById('detail-duration').textContent = this.currentCourse.duration;
+            document.getElementById('detail-lessons').textContent = `${this.currentCourse.lessons} lessons`;
+            document.getElementById('detail-rating').textContent = `${this.currentCourse.rating} (${this.currentCourse.reviews} reviews)`;
+            document.getElementById('detail-students').textContent = `${this.currentCourse.students.toLocaleString()} students`;
+            document.getElementById('detail-description').textContent = this.currentCourse.description;
+            
+            // Update syllabus
+            const syllabusList = document.getElementById('syllabus-list');
+            syllabusList.innerHTML = '';
+            this.currentCourse.syllabus.forEach(item => {
+                const li = document.createElement('li');
+                li.innerHTML = `<i class="fas fa-check-circle"></i> ${item}`;
+                syllabusList.appendChild(li);
+            });
+            
+            // Update payment modal
+            document.getElementById('payment-course-title').textContent = this.currentCourse.title;
+            document.getElementById('payment-course-price').textContent = `$${this.currentCourse.price}`;
+            
+            // Show modal
+            document.getElementById('course-detail-modal').style.display = 'block';
+        }
+
+        filterByCategory(category) {
+            if (category === 'all') {
+                this.filteredCourses = [...this.courses];
+            } else {
+                this.filteredCourses = this.courses.filter(course => 
+                    course.category === category
+                );
+            }
+            this.renderCourses();
+        }
+
+        showLoading() {
+            document.getElementById('courses-loading').style.display = 'flex';
+            document.getElementById('courses-container').style.display = 'none';
+            document.getElementById('no-courses').style.display = 'none';
+        }
+
+        hideLoading() {
+            document.getElementById('courses-loading').style.display = 'none';
+        }
+
+        showError(message) {
+            const container = document.getElementById('courses-container');
+            container.innerHTML = `
+                <div class="col-12 text-center py-5">
+                    <i class="fas fa-exclamation-triangle fa-2x text-warning mb-3"></i>
+                    <h5 class="text-muted">${message}</h5>
+                    <button class="btn btn-primary mt-2" onclick="courseManager.loadCourses()">
+                        <i class="fas fa-redo"></i> Try Again
+                    </button>
+                </div>
+            `;
+            container.style.display = 'block';
+        }
+
+        setupEventListeners() {
+            // View details buttons
+            document.addEventListener('click', (e) => {
+                if (e.target.closest('.view-details-btn')) {
+                    const courseId = parseInt(e.target.closest('.view-details-btn').getAttribute('data-course-id'));
+                    this.showCourseDetails(courseId);
+                }
+            });
+
+            // Category filters
+            document.querySelectorAll('.category-filter').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const category = e.target.getAttribute('data-category');
+                    this.filterByCategory(category);
+                    
+                    // Update active state
+                    document.querySelectorAll('.category-filter').forEach(b => {
+                        b.classList.remove('btn-primary', 'btn-success', 'btn-warning', 'btn-danger');
+                        b.classList.add('btn-outline-primary', 'btn-outline-success', 'btn-outline-warning', 'btn-outline-danger');
+                    });
+                    e.target.classList.remove('btn-outline-primary', 'btn-outline-success', 'btn-outline-warning', 'btn-outline-danger');
+                    e.target.classList.add(`btn-${this.getCategoryColor(category)}`);
+                });
+            });
+
+            // Refresh courses
+            document.getElementById('refresh-courses').addEventListener('click', () => {
+                this.loadCourses();
+            });
+
+            // Modal controls
+            document.getElementById('close-detail-modal').addEventListener('click', () => {
+                document.getElementById('course-detail-modal').style.display = 'none';
+            });
+
+            document.getElementById('close-payment-modal').addEventListener('click', () => {
+                document.getElementById('payment-modal').style.display = 'none';
+            });
+
+            // Enrollment flow
+            document.getElementById('enroll-btn').addEventListener('click', () => {
+                document.getElementById('course-detail-modal').style.display = 'none';
+                document.getElementById('payment-modal').style.display = 'block';
+            });
+
+            document.getElementById('complete-payment').addEventListener('click', () => {
+                this.completeEnrollment();
+            });
+
+            document.getElementById('go-to-dashboard').addEventListener('click', () => {
+                document.getElementById('success-modal').style.display = 'none';
+                alert('Redirecting to dashboard...');
+            });
+
+            // Close modals when clicking outside
+            window.addEventListener('click', (e) => {
+                if (e.target === document.getElementById('course-detail-modal')) {
+                    document.getElementById('course-detail-modal').style.display = 'none';
+                }
+                if (e.target === document.getElementById('payment-modal')) {
+                    document.getElementById('payment-modal').style.display = 'none';
+                }
+                if (e.target === document.getElementById('success-modal')) {
+                    document.getElementById('success-modal').style.display = 'none';
+                }
+            });
+
+            // Payment method selection
+            document.querySelectorAll('.payment-method').forEach(method => {
+                method.addEventListener('click', () => {
+                    document.querySelectorAll('.payment-method').forEach(m => {
+                        m.classList.remove('active');
+                    });
+                    method.classList.add('active');
+                });
+            });
+        }
+
+        getCategoryColor(category) {
+            const colors = {
+                programming: 'primary',
+                business: 'success',
+                design: 'warning',
+                music: 'danger'
+            };
+            return colors[category] || 'primary';
+        }
+
+        completeEnrollment() {
+            if (!this.currentCourse) return;
+            
+            // Update success modal
+            document.getElementById('success-course-title').textContent = this.currentCourse.title;
+            
+            // Show success modal
+            document.getElementById('payment-modal').style.display = 'none';
+            document.getElementById('success-modal').style.display = 'block';
+            
+            // In a real app, you would send enrollment data to your backend here
+            console.log(`Enrolled in: ${this.currentCourse.title}`);
+        }
+    }
+
+    // Notepad with 200MB storage and 14-day expiry
+    const NOTEPAD_CONFIG = {
+        MAX_STORAGE: 200 * 1024 * 1024, // 200MB in bytes
+        EXPIRY_DAYS: 14,
+        STORAGE_KEY: 'quickNoteData'
+    };
+
+    function toggleAIChat() {
+        const box = document.getElementById('aiChatBox');
+        box.style.display = box.style.display === 'flex' ? 'none' : 'flex';
+    }
+
+    function toggleNote() {
+        const box = document.getElementById('noteBox');
+        box.style.display = box.style.display === 'flex' ? 'none' : 'flex';
+        if (box.style.display === 'flex') {
+            updateStorageInfo();
+        }
+    }
+
+    // Enhanced save function with storage limits
+    function saveNote() {
+        const text = document.getElementById("noteArea").value;
+        const textSize = new Blob([text]).size;
+        
+        // Check storage limit
+        if (textSize > NOTEPAD_CONFIG.MAX_STORAGE) {
+            alert(`Note too large! Maximum size is 200MB. Your note is ${formatBytes(textSize)}.`);
+            return;
+        }
+        
+        const noteData = {
+            text: text,
+            timestamp: new Date().toISOString(),
+            expiry: new Date(Date.now() + NOTEPAD_CONFIG.EXPIRY_DAYS * 24 * 60 * 60 * 1000).toISOString(),
+            size: textSize
+        };
+        
+        try {
+            localStorage.setItem(NOTEPAD_CONFIG.STORAGE_KEY, JSON.stringify(noteData));
+            updateStorageInfo();
+            showTemporaryMessage("Note Saved! (Expires in 14 days)");
+        } catch (e) {
+            if (e.name === 'QuotaExceededError') {
+                alert("Storage limit exceeded! Please reduce the note size.");
+            } else {
+                alert("Error saving note: " + e.message);
+            }
+        }
+    }
+
+    // Load note with expiry check
+    function loadNote() {
+        try {
+            const saved = localStorage.getItem(NOTEPAD_CONFIG.STORAGE_KEY);
+            if (saved) {
+                const noteData = JSON.parse(saved);
+                const now = new Date();
+                const expiry = new Date(noteData.expiry);
+                
+                // Check if note has expired
+                if (now > expiry) {
+                    localStorage.removeItem(NOTEPAD_CONFIG.STORAGE_KEY);
+                    document.getElementById("noteArea").value = "";
+                    updateStorageInfo();
+                    showTemporaryMessage("Previous note has expired and was cleared.");
+                    return;
+                }
+                
+                document.getElementById("noteArea").value = noteData.text;
+                updateStorageInfo();
+            }
+        } catch (e) {
+            console.error("Error loading note:", e);
+        }
+    }
+
+    // Update storage information display
+    function updateStorageInfo() {
+        const saved = localStorage.getItem(NOTEPAD_CONFIG.STORAGE_KEY);
+        const storageInfo = document.getElementById("storageInfo");
+        const expiryInfo = document.getElementById("expiryInfo");
+        const warning = document.getElementById("storageWarning");
+        
+        if (saved) {
+            try {
+                const noteData = JSON.parse(saved);
+                const textSize = noteData.size;
+                const expiry = new Date(noteData.expiry);
+                
+                // Update storage info
+                storageInfo.textContent = `Storage: ${formatBytes(textSize)}/200MB`;
+                
+                // Update expiry info
+                const daysLeft = Math.ceil((expiry - new Date()) / (1000 * 60 * 60 * 24));
+                expiryInfo.textContent = `Expires: ${daysLeft} day${daysLeft !== 1 ? 's' : ''}`;
+                
+                // Show warning if approaching limit
+                const usagePercent = (textSize / NOTEPAD_CONFIG.MAX_STORAGE) * 100;
+                if (usagePercent > 80) {
+                    warning.style.display = 'block';
+                } else {
+                    warning.style.display = 'none';
+                }
+                
+            } catch (e) {
+                console.error("Error parsing note data:", e);
+            }
+        } else {
+            storageInfo.textContent = "Storage: 0/200MB";
+            expiryInfo.textContent = "Expires: -";
+            warning.style.display = 'none';
+        }
+    }
+
+    // Utility functions
+    function formatBytes(bytes, decimals = 2) {
+        if (bytes === 0) return '0 Bytes';
+        
+        const k = 1024;
+        const dm = decimals < 0 ? 0 : decimals;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+    }
+
+    function showTemporaryMessage(message) {
+        const tempMsg = document.createElement('div');
+        tempMsg.textContent = message;
+        tempMsg.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            z-index: 10000;
+            font-size: 14px;
+        `;
+        document.body.appendChild(tempMsg);
+        
+        setTimeout(() => {
+            document.body.removeChild(tempMsg);
+        }, 3000);
+    }
+
+    // Auto-clean expired notes on page load
+    function cleanupExpiredNotes() {
+        const saved = localStorage.getItem(NOTEPAD_CONFIG.STORAGE_KEY);
+        if (saved) {
+            try {
+                const noteData = JSON.parse(saved);
+                const now = new Date();
+                const expiry = new Date(noteData.expiry);
+                
+                if (now > expiry) {
+                    localStorage.removeItem(NOTEPAD_CONFIG.STORAGE_KEY);
+                    console.log("Expired note cleaned up");
+                }
+            } catch (e) {
+                console.error("Error during cleanup:", e);
+            }
+        }
+    }
+
+    function sendAIMessage() {
+        let input = document.getElementById("aiInput");
+        let messages = document.getElementById("aiMessages");
+
+        if (input.value.trim() === "") return;
+
+        messages.innerHTML += `<p><b>You:</b> ${input.value}</p>`;
+        messages.innerHTML += `<p><b>AI:</b> Thinking...</p>`;
+
+        setTimeout(() => {
+            messages.innerHTML += `<p><b>AI:</b> This is AI response for: '${input.value}'</p>`;
+            messages.scrollTop = messages.scrollHeight;
+        }, 600);
+
+        input.value = "";
+    }
+
+    function addBullet() {
+        const textarea = document.getElementById("noteArea");
+
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+
+        let text = textarea.value;
+
+        const bullet = "• ";
+
+        textarea.value = text.substring(0, start) + bullet + text.substring(end);
+
+        textarea.selectionStart = textarea.selectionEnd = start + bullet.length;
+
+        textarea.focus();
+    }
+
+    // Initialize the application
+    const courseManager = new CourseManager();
+
+    // Set up floating button event listeners
+    document.getElementById("aiChatBtn").onclick = toggleAIChat;
+    document.getElementById("noteBtn").onclick = toggleNote;
+</script>
+</body>
+</html>

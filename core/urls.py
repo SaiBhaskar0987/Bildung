@@ -37,7 +37,7 @@ urlpatterns = [
     path("chat/", include("chat.urls")),
 
     # Home Page → Use course_views.smart_home instead of home_views.smart_home
-    path('', course_views.smart_home, name='smart_home'),
+    path('', home_views.smart_home, name='smart_home'),
 
     # User routes
     path("", include("users.urls")),

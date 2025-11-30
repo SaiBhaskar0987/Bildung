@@ -1,4 +1,4 @@
-from datetime import timezone
+from django.utils import timezone
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
@@ -62,6 +62,7 @@ def student_login(request):
             user = form.get_user()
             if hasattr(user, 'role') and user.role == "student":
                 login(request, user)
+                record_login(request, user)
                 messages.success(request, f"Welcome back, {user.username}!")
                 return redirect("student_dashboard")
             else:
@@ -305,13 +306,11 @@ def google_login_redirect(request):
     
 
 def record_login(request, user):
-    device = request.META.get("HTTP_USER_AGENT", "Unknown Device")
-
     LoginHistory.objects.create(
         user=user,
-        status="Success",
-        device=device,
         login_time=timezone.now(),
+        status="Success",
+        device=request.META.get('HTTP_USER_AGENT', 'Unknown Device')
     )
 
 

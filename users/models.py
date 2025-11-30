@@ -2,6 +2,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.utils import timezone
 
 
 class User(AbstractUser):
@@ -85,7 +86,7 @@ class Profile(models.Model):
     
 class LoginHistory(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    login_time = models.DateTimeField(auto_now_add=True)
+    login_time = models.DateTimeField(default=timezone.now)
     logout_time = models.DateTimeField(null=True, blank=True)
     status = models.CharField(max_length=20, default="Success")
     device = models.CharField(max_length=255, default="Unknown")

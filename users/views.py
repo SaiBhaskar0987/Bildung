@@ -14,7 +14,7 @@ from django.conf import settings
 # Use only your custom User model
 from .models import User, Profile, LoginHistory, InstructorProfile
 from .forms import StudentSignUpForm, InstructorSignUpForm, ProfileForm, UserDisplayForm, InstructorUserReadOnlyForm, InstructorUserForm, InstructorProfileForm
-from courses.models import Course
+from courses.models import Course, Notification
 
 def auth_page(request):
     return render(request, "users/auth_page.html")
@@ -194,18 +194,27 @@ def custom_password_reset_confirm(request, uidb64, token):
         messages.error(request, 'Invalid reset link.')
         return redirect('auth_page')
 
-# --- Dashboards ---
 @login_required
 def student_dashboard(request):
-    if not hasattr(request.user, 'role') or request.user.role != "student":
+    if request.user.role != "student":
         messages.error(request, "Access denied. Student area only.")
-        return redirect("auth_page")
-    
+        return redirect("login")
     all_courses = Course.objects.all()
-    enrolled_courses = Course.objects.filter(students=request.user)
-    return render(request, 'courses/student_dashboard.html', {
-        'all_courses': all_courses,
-        'enrolled_courses': enrolled_courses
+
+    unread_count = Notification.objects.filter(
+        user=request.user,
+        is_read=False
+    ).count()
+
+    unread_notifications = Notification.objects.filter(
+        user=request.user,
+        is_read=False
+    ).order_by("-created_at")[:5]
+
+    return render(request, "courses/student/student_dashboard.html", {
+        "all_courses": all_courses,
+        "unread_count": unread_count,
+        "unread_notifications": unread_notifications,
     })
 
 @login_required(login_url="/auth/")

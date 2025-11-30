@@ -9,10 +9,11 @@ from users.models import LoginHistory, User
 from .forms import CourseForm, LectureForm, FeedbackForm, ModuleFormSet, LiveClassForm, CourseReviewForm, CourseEventForm
 from io import BytesIO
 from users.decorators import instructor_required
-from django.db.models import Q, Count
+from django.db.models import Q, Count, Sum
 from users.models import Profile
 from datetime import date, datetime
 from django.utils import timezone
+
 
 from io import BytesIO
 from reportlab.pdfgen import canvas
@@ -55,6 +56,7 @@ def browse_courses(request):
 @login_required
 def student_dashboard(request):
     if request.user.role != "student":
+        messages.error(request, "Access denied. Student area only.")
         return redirect("login")
     all_courses = Course.objects.all()
 
@@ -671,6 +673,7 @@ def mark_notification_read(request, notif_id):
     """Mark a single notification as read."""
     Notification.objects.filter(id=notif_id, user=request.user).update(is_read=True)
     return JsonResponse({"status": "ok"})
+
 # -------------------------------
 # Instructor Views
 # -------------------------------
@@ -687,40 +690,6 @@ def instructor_dashboard(request):
         'courses': courses,
         'total_students': total_students,
     })
-
-
-@login_required
-def add_course(request):
-    if request.method == 'POST':
-        course_form = CourseForm(request.POST, request.FILES)
-        if course_form.is_valid():
-            course = course_form.save(commit=False)
-            course.instructor = request.user
-            course.save()
-
-            module_total = int(request.POST.get('modules-TOTAL_FORMS', 0))
-            for i in range(module_total):
-                title = request.POST.get(f'modules-{i}-title')
-                desc = request.POST.get(f'modules-{i}-description')
-                if title:
-                    module = Module.objects.create(course=course, title=title, description=desc)
-
-                    lecture_index = 0
-                    while True:
-                        lecture_title = request.POST.get(f'modules-{i}-lectures-{lecture_index}-title')
-                        lecture_file = request.FILES.get(f'modules-{i}-lectures-{lecture_index}-video')
-                        if not lecture_title:
-                            break
-                        Lecture.objects.create(module=module, title=lecture_title, video=lecture_file)
-                        lecture_index += 1
-
-            return redirect('instructor:instructor_dashboard')
-    else:
-        course_form = CourseForm()
-        module_formset = ModuleFormSet()
-
-    context = {'course_form': course_form, 'module_formset': module_formset}
-    return render(request, 'courses/instructor/add_course.html', context)
 
 
 @login_required
@@ -804,7 +773,7 @@ def course_progress_report(request, course_id):
         student = enrollment.student
         completed = LectureProgress.objects.filter(
             student=student,
-            lecture__module__course=course,  # Fixed this line
+            lecture__module__course=course,  
             completed=True
         ).count()
         progress = (completed / total_lectures * 100) if total_lectures else 0
@@ -832,6 +801,7 @@ def add_event(request, course_id):
             event.course = course
             event.save()
 
+            # Notify enrolled students
             students = Enrollment.objects.filter(
                 course=course
             ).values_list("student_id", flat=True)
@@ -1009,7 +979,7 @@ def students_list(request):
 
     return render(request, "courses/instructor/students_list.html", context)
 
-
+@login_required
 def add_course(request):
     if request.method == 'POST':
         course_form = CourseForm(request.POST, request.FILES)
@@ -1042,6 +1012,7 @@ def add_course(request):
     context = {'course_form': course_form, 'module_formset': module_formset}
     return render(request, 'courses/instructor/add_course.html', context)
 
+
 @login_required(login_url='/login/')
 def schedule_live_class(request, course_id):
     course = get_object_or_404(Course, pk=course_id)
@@ -1056,7 +1027,6 @@ def schedule_live_class(request, course_id):
             live_class.meeting_link = request.POST.get('meeting_link')
             live_class.save()
 
-            # 🔥 Send notification to all enrolled students
             students = Enrollment.objects.filter(course=course).values_list("student", flat=True)
             for student_id in students:
                 Notification.objects.create(
@@ -1082,8 +1052,7 @@ def my_activity(request):
     live_classes = LiveClass.objects.filter(instructor=request.user).order_by('-date', '-time')
     return render(request, 'courses/instructor/my_activity.html', {'live_classes': live_classes})
 
-import json
-
+@login_required
 def calendar_view(request):
     instructor = request.user
 
@@ -1232,8 +1201,6 @@ def course_overview(request, course_id):
 
     })
 
-from django.db.models import Count, Sum, Q
-from datetime import timedelta, date
 
 @login_required
 def student_history(request, course_id, student_id):

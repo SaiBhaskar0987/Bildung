@@ -4,15 +4,16 @@ from django.contrib.auth.decorators import login_required
 from django.utils.dateparse import parse_datetime, parse_date, parse_time
 
 from quizzes.models import QuizResult
-from .models import Course, Enrollment, Lecture, LectureProgress, Feedback, CourseEvent, Module, Certificate,LiveClass, LectureQuestion, QuestionReply, CourseReview, LiveClassAttendance
+from .models import Course, Enrollment, Lecture, LectureProgress, Feedback, CourseEvent, Module, Certificate,LiveClass, LectureQuestion, QuestionReply, CourseReview, LiveClassAttendance, Notification
 from users.models import LoginHistory, User
-from .forms import CourseForm, LectureForm, FeedbackForm, ModuleFormSet, LiveClassForm, CourseReviewForm
+from .forms import CourseForm, LectureForm, FeedbackForm, ModuleFormSet, LiveClassForm, CourseReviewForm, CourseEventForm
 from io import BytesIO
 from users.decorators import instructor_required
-from django.db.models import Q, Count
+from django.db.models import Q, Count, Sum
 from users.models import Profile
 from datetime import date, datetime
 from django.utils import timezone
+
 
 from io import BytesIO
 from reportlab.pdfgen import canvas
@@ -52,24 +53,43 @@ def browse_courses(request):
 # Student Views
 # -------------------------------
 
+@login_required
 def student_dashboard(request):
     if request.user.role != "student":
+        messages.error(request, "Access denied. Student area only.")
         return redirect("login")
     all_courses = Course.objects.all()
-    enrolled_courses = Course.objects.filter(students=request.user)
-    return render(request, 'courses/student_dashboard.html', {
-        'all_courses': all_courses,
-        'enrolled_courses': enrolled_courses
+
+    unread_count = Notification.objects.filter(
+        user=request.user,
+        is_read=False
+    ).count()
+
+    unread_notifications = Notification.objects.filter(
+        user=request.user,
+        is_read=False
+    ).order_by("-created_at")[:5]
+
+    return render(request, "courses/student/student_dashboard.html", {
+        "all_courses": all_courses,
+        "unread_count": unread_count,
+        "unread_notifications": unread_notifications,
     })
+
 
 @login_required(login_url='/login/')
 def enroll_course(request, course_id):
-    """Student: enroll in a course"""
     if getattr(request.user, 'role', None) != 'student':
         return redirect('student_login')
-
     course = get_object_or_404(Course, id=course_id)
     Enrollment.objects.get_or_create(student=request.user, course=course)
+    
+    Notification.objects.create(
+        user=request.user,
+        message=f"You have successfully enrolled in {course.title}.",
+        url=f"/student/course/{course.id}/"
+    )
+
     messages.success(request, f"Enrolled in {course.title}")
     return redirect('student:my_courses')
 
@@ -615,6 +635,44 @@ def leave_review(request, course_id):
     return redirect("student:course_detail", course_id=course.id)
 
 
+@login_required
+def student_notifications(request):
+    notifications = Notification.objects.filter(user=request.user).order_by("-created_at")
+
+    return render(request, "courses/student/student_notifications.html", {
+        "notifications": notifications
+    })
+
+
+@login_required
+def get_recent_notifications(request):
+    notes = Notification.objects.filter(user=request.user).order_by("-created_at")[:10]
+
+    data = []
+    for n in notes:
+        data.append({
+            "id": n.id,
+            "message": n.message,
+            "url": n.url or "",
+            "is_read": n.is_read,
+            "created_at": n.created_at.strftime("%d %b %Y, %I:%M %p")
+        })
+
+    unread = Notification.objects.filter(user=request.user, is_read=False).count()
+
+    return JsonResponse({"notifications": data, "unread": unread})
+
+
+@login_required
+def mark_notifications_read(request, notif_id):
+    Notification.objects.filter(id=notif_id, user=request.user).update(is_read=True)
+    return JsonResponse({"status": "ok"})
+
+@login_required
+def mark_notification_read(request, notif_id):
+    """Mark a single notification as read."""
+    Notification.objects.filter(id=notif_id, user=request.user).update(is_read=True)
+    return JsonResponse({"status": "ok"})
 
 # -------------------------------
 # Instructor Views
@@ -632,40 +690,6 @@ def instructor_dashboard(request):
         'courses': courses,
         'total_students': total_students,
     })
-
-
-@login_required
-def add_course(request):
-    if request.method == 'POST':
-        course_form = CourseForm(request.POST, request.FILES)
-        if course_form.is_valid():
-            course = course_form.save(commit=False)
-            course.instructor = request.user
-            course.save()
-
-            module_total = int(request.POST.get('modules-TOTAL_FORMS', 0))
-            for i in range(module_total):
-                title = request.POST.get(f'modules-{i}-title')
-                desc = request.POST.get(f'modules-{i}-description')
-                if title:
-                    module = Module.objects.create(course=course, title=title, description=desc)
-
-                    lecture_index = 0
-                    while True:
-                        lecture_title = request.POST.get(f'modules-{i}-lectures-{lecture_index}-title')
-                        lecture_file = request.FILES.get(f'modules-{i}-lectures-{lecture_index}-video')
-                        if not lecture_title:
-                            break
-                        Lecture.objects.create(module=module, title=lecture_title, video=lecture_file)
-                        lecture_index += 1
-
-            return redirect('instructor:instructor_dashboard')
-    else:
-        course_form = CourseForm()
-        module_formset = ModuleFormSet()
-
-    context = {'course_form': course_form, 'module_formset': module_formset}
-    return render(request, 'courses/instructor/add_course.html', context)
 
 
 @login_required
@@ -749,7 +773,7 @@ def course_progress_report(request, course_id):
         student = enrollment.student
         completed = LectureProgress.objects.filter(
             student=student,
-            lecture__module__course=course,  # Fixed this line
+            lecture__module__course=course,  
             completed=True
         ).count()
         progress = (completed / total_lectures * 100) if total_lectures else 0
@@ -765,37 +789,40 @@ def course_progress_report(request, course_id):
         'progress_data': progress_data
     })
 
-
 @login_required
 def add_event(request, course_id):
     course = get_object_or_404(Course, id=course_id, instructor=request.user)
 
     if request.method == 'POST':
-        title = request.POST.get('title')
-        description = request.POST.get('description')
-        event_date = request.POST.get('event_date')   
-        start_time_raw = request.POST.get('start_time')
-        end_time_raw = request.POST.get('end_time')
+        form = CourseEventForm(request.POST)
 
-        event_date_obj = parse_date(event_date)
-        start_time = parse_time(start_time_raw)
-        end_time = parse_time(end_time_raw)
+        if form.is_valid():
+            event = form.save(commit=False)
+            event.course = course
+            event.save()
 
-        start_datetime = datetime.combine(event_date_obj, start_time)
-        end_datetime = datetime.combine(event_date_obj, end_time)
+            # Notify enrolled students
+            students = Enrollment.objects.filter(
+                course=course
+            ).values_list("student_id", flat=True)
 
-        CourseEvent.objects.create(
-            course=course,
-            title=title,
-            description=description,
-            date=event_date_obj,        
-            start_time=start_datetime,
-            end_time=end_datetime)
+            for student_id in students:
+                Notification.objects.create(
+                    user_id=student_id,
+                    message=f"New Event Added: {event.title} ({course.title})",
+                    url="/student/my_schedules/"
+                )
 
-        messages.success(request, "Event added successfully.")
-        return redirect('instructor:course_detail', course_id=course.id)
+            messages.success(request, "Event added successfully.")
+            return redirect('instructor:course_detail', course.id)
 
-    return render(request, 'courses/instructor/add_event.html', {'course': course})
+    else:
+        form = CourseEventForm()
+
+    return render(request, 'courses/instructor/add_event.html', {
+        'course': course,
+        'form': form,
+    })
 
 @login_required
 def give_feedback(request, course_id):
@@ -952,7 +979,7 @@ def students_list(request):
 
     return render(request, "courses/instructor/students_list.html", context)
 
-
+@login_required
 def add_course(request):
     if request.method == 'POST':
         course_form = CourseForm(request.POST, request.FILES)
@@ -985,21 +1012,32 @@ def add_course(request):
     context = {'course_form': course_form, 'module_formset': module_formset}
     return render(request, 'courses/instructor/add_course.html', context)
 
+
 @login_required(login_url='/login/')
 def schedule_live_class(request, course_id):
     course = get_object_or_404(Course, pk=course_id)
 
     if request.method == 'POST':
         form = LiveClassForm(request.POST)
+
         if form.is_valid():
             live_class = form.save(commit=False)
             live_class.instructor = request.user
             live_class.course = course
-            live_class.meeting_link = request.POST.get('meeting_link')  # 🔥 Save manual field
+            live_class.meeting_link = request.POST.get('meeting_link')
             live_class.save()
+
+            students = Enrollment.objects.filter(course=course).values_list("student", flat=True)
+            for student_id in students:
+                Notification.objects.create(
+                    user_id=student_id,
+                    message=f"New live class scheduled: {live_class.topic} ({course.title})",
+                    url="/student/my_schedules/"
+                )
 
             messages.success(request, f"✅ Live class '{live_class.topic}' scheduled successfully!")
             return redirect('instructor:instructor_dashboard')
+
     else:
         form = LiveClassForm()
 
@@ -1009,14 +1047,12 @@ def schedule_live_class(request, course_id):
     })
 
 
-
 @login_required(login_url='/login/')
 def my_activity(request):
     live_classes = LiveClass.objects.filter(instructor=request.user).order_by('-date', '-time')
     return render(request, 'courses/instructor/my_activity.html', {'live_classes': live_classes})
 
-import json
-
+@login_required
 def calendar_view(request):
     instructor = request.user
 
@@ -1165,8 +1201,6 @@ def course_overview(request, course_id):
 
     })
 
-from django.db.models import Count, Sum, Q
-from datetime import timedelta, date
 
 @login_required
 def student_history(request, course_id, student_id):

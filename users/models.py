@@ -83,6 +83,37 @@ class Profile(models.Model):
     def __str__(self):
         return f"{self.user.username}'s Profile"
 
+
+class InstructorProfile(models.Model):
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        related_name="instructor_profile"
+    )
+
+    professional_title = models.CharField(max_length=200, blank=True, null=True)
+    expertise = models.CharField(max_length=200, blank=True, null=True)
+    experience = models.PositiveIntegerField(blank=True, null=True)
+
+    about_me = models.TextField(blank=True, null=True)
+    linkedin = models.URLField(blank=True, null=True)
+    website = models.URLField(blank=True, null=True)
+    phone = models.CharField(max_length=15, blank=True, null=True)
+    gender = models.CharField(
+        max_length=10,
+        choices=[("male", "Male"), ("female", "Female"), ("other", "Other")],
+        blank=True, null=True
+    )
+    date_of_birth = models.DateField(blank=True, null=True)
+    qualification = models.CharField(max_length=120, blank=True, null=True)
+
+    resume = models.FileField(upload_to="instructor_resumes/", blank=True, null=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Instructor Profile — {self.user.username}"
+
     
 class LoginHistory(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

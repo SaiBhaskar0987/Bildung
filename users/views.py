@@ -14,7 +14,7 @@ from django.conf import settings
 # Use only your custom User model
 from .models import User, Profile, LoginHistory, InstructorProfile
 from .forms import StudentSignUpForm, InstructorSignUpForm, ProfileForm, UserDisplayForm, InstructorUserReadOnlyForm, InstructorUserForm, InstructorProfileForm
-from courses.models import Course, Notification
+from courses.models import Course, Enrollment, Notification
 
 def auth_page(request):
     return render(request, "users/auth_page.html")
@@ -216,6 +216,27 @@ def student_dashboard(request):
         "unread_count": unread_count,
         "unread_notifications": unread_notifications,
     })
+
+from courses.utils import check_and_send_reminders
+
+@login_required
+def student_dashboard(request):
+    check_and_send_reminders(request.user)
+    unread_count = Notification.objects.filter(
+        user=request.user, is_read=False
+    ).count()
+
+    all_courses = Course.objects.all()
+    enrolled_course_ids = Enrollment.objects.filter(
+        student=request.user
+    ).values_list("course_id", flat=True)
+
+    return render(request, "students/student_dashboard.html", {
+        "unread_count": unread_count,
+        "all_courses": all_courses,
+        "enrolled_course_ids": enrolled_course_ids,
+    })
+
 
 @login_required(login_url="/auth/")
 def admin_dashboard(request):

@@ -21,16 +21,22 @@ urlpatterns = [
     # Instructor course edit
     path('courses/<int:course_id>/edit/', views.course_edit, name='course_edit'),
     # Add Event for a course
-    path('courses/<int:course_id>/add-event/', views.add_event, name='add_event'),
-    path('schedule_live_class/<int:course_id>/', views.schedule_live_class, name='schedule_live_class'),
-    path('my_activity/', views.my_activity, name='my_activity'),
+    path("add-event/", views.add_event, name="add_event"),
+    path("schedule_live_class/", views.schedule_live_class, name="schedule_live_class"),
+    path("edit-class/<int:class_id>/", views.edit_live_class, name="edit_live_class"),
+    path("delete-class/<int:class_id>/", views.delete_live_class, name="delete_live_class"),
+    path("edit-event/<int:event_id>/", views.edit_event, name="edit_event"),
+    path("delete-event/<int:event_id>/", views.delete_event, name="delete_event"),
+
+   # path('my_activity/', views.my_activity, name='my_activity'),
     path("calendar/", views.calendar_view, name="calendar_view"),
 
-    path("course/<int:course_id>/qna/instructor/", views.instructor_qna, name="instructor_qna"),
+  #  path("course/<int:course_id>/qna/instructor/", views.instructor_qna, name="instructor_qna"),
     path("question/<int:question_id>/reply/", views.add_reply, name="add_reply"),
     path("reply/<int:reply_id>/edit/", views.edit_reply, name="edit_reply"),
     path("reply/<int:reply_id>/delete/", views.delete_reply, name="delete_reply"),
-    path("course/<int:course_id>/review/", views.course_overview, name="course_overview"),
+    path("course/<int:course_id>/overview/", views.course_overview, name="course_overview"),
+
 
     path(
         "course/<int:course_id>/student/<int:student_id>/history/",
@@ -44,5 +50,5 @@ urlpatterns = [
 
     path("account-settings/", views.instructor_account_settings, name="account_settings"),
 
-
+   
 ]

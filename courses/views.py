@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.urls import reverse
 from django.utils.dateparse import parse_datetime, parse_date, parse_time
 
 from quizzes.models import QuizResult
@@ -52,29 +53,6 @@ def browse_courses(request):
 # -------------------------------
 # Student Views
 # -------------------------------
-
-@login_required
-def student_dashboard(request):
-    if request.user.role != "student":
-        messages.error(request, "Access denied. Student area only.")
-        return redirect("login")
-    all_courses = Course.objects.all()
-
-    unread_count = Notification.objects.filter(
-        user=request.user,
-        is_read=False
-    ).count()
-
-    unread_notifications = Notification.objects.filter(
-        user=request.user,
-        is_read=False
-    ).order_by("-created_at")[:5]
-
-    return render(request, "courses/student/student_dashboard.html", {
-        "all_courses": all_courses,
-        "unread_count": unread_count,
-        "unread_notifications": unread_notifications,
-    })
 
 
 @login_required(login_url='/login/')
@@ -681,6 +659,10 @@ def mark_notification_read(request, notif_id):
 @login_required
 def instructor_dashboard(request):
     courses = Course.objects.filter(instructor=request.user)
+    unread_count = Notification.objects.filter(
+        user=request.user,
+        is_read=False
+    ).count()
 
     total_students = Enrollment.objects.filter(
         course__in=courses
@@ -689,6 +671,7 @@ def instructor_dashboard(request):
     return render(request, 'courses/instructor/instructor_dashboard.html', {
         'courses': courses,
         'total_students': total_students,
+        "unread_count": unread_count,
     })
 
 
@@ -799,22 +782,20 @@ def add_event(request, course_id):
         if form.is_valid():
             event = form.save(commit=False)
             event.course = course
+            event.reminder_sent = False
             event.save()
 
-            # Notify enrolled students
-            students = Enrollment.objects.filter(
-                course=course
-            ).values_list("student_id", flat=True)
+            students = Enrollment.objects.filter(course=course).values_list("student_id", flat=True)
 
             for student_id in students:
                 Notification.objects.create(
                     user_id=student_id,
                     message=f"New Event Added: {event.title} ({course.title})",
-                    url="/student/my_schedules/"
+                    url=reverse("student:student_upcoming_classes")
                 )
 
             messages.success(request, "Event added successfully.")
-            return redirect('instructor:course_detail', course.id)
+            return redirect("instructor:calendar_view")
 
     else:
         form = CourseEventForm()
@@ -823,6 +804,7 @@ def add_event(request, course_id):
         'course': course,
         'form': form,
     })
+
 
 @login_required
 def give_feedback(request, course_id):
@@ -1012,7 +994,6 @@ def add_course(request):
     context = {'course_form': course_form, 'module_formset': module_formset}
     return render(request, 'courses/instructor/add_course.html', context)
 
-
 @login_required(login_url='/login/')
 def schedule_live_class(request, course_id):
     course = get_object_or_404(Course, pk=course_id)
@@ -1025,18 +1006,23 @@ def schedule_live_class(request, course_id):
             live_class.instructor = request.user
             live_class.course = course
             live_class.meeting_link = request.POST.get('meeting_link')
+            live_class.reminder_sent = False  
             live_class.save()
 
-            students = Enrollment.objects.filter(course=course).values_list("student", flat=True)
+            students = Enrollment.objects.filter(
+                course=course
+            ).values_list("student_id", flat=True)
+
             for student_id in students:
                 Notification.objects.create(
                     user_id=student_id,
                     message=f"New live class scheduled: {live_class.topic} ({course.title})",
-                    url="/student/my_schedules/"
+                    url=reverse("student:student_upcoming_classes")
                 )
 
             messages.success(request, f"✅ Live class '{live_class.topic}' scheduled successfully!")
-            return redirect('instructor:instructor_dashboard')
+
+            return redirect('instructor:calendar_view')
 
     else:
         form = LiveClassForm()
@@ -1045,7 +1031,6 @@ def schedule_live_class(request, course_id):
         'form': form,
         'course': course
     })
-
 
 @login_required(login_url='/login/')
 def my_activity(request):
@@ -1268,3 +1253,133 @@ def student_history(request, course_id, student_id):
     }
 
     return render(request, "courses/instructor/student_history.html", context)
+
+
+@login_required
+def instructor_recent_notifications(request):
+    notifications = Notification.objects.filter(
+        user=request.user
+    ).order_by('-created_at')[:5]
+
+    unread_count = Notification.objects.filter(
+        user=request.user, is_read=False
+    ).count()
+
+    data = {
+        "unread": unread_count,
+        "notifications": [
+            {
+                "id": n.id,
+                "message": n.message,
+                "created_at": n.created_at.strftime("%b %d, %I:%M %p"),
+                "is_read": n.is_read,
+                "url": n.url or "",
+            }
+            for n in notifications
+        ]
+    }
+
+    return JsonResponse(data)
+
+@login_required
+def instructor_notifications_page(request):
+    notifications = Notification.objects.filter(
+        user=request.user
+    ).order_by("-created_at")
+
+    unread_count = Notification.objects.filter(
+        user=request.user,
+        is_read=False
+    ).count()
+
+    return render(request, "courses/instructor/instructor_notifications.html", {
+        "notifications": notifications,
+        "unread_count": unread_count,
+    })
+
+@login_required
+def instructor_mark_read(request, notif_id):
+    Notification.objects.filter(
+        id=notif_id,
+        user=request.user
+    ).update(is_read=True)
+
+    return JsonResponse({"status": "ok"})
+
+@login_required
+def instructor_mark_all_read(request):
+    Notification.objects.filter(
+        user=request.user,
+        is_read=False
+    ).update(is_read=True)
+
+    return JsonResponse({"status": "ok"})
+
+@login_required
+def instructor_account_settings(request):
+    """Instructor: Account settings page"""
+    if request.user.role != "instructor":
+        return redirect("login")
+
+    user = request.user
+    profile, created = Profile.objects.get_or_create(user=user)
+
+    if request.method == 'POST':
+
+        # -------------------------
+        # UPDATE PROFILE
+        # -------------------------
+        if 'update_profile' in request.POST:
+            user.first_name = request.POST.get('first_name', user.first_name)
+            user.last_name = request.POST.get('last_name', user.last_name)
+            user.email = request.POST.get('email', user.email)
+            user.save()
+
+            profile.phone = request.POST.get('phone', profile.phone)
+            profile.bio = request.POST.get('bio', profile.bio)
+
+            if 'profile_picture' in request.FILES:
+                profile.profile_picture = request.FILES['profile_picture']
+
+            profile.save()
+
+            messages.success(request, "Profile updated successfully!")
+            return redirect('instructor:account_settings')
+
+        # -------------------------
+        # CHANGE PASSWORD
+        # -------------------------
+        elif 'change_password' in request.POST:
+            old_password = request.POST.get('old_password')
+            new_password1 = request.POST.get('new_password1')
+            new_password2 = request.POST.get('new_password2')
+
+            if user.check_password(old_password):
+                if new_password1 == new_password2:
+                    if len(new_password1) >= 8:
+                        user.set_password(new_password1)
+                        user.save()
+                        update_session_auth_hash(request, user)
+                        messages.success(request, "Password changed successfully!")
+                    else:
+                        messages.error(request, "Password must be at least 8 characters long.")
+                else:
+                    messages.error(request, "New passwords do not match.")
+            else:
+                messages.error(request, "Old password is incorrect.")
+
+            return redirect('instructor:account_settings')
+
+        # -------------------------
+        # NOTIFICATION SETTINGS
+        # -------------------------
+        elif 'update_notifications' in request.POST:
+            # Save settings here if you add fields in Profile model
+            messages.success(request, "Notification preferences updated!")
+            return redirect('instructor:account_settings')
+
+    context = {
+        'user': user,
+        'profile': profile,
+    }
+    return render(request, 'courses/instructor/instructor_account_settings.html', context)

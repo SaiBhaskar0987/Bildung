@@ -2,6 +2,7 @@ from django.db import models
 from users.models import User
 from django.conf import settings
 from django.utils import timezone
+import datetime
 
 
 class Course(models.Model):
@@ -113,6 +114,7 @@ class CourseEvent(models.Model):
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
     created_at = models.DateTimeField(auto_now_add=True)
+    reminder_sent = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.course.title} - {self.title} ({self.start_time})"
@@ -140,9 +142,16 @@ class LiveClass(models.Model):
     date = models.DateField()
     time = models.TimeField()
     created_at = models.DateTimeField(auto_now_add=True)
+    reminder_sent = models.BooleanField(default=False)
+
+    @property
+    def start_datetime(self):
+        dt = datetime.datetime.combine(self.date, self.time)
+        return timezone.make_aware(dt)
 
     def __str__(self):
         return f"{self.topic} ({self.course.title}) on {self.date} at {self.time}"
+
 
 class LectureQuestion(models.Model):
     lecture = models.ForeignKey(Lecture, on_delete=models.CASCADE, related_name="questions")

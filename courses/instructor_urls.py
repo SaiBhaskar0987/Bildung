@@ -37,6 +37,12 @@ urlpatterns = [
         views.student_history,
         name="student_history"
     ),
-    
+    path("recent-notifications/", views.instructor_recent_notifications, name="recent_notifications"),
+    path("notifications/", views.instructor_notifications_page, name="instructor_notifications"),
+    path("mark-read/<int:notif_id>/", views.instructor_mark_read, name="mark_notification_read"),
+    path("mark-all-read/", views.instructor_mark_all_read, name="mark_notifications_read"),
+
+    path("account-settings/", views.instructor_account_settings, name="account_settings"),
+
 
 ]

@@ -3,6 +3,7 @@ from users.models import User
 from django.conf import settings
 from django.utils import timezone
 import datetime
+import uuid
 
 
 class Course(models.Model):
@@ -118,7 +119,7 @@ class CourseEvent(models.Model):
 
     def __str__(self):
         return f"{self.course.title} - {self.title} ({self.start_time})"
-import uuid
+
 
 class Certificate(models.Model):
     student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -189,7 +190,7 @@ class QuestionReply(models.Model):
 class CourseReview(models.Model):
     course = models.ForeignKey("courses.Course", on_delete=models.CASCADE, related_name="reviews")
     student = models.ForeignKey(User, on_delete=models.CASCADE, related_name="course_reviews")
-    rating = models.IntegerField(default=5)   
+    rating = models.IntegerField(default=5)
     comment = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 

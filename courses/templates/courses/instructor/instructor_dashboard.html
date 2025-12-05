@@ -240,7 +240,6 @@
             <ul class="dropdown-menu dropdown-menu-end">
                 <li><a class="dropdown-item" href="{% url 'instructor_profile_view' %}">Profile</a></li>
                 <li><a class="dropdown-item" href="{% url 'instructor:add_course' %}">Create New Course</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor:my_activity' %}">My Activity</a></li>
                 <li><a class="dropdown-item" href="{% url 'instructor:students_list' %}">My Students</a></li>
                 <li><a class="dropdown-item" href="{% url 'instructor:calendar_view' %}">My Schedules</a></li>
                 <li><a class="dropdown-item" href="{% url 'instructor:instructor_notifications' %}">Notifications</a></li>
@@ -335,10 +334,10 @@
             <a href="{% url 'instructor:give_feedback' course.id %}" class="btn btn-outline-secondary btn-sm">
               <i class="bi bi-chat-dots"></i> Feedback
             </a>
-            <a href="{% url 'instructor:schedule_live_class' course.id %}" class="btn btn-outline-dark btn-sm">
+            <a href="{% url 'instructor:schedule_live_class' %}" class="btn btn-outline-dark btn-sm">
                <i class="bi bi-calendar-event"></i> Schedule Live Class
             </a>
-            <a href="{% url 'instructor:add_event' course.id %}" class="btn btn-outline-dark btn-sm">
+            <a href="{% url 'instructor:add_event' %}" class="btn btn-outline-dark btn-sm">
               <i class="bi bi-calendar-event"></i> Add Event
             </a>
 

@@ -48,6 +48,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "courses.middleware.ReminderMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
@@ -168,14 +169,19 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_REDIRECT_URL = '/accounts/post-login/'
 SITE_ID = 1
 
-#password_reset_mail local
+# ---------------------------------------------------------------------
+# Email Configuration - Temporary Development Solution
+# ---------------------------------------------------------------------
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+DEFAULT_FROM_EMAIL = 'Bildung Platform <noreply@bildung.com>'
 
-#password_reset_mail
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = ''
-EMAIL_HOST_PASSWORD ='viybdcfqakmylkus'
-DEFAULT_FROM_EMAIL = 'Bildung Platform '
+# ---------------------------------------------------------------------
+# Production Email Configuration (COMMENTED OUT FOR NOW)
+# ---------------------------------------------------------------------
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# EMAIL_HOST_USER = 'your-email@gmail.com'  # Replace with your Gmail
+# EMAIL_HOST_PASSWORD = 'your-app-password'  # Replace with Gmail App Password
+# DEFAULT_FROM_EMAIL = 'Bildung Platform <your-email@gmail.com>'

@@ -1,21 +1,28 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.urls import reverse
 from django.utils.dateparse import parse_datetime, parse_date, parse_time
 
-from .models import Course, Enrollment, Lecture, LectureProgress, Feedback, CourseEvent, Module, Certificate,LiveClass
-from .forms import CourseForm, LectureForm, FeedbackForm, ModuleFormSet, LiveClassForm
+from quizzes.models import QuizResult
+from .models import Course, Enrollment, Lecture, LectureProgress, Feedback, CourseEvent, Module, Certificate,LiveClass, LectureQuestion, QuestionReply, CourseReview, LiveClassAttendance, Notification
+from users.models import LoginHistory, User
+from .forms import CourseForm, LectureForm, FeedbackForm, ModuleFormSet, LiveClassForm, CourseReviewForm, CourseEventForm
+from io import BytesIO
 from users.decorators import instructor_required
-from django.db.models import Q, Count
+from django.db.models import Q, Count, Sum
 from users.models import Profile
-from datetime import date
+from datetime import date, datetime
 from django.utils import timezone
+
 
 from io import BytesIO
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import A4
-from django.http import FileResponse
+from django.http import FileResponse, HttpResponseForbidden
 import json
+from django.contrib.auth import update_session_auth_hash
+
 
 # -------------------------------
 # Common Views
@@ -47,24 +54,20 @@ def browse_courses(request):
 # Student Views
 # -------------------------------
 
-def student_dashboard(request):
-    if request.user.role != "student":
-        return redirect("login")
-    all_courses = Course.objects.all()
-    enrolled_courses = Course.objects.filter(students=request.user)
-    return render(request, 'courses/student_dashboard.html', {
-        'all_courses': all_courses,
-        'enrolled_courses': enrolled_courses
-    })
 
 @login_required(login_url='/login/')
 def enroll_course(request, course_id):
-    """Student: enroll in a course"""
     if getattr(request.user, 'role', None) != 'student':
         return redirect('student_login')
-
     course = get_object_or_404(Course, id=course_id)
     Enrollment.objects.get_or_create(student=request.user, course=course)
+    
+    Notification.objects.create(
+        user=request.user,
+        message=f"You have successfully enrolled in {course.title}.",
+        url=f"/student/course/{course.id}/"
+    )
+
     messages.success(request, f"Enrolled in {course.title}")
     return redirect('student:my_courses')
 
@@ -81,7 +84,6 @@ def student_course_detail(request, course_id):
     course = enrollment.course
     modules = course.modules.prefetch_related('lectures').all()
     lectures = Lecture.objects.filter(module__course=course)
-
     total = lectures.count()
     completed_lectures = LectureProgress.objects.filter(
         student=request.user,
@@ -93,10 +95,12 @@ def student_course_detail(request, course_id):
     progress_map = set(completed_lectures)
     progress_percent = int((completed / total * 100) if total else 0)
 
-    # ✅ Sequential module unlock logic (enhanced)
     unlocked_modules = []
     all_previous_complete = True
-
+    try:
+        user_review = CourseReview.objects.get(course=course, student=request.user)
+    except CourseReview.DoesNotExist:
+        user_review = None
     for module in modules:
         if all_previous_complete:
             unlocked_modules.append(module.id)
@@ -117,6 +121,7 @@ def student_course_detail(request, course_id):
         'progress_map': progress_map,
         'progress_percent': progress_percent,
         'unlocked_modules': unlocked_modules,
+        "user_review": user_review,
     })
 
 
@@ -157,21 +162,18 @@ def auto_mark_complete(request, lecture_id):
         lecture = get_object_or_404(Lecture, id=lecture_id)
         course = lecture.module.course
 
-        # Get current playback info
         watched_time = float(request.POST.get("watched_time", 0))
         duration = float(request.POST.get("duration", 0))
 
-        # Save or update LectureProgress
         progress, created = LectureProgress.objects.update_or_create(
             student=request.user,
             lecture=lecture,
             defaults={
                 "completed": True,
-                "last_position": duration  # final position = full watch
+                "last_position": duration  
             }
         )
 
-        # Recalculate course progress
         total_lectures = Lecture.objects.filter(module__course=course).count()
         completed_lectures = LectureProgress.objects.filter(
             student=request.user,
@@ -189,7 +191,6 @@ def auto_mark_complete(request, lecture_id):
         })
 
     return JsonResponse({"status": "error", "message": "Invalid request."}, status=400)
-
 
 
 @login_required(login_url='/login/')
@@ -242,7 +243,6 @@ def student_progress(request, course_id):
 def get_certificate(request, course_id):
     course = get_object_or_404(Course, id=course_id)
     user = request.user
-
     lectures = Lecture.objects.filter(module__course=course)
     total = lectures.count()
     completed = LectureProgress.objects.filter(student=user, lecture__in=lectures, completed=True).count()
@@ -252,6 +252,9 @@ def get_certificate(request, course_id):
         return redirect('student:student_course_detail', course_id)
 
     certificate, created = Certificate.objects.get_or_create(student=user, course=course)
+
+    certificate.downloaded_at = timezone.now()
+    certificate.save()
 
     buffer = BytesIO()
     p = canvas.Canvas(buffer, pagesize=A4)
@@ -287,10 +290,12 @@ def get_certificate(request, course_id):
 
     return FileResponse(buffer, as_attachment=True, filename=f"{course.title}_Certificate.pdf")
 
+
 @login_required
 def my_certificates(request):
     certs = Certificate.objects.filter(student=request.user)
     return render(request, 'courses/student/my_certificates.html', {'certificates': certs})
+
 
 @login_required(login_url='/login/')
 def student_upcoming_classes(request):
@@ -344,7 +349,308 @@ def student_upcoming_classes(request):
     return render(request, 'courses/student/student_calendar.html', {
         'events_json': json.dumps(events)  
     })
+    
+@login_required
+def account_settings(request):
+    """Student: Account settings page"""
+    if request.user.role != "student":
+        return redirect("login")
+    
+    user = request.user
+    profile, created = Profile.objects.get_or_create(user=user)
+    
+    if request.method == 'POST':
+        # Handle form submissions
+        if 'update_profile' in request.POST:
+            user.first_name = request.POST.get('first_name', user.first_name)
+            user.last_name = request.POST.get('last_name', user.last_name)
+            user.email = request.POST.get('email', user.email)
+            user.save()
+            
+            profile.phone = request.POST.get('phone', profile.phone)
+            profile.bio = request.POST.get('bio', profile.bio)
+            if 'profile_picture' in request.FILES:
+                profile.profile_picture = request.FILES['profile_picture']
+            profile.save()
+            
+            messages.success(request, "Profile updated successfully!")
+            return redirect('student:account_settings')
+            
+        elif 'change_password' in request.POST:
+            old_password = request.POST.get('old_password')
+            new_password1 = request.POST.get('new_password1')
+            new_password2 = request.POST.get('new_password2')
+            
+            if user.check_password(old_password):
+                if new_password1 == new_password2:
+                    if len(new_password1) >= 8:
+                        user.set_password(new_password1)
+                        user.save()
+                        update_session_auth_hash(request, user)  # Important!
+                        messages.success(request, "Password changed successfully!")
+                    else:
+                        messages.error(request, "Password must be at least 8 characters long.")
+                else:
+                    messages.error(request, "New passwords do not match.")
+            else:
+                messages.error(request, "Current password is incorrect.")
+            return redirect('student:account_settings')
+            
+        elif 'update_notifications' in request.POST:
+            email_notifications = 'email_notifications' in request.POST
+            course_updates = 'course_updates' in request.POST
+            messages.success(request, "Notification preferences updated!")
+            return redirect('student:account_settings')
+    
+    context = {
+        'user': user,
+        'profile': profile,
+    }
+    return render(request, 'courses/student/account_settings.html', context)
 
+@login_required
+def student_my_activity(request):
+    user = request.user
+    enrollments = Enrollment.objects.filter(student=user)
+
+    course_progress = []
+    for enroll in enrollments:
+        course = enroll.course
+        lectures = Lecture.objects.filter(module__course=course)
+        total_lectures = lectures.count()
+
+        completed = LectureProgress.objects.filter(
+            student=user, lecture__in=lectures, completed=True
+        ).count()
+
+        percent = round((completed / total_lectures) * 100, 2) if total_lectures > 0 else 0
+
+        course_progress.append({
+            "course": course,
+            "total_lectures": total_lectures,
+            "completed_lectures": completed,
+            "progress_percent": percent,
+        })
+
+    recent_videos = LectureProgress.objects.filter(
+        student=user, completed=True
+    ).select_related("lecture", "lecture__module__course").order_by("-updated_at")[:10]
+
+    video_lessons_watched = LectureProgress.objects.filter(
+        student=user, completed=True
+    ).select_related("lecture", "lecture__module__course").order_by("-updated_at")
+
+    enrolled_course_ids = enrollments.values_list("course_id", flat=True)
+
+    all_live_classes = LiveClass.objects.filter(course_id__in=enrolled_course_ids)
+
+    total_classes = all_live_classes.count()
+
+    attendance_records = (
+        LiveClassAttendance.objects
+        .filter(user=user, live_class__in=all_live_classes)
+        .select_related("live_class", "live_class__course")
+    )
+
+    attended_count = attendance_records.exclude(joined_at=None).count()
+
+    attendance_percent = round((attended_count / total_classes) * 100, 2) if total_classes > 0 else 0
+
+    attendance_data = {
+        "total_classes": total_classes,
+        "classes_attended": attended_count,
+        "attendance_percentage": attendance_percent,
+        "absences": total_classes - attended_count,
+        "live_classes": [
+            {
+                "title": rec.live_class.title,
+                "course": rec.live_class.course.title,
+                "date": rec.live_class.date,
+                "status": "Joined" if rec.joined_at else "Missed",
+                "joined_at": rec.joined_at,
+                "duration": f"{rec.duration} mins" if rec.duration else "—",
+            }
+            for rec in attendance_records
+        ]
+    }
+
+    login_history = LoginHistory.objects.filter(user=user).order_by("-login_time")[:25]
+
+    qna_activity = (
+        LectureQuestion.objects.filter(student=user)
+        .select_related("lecture", "lecture__module", "lecture__module__course")
+        .prefetch_related("replies__user")
+        .order_by("-created_at")
+    )
+
+    total_completed = LectureProgress.objects.filter(student=user, completed=True).count()
+    total_lectures = Lecture.objects.count()
+    overall_progress = (
+        round((total_completed / total_lectures) * 100, 2) if total_lectures > 0 else 0
+    )
+
+    context = {
+        "total_enrolled_courses": enrollments.count(),
+        "total_completed_lectures": total_completed,
+        "overall_progress": overall_progress,
+        "course_progress": course_progress,
+        "recent_videos": recent_videos,
+        "video_lessons_watched": video_lessons_watched,
+        "attendance_data": attendance_data,
+        "login_history": login_history,
+        "qna_activity": qna_activity,
+    }
+
+    return render(request, "courses/student/my_activity.html", context)
+
+
+@login_required
+def ask_question(request, lecture_id):
+    lecture = get_object_or_404(Lecture, id=lecture_id)
+
+    if request.method == "POST":
+        question_text = request.POST.get("question")
+        if question_text:
+            LectureQuestion.objects.create(
+                lecture=lecture,
+                student=request.user,
+                question=question_text
+            )
+        return redirect("student:course_qna", course_id=lecture.module.course.id)
+    
+@login_required
+def edit_question(request, question_id):
+    question = get_object_or_404(LectureQuestion, id=question_id, student=request.user)
+
+    if request.method == "POST":
+        question.question = request.POST.get("question")
+        question.save()
+        return redirect("student:course_qna", course_id=question.lecture.module.course.id)
+
+    return render(request, "courses/student/edit_question.html", {
+        "question": question
+    })
+
+    
+@login_required
+def delete_question(request, question_id):
+    question = get_object_or_404(LectureQuestion, id=question_id, student=request.user)
+    course_id = question.lecture.module.course.id
+    question.delete()
+    return redirect("student:course_qna", course_id=course_id)
+
+@login_required
+def course_qna(request, course_id):
+    course = get_object_or_404(Course, id=course_id)
+
+    sort = request.GET.get("sort", "recent")
+
+    questions = LectureQuestion.objects.filter(
+        lecture__module__course=course
+    ).order_by("-created_at")
+    my_questions = questions.filter(student=request.user)
+    my_replies = QuestionReply.objects.filter(
+        question__lecture__module__course=course,
+        user=request.user
+    ).order_by("-created_at")
+
+    if sort == "liked":
+        questions = questions.annotate(
+            top_likes=Count("replies__upvotes")
+        ).order_by("-top_likes", "-created_at")
+
+    return render(request, "courses/student/student_QandA.html", {
+        "course": course,
+        "questions": questions,
+        "my_questions": my_questions,
+        "my_replies": my_replies,
+        "sort": sort,
+    })
+
+
+@login_required
+def upvote_reply(request, reply_id):
+    reply = get_object_or_404(QuestionReply, id=reply_id)
+
+    if request.user in reply.upvotes.all():
+        reply.upvotes.remove(request.user)
+    else:
+        reply.upvotes.add(request.user)
+
+    return redirect("student:course_qna", course_id=reply.question.lecture.module.course.id)
+
+
+@login_required
+def leave_review(request, course_id):
+    course = get_object_or_404(Course, id=course_id)
+
+    try:
+        review = CourseReview.objects.get(course=course, student=request.user)
+        is_update = True
+    except CourseReview.DoesNotExist:
+        review = None
+        is_update = False
+
+    if request.method == "POST":
+        form = CourseReviewForm(request.POST, instance=review)
+
+        if form.is_valid():
+            review_obj = form.save(commit=False)
+            review_obj.course = course
+            review_obj.student = request.user
+            review_obj.save()
+
+            if is_update:
+                messages.success(request, "Your review has been updated.")
+            else:
+                messages.success(request, "Thank you! Your review has been submitted.")
+
+            return redirect("student:student_course_detail", course_id=course.id)
+
+        else:
+            messages.error(request, "Please fix the errors in the form.")
+
+    return redirect("student:course_detail", course_id=course.id)
+
+
+@login_required
+def student_notifications(request):
+    notifications = Notification.objects.filter(user=request.user).order_by("-created_at")
+
+    return render(request, "courses/student/student_notifications.html", {
+        "notifications": notifications
+    })
+
+
+@login_required
+def get_recent_notifications(request):
+    notes = Notification.objects.filter(user=request.user).order_by("-created_at")[:10]
+
+    data = []
+    for n in notes:
+        data.append({
+            "id": n.id,
+            "message": n.message,
+            "url": n.url or "",
+            "is_read": n.is_read,
+            "created_at": n.created_at.strftime("%d %b %Y, %I:%M %p")
+        })
+
+    unread = Notification.objects.filter(user=request.user, is_read=False).count()
+
+    return JsonResponse({"notifications": data, "unread": unread})
+
+
+@login_required
+def mark_notifications_read(request, notif_id):
+    Notification.objects.filter(id=notif_id, user=request.user).update(is_read=True)
+    return JsonResponse({"status": "ok"})
+
+@login_required
+def mark_notification_read(request, notif_id):
+    """Mark a single notification as read."""
+    Notification.objects.filter(id=notif_id, user=request.user).update(is_read=True)
+    return JsonResponse({"status": "ok"})
 
 # -------------------------------
 # Instructor Views
@@ -353,6 +659,10 @@ def student_upcoming_classes(request):
 @login_required
 def instructor_dashboard(request):
     courses = Course.objects.filter(instructor=request.user)
+    unread_count = Notification.objects.filter(
+        user=request.user,
+        is_read=False
+    ).count()
 
     total_students = Enrollment.objects.filter(
         course__in=courses
@@ -361,41 +671,8 @@ def instructor_dashboard(request):
     return render(request, 'courses/instructor/instructor_dashboard.html', {
         'courses': courses,
         'total_students': total_students,
+        "unread_count": unread_count,
     })
-
-
-@login_required
-def add_course(request):
-    if request.method == 'POST':
-        course_form = CourseForm(request.POST, request.FILES)
-        if course_form.is_valid():
-            course = course_form.save(commit=False)
-            course.instructor = request.user
-            course.save()
-
-            module_total = int(request.POST.get('modules-TOTAL_FORMS', 0))
-            for i in range(module_total):
-                title = request.POST.get(f'modules-{i}-title')
-                desc = request.POST.get(f'modules-{i}-description')
-                if title:
-                    module = Module.objects.create(course=course, title=title, description=desc)
-
-                    lecture_index = 0
-                    while True:
-                        lecture_title = request.POST.get(f'modules-{i}-lectures-{lecture_index}-title')
-                        lecture_file = request.FILES.get(f'modules-{i}-lectures-{lecture_index}-video')
-                        if not lecture_title:
-                            break
-                        Lecture.objects.create(module=module, title=lecture_title, video=lecture_file)
-                        lecture_index += 1
-
-            return redirect('instructor:instructor_dashboard')
-    else:
-        course_form = CourseForm()
-        module_formset = ModuleFormSet()
-
-    context = {'course_form': course_form, 'module_formset': module_formset}
-    return render(request, 'courses/instructor/add_course.html', context)
 
 
 @login_required
@@ -479,7 +756,7 @@ def course_progress_report(request, course_id):
         student = enrollment.student
         completed = LectureProgress.objects.filter(
             student=student,
-            lecture__module__course=course,  # Fixed this line
+            lecture__module__course=course,  
             completed=True
         ).count()
         progress = (completed / total_lectures * 100) if total_lectures else 0
@@ -495,39 +772,38 @@ def course_progress_report(request, course_id):
         'progress_data': progress_data
     })
 
-
 @login_required
 def add_event(request, course_id):
     course = get_object_or_404(Course, id=course_id, instructor=request.user)
 
     if request.method == 'POST':
-        title = request.POST.get('title')
-        description = request.POST.get('description')
-        event_date = request.POST.get('event_date')   
-        start_time_raw = request.POST.get('start_time')
-        end_time_raw = request.POST.get('end_time')
+        form = CourseEventForm(request.POST)
 
-        event_date_obj = parse_date(event_date)
-        start_time = parse_time(start_time_raw)
-        end_time = parse_time(end_time_raw)
+        if form.is_valid():
+            event = form.save(commit=False)
+            event.course = course
+            event.reminder_sent = False
+            event.save()
 
-        start_datetime = datetime.combine(event_date_obj, start_time)
-        end_datetime = datetime.combine(event_date_obj, end_time)
+            students = Enrollment.objects.filter(course=course).values_list("student_id", flat=True)
 
-        CourseEvent.objects.create(
-             course=course,
-            title=title,
-            description=description,
-            date=event_date_obj,        
-            start_time=start_datetime,
-            end_time=end_datetime)
+            for student_id in students:
+                Notification.objects.create(
+                    user_id=student_id,
+                    message=f"New Event Added: {event.title} ({course.title})",
+                    url=reverse("student:student_upcoming_classes")
+                )
 
-        messages.success(request, "Event added successfully.")
-        return redirect('instructor:course_detail', course_id=course.id)
+            messages.success(request, "Event added successfully.")
+            return redirect("instructor:calendar_view")
 
-    return render(request, 'courses/instructor/add_event.html', {'course': course})
+    else:
+        form = CourseEventForm()
 
-
+    return render(request, 'courses/instructor/add_event.html', {
+        'course': course,
+        'form': form,
+    })
 
 
 @login_required
@@ -595,20 +871,103 @@ def my_students(request):
     })
 
 @login_required
+def students_list(request):
+    instructor = request.user
+    query = request.GET.get("q", "").strip()
+    instructor_courses = Course.objects.filter(instructor=instructor)
+
+    enrollments = Enrollment.objects.filter(
+        course__in=instructor_courses
+    ).select_related("student", "course")
+
+    if query:
+        enrollments = enrollments.filter(
+            Q(student__first_name__icontains=query) |
+            Q(student__last_name__icontains=query) |
+            Q(student__username__icontains=query) |
+            Q(student__email__icontains=query)
+        )
+
+    students_map = {}
+
+    for e in enrollments:
+        student = e.student
+
+        if student.id not in students_map:
+            last_login_obj = LoginHistory.objects.filter(
+                user=student
+            ).order_by("-login_time").first()
+
+            students_map[student.id] = {
+                "student": student,
+                "courses": [],
+                "completed_courses": 0,
+                "last_login": last_login_obj.login_time if last_login_obj else None,
+                "total_progress": 0,
+                "course_count": 0,
+            }
+
+        course = e.course
+        lectures = Lecture.objects.filter(module__course=course)
+        total_lectures = lectures.count()
+        completed_lectures = LectureProgress.objects.filter(
+            student=student,
+            lecture__in=lectures,
+            completed=True
+        ).count()
+
+        progress = round((completed_lectures / total_lectures) * 100) if total_lectures else 0
+
+        students_map[student.id]["courses"].append({
+            "course": course,
+            "course_id": course.id,
+            "title": course.title,
+            "progress": progress,
+        })
+
+        students_map[student.id]["total_progress"] += progress
+        students_map[student.id]["course_count"] += 1
+
+        if progress == 100:
+            students_map[student.id]["completed_courses"] += 1
+
+    students_data = []
+    for s in students_map.values():
+        if s["course_count"]:
+            avg = s["total_progress"] / s["course_count"]
+        else:
+            avg = 0
+        s["average_progress"] = round(avg)
+        students_data.append(s)
+
+    total_courses = instructor_courses.count()
+
+    if students_data:
+        overall_avg_progress = round(
+            sum(s["average_progress"] for s in students_data) / len(students_data)
+        )
+    else:
+        overall_avg_progress = 0
+
+    total_assignments = 0  
+
+    context = {
+        "students_data": students_data,
+        "query": query,
+        "total_courses": total_courses,
+        "average_progress": overall_avg_progress,
+        "total_assignments": total_assignments,
+    }
+
+    return render(request, "courses/instructor/students_list.html", context)
+
+@login_required
 def add_course(request):
     if request.method == 'POST':
         course_form = CourseForm(request.POST, request.FILES)
         if course_form.is_valid():
             course = course_form.save(commit=False)
             course.instructor = request.user
-
-            selected_category = request.POST.get('category')
-            other_category = request.POST.get('other_category')
-
-            if selected_category == "others" and other_category:
-                course.category = other_category.strip()
-            else:
-                course.category = selected_category
             course.save()
 
             module_total = int(request.POST.get('modules-TOTAL_FORMS', 0))
@@ -641,15 +1000,30 @@ def schedule_live_class(request, course_id):
 
     if request.method == 'POST':
         form = LiveClassForm(request.POST)
+
         if form.is_valid():
             live_class = form.save(commit=False)
             live_class.instructor = request.user
             live_class.course = course
-            live_class.meeting_link = request.POST.get('meeting_link')  # 🔥 Save manual field
+            live_class.meeting_link = request.POST.get('meeting_link')
+            live_class.reminder_sent = False  
             live_class.save()
 
+            students = Enrollment.objects.filter(
+                course=course
+            ).values_list("student_id", flat=True)
+
+            for student_id in students:
+                Notification.objects.create(
+                    user_id=student_id,
+                    message=f"New live class scheduled: {live_class.topic} ({course.title})",
+                    url=reverse("student:student_upcoming_classes")
+                )
+
             messages.success(request, f"✅ Live class '{live_class.topic}' scheduled successfully!")
-            return redirect('instructor:instructor_dashboard')
+
+            return redirect('instructor:calendar_view')
+
     else:
         form = LiveClassForm()
 
@@ -658,15 +1032,12 @@ def schedule_live_class(request, course_id):
         'course': course
     })
 
-
-
 @login_required(login_url='/login/')
 def my_activity(request):
     live_classes = LiveClass.objects.filter(instructor=request.user).order_by('-date', '-time')
     return render(request, 'courses/instructor/my_activity.html', {'live_classes': live_classes})
 
-import json
-
+@login_required
 def calendar_view(request):
     instructor = request.user
 
@@ -712,3 +1083,303 @@ def calendar_view(request):
     return render(request, "courses/instructor/instructor_schedule.html", {
         "events": json.dumps(calendar_events)  
     })
+
+@login_required
+def instructor_qna(request, course_id):
+    course = get_object_or_404(Course, id=course_id, instructor=request.user)
+
+    questions = LectureQuestion.objects.filter(
+        lecture__module__course=course
+    ).order_by("-created_at")
+
+    return render(request, "courses/instructor/instructor_qna.html", {
+        "course": course,
+        "questions": questions
+    })
+
+@login_required
+def add_reply(request, question_id):
+    question = get_object_or_404(LectureQuestion, id=question_id)
+
+    if request.method == "POST":
+        reply_text = request.POST.get("reply")
+        if reply_text:
+            QuestionReply.objects.create(
+                question=question,
+                user=request.user,
+                reply=reply_text
+            )
+
+    return redirect("instructor:course_review", course_id=question.lecture.module.course.id)
+
+@login_required
+def edit_reply(request, reply_id):
+    reply = get_object_or_404(QuestionReply, id=reply_id)
+
+    if reply.user != request.user:
+        return HttpResponseForbidden("You cannot edit this reply")
+
+    if request.method == "POST":
+        reply.reply = request.POST.get("reply")
+        reply.save()
+        return redirect("instructor:course_review", course_id=reply.question.lecture.module.course.id)
+
+    return render(request, "courses/instructor/edit_reply.html", {"reply": reply})
+
+
+@login_required
+def delete_reply(request, reply_id):
+    reply = get_object_or_404(QuestionReply, id=reply_id)
+
+    if reply.user != request.user:
+        return HttpResponseForbidden("You cannot delete this reply")
+
+    course_id = reply.question.lecture.module.course.id
+    reply.delete()
+
+    return redirect("instructor:course_review", course_id=course_id)
+
+@login_required
+def course_overview(request, course_id):
+    course = get_object_or_404(Course, id=course_id, instructor=request.user)
+    enrollments = Enrollment.objects.filter(course=course).select_related("student")
+    progress_list = []
+
+    total_lectures = Lecture.objects.filter(module__course=course).count()
+
+    for e in enrollments:
+        completed_lectures = LectureProgress.objects.filter(
+            student=e.student,
+            lecture__module__course=course,
+            completed=True
+        ).count()
+
+        percent = 0
+        if total_lectures > 0:
+            percent = int((completed_lectures / total_lectures) * 100)
+
+        progress_list.append({
+            "student": e.student,
+            "completed": completed_lectures,
+            "total": total_lectures,
+            "percent": percent,
+        })
+
+    completed_students = Certificate.objects.filter(course=course)
+    downloaded_students = Certificate.objects.filter(
+        course=course,
+        downloaded_at__isnull=False
+    )
+
+    questions = LectureQuestion.objects.filter(
+        lecture__module__course=course
+    ).select_related("student", "lecture")
+    reviews = CourseReview.objects.filter(course=course).order_by("-created_at")
+
+    return render(request, "courses/instructor/course_overview.html", {
+        "course": course,
+        "progress_list": progress_list,
+        "completed_students": completed_students,
+        "downloaded_students": downloaded_students,
+        "questions": questions,
+        "reviews": reviews,
+
+    })
+
+
+@login_required
+def student_history(request, course_id, student_id):
+    course = get_object_or_404(Course, id=course_id)
+    student = get_object_or_404(User, id=student_id)
+
+    if course.instructor != request.user:
+        return render(request, "403.html", status=403)
+
+    lectures = Lecture.objects.filter(module__course=course)
+    total_lectures = lectures.count()
+
+    completed_lectures = LectureProgress.objects.filter(
+        student=student,
+        lecture__in=lectures,
+        completed=True
+    ).count()
+
+    progress_percent = (
+        (completed_lectures / total_lectures * 100) if total_lectures > 0 else 0
+    )
+
+    quiz_results = QuizResult.objects.filter(student=student, quiz__course=course).select_related("quiz")
+
+    live_classes = LiveClass.objects.filter(course=course)
+    attendance_list = LiveClassAttendance.objects.filter(
+        live_class__in=live_classes, user=student
+    ).select_related("live_class")
+
+    total_classes = live_classes.count()
+    attended = attendance_list.count()
+    missed = total_classes - attended
+
+    activity = LectureProgress.objects.filter(
+       student=student,
+       lecture__in=lectures).select_related("lecture")
+
+    total_watch_time = activity.aggregate(
+    total=Sum("last_position"))["total"] or 0
+
+
+    questions = LectureQuestion.objects.filter(
+        student=student,
+        lecture__module__course=course).select_related("lecture")
+
+    login_history = LoginHistory.objects.filter(
+          user=student).order_by("-login_time")
+
+
+    context = {
+        "course": course,
+        "student": student,
+        "progress_percent": progress_percent,
+        "total_lectures": total_lectures,
+        "completed_lectures": completed_lectures,
+        "quiz_results": quiz_results,
+        "attendance_list": attendance_list,
+        "total_classes": total_classes,
+        "attended": attended,
+        "missed": missed,
+        "activity": activity,
+        "total_watch_time": total_watch_time,
+        "questions": questions,
+        "login_history": login_history,
+    }
+
+    return render(request, "courses/instructor/student_history.html", context)
+
+
+@login_required
+def instructor_recent_notifications(request):
+    notifications = Notification.objects.filter(
+        user=request.user
+    ).order_by('-created_at')[:5]
+
+    unread_count = Notification.objects.filter(
+        user=request.user, is_read=False
+    ).count()
+
+    data = {
+        "unread": unread_count,
+        "notifications": [
+            {
+                "id": n.id,
+                "message": n.message,
+                "created_at": n.created_at.strftime("%b %d, %I:%M %p"),
+                "is_read": n.is_read,
+                "url": n.url or "",
+            }
+            for n in notifications
+        ]
+    }
+
+    return JsonResponse(data)
+
+@login_required
+def instructor_notifications_page(request):
+    notifications = Notification.objects.filter(
+        user=request.user
+    ).order_by("-created_at")
+
+    unread_count = Notification.objects.filter(
+        user=request.user,
+        is_read=False
+    ).count()
+
+    return render(request, "courses/instructor/instructor_notifications.html", {
+        "notifications": notifications,
+        "unread_count": unread_count,
+    })
+
+@login_required
+def instructor_mark_read(request, notif_id):
+    Notification.objects.filter(
+        id=notif_id,
+        user=request.user
+    ).update(is_read=True)
+
+    return JsonResponse({"status": "ok"})
+
+@login_required
+def instructor_mark_all_read(request):
+    Notification.objects.filter(
+        user=request.user,
+        is_read=False
+    ).update(is_read=True)
+
+    return JsonResponse({"status": "ok"})
+
+@login_required
+def instructor_account_settings(request):
+    """Instructor: Account settings page"""
+    if request.user.role != "instructor":
+        return redirect("login")
+
+    user = request.user
+    profile, created = Profile.objects.get_or_create(user=user)
+
+    if request.method == 'POST':
+
+        # -------------------------
+        # UPDATE PROFILE
+        # -------------------------
+        if 'update_profile' in request.POST:
+            user.first_name = request.POST.get('first_name', user.first_name)
+            user.last_name = request.POST.get('last_name', user.last_name)
+            user.email = request.POST.get('email', user.email)
+            user.save()
+
+            profile.phone = request.POST.get('phone', profile.phone)
+            profile.bio = request.POST.get('bio', profile.bio)
+
+            if 'profile_picture' in request.FILES:
+                profile.profile_picture = request.FILES['profile_picture']
+
+            profile.save()
+
+            messages.success(request, "Profile updated successfully!")
+            return redirect('instructor:account_settings')
+
+        # -------------------------
+        # CHANGE PASSWORD
+        # -------------------------
+        elif 'change_password' in request.POST:
+            old_password = request.POST.get('old_password')
+            new_password1 = request.POST.get('new_password1')
+            new_password2 = request.POST.get('new_password2')
+
+            if user.check_password(old_password):
+                if new_password1 == new_password2:
+                    if len(new_password1) >= 8:
+                        user.set_password(new_password1)
+                        user.save()
+                        update_session_auth_hash(request, user)
+                        messages.success(request, "Password changed successfully!")
+                    else:
+                        messages.error(request, "Password must be at least 8 characters long.")
+                else:
+                    messages.error(request, "New passwords do not match.")
+            else:
+                messages.error(request, "Old password is incorrect.")
+
+            return redirect('instructor:account_settings')
+
+        # -------------------------
+        # NOTIFICATION SETTINGS
+        # -------------------------
+        elif 'update_notifications' in request.POST:
+            # Save settings here if you add fields in Profile model
+            messages.success(request, "Notification preferences updated!")
+            return redirect('instructor:account_settings')
+
+    context = {
+        'user': user,
+        'profile': profile,
+    }
+    return render(request, 'courses/instructor/instructor_account_settings.html', context)

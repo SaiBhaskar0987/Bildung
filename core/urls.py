@@ -21,8 +21,10 @@ from home import views as home_views
 
 from django.conf import settings
 from django.conf.urls.static import static
-from django.contrib.auth import views as auth_views
-from courses import views as course_views
+
+from django.contrib.auth import views as auth_views    # ✅ Added for logout
+from courses import views as course_views  
+from users.views import logout_view            # IMPORTANT
 
 # Fallback view for the main domain
 def home(request):
@@ -34,18 +36,21 @@ urlpatterns = [
     path("forums/", include("forums.urls")),
     path("chat/", include("chat.urls")),
 
-    # Main site root
-   path('', home_views.smart_home, name='smart_home'),
-    
-    # Include all user-related routes (signup, login, dashboards)
+    # Home Page → Use course_views.smart_home instead of home_views.smart_home
+    path('', home_views.smart_home, name='smart_home'),
+
+    # User routes
     path("", include("users.urls")),
-    path('courses/', include('courses.urls')),
-    path('accounts/', include('django.contrib.auth.urls')),  # For password reset and other auth views
-    ]
+
+    path('accounts/logout/', logout_view, name='logout'),
+    path('accounts/', include('django.contrib.auth.urls')),
+    
+    path('courses/', include(('courses.urls', 'courses'), namespace='courses'))
+]
 
 SUBDOMAIN_URLCONFS = {
     'instructor': 'courses.instructor_urls',
-    'student': 'courses.student_urls',  
+    'student': 'courses.student_urls',
 }
 
 if settings.DEBUG:

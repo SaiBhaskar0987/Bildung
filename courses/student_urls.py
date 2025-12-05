@@ -14,6 +14,19 @@ urlpatterns = [
     path('lectures/<int:lecture_id>/undo/', views.undo_lecture_completion, name='undo_lecture_completion'),
     path('lecture/<int:lecture_id>/auto_complete/', views.auto_mark_complete, name='auto_mark_complete'),
     path('upcoming-classes/', views.student_upcoming_classes, name='student_upcoming_classes'),
+    path('account-settings/', views.account_settings, name='account_settings'),
+    path('my-activity/', views.student_my_activity, name='student_my_activity'),
+
+    path('lecture/<int:lecture_id>/ask/', views.ask_question, name='ask_question'),
+    path('question/<int:question_id>/edit/', views.edit_question, name='edit_question'),
+    path('question/<int:question_id>/delete/', views.delete_question, name='delete_question'),
+    path('course/<int:course_id>/qna/', views.course_qna, name='course_qna'),
+    path("reply/<int:reply_id>/upvote/", views.upvote_reply, name="upvote_reply"),
+    path("course/<int:course_id>/leave-review/", views.leave_review, name="leave_review"),
+    path("notifications/", views.student_notifications, name="student_notifications"),
+    path("notifications/recent/", views.get_recent_notifications, name="recent_notifications"),
+    path("notifications/mark-read/", views.mark_notifications_read, name="mark_notifications_read"),
+    path("notifications/mark/<int:notif_id>/",views.mark_notification_read,name="mark_notification_read",),
 
 
 ]

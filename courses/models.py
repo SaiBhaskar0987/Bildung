@@ -1,6 +1,8 @@
 from django.db import models
 from users.models import User
 from django.conf import settings
+from django.utils import timezone
+import datetime
 
 
 class Course(models.Model):
@@ -103,22 +105,19 @@ class LectureProgress(models.Model):
         return f"{self.student.username} - {self.lecture.title} ({'Done' if self.completed else 'Pending'})"
 
 
-
 class CourseEvent(models.Model):
     course = models.ForeignKey(
         Course, on_delete=models.CASCADE, related_name="events"
     )
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)
-    date = models.DateField(null=True, blank=True)
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
     created_at = models.DateTimeField(auto_now_add=True)
+    reminder_sent = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.course.title} - {self.title} ({self.start_time})"
-
-
 import uuid
 
 class Certificate(models.Model):
@@ -126,6 +125,7 @@ class Certificate(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     certificate_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     issued_on = models.DateField(auto_now_add=True)
+    downloaded_at = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.student.username} - {self.course.title}"
@@ -142,6 +142,75 @@ class LiveClass(models.Model):
     date = models.DateField()
     time = models.TimeField()
     created_at = models.DateTimeField(auto_now_add=True)
+    reminder_sent = models.BooleanField(default=False)
+
+    @property
+    def start_datetime(self):
+        dt = datetime.datetime.combine(self.date, self.time)
+        return timezone.make_aware(dt)
 
     def __str__(self):
         return f"{self.topic} ({self.course.title}) on {self.date} at {self.time}"
+
+
+class LectureQuestion(models.Model):
+    lecture = models.ForeignKey(Lecture, on_delete=models.CASCADE, related_name="questions")
+    student = models.ForeignKey(User, on_delete=models.CASCADE)
+    question = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.student.username} - {self.question[:30]}"
+
+class QuestionReply(models.Model):
+    question = models.ForeignKey(LectureQuestion, on_delete=models.CASCADE, related_name="replies")
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    reply = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    upvotes = models.ManyToManyField(User, related_name="reply_upvotes", blank=True)
+
+    def is_instructor(self):
+        return self.user == self.question.lecture.module.course.instructor
+
+    def likes(self):
+        return self.upvotes.count()
+
+    def __str__(self):
+        return self.reply[:40]
+    
+    class Meta:
+        ordering = ["-created_at"]
+
+
+class CourseReview(models.Model):
+    course = models.ForeignKey("courses.Course", on_delete=models.CASCADE, related_name="reviews")
+    student = models.ForeignKey(User, on_delete=models.CASCADE, related_name="course_reviews")
+    rating = models.IntegerField(default=5)   
+    comment = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("course", "student")  
+
+    def __str__(self):
+        return f"{self.student} → {self.course} ({self.rating} stars)"
+    
+class LiveClassAttendance(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    live_class = models.ForeignKey(LiveClass, on_delete=models.CASCADE)
+    joined_at = models.DateTimeField(null=True, blank=True)
+    duration = models.IntegerField(default=0)  
+
+class Notification(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="notifications")
+    message = models.CharField(max_length=255)
+    url = models.CharField(max_length=255, blank=True, null=True)  # optional redirect
+    created_at = models.DateTimeField(default=timezone.now)
+    is_read = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.message[:30]}"

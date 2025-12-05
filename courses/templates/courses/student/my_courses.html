@@ -24,12 +24,13 @@
                 <li><a class="dropdown-item" href="{% url 'profile_view' %}">Profile</a></li>
                 <li><a class="dropdown-item" href="{% url 'student:my_courses' %}">My Courses</a></li>
                 <li><a class="dropdown-item" href="{% url 'student:student_upcoming_classes' %}">My_schedules</a></li>
+                <li><a class="dropdown-item" href="{% url 'student:student_my_activity' %}">My activity</a></li>
                 <li><a class="dropdown-item" href="{% url 'student:my_certificates' %}">My Certificates</a></li>
-                <li><a class="dropdown-item" href="#">Notifications</a></li>
+                <li><a class="dropdown-item" href="{% url 'student:student_notifications' %}">Notifications</a></li>
                 <li><a class="dropdown-item" href="#">Payments</a></li>
                 <li><a class="dropdown-item" href="#">Help and Support</a></li>
                 <li><a class="dropdown-item" href="#">Feedback</a></li>
-                <li><a class="dropdown-item" href="#">Account Settings</a></li>
+                <li><a class="dropdown-item" href="{% url 'student:account_settings' %}">Account Settings</a></li>
                 <li><hr class="dropdown-divider"></li>
                 <li><a class="dropdown-item text-danger" href="{% url 'logout_view' %}">Logout</a></li>
             </ul>
@@ -56,9 +57,8 @@
                     <a href="{% url 'student:student_progress' enroll.course.id %}" class="btn btn-primary w-100 mb-2">
                         View Progress
                     </a>
-                    
-                    <a href="{% url 'student_dashboard' %}" class="btn btn-secondary w-100">
-                        Back to dashboard
+                    <a href="{% url 'student:course_qna' enroll.course.id %}" class="btn btn-primary w-100 mb-2">
+                        Q and A
                     </a>
                 </div>
             </div>

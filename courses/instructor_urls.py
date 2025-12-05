@@ -1,7 +1,7 @@
 from django.urls import path
 from courses import views
 
-app_name = 'instructor'  # <- THIS IS REQUIRED
+app_name = 'instructor'  
 
 urlpatterns = [
     # Instructor Dashboard
@@ -13,6 +13,7 @@ urlpatterns = [
     path('courses/<int:course_id>/add-lecture/', views.add_lecture, name='add_lecture'),
     path('courses/<int:course_id>/feedback/', views.give_feedback, name='give_feedback'),
     path('my-students/', views.my_students, name='my_students'),
+    path('students-list/', views.students_list, name='students_list'),
     path('student/<int:student_id>/', views.view_student_profile, name='view_student_profile'),
 
     # Course progress report for instructor
@@ -24,5 +25,24 @@ urlpatterns = [
     path('schedule_live_class/<int:course_id>/', views.schedule_live_class, name='schedule_live_class'),
     path('my_activity/', views.my_activity, name='my_activity'),
     path("calendar/", views.calendar_view, name="calendar_view"),
+
+    path("course/<int:course_id>/qna/instructor/", views.instructor_qna, name="instructor_qna"),
+    path("question/<int:question_id>/reply/", views.add_reply, name="add_reply"),
+    path("reply/<int:reply_id>/edit/", views.edit_reply, name="edit_reply"),
+    path("reply/<int:reply_id>/delete/", views.delete_reply, name="delete_reply"),
+    path("course/<int:course_id>/review/", views.course_overview, name="course_overview"),
+
+    path(
+        "course/<int:course_id>/student/<int:student_id>/history/",
+        views.student_history,
+        name="student_history"
+    ),
+    path("recent-notifications/", views.instructor_recent_notifications, name="recent_notifications"),
+    path("notifications/", views.instructor_notifications_page, name="instructor_notifications"),
+    path("mark-read/<int:notif_id>/", views.instructor_mark_read, name="mark_notification_read"),
+    path("mark-all-read/", views.instructor_mark_all_read, name="mark_notifications_read"),
+
+    path("account-settings/", views.instructor_account_settings, name="account_settings"),
+
 
 ]

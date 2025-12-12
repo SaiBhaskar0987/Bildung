@@ -128,7 +128,6 @@ function openModule(index) {
     const item = structure[index];
 
     if (!item.module_id) {
-        // Create module first
         fetch(`${BASE_URL}/module/create/`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },

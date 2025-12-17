@@ -3,10 +3,11 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from django.utils.dateparse import parse_datetime, parse_date, parse_time
+from django.views.decorators.csrf import csrf_exempt
 
 from courses.utils import check_and_send_reminders
-from quizzes.models import QuizResult
-from .models import Course, Enrollment, Lecture, LectureProgress, Feedback, CourseEvent, Module, Certificate,LiveClass, LectureQuestion, QuestionReply, CourseReview, LiveClassAttendance, Notification
+from quizzes.models import Quiz, QuizResult
+from .models import Assignment, Course, CourseBlock, Enrollment, Lecture, LectureProgress, Feedback, CourseEvent, Module, Certificate,LiveClass, LectureQuestion, QuestionReply, CourseReview, LiveClassAttendance, Notification
 from users.models import InstructorProfile, LoginHistory, User
 from .forms import CourseForm, LectureForm, FeedbackForm, ModuleFormSet, LiveClassForm, CourseReviewForm, CourseEventForm
 from io import BytesIO
@@ -19,7 +20,7 @@ from django.utils import timezone
 from io import BytesIO
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import A4
-from django.http import FileResponse, HttpResponseForbidden
+from django.http import FileResponse, HttpResponse, HttpResponseForbidden
 import json
 from django.contrib.auth import update_session_auth_hash
 
@@ -700,10 +701,9 @@ def instructor_dashboard(request):
         "unread_count": unread_count,
     })
 
-
+"""
 @login_required
 def course_edit(request, course_id):
-    """Instructor: edit existing course"""
     course = get_object_or_404(Course, id=course_id, instructor=request.user)
     if request.method == 'POST':
         form = CourseForm(request.POST, request.FILES, instance=course)
@@ -715,6 +715,7 @@ def course_edit(request, course_id):
         form = CourseForm(instance=course)
     return render(request, 'courses/instructor/course_edit.html', {'form': form, 'course': course})
 
+"""
 
 @login_required
 def course_detail(request, course_id):
@@ -728,7 +729,11 @@ def course_detail(request, course_id):
         'course': course,
         'modules': modules,
         'lectures': lectures,
+        'quizzes': course.quizzes.all(),        
+        'assignments': course.assignments.all(),
+        'live_classes': course.live_classes.all() 
     })
+
 
 @login_required
 def add_lecture(request, course_id):
@@ -1019,38 +1024,338 @@ def students_list(request):
 
     return render(request, "courses/instructor/students_list.html", context)
 
+
+
 @login_required
 def add_course(request):
-    if request.method == 'POST':
-        course_form = CourseForm(request.POST, request.FILES)
-        if course_form.is_valid():
-            course = course_form.save(commit=False)
-            course.instructor = request.user
-            course.save()
+    course_id = request.GET.get("course_id")
 
-            module_total = int(request.POST.get('modules-TOTAL_FORMS', 0))
-            for i in range(module_total):
-                title = request.POST.get(f'modules-{i}-title')
-                desc = request.POST.get(f'modules-{i}-description')
-                if title:
-                    module = Module.objects.create(course=course, title=title, description=desc)
+    if course_id:
+        course = get_object_or_404(Course, id=course_id, instructor=request.user)
 
-                    lecture_index = 0
-                    while True:
-                        lecture_title = request.POST.get(f'modules-{i}-lectures-{lecture_index}-title')
-                        lecture_file = request.FILES.get(f'modules-{i}-lectures-{lecture_index}-video')
-                        if not lecture_title:
-                            break
-                        Lecture.objects.create(module=module, title=lecture_title, video=lecture_file)
-                        lecture_index += 1
+        return render(request, "courses/instructor/add_course.html", {
+            "course_id": course.id,
+            "preload": json.dumps(course.structure_json or []),
+            "course_title": course.title,
+            "course_description": course.description,
+            "course_price": course.price,
+            "course_category": course.category,
+        })
 
-            return redirect('instructor:instructor_dashboard')
+    return render(request, "courses/instructor/add_course.html", {
+        "course_id": "null",
+        "preload": json.dumps([]),
+        "course_title": "",
+        "course_description": "",
+        "course_price": "",
+        "course_category": "",
+    })
+
+
+@csrf_exempt
+@login_required
+def create_module(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "POST required"}, status=400)
+
+    data = json.loads(request.body or "{}")
+    course_id = data.get("course_id")
+
+    if not course_id:
+        return JsonResponse({"error": "course_id missing"}, status=400)
+
+    course = get_object_or_404(Course, id=course_id, instructor=request.user)
+
+    module = Module.objects.create(
+        course=course,
+        title="",
+        description=""
+    )
+
+    return JsonResponse({"module_id": module.id})
+
+
+@csrf_exempt
+@login_required
+def save_module(request, module_id):
+
+    module = get_object_or_404(Module, id=module_id, course__instructor=request.user)
+    course = module.course
+
+    title = request.POST.get("module_title", "").strip()
+    description = request.POST.get("description", "")
+
+    if not title:
+        structure = course.structure_json or []
+        index = 1
+
+        for i, item in enumerate(structure):
+            if item.get("module_id") == module_id:
+                index = i + 1
+                break
+
+        title = f"Module {index}"
+
+    module.title = title
+    module.description = description
+    module.save()
+
+    module.lectures.all().delete()
+
+    lecture_count = int(request.POST.get("lecture_count", 0))
+
+    for i in range(lecture_count):
+
+        lec_title = request.POST.get(f"lecture_title_{i}", "")
+        video = request.FILES.get(f"lecture_video_{i}")
+        pdf = request.FILES.get(f"lecture_pdf_{i}")
+
+        Lecture.objects.create(
+            module=module,
+            title=lec_title,
+            video=video,
+            file=pdf,
+            order=i
+        )
+
+    return JsonResponse({"status": "success"})
+
+
+@csrf_exempt
+@login_required
+def save_course(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "POST required"}, status=400)
+
+    data = json.loads(request.body)
+
+    course_id = data.get("course_id")
+    structure = data.get("structure", [])
+
+    if course_id:
+        course = get_object_or_404(Course, id=course_id, instructor=request.user)
+        course.title = data["title"]
+        course.description = data["description"]
+        course.price = data["price"]
+        course.category = data["category"]
+        course.structure_json = structure
+        course.save()
+
+        course.quizzes.all().delete()
+        course.assignments.all().delete()
+        course.live_classes.all().delete()
+
     else:
-        course_form = CourseForm()
-        module_formset = ModuleFormSet()
+        course = Course.objects.create(
+            instructor=request.user,
+            title=data["title"],
+            description=data["description"],
+            price=data["price"],
+            category=data["category"],
+            structure_json=structure,
+        )
 
-    context = {'course_form': course_form, 'module_formset': module_formset}
-    return render(request, 'courses/instructor/add_course.html', context)
+    updated_structure = []
+
+    for index, item in enumerate(structure):
+
+        if item["type"] == "Module":
+            if item.get("module_id"):  
+                module = Module.objects.get(id=item["module_id"])
+                module.order = index
+                module.save()
+            else:
+                module = Module.objects.create(
+                    course=course,
+                    title=item.get("title", "Module"),
+                    order=index
+                )
+                item["module_id"] = module.id
+
+        elif item["type"] == "Quiz":
+            q = Quiz.objects.create(
+                course=course,
+                title=item.get("title", "Quiz"),
+                order=index
+            )
+            item["quiz_id"] = q.id
+
+        elif item["type"] == "Assignment":
+            a = Assignment.objects.create(
+                course=course,
+                title=item.get("title", "Assignment"),
+                order=index
+            )
+            item["assignment_id"] = a.id
+
+        elif item["type"] == "Live Class":
+            lc = LiveClass.objects.create(
+                course=course,
+                instructor=request.user,
+                topic=item.get("title", "Live Class"),
+                order=index
+            )
+            item["liveclass_id"] = lc.id
+
+        updated_structure.append(item)
+
+    course.structure_json = updated_structure
+    course.save()
+
+    return JsonResponse({
+        "status": "success",
+        "course_id": course.id,
+        "structure": updated_structure
+    })
+
+@csrf_exempt
+@login_required
+def delete_module(request, module_id):
+
+    module = get_object_or_404(Module, id=module_id, course__instructor=request.user)
+    course = module.course
+
+    module.delete()  
+
+    updated = []
+    for item in course.structure_json:
+        if item.get("module_id") != module_id:
+            updated.append(item)
+
+    for i, item in enumerate(updated):
+        item["order"] = i
+
+    course.structure_json = updated
+    course.save()
+
+    return JsonResponse({
+        "status": "success",
+        "message": "Module deleted",
+        "structure": updated
+    })
+
+
+@login_required
+def edit_module(request, course_id, module_id):
+    module = get_object_or_404(Module, id=module_id, course_id=course_id)
+
+    lectures = module.lectures.all().order_by("id")
+
+    return render(request, "courses/instructor/edit_module.html", {
+        "module": module,
+        "lectures": lectures,
+        "course_id": course_id
+    })
+
+
+@login_required
+def add_module(request, course_id, module_id):
+
+    course = get_object_or_404(Course, id=course_id, instructor=request.user)
+    module = get_object_or_404(Module, id=module_id, course=course)
+    structure = course.structure_json or []
+    order_index = 1
+
+    for i, item in enumerate(structure):
+        if item.get("module_id") == module_id:
+            order_index = i + 1 
+            break
+
+    return render(request, "courses/instructor/add_module.html", {
+        "course_id": course_id,
+        "module": module,
+        "order_index": order_index,
+        "lectures": module.lectures.all(),
+    })
+
+@csrf_exempt
+@login_required
+def save_module(request, module_id):
+    module = get_object_or_404(Module, id=module_id)
+
+    if request.method == "POST":
+
+        module.title = request.POST.get("module_title")
+        module.description = request.POST.get("description")
+        module.save()
+
+        module.lectures.all().delete()
+
+        lecture_count = int(request.POST.get("lecture_count", 0))
+
+        for i in range(lecture_count):
+
+            title = request.POST.get(f"lecture_title_{i}", "")
+
+            video_file = request.FILES.get(f"lecture_video_{i}")
+            pdf_file = request.FILES.get(f"lecture_pdf_{i}")
+
+            Lecture.objects.create(
+                module=module,
+                title=title,
+                video=video_file,
+                file=pdf_file,
+                order=i
+            )
+
+        return JsonResponse({"status": "success"})
+
+
+@login_required
+def save_quiz(request, module_id):
+    course = get_object_or_404(course,)
+    Quiz.title = request.POST.get("module_title")
+    Module.description = request.POST.get("module_description")
+    Module.save()
+    return JsonResponse({"status": "saved"})
+
+@login_required
+def add_lecture(request, module_id):
+    module = get_object_or_404(Module, id=module_id)
+
+    title = request.POST.get("title")
+    video = request.FILES.get("video")
+    pdf = request.FILES.get("pdf")
+
+    lec = Lecture.objects.create(
+        module=module,
+        title=title,
+        video=video,
+        file=pdf
+    )
+
+    return JsonResponse({
+        "status": "added",
+        "lecture_id": lec.id,
+        "title": lec.title
+    })
+
+
+@login_required
+def delete_lecture(request, lecture_id):
+    l = get_object_or_404(Lecture, id=lecture_id)
+    l.delete()
+    return JsonResponse({"status": "deleted"})
+
+
+@login_required
+def publish_course(request, course_id):
+
+    course = get_object_or_404(Course, id=course_id, instructor=request.user)
+
+    messages.success(request, f"Course '{course.title}' published successfully!")
+
+    return redirect("instructor:instructor_dashboard")
+
+
+def edit_course(request, course_id):
+    course = get_object_or_404(Course, id=course_id)
+    blocks = CourseBlock.objects.filter(course=course).order_by("order")
+
+    return render(request, "courses/instructor/edit_course.html", {
+        "course": course,
+        "blocks": blocks,
+    })
 
 @login_required(login_url='/login/')
 def schedule_live_class(request):
@@ -1078,7 +1383,6 @@ def schedule_live_class(request):
                     user_id=student_id,
                     message=f"New live class scheduled: {live_class.topic} ({live_class.course.title})",
                     url=reverse("student:student_upcoming_classes")
-                    
                 )
 
             messages.success(request, 
@@ -1110,6 +1414,17 @@ def edit_live_class(request, class_id):
         liveclass.time = time
         liveclass.meeting_link = meeting_link
         liveclass.save()
+        students = Enrollment.objects.filter(
+                course=liveclass.course
+            ).values_list("student_id", flat=True)
+
+        for student_id in students:
+                Notification.objects.create(
+                    user_id=student_id,
+                    message=f"Your live class schedule was modified: {liveclass.topic} ({liveclass.course.title})",
+                    url=reverse("student:student_upcoming_classes")
+                )
+
 
         messages.success(request, "Class updated successfully.")
         return redirect("instructor:calendar_view")
@@ -1118,8 +1433,6 @@ def edit_live_class(request, class_id):
         "liveclass": liveclass
     })
 
-
-
 @login_required
 def delete_live_class(request, class_id):
     live_class = get_object_or_404(LiveClass, id=class_id, course__instructor=request.user)
@@ -1127,12 +1440,12 @@ def delete_live_class(request, class_id):
     messages.success(request, "Live class deleted.")
     return redirect("instructor:calendar_view")
 
-"""
+
 @login_required(login_url='/login/')
 def my_activity(request):
     live_classes = LiveClass.objects.filter(instructor=request.user).order_by('-date', '-time')
     return render(request, 'courses/instructor/my_activity.html', {'live_classes': live_classes})
-"""
+
 
 @login_required
 def calendar_view(request):
@@ -1185,7 +1498,7 @@ def calendar_view(request):
         "events_list": events_qs,
     })
 
-"""
+
 @login_required
 def instructor_qna(request, course_id):
     course = get_object_or_404(Course, id=course_id, instructor=request.user)
@@ -1198,7 +1511,7 @@ def instructor_qna(request, course_id):
         "course": course,
         "questions": questions
     })
-"""
+
 @login_required
 def add_reply(request, question_id):
     question = get_object_or_404(LectureQuestion, id=question_id)

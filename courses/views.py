@@ -715,7 +715,6 @@ def course_edit(request, course_id):
         form = CourseForm(instance=course)
     return render(request, 'courses/instructor/course_edit.html', {'form': form, 'course': course})
 
-"""
 
 @login_required
 def course_detail(request, course_id):
@@ -733,6 +732,80 @@ def course_detail(request, course_id):
         'assignments': course.assignments.all(),
         'live_classes': course.live_classes.all() 
     })
+
+"""
+
+@login_required
+def course_detail(request, course_id):
+    course = get_object_or_404(
+        Course, id=course_id, instructor=request.user
+    )
+
+    ordered_items = []
+    structure = course.structure_json or []
+
+    module_count = 1
+    quiz_count = 1
+    assignment_count = 1
+    live_count = 1
+
+    for item in structure:
+        item_type = item.get("type")
+        module_id = item.get("module_id")
+        display_title = item.get("display_title", "").strip()
+
+        if item_type == "Module" and module_id:
+            module = course.modules.filter(id=module_id).first()
+            if module:
+                title = display_title or f"Module {module_count}"
+                ordered_items.append({
+                    "type": "module",
+                    "obj": module,
+                    "title": title
+                })
+                module_count += 1
+
+        elif item_type == "Quiz":
+            quiz = course.quizzes.first()
+            if quiz:
+                title = display_title or f"Quiz {quiz_count}"
+                ordered_items.append({
+                    "type": "quiz",
+                    "obj": quiz,
+                    "title": title
+                })
+                quiz_count += 1
+
+        elif item_type == "Assignment":
+            assignment = course.assignments.first()
+            if assignment:
+                title = display_title or f"Assignment {assignment_count}"
+                ordered_items.append({
+                    "type": "assignment",
+                    "obj": assignment,
+                    "title": title
+                })
+                assignment_count += 1
+
+        elif item_type == "LiveClass":
+            live = course.live_classes.first()
+            if live:
+                title = display_title or f"Live Class {live_count}"
+                ordered_items.append({
+                    "type": "live",
+                    "obj": live,
+                    "title": title
+                })
+                live_count += 1
+
+    return render(
+        request,
+        "courses/instructor/course_detail.html",
+        {
+            "course": course,
+            "ordered_items": ordered_items,
+        },
+    )
 
 
 @login_required
@@ -1267,38 +1340,6 @@ def add_module(request, course_id, module_id):
         "order_index": order_index,
         "lectures": module.lectures.all(),
     })
-
-@csrf_exempt
-@login_required
-def save_module(request, module_id):
-    module = get_object_or_404(Module, id=module_id)
-
-    if request.method == "POST":
-
-        module.title = request.POST.get("module_title")
-        module.description = request.POST.get("description")
-        module.save()
-
-        module.lectures.all().delete()
-
-        lecture_count = int(request.POST.get("lecture_count", 0))
-
-        for i in range(lecture_count):
-
-            title = request.POST.get(f"lecture_title_{i}", "")
-
-            video_file = request.FILES.get(f"lecture_video_{i}")
-            pdf_file = request.FILES.get(f"lecture_pdf_{i}")
-
-            Lecture.objects.create(
-                module=module,
-                title=title,
-                video=video_file,
-                file=pdf_file,
-                order=i
-            )
-
-        return JsonResponse({"status": "success"})
 
 
 @login_required

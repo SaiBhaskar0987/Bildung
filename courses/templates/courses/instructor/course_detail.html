@@ -1,5 +1,4 @@
 {% load static %}
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -53,7 +52,6 @@
 
 {% for item in ordered_items %}
 
-  <!-- ================= MODULE ================= -->
   {% if item.type == "module" %}
     <div class="card rounded-4 shadow-sm mb-4 p-4">
 
@@ -73,7 +71,6 @@
       <div class="col-md-3 col-sm-6">
         <div class="card h-100 shadow-sm rounded-4">
 
-          <!-- Video OR Placeholder -->
           {% if lecture.video %}
             <video controls class="w-100 rounded-top">
               <source src="{{ lecture.video.url }}" type="video/mp4">
@@ -84,7 +81,6 @@
                  alt="No video uploaded">
           {% endif %}
 
-          <!-- Title ALWAYS visible -->
           <div class="card-body text-center">
             <h6 class="fw-bold mb-1">{{ lecture.title }}</h6>
 
@@ -105,11 +101,9 @@
   {% endif %}
 </div>
 
-
     </div>
   {% endif %}
 
-  <!-- ================= QUIZ ================= -->
   {% if item.type == "quiz" %}
     <div class="card shadow-sm rounded-4 mb-4 p-4 border-warning">
       <h5 class="fw-bold text-warning mb-0">
@@ -118,7 +112,6 @@
     </div>
   {% endif %}
 
-  <!-- ================= ASSIGNMENT ================= -->
   {% if item.type == "assignment" %}
     <div class="card shadow-sm rounded-4 mb-4 p-4 border-info">
       <h5 class="fw-bold text-info mb-0">
@@ -127,7 +120,6 @@
     </div>
   {% endif %}
 
-  <!-- ================= LIVE CLASS ================= -->
   {% if item.type == "live" %}
     <div class="card shadow-sm rounded-4 mb-4 p-4 border-success">
       <h5 class="fw-bold text-success mb-0">

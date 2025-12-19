@@ -79,52 +79,108 @@ def my_courses(request):
         "enrolled_courses": enrolled_courses
     })
 
-@login_required(login_url='/student/login/')
+@login_required(login_url="/student/login/")
 def student_course_detail(request, course_id):
-    enrollment = get_object_or_404(Enrollment, course_id=course_id, student=request.user)
+
+    enrollment = get_object_or_404(
+        Enrollment,
+        course_id=course_id,
+        student=request.user
+    )
     course = enrollment.course
-    modules = course.modules.prefetch_related('lectures').all()
+
+    structure = course.structure_json or []
+
+    modules_map = {
+        m.id: m for m in
+        course.modules.prefetch_related("lectures").all()
+    }
+    quizzes_map = {q.id: q for q in course.quizzes.all()}
+    assignments_map = {a.id: a for a in course.assignments.all()}
     lectures = Lecture.objects.filter(module__course=course)
     total = lectures.count()
-    completed_lectures = LectureProgress.objects.filter(
-        student=request.user,
-        lecture__in=lectures,
-        completed=True
-    ).values_list('lecture_id', flat=True)
+
+    completed_lectures = set(
+        LectureProgress.objects.filter(
+            student=request.user,
+            lecture__in=lectures,
+            completed=True
+        ).values_list("lecture_id", flat=True)
+    )
 
     completed = len(completed_lectures)
-    progress_map = set(completed_lectures)
     progress_percent = int((completed / total * 100) if total else 0)
-
     unlocked_modules = []
     all_previous_complete = True
-    try:
-        user_review = CourseReview.objects.get(course=course, student=request.user)
-    except CourseReview.DoesNotExist:
-        user_review = None
-    for module in modules:
+
+    for module in modules_map.values():
         if all_previous_complete:
             unlocked_modules.append(module.id)
-        else:
-            continue
 
         module_lectures = module.lectures.all()
-        module_complete = all(l.id in completed_lectures for l in module_lectures)
-        if not module_complete:
+        if not all(l.id in completed_lectures for l in module_lectures):
             all_previous_complete = False
 
-    return render(request, 'courses/student_course_detail.html', {
-        'course': course,
-        'modules': modules,
-        'lectures': lectures,
-        'total': total,
-        'completed': completed,
-        'progress_map': progress_map,
-        'progress_percent': progress_percent,
-        'unlocked_modules': unlocked_modules,
-        "user_review": user_review,
-    })
+    ordered_items = []
+    module_count = 1
+    quiz_count = 1
+    assignment_count = 1
 
+    for item in structure:
+        item_type = item.get("type")
+
+        if item_type == "Module":
+            module = modules_map.get(item.get("module_id"))
+            if module:
+                ordered_items.append({
+                    "type": "module",
+                    "title": f"Module {module_count}",
+                    "obj": module
+                })
+                module_count += 1
+
+        elif item_type == "Quiz":
+            quiz = quizzes_map.get(item.get("quiz_id"))
+            if quiz:
+                ordered_items.append({
+                    "type": "quiz",
+                    "title": f"Quiz {quiz_count}",
+                    "obj": quiz
+                })
+                quiz_count += 1
+
+        elif item_type == "Assignment":
+            assignment = assignments_map.get(item.get("assignment_id"))
+            if assignment:
+                ordered_items.append({
+                    "type": "assignment",
+                    "title": f"Assignment {assignment_count}",
+                    "obj": assignment
+                })
+                assignment_count += 1
+
+    try:
+        user_review = CourseReview.objects.get(
+            course=course,
+            student=request.user
+        )
+    except CourseReview.DoesNotExist:
+        user_review = None
+
+    return render(
+        request,
+        "courses/student_course_detail.html",
+        {
+            "course": course,
+            "ordered_items": ordered_items,
+            "progress_map": completed_lectures,
+            "completed": completed,
+            "total": total,
+            "progress_percent": progress_percent,
+            "unlocked_modules": unlocked_modules,
+            "user_review": user_review,
+        }
+    )
 
 @login_required
 def view_student_profile(request, student_id):

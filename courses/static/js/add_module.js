@@ -81,5 +81,5 @@ function saveModule() {
 }
 
 function goBack() {
-    window.location.href = `/instructor/add_course/?course_id=${COURSE_ID}`;
+    window.location.href = `/instructor/courses/add/?course_id=${COURSE_ID}`;
 }

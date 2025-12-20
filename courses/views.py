@@ -79,52 +79,108 @@ def my_courses(request):
         "enrolled_courses": enrolled_courses
     })
 
-@login_required(login_url='/student/login/')
+@login_required(login_url="/student/login/")
 def student_course_detail(request, course_id):
-    enrollment = get_object_or_404(Enrollment, course_id=course_id, student=request.user)
+
+    enrollment = get_object_or_404(
+        Enrollment,
+        course_id=course_id,
+        student=request.user
+    )
     course = enrollment.course
-    modules = course.modules.prefetch_related('lectures').all()
+
+    structure = course.structure_json or []
+
+    modules_map = {
+        m.id: m for m in
+        course.modules.prefetch_related("lectures").all()
+    }
+    quizzes_map = {q.id: q for q in course.quizzes.all()}
+    assignments_map = {a.id: a for a in course.assignments.all()}
     lectures = Lecture.objects.filter(module__course=course)
     total = lectures.count()
-    completed_lectures = LectureProgress.objects.filter(
-        student=request.user,
-        lecture__in=lectures,
-        completed=True
-    ).values_list('lecture_id', flat=True)
+
+    completed_lectures = set(
+        LectureProgress.objects.filter(
+            student=request.user,
+            lecture__in=lectures,
+            completed=True
+        ).values_list("lecture_id", flat=True)
+    )
 
     completed = len(completed_lectures)
-    progress_map = set(completed_lectures)
     progress_percent = int((completed / total * 100) if total else 0)
-
     unlocked_modules = []
     all_previous_complete = True
-    try:
-        user_review = CourseReview.objects.get(course=course, student=request.user)
-    except CourseReview.DoesNotExist:
-        user_review = None
-    for module in modules:
+
+    for module in modules_map.values():
         if all_previous_complete:
             unlocked_modules.append(module.id)
-        else:
-            continue
 
         module_lectures = module.lectures.all()
-        module_complete = all(l.id in completed_lectures for l in module_lectures)
-        if not module_complete:
+        if not all(l.id in completed_lectures for l in module_lectures):
             all_previous_complete = False
 
-    return render(request, 'courses/student_course_detail.html', {
-        'course': course,
-        'modules': modules,
-        'lectures': lectures,
-        'total': total,
-        'completed': completed,
-        'progress_map': progress_map,
-        'progress_percent': progress_percent,
-        'unlocked_modules': unlocked_modules,
-        "user_review": user_review,
-    })
+    ordered_items = []
+    module_count = 1
+    quiz_count = 1
+    assignment_count = 1
 
+    for item in structure:
+        item_type = item.get("type")
+
+        if item_type == "Module":
+            module = modules_map.get(item.get("module_id"))
+            if module:
+                ordered_items.append({
+                    "type": "module",
+                    "title": f"Module {module_count}",
+                    "obj": module
+                })
+                module_count += 1
+
+        elif item_type == "Quiz":
+            quiz = quizzes_map.get(item.get("quiz_id"))
+            if quiz:
+                ordered_items.append({
+                    "type": "quiz",
+                    "title": f"Quiz {quiz_count}",
+                    "obj": quiz
+                })
+                quiz_count += 1
+
+        elif item_type == "Assignment":
+            assignment = assignments_map.get(item.get("assignment_id"))
+            if assignment:
+                ordered_items.append({
+                    "type": "assignment",
+                    "title": f"Assignment {assignment_count}",
+                    "obj": assignment
+                })
+                assignment_count += 1
+
+    try:
+        user_review = CourseReview.objects.get(
+            course=course,
+            student=request.user
+        )
+    except CourseReview.DoesNotExist:
+        user_review = None
+
+    return render(
+        request,
+        "courses/student_course_detail.html",
+        {
+            "course": course,
+            "ordered_items": ordered_items,
+            "progress_map": completed_lectures,
+            "completed": completed,
+            "total": total,
+            "progress_percent": progress_percent,
+            "unlocked_modules": unlocked_modules,
+            "user_review": user_review,
+        }
+    )
 
 @login_required
 def view_student_profile(request, student_id):
@@ -715,7 +771,6 @@ def course_edit(request, course_id):
         form = CourseForm(instance=course)
     return render(request, 'courses/instructor/course_edit.html', {'form': form, 'course': course})
 
-"""
 
 @login_required
 def course_detail(request, course_id):
@@ -733,6 +788,80 @@ def course_detail(request, course_id):
         'assignments': course.assignments.all(),
         'live_classes': course.live_classes.all() 
     })
+
+"""
+
+@login_required
+def course_detail(request, course_id):
+    course = get_object_or_404(
+        Course, id=course_id, instructor=request.user
+    )
+
+    ordered_items = []
+    structure = course.structure_json or []
+
+    module_count = 1
+    quiz_count = 1
+    assignment_count = 1
+    live_count = 1
+
+    for item in structure:
+        item_type = item.get("type")
+        module_id = item.get("module_id")
+        display_title = item.get("display_title", "").strip()
+
+        if item_type == "Module" and module_id:
+            module = course.modules.filter(id=module_id).first()
+            if module:
+                title = display_title or f"Module {module_count}"
+                ordered_items.append({
+                    "type": "module",
+                    "obj": module,
+                    "title": title
+                })
+                module_count += 1
+
+        elif item_type == "Quiz":
+            quiz = course.quizzes.first()
+            if quiz:
+                title = display_title or f"Quiz {quiz_count}"
+                ordered_items.append({
+                    "type": "quiz",
+                    "obj": quiz,
+                    "title": title
+                })
+                quiz_count += 1
+
+        elif item_type == "Assignment":
+            assignment = course.assignments.first()
+            if assignment:
+                title = display_title or f"Assignment {assignment_count}"
+                ordered_items.append({
+                    "type": "assignment",
+                    "obj": assignment,
+                    "title": title
+                })
+                assignment_count += 1
+
+        elif item_type == "LiveClass":
+            live = course.live_classes.first()
+            if live:
+                title = display_title or f"Live Class {live_count}"
+                ordered_items.append({
+                    "type": "live",
+                    "obj": live,
+                    "title": title
+                })
+                live_count += 1
+
+    return render(
+        request,
+        "courses/instructor/course_detail.html",
+        {
+            "course": course,
+            "ordered_items": ordered_items,
+        },
+    )
 
 
 @login_required
@@ -1267,38 +1396,6 @@ def add_module(request, course_id, module_id):
         "order_index": order_index,
         "lectures": module.lectures.all(),
     })
-
-@csrf_exempt
-@login_required
-def save_module(request, module_id):
-    module = get_object_or_404(Module, id=module_id)
-
-    if request.method == "POST":
-
-        module.title = request.POST.get("module_title")
-        module.description = request.POST.get("description")
-        module.save()
-
-        module.lectures.all().delete()
-
-        lecture_count = int(request.POST.get("lecture_count", 0))
-
-        for i in range(lecture_count):
-
-            title = request.POST.get(f"lecture_title_{i}", "")
-
-            video_file = request.FILES.get(f"lecture_video_{i}")
-            pdf_file = request.FILES.get(f"lecture_pdf_{i}")
-
-            Lecture.objects.create(
-                module=module,
-                title=title,
-                video=video_file,
-                file=pdf_file,
-                order=i
-            )
-
-        return JsonResponse({"status": "success"})
 
 
 @login_required

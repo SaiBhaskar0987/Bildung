@@ -174,6 +174,7 @@
 
     <label class="label">Category</label>
     <select id="courseCategory" class="input-box">
+    <option value="" disabled selected>Select Category</option>
         <option value="business" {% if course_category == 'business' %}selected{% endif %}>Business</option>
         <option value="design" {% if course_category == 'design' %}selected{% endif %}>Design</option>
         <option value="music" {% if course_category == 'music' %}selected{% endif %}>Music</option>

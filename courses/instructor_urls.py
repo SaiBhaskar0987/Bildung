@@ -51,7 +51,7 @@ urlpatterns = [
     path("dashboard/", views.instructor_dashboard, name="instructor_dashboard"),
 
     # Create Course 
-    path("add_course/", views.add_course, name="add_course"),
+    #path("add_course/", views.add_course, name="add_course"),
 
     # Edit Course
     path("courses/<int:course_id>/edit/", views.edit_course, name="edit_course"),

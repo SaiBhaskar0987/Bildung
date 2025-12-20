@@ -1153,8 +1153,6 @@ def students_list(request):
 
     return render(request, "courses/instructor/students_list.html", context)
 
-
-
 @login_required
 def add_course(request):
     course_id = request.GET.get("course_id")
@@ -1203,7 +1201,7 @@ def create_module(request):
 
     return JsonResponse({"module_id": module.id})
 
-
+"""
 @csrf_exempt
 @login_required
 def save_module(request, module_id):
@@ -1248,7 +1246,67 @@ def save_module(request, module_id):
         )
 
     return JsonResponse({"status": "success"})
+"""
 
+@csrf_exempt
+@login_required
+def save_module(request, module_id):
+
+    module = get_object_or_404(
+        Module,
+        id=module_id,
+        course__instructor=request.user
+    )
+    course = module.course
+    title = request.POST.get("module_title", "").strip()
+    description = request.POST.get("description", "")
+
+    if not title:
+        structure = course.structure_json or []
+        index = 1
+        for i, item in enumerate(structure):
+            if item.get("module_id") == module_id:
+                index = i + 1
+                break
+        title = f"Module {index}"
+
+    module.title = title
+    module.description = description
+    module.save()
+
+    lecture_count = int(request.POST.get("lecture_count", 0))
+
+    existing_lectures = list(
+        module.lectures.all().order_by("order", "id")
+    )
+
+    for i in range(lecture_count):
+
+        lec_title = request.POST.get(f"lecture_title_{i}", "").strip()
+        video = request.FILES.get(f"lecture_video_{i}")
+        pdf = request.FILES.get(f"lecture_pdf_{i}")
+
+        if i < len(existing_lectures):
+            lecture = existing_lectures[i]
+
+        else:
+            lecture = Lecture(module=module)
+
+        lecture.title = lec_title or f"Lecture {i + 1}"
+        lecture.order = i
+
+        if video:
+            lecture.video = video
+        if pdf:
+            lecture.file = pdf  
+
+        lecture.save()
+
+    if lecture_count < len(existing_lectures):
+        for lecture in existing_lectures[lecture_count:]:
+            lecture.delete()
+
+    return JsonResponse({"status": "success"})
 
 @csrf_exempt
 @login_required
@@ -1382,21 +1440,21 @@ def add_module(request, course_id, module_id):
 
     course = get_object_or_404(Course, id=course_id, instructor=request.user)
     module = get_object_or_404(Module, id=module_id, course=course)
+
     structure = course.structure_json or []
     order_index = 1
 
     for i, item in enumerate(structure):
         if item.get("module_id") == module_id:
-            order_index = i + 1 
+            order_index = i + 1
             break
 
     return render(request, "courses/instructor/add_module.html", {
         "course_id": course_id,
         "module": module,
         "order_index": order_index,
-        "lectures": module.lectures.all(),
+        "lectures": module.lectures.all().order_by("id"),
     })
-
 
 @login_required
 def save_quiz(request, module_id):

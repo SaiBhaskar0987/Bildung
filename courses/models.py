@@ -167,7 +167,6 @@ class LiveClass(models.Model):
     def __str__(self):
         return f"{self.topic} ({self.course.title}) on {self.date} at {self.time}"
 
-
 class LectureQuestion(models.Model):
     lecture = models.ForeignKey(Lecture, on_delete=models.CASCADE, related_name="questions")
     student = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -223,7 +222,7 @@ class LiveClassAttendance(models.Model):
 class Notification(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="notifications")
     message = models.CharField(max_length=255)
-    url = models.CharField(max_length=255, blank=True, null=True)  # optional redirect
+    url = models.CharField(max_length=255, blank=True, null=True)  
     created_at = models.DateTimeField(default=timezone.now)
     is_read = models.BooleanField(default=False)
 

@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Instructor Calendar</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
+
+<style>
+
+.page-row {
+    display: flex;
+    gap: 22px;
+    height: calc(100vh - 140px);
+}
+
+.left-section {
+    width: 65%;
+    overflow-y: auto;
+}
+
+.right-section {
+    width: 35%;
+}
+ 
+.btn-small {
+    padding: 6px 10px !important;
+    font-size: 0.8rem !important;
+}
+
+.calendar-box {
+    background: white;
+    padding: 12px;
+    border-radius: 12px;
+    height: 100%;
+}
+
+#calendar {
+    height: 100% !important;
+    width: 100%;
+}
+
+.fc .fc-toolbar-title { font-size: 1rem !important; }
+.fc-daygrid-day-number { font-size: 0.7rem !important; }
+.fc-event-time { display: none !important; }
+
+.fc-event-title {
+    font-weight: 600;
+    font-size: 0.75rem;
+    white-space: normal !important;
+}
+
+.fc-event {
+    padding: 3px 5px !important;
+    border-radius: 8px !important;
+    border-width: 1px !important;
+    border-style: solid !important;
+}
+
+.live-class-event {
+    background-color: #0d6efd !important;
+    border-color: #0d6efd !important;
+    color: white !important;
+}
+
+.event-class {
+    background-color: #198754 !important;
+    border-color: #198754 !important;
+    color: white !important;
+}
+
+.fc-event:hover .fc-event-main-frame {
+    position: relative !important;
+    z-index: 9999 !important;
+    transform: scale(1.05);
+    box-shadow: 0px 2px 8px rgba(0,0,0,0.25);
+}
+
+.schedule-btn {
+    width: 70px;          
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    padding: 0 !important;
+    white-space: nowrap;
+}
+</style>
+</head>
+
+
+<body class="bg-light">
+
+<div class="d-flex justify-content-between align-items-center p-3 bg-white shadow-sm">
+
+    <a href="{% url 'instructor:instructor_dashboard' %}" class="text-decoration-none text-dark">
+        <h3 class="m-0 fw-bold">Bildung</h3>
+    </a>
+
+    <div class="dropdown">
+        <button class="btn rounded-circle shadow"
+                style="background:gray;color:white;width:45px;height:45px;"
+                data-bs-toggle="dropdown">
+            {{ request.user.username|first|upper }}
+        </button>
+
+        <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="{% url 'instructor_profile_view' %}">Profile</a></li>
+                <li><a class="dropdown-item" href="{% url 'instructor:add_course' %}">Create New Course</a></li>
+                <li><a class="dropdown-item" href="{% url 'instructor:students_list' %}">My Students</a></li>
+                <li><a class="dropdown-item" href="{% url 'instructor:calendar_view' %}">My Schedules</a></li>
+                <li><a class="dropdown-item" href="{% url 'instructor:instructor_notifications' %}">Notifications</a></li>
+                <li><a class="dropdown-item" href="#">Earnings & Payments</a></li>
+                <li><a class="dropdown-item" href="#">Help & Support</a></li>
+                <li><a class="dropdown-item" href="{% url 'instructor:account_settings' %}">Account Settings</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item text-danger" href="{% url 'logout_view' %}">Logout</a></li>
+        </ul>
+    </div>
+</div>
+
+
+<div class="container pt-3">
+
+    <h3 class="text-primary fw-bold mb-3">My Schedules</h3>
+
+    <div class="page-row">
+
+        <div class="left-section">
+
+            <div class="d-flex gap-2 mb-3">
+
+    <a href="{% url 'instructor:schedule_live_class' %}"
+       class="btn btn-primary btn-small fw-semibold shadow-sm flex-fill">
+        ➕ Add Live Class
+    </a>
+
+    <a href="{% url 'instructor:add_event' %}"
+       class="btn btn-success btn-small fw-semibold shadow-sm flex-fill">
+        📌 Add Event
+    </a>
+
+</div>
+
+            <div class="card shadow-sm border-0 mb-3">
+                <div class="card-header bg-primary text-white fw-semibold">
+                    Upcoming Schedule
+                </div>
+
+                <div class="card-body">
+
+                    <ul class="list-group">
+
+                        {% for lc in live_classes %}
+                        <li class="list-group-item d-flex justify-content-between">
+                            <div>
+                                <strong>🟦 {{ lc.topic }}</strong><br>
+                                <small class="text-muted">
+                                    📘 {{ lc.course.title }} <br>
+                                    {{ lc.date }}
+                                </small>
+                            </div>
+
+                            {% if lc.meeting_link %}
+                                <a href="{{ lc.meeting_link }}" class="btn btn-success schedule-btn" target="_blank">Join</a>
+                            {% else %}
+                                <span class="badge bg-secondary schedule-btn">No link</span>
+                            {% endif %}
+                        </li>
+                        {% endfor %}
+
+                        {% for ev in events_list %}
+                         <li class="list-group-item d-flex justify-content-between">
+                           <div>
+                             <strong>🟩 {{ ev.title }}</strong><br>
+
+                            <small class="text-muted">
+                                 📘 {{ ev.course.title }} <br>
+
+                               {{ ev.start_time|date:"Y-m-d h:i A" }}
+
+                                  → {{ ev.end_time|date:"Y-m-d h:i A" }}
+                            </small>
+                           </div>
+
+                           </li>
+                        {% endfor %}
+
+
+                    </ul>
+
+                    {% if not live_classes and not events_list %}
+                        <p class="text-muted mt-2">No upcoming schedules.</p>
+                    {% endif %}
+
+                </div>
+            </div>
+
+        </div>
+
+        <div class="right-section">
+            <div class="calendar-box shadow-sm">
+                <div id="calendar"></div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="modal fade" id="eventModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4 shadow">
+
+      <div class="modal-header bg-primary text-white rounded-top-4">
+        <h5 class="modal-title" id="modalTitle">Details</h5>
+        <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <p><strong>Course:</strong> <span id="modalCourse"></span></p>
+        <p><strong>Date:</strong> <span id="modalTime"></span></p>
+        <p id="modalDesc"></p>
+      </div>
+
+      <div class="modal-footer">
+        <a id="editBtn" class="btn btn-warning">Edit</a>
+        <a id="deleteBtn" class="btn btn-danger">Delete</a>
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+    let events = JSON.parse(`{{ events|safe }}`);
+
+    events.forEach(ev => {
+        ev.classNames = (ev.type === "live_class")
+            ? ["live-class-event"]
+            : ["event-class"];
+    });
+
+    const calendar = new FullCalendar.Calendar(document.getElementById("calendar"), {
+        initialView: "dayGridMonth",
+        height: "100%",  
+
+        headerToolbar: {
+            left: "prev,next today",
+            center: "title",
+            right: ""
+        },
+
+        events: events,
+        eventDisplay: "block",
+
+        eventContent: info => {
+            return { html: `<div class='fc-event-title'>${info.event.title}</div>` };
+        },
+
+        eventClick(info) {
+            const e = info.event;
+            const props = e.extendedProps;
+            const dt = new Date(e.start);
+
+            document.getElementById("modalTitle").textContent =
+                props.topic || props.event_title;
+
+            document.getElementById("modalCourse").textContent = props.course_name;
+
+            document.getElementById("modalTime").textContent =
+                dt.toLocaleDateString([], {
+                    weekday: "long",
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric"
+                });
+
+            document.getElementById("modalDesc").textContent =
+                props.event_description || "";
+
+            if (props.type === "live_class") {
+                document.getElementById("editBtn").href = `/instructor/edit-class/${e.id}/`;
+                document.getElementById("deleteBtn").href = `/instructor/delete-class/${e.id}/`;
+            } else {
+                document.getElementById("editBtn").href = `/instructor/edit-event/${e.id}/`;
+                document.getElementById("deleteBtn").href = `/instructor/delete-event/${e.id}/`;
+            }
+
+            new bootstrap.Modal(document.getElementById("eventModal")).show();
+        }
+    });
+
+    calendar.render();
+});
+</script>
+
+</body>
+</html>

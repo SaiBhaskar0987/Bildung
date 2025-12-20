@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Course details</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+</head>
+<body class="bg-light">
+
+<div class="d-flex justify-content-between align-items-center p-3 bg-white shadow-sm">
+    <a href="{% url 'student_dashboard' %}" class="text-decoration-none text-dark">
+        <h3 class="m-0 fw-bold">Bildung</h3>
+    </a>
+
+    <div class="d-flex align-items-center gap-3">
+        <h4 class="m-0">Hello, {{ user.first_name }} {{ user.last_name }} </h4>
+        <div class="dropdown">
+            <button class="btn rounded-circle shadow" style="background:gray;color:white;width:45px;height:45px;" type="button" data-bs-toggle="dropdown">
+                {{ request.user.username|first|upper }}
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="{% url 'profile_view' %}">Profile</a></li>
+                <li><a class="dropdown-item" href="{% url 'student:my_courses' %}">My Courses</a></li>
+                <li><a class="dropdown-item" href="{% url 'student:student_upcoming_classes' %}">My_schedules</a></li>
+                <li><a class="dropdown-item" href="{% url 'student:student_my_activity' %}">My activity</a></li>
+                <li><a class="dropdown-item" href="{% url 'student:my_certificates' %}">My Certificates</a></li>
+                <li><a class="dropdown-item" href="{% url 'student:student_notifications' %}">Notifications</a></li>
+                <li><a class="dropdown-item" href="#">Payments</a></li>
+                <li><a class="dropdown-item" href="#">Help and Support</a></li>
+                <li><a class="dropdown-item" href="#">Feedback</a></li>
+                <li><a class="dropdown-item" href="{% url 'student:account_settings' %}">Account Settings</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item text-danger" href="{% url 'logout_view' %}">Logout</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<div class="container py-5">
+
+
+  <h2 class="fw-bold mb-4 text-primary">{{ course.title }} - Progress</h2>
+
+  <div class="card shadow-sm border-0 mb-4 p-4 rounded-4 text-center
+      {% if progress_percent == 100 %}
+          bg-success text-white
+      {% elif progress_percent >= 50 %}
+          bg-warning text-dark
+      {% else %}
+          bg-danger text-white
+      {% endif %}">
+    <h4 class="fw-bold">Course Completion Status</h4>
+    <p class="mb-2">You have completed <strong>{{ completed }}/{{ total }}</strong> lectures</p>
+    <div class="progress mb-2" style="height: 25px;">
+      <div class="progress-bar bg-light" role="progressbar"
+           style="width: {{ progress_percent }}%;"
+           aria-valuenow="{{ completed }}" aria-valuemin="0" aria-valuemax="{{ total }}">
+        {{ progress_percent }}%
+      </div>
+    </div>
+    {% if progress_percent == 100 %}
+      <p class="fw-bold">🎉 Congratulations! You have completed the course.</p>
+    {% endif %}
+  </div>
+
+  <!-- Upcoming Events -->
+  <div class="card shadow-sm border-0 p-4 rounded-4 mb-4">
+    <h4 class="mb-3 text-secondary">Upcoming Events</h4>
+    {% if course.events.all %}
+      <ul class="list-group">
+        {% for event in course.events.all %}
+          <li class="list-group-item">
+            <strong>{{ event.title }}</strong> <br>
+            {{ event.start_time }} - {{ event.end_time }} <br>
+            {{ event.description }}
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="text-muted">No upcoming events.</p>
+    {% endif %}
+  </div>
+
+</div>
+</body>
+</html>
+

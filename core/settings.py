@@ -20,6 +20,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
 
     # Your apps
     'users',
@@ -31,7 +32,10 @@ INSTALLED_APPS = [
 
     # Third-party
     'channels',
-    'subdomains',   # ✅ Only this for subdomain routing
+    'subdomains',
+
+    # Added for Google Login
+    'social_django',
 ]
 
 # ---------------------------------------------------------------------
@@ -44,6 +48,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "courses.middleware.ReminderMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
@@ -54,7 +59,7 @@ MIDDLEWARE = [
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -62,6 +67,10 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+
+                # Added for Google Login
+                'social_django.context_processors.backends',
+                'social_django.context_processors.login_redirect',
             ],
         },
     },
@@ -75,7 +84,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'bildung_db',
         'USER': 'root', # change with your MYSQL username
-        'PASSWORD': '00000', # change with your MYSQL password
+        'PASSWORD':"13D41A05l9@", # change with your MYSQL password
         'HOST': 'localhost',
         'PORT': '3306',
         'OPTIONS': {
@@ -99,6 +108,23 @@ AUTH_USER_MODEL = 'users.User'
 LOGIN_URL = '/login/'
 LOGOUT_REDIRECT_URL = '/'
 
+# Added for Google Login
+AUTHENTICATION_BACKENDS = (
+    'social_core.backends.google.GoogleOAuth2',  # Google OAuth
+    'django.contrib.auth.backends.ModelBackend',  # Default
+)
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '' # Add your key  here
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = ''  # Add your client secret here
+SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = ['email', 'profile']
+SOCIAL_AUTH_GOOGLE_OAUTH2_AUTH_EXTRA_ARGUMENTS = {
+    'prompt': 'select_account',
+    'access_type': 'offline',
+}
+
+LOGIN_REDIRECT_URL = '/google-redirect/'  # After Google login redirect
+LOGOUT_REDIRECT_URL = '/'
+
 # ---------------------------------------------------------------------
 # Subdomains
 # ---------------------------------------------------------------------
@@ -111,7 +137,7 @@ SUBDOMAIN_URLCONFS = {
     "instructor": "users.instructor_urls",
 }
 
-PARENT_HOST = "lvh.me"   # ✅ Needed for django-subdomains
+PARENT_HOST = "lvh.me"   # Needed for django-subdomains
 ALLOWED_HOSTS = ['.lvh.me', 'lvh.me', '127.0.0.1', 'localhost']
 
 # ---------------------------------------------------------------------
@@ -120,8 +146,8 @@ ALLOWED_HOSTS = ['.lvh.me', 'lvh.me', '127.0.0.1', 'localhost']
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 # ---------------------------------------------------------------------
 # Channels
@@ -141,3 +167,21 @@ USE_TZ = True
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_REDIRECT_URL = '/accounts/post-login/'
+SITE_ID = 1
+
+# ---------------------------------------------------------------------
+# Email Configuration - Temporary Development Solution
+# ---------------------------------------------------------------------
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+DEFAULT_FROM_EMAIL = 'Bildung Platform <noreply@bildung.com>'
+
+# ---------------------------------------------------------------------
+# Production Email Configuration (COMMENTED OUT FOR NOW)
+# ---------------------------------------------------------------------
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# EMAIL_HOST_USER = 'your-email@gmail.com'  # Replace with your Gmail
+# EMAIL_HOST_PASSWORD = 'your-app-password'  # Replace with Gmail App Password
+# DEFAULT_FROM_EMAIL = 'Bildung Platform <your-email@gmail.com>'

@@ -3,7 +3,6 @@ from datetime import timedelta
 from django.urls import reverse
 from django.utils import timezone
 from courses.models import LiveClass, CourseEvent, Enrollment
-from courses.models import Notification
 
 def check_and_send_reminders(user):
 

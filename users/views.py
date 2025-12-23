@@ -1,5 +1,7 @@
+from io import BytesIO
+from django.http import FileResponse, JsonResponse
 from django.utils import timezone
-from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -11,16 +13,15 @@ from django.utils.encoding import force_bytes, force_str
 from django.contrib.auth.tokens import default_token_generator
 from django.conf import settings
 from courses.utils import check_and_send_reminders
+from django.contrib.auth import update_session_auth_hash
 
-# Use only your custom User model
-from .models import User, Profile, LoginHistory, InstructorProfile
+from .models import LiveClassAttendance, Notification, User, Profile, LoginHistory, InstructorProfile
 from .forms import StudentSignUpForm, InstructorSignUpForm, ProfileForm, UserDisplayForm, InstructorUserReadOnlyForm, InstructorUserForm, InstructorProfileForm
-from courses.models import Course, Enrollment, Notification
+from courses.models import Course, Enrollment, Lecture, LectureProgress, LectureQuestion, LiveClass
 
 def auth_page(request):
     return render(request, "users/auth_page.html")
 
-# --- Student Signup ---
 def student_signup(request):
     if request.method == 'POST':
         form = StudentSignUpForm(request.POST)
@@ -33,29 +34,8 @@ def student_signup(request):
             messages.error(request, "Please correct the errors below.")
     else:
         form = StudentSignUpForm()
-    return render(request, 'users/student_signup.html', {'form': form})
+    return render(request, 'student/student_signup.html', {'form': form})
 
-# --- Instructor Signup ---
-def instructor_signup(request):
-    if request.method == 'POST':
-        form = InstructorSignUpForm(request.POST)
-        if form.is_valid():
-            user = form.save(commit=False)
-            user.role = 'instructor'
-
-            raw_password = form.cleaned_data.get("password1") or form.cleaned_data.get("password")
-            if raw_password:
-                user.set_password(raw_password)
-            user.save()
-
-            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-            return redirect("instructor:instructor_dashboard")
-    else:
-        form = InstructorSignUpForm()
-
-    return render(request, 'users/instructor_signup.html', {'form': form})
-
-# --- Student Login ---
 def student_login(request):
     if request.method == "POST":
         form = AuthenticationForm(request, data=request.POST)
@@ -72,9 +52,278 @@ def student_login(request):
             messages.error(request, "Invalid username or password. Please try again.")
     else:
         form = AuthenticationForm()
-    return render(request, "users/student_login.html", {"form": form})
+    return render(request, "student/student_login.html", {"form": form})
 
-# --- Instructor Login ---
+
+@login_required
+def student_dashboard(request):
+    if request.user.role != "student":
+        messages.error(request, "Access denied. Student area only.")
+        return redirect("login")
+    check_and_send_reminders(request.user)
+    all_courses = Course.objects.all()
+
+    unread_count = Notification.objects.filter(
+        user=request.user,
+        is_read=False
+    ).count()
+
+    unread_notifications = Notification.objects.filter(
+        user=request.user,
+        is_read=False
+    ).order_by("-created_at")[:5]
+    enrolled_course_ids = Enrollment.objects.filter(
+        student=request.user
+    ).values_list("course_id", flat=True)
+
+    return render(request, "student/student_dashboard.html", {
+        "all_courses": all_courses,
+        "unread_count": unread_count,
+        "unread_notifications": unread_notifications,
+        "enrolled_course_ids": enrolled_course_ids,
+    })
+
+
+@login_required
+def account_settings(request):
+    if request.user.role != "student":
+        return redirect("login")
+    
+    user = request.user
+    profile, created = Profile.objects.get_or_create(user=user)
+    
+    if request.method == 'POST':
+
+        if 'update_profile' in request.POST:
+            
+            user.first_name = request.POST.get('first_name', user.first_name)
+            user.last_name = request.POST.get('last_name', user.last_name)
+            user.email = request.POST.get('email', user.email)
+            user.save()
+
+            profile.phone = request.POST.get('phone', profile.phone)
+            profile.about_me = request.POST.get('about_me', profile.about_me)
+            profile.gender = request.POST.get('gender', profile.gender)
+            profile.qualification = request.POST.get('qualification', profile.qualification)
+
+            dob = request.POST.get('date_of_birth')
+            if dob:
+                profile.date_of_birth = dob
+
+            if 'resume' in request.FILES:
+                profile.resume = request.FILES['resume']
+
+            if 'profile_picture' in request.FILES:
+                profile.profile_picture = request.FILES['profile_picture']
+
+            profile.save()
+
+            messages.success(request, "Profile updated successfully!")
+            return redirect('account_settings')
+
+        elif 'change_password' in request.POST:
+
+            old_password = request.POST.get('old_password')
+            new_password1 = request.POST.get('new_password1')
+            new_password2 = request.POST.get('new_password2')
+            
+            if user.check_password(old_password):
+                if new_password1 == new_password2:
+                    if len(new_password1) >= 8:
+                        user.set_password(new_password1)
+                        user.save()
+                        update_session_auth_hash(request, user)
+                        messages.success(request, "Password changed successfully!")
+                    else:
+                        messages.error(request, "Password must be at least 8 characters long.")
+                else:
+                    messages.error(request, "New passwords do not match.")
+            else:
+                messages.error(request, "Current password is incorrect.")
+
+            return redirect('account_settings')
+
+        elif 'update_notifications' in request.POST:
+            email_notifications = 'email_notifications' in request.POST
+            course_updates = 'course_updates' in request.POST
+
+            messages.success(request, "Notification preferences updated!")
+            return redirect('account_settings')
+    
+    context = {
+        'user': user,
+        'profile': profile,
+    }
+    return render(request, 'student/account_settings.html', context)
+
+@login_required
+def profile_view_or_edit(request, mode=None):
+    try:
+        profile = request.user.profile
+    except Profile.DoesNotExist:
+        profile = Profile.objects.create(user=request.user)
+
+    is_editing = (mode == 'edit')
+
+    if request.method == 'POST' and is_editing:
+        profile_form = ProfileForm(request.POST, request.FILES, instance=profile)
+        user_form = UserDisplayForm(request.POST, instance=request.user) 
+
+        if profile_form.is_valid():
+            profile_form.save()
+            messages.success(request, "Profile updated successfully!")
+            return redirect('profile_view') 
+        
+    else:
+        user_form = UserDisplayForm(instance=request.user)
+        profile_form = ProfileForm(instance=profile)
+
+    context = {
+        'profile': profile,
+        'user_form': user_form,       
+        'profile_form': profile_form, 
+        'is_editing': is_editing,
+    }
+    return render(request, 'student/student_profile.html', context)
+
+@login_required
+def student_my_activity(request):
+    user = request.user
+    enrollments = Enrollment.objects.filter(student=user)
+
+    course_progress = []
+    for enroll in enrollments:
+        course = enroll.course
+        lectures = Lecture.objects.filter(module__course=course)
+        total_lectures = lectures.count()
+
+        completed = LectureProgress.objects.filter(
+            student=user, lecture__in=lectures, completed=True
+        ).count()
+
+        percent = round((completed / total_lectures) * 100, 2) if total_lectures > 0 else 0
+
+        course_progress.append({
+            "course": course,
+            "total_lectures": total_lectures,
+            "completed_lectures": completed,
+            "progress_percent": percent,
+        })
+
+    recent_videos = LectureProgress.objects.filter(
+        student=user, completed=True
+    ).select_related("lecture", "lecture__module__course").order_by("-updated_at")[:10]
+
+    video_lessons_watched = LectureProgress.objects.filter(
+        student=user, completed=True
+    ).select_related("lecture", "lecture__module__course").order_by("-updated_at")
+
+    enrolled_course_ids = enrollments.values_list("course_id", flat=True)
+
+    all_live_classes = LiveClass.objects.filter(course_id__in=enrolled_course_ids)
+
+    total_classes = all_live_classes.count()
+
+    attendance_records = (
+        LiveClassAttendance.objects
+        .filter(user=user, live_class__in=all_live_classes)
+        .select_related("live_class", "live_class__course")
+    )
+
+    attended_count = attendance_records.exclude(joined_at=None).count()
+
+    attendance_percent = round((attended_count / total_classes) * 100, 2) if total_classes > 0 else 0
+
+    attendance_data = {
+        "total_classes": total_classes,
+        "classes_attended": attended_count,
+        "attendance_percentage": attendance_percent,
+        "absences": total_classes - attended_count,
+        "live_classes": [
+            {
+                "title": rec.live_class.title,
+                "course": rec.live_class.course.title,
+                "date": rec.live_class.date,
+                "status": "Joined" if rec.joined_at else "Missed",
+                "joined_at": rec.joined_at,
+                "duration": f"{rec.duration} mins" if rec.duration else "—",
+            }
+            for rec in attendance_records
+        ]
+    }
+
+    login_history = LoginHistory.objects.filter(user=user).order_by("-login_time")[:25]
+
+    qna_activity = (
+        LectureQuestion.objects.filter(student=user)
+        .select_related("lecture", "lecture__module", "lecture__module__course")
+        .prefetch_related("replies__user")
+        .order_by("-created_at")
+    )
+
+    total_completed = LectureProgress.objects.filter(student=user, completed=True).count()
+    total_lectures = Lecture.objects.count()
+    overall_progress = (
+        round((total_completed / total_lectures) * 100, 2) if total_lectures > 0 else 0
+    )
+
+    context = {
+        "total_enrolled_courses": enrollments.count(),
+        "total_completed_lectures": total_completed,
+        "overall_progress": overall_progress,
+        "course_progress": course_progress,
+        "recent_videos": recent_videos,
+        "video_lessons_watched": video_lessons_watched,
+        "attendance_data": attendance_data,
+        "login_history": login_history,
+        "qna_activity": qna_activity,
+    }
+
+    return render(request, "student/my_activity.html", context)
+    
+
+@login_required
+def student_notifications(request):
+    notifications = Notification.objects.filter(user=request.user).order_by("-created_at")
+
+    return render(request, "student/student_notifications.html", {
+        "notifications": notifications
+    })
+
+
+@login_required
+def get_recent_notifications(request):
+    notes = Notification.objects.filter(user=request.user).order_by("-created_at")[:10]
+
+    data = []
+    for n in notes:
+        data.append({
+            "id": n.id,
+            "message": n.message,
+            "url": n.url or "",
+            "is_read": n.is_read,
+            "created_at": n.created_at.strftime("%d %b %Y, %I:%M %p")
+        })
+
+    unread = Notification.objects.filter(user=request.user, is_read=False).count()
+
+    return JsonResponse({"notifications": data, "unread": unread})
+
+
+@login_required
+def mark_all_notifications(request, notif_id):
+    Notification.objects.filter(id=notif_id, user=request.user).update(is_read=True)
+    return JsonResponse({"status": "ok"})
+
+@login_required
+def mark_notification(request, notif_id):
+    """Mark a single notification as read."""
+    Notification.objects.filter(id=notif_id, user=request.user).update(is_read=True)
+    return JsonResponse({"status": "ok"})
+
+
+# --- Instructor --- #
+
 def instructor_login(request):
     if request.method == "POST":
         form = AuthenticationForm(request, data=request.POST)
@@ -83,12 +332,51 @@ def instructor_login(request):
             if hasattr(user, 'role') and user.role == "instructor":
                 login(request, user)
                 record_login(request, user)
-                return redirect("instructor:instructor_dashboard")
+                return redirect("instructor_dashboard")
             else:
                 messages.error(request, "This login is only for instructors.")
     else:
         form = AuthenticationForm()
-    return render(request, "users/instructor_login.html", {"form": form})
+    return render(request, "instructor/instructor_login.html", {"form": form})
+
+def instructor_signup(request):
+    if request.method == 'POST':
+        form = InstructorSignUpForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.role = 'instructor'
+
+            raw_password = form.cleaned_data.get("password1") or form.cleaned_data.get("password")
+            if raw_password:
+                user.set_password(raw_password)
+            user.save()
+
+            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+            return redirect("instructor_dashboard")
+    else:
+        form = InstructorSignUpForm()
+
+    return render(request, 'instructor/instructor_signup.html', {'form': form})
+
+@login_required
+def instructor_dashboard(request):
+    check_and_send_reminders(request.user)
+    courses = Course.objects.filter(instructor=request.user)
+    unread_count = Notification.objects.filter(
+        user=request.user,
+        is_read=False
+    ).count()
+
+    total_students = Enrollment.objects.filter(
+        course__in=courses
+    ).values('student').distinct().count()
+
+    return render(request, 'instructor/instructor_dashboard.html', {
+        'courses': courses,
+        'total_students': total_students,
+        "unread_count": unread_count,
+    })
+
 
 def logout_view(request):
     record_logout(request)
@@ -96,26 +384,16 @@ def logout_view(request):
     messages.success(request, "You have been successfully logged out.")
     return redirect("auth_page")
 
-# ---  Password Reset ---
+
 def custom_password_reset(request):
     if request.method == 'POST':
         email = request.POST.get('email')
-        
-        # Check if user exists with this email
         try:
             user = User.objects.get(email=email)
-            
-            # Generate token and send email
             token = default_token_generator.make_token(user)
             uid = urlsafe_base64_encode(force_bytes(user.pk))
-            
-            # Build reset URL
             reset_url = f"{request.scheme}://{request.get_host()}/password-reset-confirm/{uid}/{token}/"
-            
-            # Determine user role for email content
             user_role = user.role if hasattr(user, 'role') else 'user'
-            
-            # Send email
             subject = f"Password Reset Request - Bildung Platform"
             message = f"""
 Hello {user.username},
@@ -142,12 +420,10 @@ The Bildung Platform Team
                 return redirect('password_reset_sent')
                 
             except Exception as e:
-                # If email fails, still redirect to success page for security
                 print(f"Email sending failed: {e}")
                 return redirect('password_reset_sent')
             
         except User.DoesNotExist:
-            # Still show success message for security (don't reveal if email exists)
             return redirect('password_reset_sent')
     
     return render(request, 'forgot_password.html')
@@ -155,7 +431,6 @@ The Bildung Platform Team
 def password_reset_sent(request):
     return render(request, 'password_reset_sent.html')
 
-# --- Password Reset Confirm ---
 def custom_password_reset_confirm(request, uidb64, token):
     try:
         uid = force_str(urlsafe_base64_decode(uidb64))
@@ -171,15 +446,13 @@ def custom_password_reset_confirm(request, uidb64, token):
                         user.set_password(new_password)
                         user.save()
                         messages.success(request, 'Your password has been reset successfully! You can now login with your new password.')
-                        
-                        # SMART REDIRECT: Send users to appropriate login based on their role
+
                         if hasattr(user, 'role'):
                             if user.role == 'instructor':
                                 return redirect('instructor_login')
                             elif user.role == 'student':
                                 return redirect('student_login')
-                        
-                        # Default fallback
+
                         return redirect('auth_page')
                     else:
                         messages.error(request, 'Passwords do not match.')
@@ -194,96 +467,6 @@ def custom_password_reset_confirm(request, uidb64, token):
     except (TypeError, ValueError, OverflowError, User.DoesNotExist):
         messages.error(request, 'Invalid reset link.')
         return redirect('auth_page')
-
-@login_required
-def student_dashboard(request):
-    if request.user.role != "student":
-        messages.error(request, "Access denied. Student area only.")
-        return redirect("login")
-    check_and_send_reminders(request.user)
-    all_courses = Course.objects.all()
-
-    unread_count = Notification.objects.filter(
-        user=request.user,
-        is_read=False
-    ).count()
-
-    unread_notifications = Notification.objects.filter(
-        user=request.user,
-        is_read=False
-    ).order_by("-created_at")[:5]
-    enrolled_course_ids = Enrollment.objects.filter(
-        student=request.user
-    ).values_list("course_id", flat=True)
-
-    return render(request, "courses/student/student_dashboard.html", {
-        "all_courses": all_courses,
-        "unread_count": unread_count,
-        "unread_notifications": unread_notifications,
-        "enrolled_course_ids": enrolled_course_ids,
-    })
-
-
-@login_required(login_url="/auth/")
-def admin_dashboard(request):
-    if not hasattr(request.user, 'role') or request.user.role != "admin":
-        messages.error(request, "Access denied. Admin area only.")
-        return redirect("auth_page")
-    return render(request, "admin/dashboard.html")
-
-@login_required
-def post_login_redirect_view(request):
-    user = request.user
-    if not hasattr(user, 'role'):
-        messages.error(request, "User role not defined.")
-        return redirect("auth_page")
-    
-    if user.role == "student":
-        record_login(request, user)
-        return redirect("student_dashboard")
-    elif user.role == "instructor":
-        record_login(request, user)
-        return redirect("instructor:instructor_dashboard")
-    elif user.role == "admin":
-        record_login(request, user)
-        return redirect("admin_dashboard")
-    else:
-        return redirect("auth_page")
-
-@login_required
-def profile_view_or_edit(request, mode=None):
-    """
-    Handles both displaying the profile (default) and editing ONLY Profile fields.
-    """
-    
-    try:
-        profile = request.user.profile
-    except Profile.DoesNotExist:
-        profile = Profile.objects.create(user=request.user)
-
-    is_editing = (mode == 'edit')
-
-    if request.method == 'POST' and is_editing:
-        profile_form = ProfileForm(request.POST, request.FILES, instance=profile)
-        user_form = UserDisplayForm(request.POST, instance=request.user) 
-
-        if profile_form.is_valid():
-            profile_form.save()
-            messages.success(request, "Profile updated successfully!")
-            return redirect('profile_view') 
-        
-    else:
-        user_form = UserDisplayForm(instance=request.user)
-        profile_form = ProfileForm(instance=profile)
-
-    context = {
-        'profile': profile,
-        'user_form': user_form,       # Read-only user form
-        'profile_form': profile_form, # Editable profile form
-        'is_editing': is_editing,
-    }
-    return render(request, 'student/student_profile.html', context)
-
 
 @login_required
 def instructor_profile_view_or_edit(request, mode=None):
@@ -324,7 +507,93 @@ def instructor_profile_view_or_edit(request, mode=None):
     return render(request, "instructor/instructor_profile.html", context)
 
 
-# --- Google OAuth Entry ---
+@login_required
+def instructor_recent_notifications(request):
+    notifications = Notification.objects.filter(
+        user=request.user
+    ).order_by('-created_at')[:5]
+
+    unread_count = Notification.objects.filter(
+        user=request.user, is_read=False
+    ).count()
+
+    data = {
+        "unread": unread_count,
+        "notifications": [
+            {
+                "id": n.id,
+                "message": n.message,
+                "created_at": n.created_at.strftime("%b %d, %I:%M %p"),
+                "is_read": n.is_read,
+                "url": n.url or "",
+            }
+            for n in notifications
+        ]
+    }
+
+    return JsonResponse(data)
+
+@login_required
+def instructor_notifications_page(request):
+    notifications = Notification.objects.filter(
+        user=request.user
+    ).order_by("-created_at")
+
+    unread_count = Notification.objects.filter(
+        user=request.user,
+        is_read=False
+    ).count()
+
+    return render(request, "instructor/instructor_notifications.html", {
+        "notifications": notifications,
+        "unread_count": unread_count,
+    })
+
+@login_required
+def instructor_mark_read(request, notif_id):
+    Notification.objects.filter(
+        id=notif_id,
+        user=request.user
+    ).update(is_read=True)
+
+    return JsonResponse({"status": "ok"})
+
+@login_required
+def instructor_mark_all_read(request):
+    Notification.objects.filter(
+        user=request.user,
+        is_read=False
+    ).update(is_read=True)
+
+    return JsonResponse({"status": "ok"})
+
+
+@login_required(login_url="/auth/")
+def admin_dashboard(request):
+    if not hasattr(request.user, 'role') or request.user.role != "admin":
+        messages.error(request, "Access denied. Admin area only.")
+        return redirect("auth_page")
+    return render(request, "admin/dashboard.html")
+
+@login_required
+def post_login_redirect_view(request):
+    user = request.user
+    if not hasattr(user, 'role'):
+        messages.error(request, "User role not defined.")
+        return redirect("auth_page")
+    
+    if user.role == "student":
+        record_login(request, user)
+        return redirect("student_dashboard")
+    elif user.role == "instructor":
+        record_login(request, user)
+        return redirect("instructor_dashboard")
+    elif user.role == "admin":
+        record_login(request, user)
+        return redirect("admin_dashboard")
+    else:
+        return redirect("auth_page")
+
 def google_oauth_entry(request):
     """Capture ?type=student/instructor before sending to Google OAuth."""
     role = request.GET.get('type', '').strip()
@@ -336,7 +605,6 @@ def google_oauth_entry(request):
     redirect_url = f"/social-auth/login/google-oauth2/?next={next_url}&prompt=select_account"
     return redirect(redirect_url)
 
-# --- Google OAuth Redirect ---
 @login_required
 def google_login_redirect(request):
     """Redirect Google-authenticated users to their appropriate dashboards."""
@@ -354,7 +622,7 @@ def google_login_redirect(request):
             user.save()
 
     if user.role == 'instructor':
-        return redirect('instructor:instructor_dashboard')
+        return redirect('instructor_dashboard')
     elif user.role == 'student':
         return redirect('student_dashboard')
     else:

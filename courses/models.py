@@ -1,9 +1,8 @@
+import uuid
 from django.db import models
-from users.models import User
 from django.conf import settings
 from django.utils import timezone
 import datetime
-import uuid
 
 
 class Course(models.Model):
@@ -70,7 +69,6 @@ class Lecture(models.Model):
     file = models.FileField(upload_to="lectures/files/", blank=True, null=True)
     order = models.PositiveIntegerField(default=0)
 
-
     def __str__(self):
         return f"{self.module.title} - {self.title}"
 
@@ -135,21 +133,8 @@ class CourseEvent(models.Model):
         return f"{self.course.title} - {self.title} ({self.start_time})"
 
 
-class Certificate(models.Model):
-    student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    course = models.ForeignKey(Course, on_delete=models.CASCADE)
-    certificate_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
-    issued_on = models.DateField(auto_now_add=True)
-    downloaded_at = models.DateTimeField(null=True, blank=True)
-
-    def __str__(self):
-        return f"{self.student.username} - {self.course.title}"
-
-    class Meta:
-        unique_together = ('student', 'course')
-
 class LiveClass(models.Model):
-    instructor = models.ForeignKey(User, on_delete=models.CASCADE, related_name='instructor_classes')
+    instructor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='instructor_classes')
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='live_classes')
     topic = models.CharField(max_length=255)
     meeting_link = models.URLField(max_length=500, blank=True, null=True)
@@ -169,7 +154,7 @@ class LiveClass(models.Model):
 
 class LectureQuestion(models.Model):
     lecture = models.ForeignKey(Lecture, on_delete=models.CASCADE, related_name="questions")
-    student = models.ForeignKey(User, on_delete=models.CASCADE)
+    student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     question = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -182,10 +167,10 @@ class LectureQuestion(models.Model):
 
 class QuestionReply(models.Model):
     question = models.ForeignKey(LectureQuestion, on_delete=models.CASCADE, related_name="replies")
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     reply = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
-    upvotes = models.ManyToManyField(User, related_name="reply_upvotes", blank=True)
+    upvotes = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="reply_upvotes", blank=True)
 
     def is_instructor(self):
         return self.user == self.question.lecture.module.course.instructor
@@ -199,10 +184,22 @@ class QuestionReply(models.Model):
     class Meta:
         ordering = ["-created_at"]
 
+class Certificate(models.Model):
+    student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    certificate_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    issued_on = models.DateField(auto_now_add=True)
+    downloaded_at = models.DateTimeField(null=True, blank=True)
 
+    def __str__(self):
+        return f"{self.student.username} - {self.course.title}"
+
+    class Meta:
+        unique_together = ('student', 'course')
+        
 class CourseReview(models.Model):
     course = models.ForeignKey("courses.Course", on_delete=models.CASCADE, related_name="reviews")
-    student = models.ForeignKey(User, on_delete=models.CASCADE, related_name="course_reviews")
+    student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="course_reviews")
     rating = models.IntegerField(default=5)
     comment = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
@@ -213,21 +210,6 @@ class CourseReview(models.Model):
     def __str__(self):
         return f"{self.student} → {self.course} ({self.rating} stars)"
     
-class LiveClassAttendance(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    live_class = models.ForeignKey(LiveClass, on_delete=models.CASCADE)
-    joined_at = models.DateTimeField(null=True, blank=True)
-    duration = models.IntegerField(default=0)  
-
-class Notification(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="notifications")
-    message = models.CharField(max_length=255)
-    url = models.CharField(max_length=255, blank=True, null=True)  
-    created_at = models.DateTimeField(default=timezone.now)
-    is_read = models.BooleanField(default=False)
-
-    def __str__(self):
-        return f"{self.user.username} - {self.message[:30]}"
     
 class Assignment(models.Model):
     course = models.ForeignKey(Course, related_name="assignments", on_delete=models.CASCADE)

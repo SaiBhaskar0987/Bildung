@@ -29,6 +29,15 @@ from django.contrib.auth import update_session_auth_hash
 # Common Views
 # -------------------------------
 
+def get_instructor_average_rating(instructor):
+    """
+    Calculate average rating for the instructor based on CourseReview.
+    Rating scale = 1–10.
+    Returns 0 if no reviews.
+    """
+    return CourseReview.objects.filter(
+        course__instructor=instructor
+    ).aggregate(avg=Avg('rating'))['avg'] or 0
 
 def course_list(request):
     query = request.GET.get('q')

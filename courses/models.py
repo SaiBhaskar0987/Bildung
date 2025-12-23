@@ -221,7 +221,6 @@ class Assignment(models.Model):
     def __str__(self):
         return f"{self.course.title} - Assignment: {self.title}"
     
-
 class Notification(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="notifications")
     message = models.CharField(max_length=255)

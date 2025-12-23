@@ -71,6 +71,111 @@ def my_courses(request):
         "enrolled_courses": enrolled_courses
     })
 
+@login_required(login_url='/student/login/')
+def student_course_detail(request, course_id):
+    enrollment = get_object_or_404(
+        Enrollment, course_id=course_id, student=request.user
+    )
+    course = enrollment.course
+
+    # ---------- PROGRESS LOGIC (UNCHANGED) ----------
+    modules = course.modules.prefetch_related('lectures').all()
+    lectures = Lecture.objects.filter(module__course=course)
+
+    total = lectures.count()
+    completed_lectures = LectureProgress.objects.filter(
+        student=request.user,
+        lecture__in=lectures,
+        completed=True
+    ).values_list('lecture_id', flat=True)
+
+    completed = len(completed_lectures)
+    progress_map = set(completed_lectures)
+    progress_percent = int((completed / total * 100) if total else 0)
+
+    unlocked_modules = []
+    all_previous_complete = True
+
+    for module in modules:
+        if all_previous_complete:
+            unlocked_modules.append(module.id)
+
+        module_lectures = module.lectures.all()
+        module_complete = all(l.id in completed_lectures for l in module_lectures)
+
+        if not module_complete:
+            all_previous_complete = False
+
+    try:
+        user_review = CourseReview.objects.get(course=course, student=request.user)
+    except CourseReview.DoesNotExist:
+        user_review = None
+
+    # ---------- BUILDER ORDER (NEW) ----------
+    ordered_items = []
+    structure = course.structure_json or []
+
+    module_count = quiz_count = assignment_count = live_count = 1
+
+    for item in structure:
+        item_type = item.get("type")
+        module_id = item.get("module_id")
+        display_title = item.get("display_title", "").strip()
+
+        if item_type == "Module" and module_id:
+            module = course.modules.filter(id=module_id).first()
+            if module:
+                ordered_items.append({
+                    "type": "module",
+                    "obj": module,
+                    "title": display_title or f"Module {module_count}",
+                    "unlocked": module.id in unlocked_modules,
+                })
+                module_count += 1
+
+        elif item_type == "Quiz":
+            quiz = course.quizzes.first()
+            if quiz:
+                ordered_items.append({
+                    "type": "quiz",
+                    "obj": quiz,
+                    "title": display_title or f"Quiz {quiz_count}",
+                })
+                quiz_count += 1
+
+        elif item_type == "Assignment":
+            assignment = course.assignments.first()
+            if assignment:
+                ordered_items.append({
+                    "type": "assignment",
+                    "obj": assignment,
+                    "title": display_title or f"Assignment {assignment_count}",
+                })
+                assignment_count += 1
+
+        elif item_type == "LiveClass":
+            live = course.live_classes.first()
+            if live:
+                ordered_items.append({
+                    "type": "live",
+                    "obj": live,
+                    "title": display_title or f"Live Class {live_count}",
+                })
+                live_count += 1
+
+    return render(request, 'courses/student/student_course_detail.html', {
+        'course': course,
+        'ordered_items': ordered_items,
+        'total': total,
+        'completed': completed,
+        'progress_map': progress_map,
+        'progress_percent': progress_percent,
+        'unlocked_modules': unlocked_modules,
+        'user_review': user_review,
+    })
+
+"""
+
 @login_required(login_url="/student/login/")
 def student_course_detail(request, course_id):
 
@@ -84,11 +189,15 @@ def student_course_detail(request, course_id):
     structure = course.structure_json or []
 
     modules_map = {
-        m.id: m for m in
-        course.modules.prefetch_related("lectures").all()
+        m.id: m
+        for m in course.modules.prefetch_related("lectures").all()
     }
     quizzes_map = {q.id: q for q in course.quizzes.all()}
     assignments_map = {a.id: a for a in course.assignments.all()}
+    live_classes_map = {
+        lc.id: lc for lc in course.live_classes.all()
+    }
+
     lectures = Lecture.objects.filter(module__course=course)
     total = lectures.count()
 
@@ -102,21 +211,35 @@ def student_course_detail(request, course_id):
 
     completed = len(completed_lectures)
     progress_percent = int((completed / total * 100) if total else 0)
+
     unlocked_modules = []
-    all_previous_complete = True
 
-    for module in modules_map.values():
-        if all_previous_complete:
-            unlocked_modules.append(module.id)
+    ordered_modules = []
+    for item in structure:
+        if item.get("type") == "Module":
+            module = modules_map.get(item.get("module_id"))
+            if module:
+                ordered_modules.append(module)
 
-        module_lectures = module.lectures.all()
-        if not all(l.id in completed_lectures for l in module_lectures):
-            all_previous_complete = False
+    if ordered_modules:
+        unlocked_modules.append(ordered_modules[0].id)
+
+    for i in range(1, len(ordered_modules)):
+        prev_module = ordered_modules[i - 1]
+        prev_lectures = prev_module.lectures.all()
+
+        if prev_lectures and all(
+            l.id in completed_lectures for l in prev_lectures
+        ):
+            unlocked_modules.append(ordered_modules[i].id)
+        else:
+            break
 
     ordered_items = []
     module_count = 1
     quiz_count = 1
     assignment_count = 1
+    live_class_count = 1
 
     for item in structure:
         item_type = item.get("type")
@@ -151,6 +274,20 @@ def student_course_detail(request, course_id):
                 })
                 assignment_count += 1
 
+        elif item_type == "LiveClass":
+            live_class = live_classes_map.get(item.get("live_class_id"))
+            if live_class:
+                ordered_items.append({
+                    "type": "live_class",
+                    "title": f"Live Class {live_class_count}",
+                    "obj": live_class,
+                    "locked": (
+                        live_class.module
+                        and live_class.module.id not in unlocked_modules
+                    )
+                })
+                live_class_count += 1
+
     try:
         user_review = CourseReview.objects.get(
             course=course,
@@ -173,6 +310,8 @@ def student_course_detail(request, course_id):
             "user_review": user_review,
         }
     )
+
+"""
 
 @login_required
 def view_student_profile(request, student_id):

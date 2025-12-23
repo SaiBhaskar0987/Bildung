@@ -6,8 +6,8 @@ from django.urls import reverse
 from django.utils.dateparse import parse_datetime, parse_date, parse_time
 from django.views.decorators.csrf import csrf_exempt
 from quizzes.models import Quiz, QuizResult
-from .models import Assignment, Course, CourseBlock, Enrollment, Certificate, Lecture, LectureProgress, Feedback, CourseEvent, Module, LiveClass, LectureQuestion, QuestionReply, CourseReview
-from users.models import InstructorProfile, LiveClassAttendance, LoginHistory, Notification, User
+from .models import Assignment, Course, CourseBlock, Enrollment, Certificate, Lecture, LectureProgress, Feedback, CourseEvent, Module, LiveClass, LectureQuestion, Notification, QuestionReply, CourseReview, LiveClassAttendance
+from users.models import InstructorProfile, LoginHistory, User
 from .forms import LectureForm, FeedbackForm, LiveClassForm, CourseReviewForm, CourseEventForm
 from users.decorators import instructor_required
 from django.db.models import Q, Count, Sum

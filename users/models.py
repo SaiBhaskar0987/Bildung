@@ -3,7 +3,7 @@ from django.db import models
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.utils import timezone
-from courses.models import LiveClass
+
 
 class User(AbstractUser):
     ROLE_CHOICES = (
@@ -27,6 +27,7 @@ def user_profile_image_path(instance, filename):
     return f'profile_images/user_{instance.user.id}/{filename}'
 
 
+User = get_user_model()
 class Profile(models.Model):
     GENDER_CHOICES = [
         ('M', 'Male'),
@@ -109,6 +110,7 @@ class InstructorProfile(models.Model):
     def __str__(self):
         return f"Instructor Profile — {self.user.username}"
 
+    
 class LoginHistory(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     login_time = models.DateTimeField(default=timezone.now)
@@ -121,19 +123,3 @@ class LoginHistory(models.Model):
 
     def time(self):
         return self.login_time.time()
-
-class Notification(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="notifications")
-    message = models.CharField(max_length=255)
-    url = models.CharField(max_length=255, blank=True, null=True)  
-    created_at = models.DateTimeField(default=timezone.now)
-    is_read = models.BooleanField(default=False)
-
-    def __str__(self):
-        return f"{self.user.username} - {self.message[:30]}"
-    
-class LiveClassAttendance(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    live_class = models.ForeignKey(LiveClass, on_delete=models.CASCADE)
-    joined_at = models.DateTimeField(null=True, blank=True)
-    duration = models.IntegerField(default=0)  

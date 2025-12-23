@@ -15,9 +15,9 @@ from django.conf import settings
 from courses.utils import check_and_send_reminders
 from django.contrib.auth import update_session_auth_hash
 
-from .models import LiveClassAttendance, Notification, User, Profile, LoginHistory, InstructorProfile
+from .models import User, Profile, LoginHistory, InstructorProfile
 from .forms import StudentSignUpForm, InstructorSignUpForm, ProfileForm, UserDisplayForm, InstructorUserReadOnlyForm, InstructorUserForm, InstructorProfileForm
-from courses.models import Course, Enrollment, Lecture, LectureProgress, LectureQuestion, LiveClass
+from courses.models import Course, Enrollment, Lecture, LectureProgress, LectureQuestion, LiveClass, LiveClassAttendance, Notification
 
 def auth_page(request):
     return render(request, "users/auth_page.html")

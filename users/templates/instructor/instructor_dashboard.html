@@ -199,7 +199,7 @@
 </head>
 <body class="bg-light">
   <div class="d-flex justify-content-between align-items-center p-3 bg-white shadow-sm">
-    <a href="{% url 'instructor:instructor_dashboard' %}" class="text-decoration-none text-dark">
+    <a href="{% url 'instructor_dashboard' %}" class="text-decoration-none text-dark">
         <h3 class="m-0 fw-bold">Bildung</h3>
     </a>  
     <div class="d-flex align-items-center gap-4">
@@ -220,7 +220,7 @@
         <div class="dropdown-menu dropdown-menu-end notif-panel shadow">
             <h6 class="dropdown-header d-flex justify-content-between">
                 Notifications
-                <a href="{% url 'instructor:instructor_notifications' %}" class="small">View All</a>
+                <a href="{% url 'instructor_notifications' %}" class="small">View All</a>
             </h6>
 
             <div id="notifList"></div>
@@ -242,7 +242,7 @@
                 <li><a class="dropdown-item" href="{% url 'instructor:add_course' %}">Create New Course</a></li>
                 <li><a class="dropdown-item" href="{% url 'instructor:students_list' %}">My Students</a></li>
                 <li><a class="dropdown-item" href="{% url 'instructor:calendar_view' %}">My Schedules</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor:instructor_notifications' %}">Notifications</a></li>
+                <li><a class="dropdown-item" href="{% url 'instructor_notifications' %}">Notifications</a></li>
                 <li><a class="dropdown-item" href="#">Earnings & Payments</a></li>
                 <li><a class="dropdown-item" href="#">Help & Support</a></li>
                 <li><a class="dropdown-item" href="{% url 'instructor:account_settings' %}">Account Settings</a></li>
@@ -606,7 +606,7 @@
 document.addEventListener("DOMContentLoaded", function () {
 
     function loadNotifications() {
-        fetch("{% url 'instructor:recent_notifications' %}")
+        fetch("{% url 'instructor_recent_notifications' %}")
             .then(res => res.json())
             .then(data => {
 
@@ -634,7 +634,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
 
                 data.notifications.forEach(n => {
-                    const url = n.url && n.url !== "" ? n.url : "{% url 'instructor:instructor_notifications' %}";
+                    const url = n.url && n.url !== "" ? n.url : "{% url 'instructor_notifications' %}";
                     list.innerHTML += `
                         <div class="notif-item ${n.is_read ? "read" : "unread"}"
                              onclick="window.location.href='${url}'">
@@ -658,12 +658,12 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     window.markRead = function(id) {
-        const url = "{% url 'instructor:mark_notification_read' 0 %}".replace("0", id);
+        const url = "{% url 'mark_notification_read' 0 %}".replace("0", id);
         fetch(url).then(() => loadNotifications());
     };
 
     document.getElementById("markAllBtn").onclick = () => {
-        fetch("{% url 'instructor:mark_notifications_read' %}")
+        fetch("{% url 'mark_notifications_read' %}")
             .then(() => loadNotifications());
     };
 

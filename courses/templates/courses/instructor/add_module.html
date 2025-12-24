@@ -116,7 +116,7 @@
 
 <div class="topbar">
 
-    <a href="{% url 'instructor:instructor_dashboard' %}" class="topbar-title">
+    <a href="{% url 'instructor_dashboard' %}" class="topbar-title">
         Bildung
     </a>
 
@@ -132,7 +132,7 @@
                 <li><a class="dropdown-item" href="{% url 'instructor:add_course' %}">Create New Course</a></li>
                 <li><a class="dropdown-item" href="{% url 'instructor:students_list' %}">My Students</a></li>
                 <li><a class="dropdown-item" href="{% url 'instructor:calendar_view' %}">My Schedules</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor:instructor_notifications' %}">Notifications</a></li>
+                <li><a class="dropdown-item" href="{% url 'instructor_notifications' %}">Notifications</a></li>
                 <li><a class="dropdown-item" href="#">Earnings & Payments</a></li>
                 <li><a class="dropdown-item" href="#">Help & Support</a></li>
                 <li><a class="dropdown-item" href="{% url 'instructor:account_settings' %}">Account Settings</a></li>
@@ -148,16 +148,60 @@
     <h1 class="title">ADD MODULE</h1>
 
     <label class="label">Module Title</label>
-    <input id="moduleTitle" class="input-box" placeholder="Enter module title">
+    <input id="moduleTitle" class="input-box" value="{{ module.title }}" placeholder="Enter module title">
 
     <label class="label">Module Description</label>
-    <textarea id="moduleDescription" class="input-box" style="height:80px;"></textarea>
+    <textarea id="moduleDescription" class="input-box" style="height:80px;">{{ module.description }}</textarea>
 
     <hr class="divider">
 
     <h2 class="title">LECTURES</h2>
 
-    <div id="lectureList"></div>
+    <div id="lectureList">
+
+        {% for lec in lectures %}
+        <div class="lecture-card">
+
+            <div class="lecture-header">
+                <span class="lecture-title">Lecture {{ forloop.counter }}</span>
+                <button type="button"
+                        class="delete-lecture-btn"
+                        onclick="this.closest('.lecture-card').remove()">✖</button>
+            </div>
+
+            <div class="lecture-body">
+
+                <label>Lecture Title</label>
+                <input type="text"
+                       class="lecture-title-input"
+                       value="{{ lec.title }}">
+
+                <label>Upload Video</label>
+                {% if lec.video %}
+                    <div class="text-success small mb-1">
+                             🎥 {{ lec.video.name|cut:"lectures/" }}
+                    </div>
+                {% endif %}
+                <input type="file"
+                       class="lecture-video-input"
+                       accept="video/*">
+
+                <label>Upload PDF</label>
+                {% if lec.file %}
+                    <div class="text-success small mb-1">
+                         📄 {{ lec.file.name|cut:"lectures/" }}
+                    </div>
+
+                {% endif %}
+                <input type="file"
+                       class="lecture-file-input"
+                       accept="application/pdf">
+
+            </div>
+        </div>
+        {% endfor %}
+
+    </div>
 
     <button class="add-btn" id="addLecture">+ Add Lecture</button>
 
@@ -167,7 +211,6 @@
     </div>
 
 </div>
-
 
 <script>
 

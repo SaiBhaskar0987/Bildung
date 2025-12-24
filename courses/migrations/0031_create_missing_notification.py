@@ -5,7 +5,7 @@ import django.utils.timezone
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('courses', '0021_liveclassattendance_notification'),
+        ('courses', '0030_lecture_order'),
     ]
 
     operations = [

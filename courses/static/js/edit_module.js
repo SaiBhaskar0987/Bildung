@@ -79,7 +79,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <div class="lecture-body">
 
                 <label>Lecture Title</label>
-                <input type="text" class="lecture-title-input" value="New Lecture">
+                <input type="text" class="lecture-title-input" value="">
 
                 <label>Upload Video</label>
                 <input type="file" accept="video/*" class="lecture-video-input">

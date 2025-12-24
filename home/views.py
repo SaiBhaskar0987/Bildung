@@ -4,7 +4,6 @@ from django.db.models import Count
 
 def smart_home(request):
 
-    # Step 1: Get top 4 popular courses based on title repetition
     popular_titles_qs = (
         Course.objects
         .values('title', 'category')
@@ -20,7 +19,7 @@ def smart_home(request):
         if request.user.role == "student":
             return redirect('student_dashboard')
         elif request.user.role == "instructor":
-            return redirect('instructor:instructor_dashboard')
+            return redirect('instructor_dashboard')
         elif request.user.role == "admin":
             return redirect('admin_dashboard')
 

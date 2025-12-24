@@ -22,8 +22,7 @@ from home import views as home_views
 from django.conf import settings
 from django.conf.urls.static import static
 
-from django.contrib.auth import views as auth_views    # ✅ Added for logout
-from courses import views as course_views  
+from django.contrib.auth import views as auth_views    # ✅ Added for logout 
 from users.views import logout_view            # IMPORTANT
 
 # Fallback view for the main domain

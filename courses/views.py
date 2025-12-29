@@ -6,6 +6,8 @@ from django.urls import reverse
 from django.utils.dateparse import parse_datetime, parse_date, parse_time
 from django.views.decorators.csrf import csrf_exempt
 
+
+from courses.utils import check_and_send_reminders
 from quizzes.models import Quiz, QuizResult
 from .models import Assignment, Course, CourseBlock, Enrollment, Certificate, Lecture, LectureProgress, Feedback, CourseEvent, Module, LiveClass, LectureQuestion, Notification, QuestionReply, CourseReview, LiveClassAttendance
 from users.models import InstructorProfile, LoginHistory, User
@@ -24,6 +26,7 @@ from django.contrib.auth import update_session_auth_hash
 # -------------------------------
 # Common Views
 # -------------------------------
+
 def get_instructor_average_rating(instructor):
     """
     Calculate average rating for the instructor based on CourseReview.

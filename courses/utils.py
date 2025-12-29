@@ -3,7 +3,7 @@ from datetime import timedelta
 from django.urls import reverse
 from django.utils import timezone
 from courses.models import LiveClass, CourseEvent, Enrollment
-from courses.models import Notification
+from .models import Notification
 
 def check_and_send_reminders(user):
 
@@ -13,8 +13,6 @@ def check_and_send_reminders(user):
     now = timezone.now()
     reminder_delta = timedelta(minutes=30)
     reminder_cutoff = now + reminder_delta
-
-    #  STUDENT REMINDERS
 
     if hasattr(user, "role") and user.role == "student":
 
@@ -52,7 +50,6 @@ def check_and_send_reminders(user):
                 event.reminder_sent = True
                 event.save(update_fields=["reminder_sent"])
 
-    #  INSTRUCTOR REMINDERS
 
     if hasattr(user, "role") and user.role == "instructor":
 

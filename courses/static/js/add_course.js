@@ -82,7 +82,6 @@ function enableDropZone() {
     });
 }
 
-
 function enableReorder() {
     document.querySelectorAll(".builder-card").forEach(card => {
 

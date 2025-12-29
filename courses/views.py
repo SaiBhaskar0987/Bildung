@@ -5,12 +5,13 @@ from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from django.utils.dateparse import parse_datetime, parse_date, parse_time
 from django.views.decorators.csrf import csrf_exempt
+
 from quizzes.models import Quiz, QuizResult
 from .models import Assignment, Course, CourseBlock, Enrollment, Certificate, Lecture, LectureProgress, Feedback, CourseEvent, Module, LiveClass, LectureQuestion, Notification, QuestionReply, CourseReview, LiveClassAttendance
 from users.models import InstructorProfile, LoginHistory, User
 from .forms import LectureForm, FeedbackForm, LiveClassForm, CourseReviewForm, CourseEventForm
 from users.decorators import instructor_required
-from django.db.models import Q, Count, Sum
+from django.db.models import Q, Count, Sum ,Avg
 from users.models import Profile
 from datetime import date
 from django.utils import timezone
@@ -23,6 +24,15 @@ from django.contrib.auth import update_session_auth_hash
 # -------------------------------
 # Common Views
 # -------------------------------
+def get_instructor_average_rating(instructor):
+    """
+    Calculate average rating for the instructor based on CourseReview.
+    Rating scale = 1–10.
+    Returns 0 if no reviews.
+    """
+    return CourseReview.objects.filter(
+        course__instructor=instructor
+    ).aggregate(avg=Avg('rating'))['avg'] or 0
 
 def course_list(request):
     query = request.GET.get('q')

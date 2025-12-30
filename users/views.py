@@ -568,6 +568,74 @@ def instructor_mark_all_read(request):
     return JsonResponse({"status": "ok"})
 
 
+@login_required
+def instructor_account_settings(request):
+    if request.user.role != "instructor":
+        return redirect("login")
+
+    user = request.user
+
+    profile, created = InstructorProfile.objects.get_or_create(user=user)
+
+    if request.method == 'POST':
+
+        if 'update_profile' in request.POST:
+            user.first_name = request.POST.get('first_name', user.first_name)
+            user.last_name = request.POST.get('last_name', user.last_name)
+            user.email = request.POST.get('email', user.email)
+            user.save()
+
+            profile.phone = request.POST.get('phone', profile.phone)
+            profile.about_me = request.POST.get('about_me', profile.about_me)
+            profile.professional_title = request.POST.get('professional_title', profile.professional_title)
+            profile.expertise = request.POST.get('expertise', profile.expertise)
+            exp = request.POST.get('experience')
+            profile.experience = int(exp) if exp.isdigit() else None
+            profile.gender = request.POST.get('gender', profile.gender)
+            profile.date_of_birth = request.POST.get('date_of_birth', profile.date_of_birth)
+            profile.qualification = request.POST.get('qualification', profile.qualification)
+
+            if 'profile_picture' in request.FILES:
+                profile.profile_picture = request.FILES['profile_picture']
+
+            profile.save()
+
+            messages.success(request, "Profile updated successfully!")
+            return redirect('instructor_account_settings')
+
+        elif 'change_password' in request.POST:
+            old_password = request.POST.get('old_password')
+            new_password1 = request.POST.get('new_password1')
+            new_password2 = request.POST.get('new_password2')
+
+            if not user.check_password(old_password):
+                messages.error(request, "Old password is incorrect.")
+                return redirect('instructor_account_settings')
+
+            if new_password1 != new_password2:
+                messages.error(request, "New passwords do not match.")
+                return redirect('instructor_account_settings')
+
+            if len(new_password1) < 8:
+                messages.error(request, "Password must be at least 8 characters long.")
+                return redirect('instructor_account_settings')
+
+            user.set_password(new_password1)
+            user.save()
+            update_session_auth_hash(request, user)
+
+            messages.success(request, "Password changed successfully!")
+            return redirect('instructor_account_settings')
+
+        elif 'update_notifications' in request.POST:
+            messages.success(request, "Notification preferences updated!")
+            return redirect('instructor_account_settings')
+
+    return render(request, 'instructor/instructor_account_settings.html', {
+        'user': user,
+        'profile': profile,
+    })
+
 @login_required(login_url="/auth/")
 def admin_dashboard(request):
     if not hasattr(request.user, 'role') or request.user.role != "admin":

@@ -1,0 +1,329 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Course details</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+.rating-stars {
+    display: inline-flex;
+    flex-direction: row-reverse;
+    justify-content: center;
+    gap: 0.25rem;
+}
+.rating-stars input {
+    display: none;
+}
+.rating-stars label {
+    font-size: 1.8rem;
+    color: #ddd;
+    cursor: pointer;
+}
+.rating-stars input:checked ~ label,
+.rating-stars label:hover,
+.rating-stars label:hover ~ label {
+    color: #ffc107;
+}
+</style>
+</head>
+<body class="bg-light">
+
+<!-- HEADER -->
+<div class="d-flex justify-content-between align-items-center p-3 bg-white shadow-sm">
+    <a href="{% url 'student_dashboard' %}" class="text-decoration-none text-dark">
+        <h3 class="m-0 fw-bold">Bildung</h3>
+    </a>
+
+    <div class="d-flex align-items-center gap-3">
+        <h4 class="m-0">Hello, {{ user.first_name }} {{ user.last_name }}</h4>
+
+        <div class="dropdown">
+            <button class="btn rounded-circle shadow"
+                    style="background:gray;color:white;width:45px;height:45px;"
+                    type="button" data-bs-toggle="dropdown">
+                {{ request.user.username|first|upper }}
+            </button>
+
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="{% url 'profile_view' %}">Profile</a></li>
+                <li><a class="dropdown-item" href="{% url 'student:my_courses' %}">My Courses</a></li>
+                <li><a class="dropdown-item" href="{% url 'student:student_upcoming_classes' %}">My Schedules</a></li>
+                <li><a class="dropdown-item" href="{% url 'student_my_activity' %}">My activity</a></li>
+                <li><a class="dropdown-item" href="{% url 'student:my_certificates' %}">My Certificates</a></li>
+                <li><a class="dropdown-item" href="#">Notifications</a></li>
+                <li><a class="dropdown-item" href="#">Payments</a></li>
+                <li><a class="dropdown-item" href="#">Help and Support</a></li>
+                <li><a class="dropdown-item" href="#">Feedback</a></li>
+                <li><a class="dropdown-item" href="{% url 'account_settings' %}">Account Settings</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item text-danger" href="{% url 'logout_view' %}">Logout</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+
+<div class="container py-5">
+
+<!-- COURSE HEADER -->
+<h2 class="fw-bold mb-4 text-primary">{{ course.title }}</h2>
+
+<!-- COURSE OVERVIEW -->
+<div class="card shadow-sm border-0 mb-4 p-4 rounded-4">
+    <h5 class="mb-3 text-secondary">Course Overview</h5>
+
+    <div class="row">
+        <div class="col-md-8">
+            <p><strong>Instructor:</strong> {{ course.instructor.get_full_name|default:course.instructor.username }}</p>
+            <p><strong>Description:</strong></p>
+            <p class="text-muted">{{ course.description }}</p>
+        </div>
+
+        <div class="col-md-4 text-center">
+            {% if course.thumbnail %}
+                <img src="{{ course.thumbnail.url }}" class="img-fluid rounded-4 shadow-sm" alt="{{ course.title }}">
+            {% else %}
+                <img src="{% static 'images/default-course.png' %}" class="img-fluid rounded-4 shadow-sm" alt="No Image">
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+
+<!-- PROGRESS CARD -->
+<div class="card shadow-sm border-0 mb-4 p-4 rounded-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <h5 class="mb-0 text-secondary fw-semibold">Your Progress</h5>
+
+        <span class="text-muted small">
+            {{ completed }} / {{ total }} lectures ({{ progress_percent }}%)
+        </span>
+    </div>
+
+    <div class="progress" style="height: 15px; border-radius: 10px; overflow: hidden;">
+        <div class="progress-bar bg-success progress-bar-striped progress-bar-animated"
+             style="width: {{ progress_percent }}%;">
+            {{ progress_percent }}%
+        </div>
+    </div>
+
+    {% if progress_percent >= 80 %}
+    <div class="mt-4 d-flex justify-content-center gap-3 flex-wrap">
+
+        {% if user_review %}
+        <button class="btn btn-warning btn-lg shadow-sm"
+                type="button"
+                data-bs-toggle="modal"
+                data-bs-target="#leaveReviewModal">
+            ✏ Edit Your Review
+        </button>
+        {% else %}
+        <button class="btn btn-outline-primary btn-lg shadow-sm"
+                type="button"
+                data-bs-toggle="modal"
+                data-bs-target="#leaveReviewModal">
+            ⭐ Leave a Review
+        </button>
+        {% endif %}
+
+        {% if progress_percent == 100 %}
+        <a href="{% url 'student:get_certificate' course.id %}"
+           class="btn btn-success btn-lg shadow-sm">
+            🎓 Get Certificate
+        </a>
+        {% endif %}
+
+    </div>
+    {% endif %}
+</div>
+
+
+<!-- COURSE CONTENT -->
+{% for item in ordered_items %}
+
+  {% if item.type == "module" %}
+    <div class="module mb-4">
+
+      <h4 class="fw-bold text-primary mb-2">
+        {{ item.title }}: {{ item.obj.title }}
+
+        {% if item.unlocked %}
+          <span class="badge bg-success ms-2">✔ Unlocked</span>
+        {% else %}
+          <span class="badge bg-danger ms-2">🔒 Locked</span>
+        {% endif %}
+      </h4>
+
+      <p class="text-muted">{{ item.obj.description|default:"No description." }}</p>
+
+      {% if item.unlocked %}
+      <div class="row g-3">
+        {% for lecture in item.obj.lectures.all %}
+        <div class="col-md-3 col-sm-6">
+          <div class="card h-100 shadow-sm rounded-4">
+
+            {% if lecture.video %}
+            <video width="100%" controls class="rounded-top">
+              <source src="{{ lecture.video.url }}" type="video/mp4">
+            </video>
+            {% endif %}
+
+            <div class="card-body d-flex flex-column">
+              <h6 class="fw-bold">{{ lecture.title }}</h6>
+
+              <div class="mt-auto text-center">
+                {% if lecture.id in progress_map %}
+                <a href="{% url 'student:undo_lecture_completion' lecture.id %}"
+                   class="btn btn-outline-danger btn-sm w-100 mb-2">
+                   ↩ Undo Completion
+                </a>
+                {% else %}
+                <a href="{% url 'student:mark_lecture_complete' lecture.id %}"
+                   class="btn btn-outline-primary btn-sm w-100 mb-2">
+                   ✔ Mark Complete
+                </a>
+                {% endif %}
+
+                <button class="btn btn-info btn-sm w-100"
+                        data-bs-toggle="modal"
+                        data-bs-target="#askQuestionModal"
+                        data-lecture-id="{{ lecture.id }}">
+                  💬 Ask a Question
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+    </div>
+  {% endif %}
+
+  {% if item.type == "quiz" %}
+    <div class="card shadow-sm rounded-4 mb-4 p-4 border-warning">
+      <h5 class="fw-bold text-warning mb-0">📝 {{ item.title }}</h5>
+    </div>
+  {% endif %}
+
+  {% if item.type == "assignment" %}
+    <div class="card shadow-sm rounded-4 mb-4 p-4 border-info">
+      <h5 class="fw-bold text-info mb-0">📂 {{ item.title }}</h5>
+    </div>
+  {% endif %}
+
+  {% if item.type == "live" %}
+    <div class="card shadow-sm rounded-4 mb-4 p-4 border-success">
+      <h5 class="fw-bold text-success mb-0">🎥 {{ item.title }}</h5>
+    </div>
+  {% endif %}
+
+{% empty %}
+  <p class="text-muted">No course content available.</p>
+{% endfor %}
+
+
+<!-- ASK QUESTIONS -->
+<div class="modal fade" id="askQuestionModal" tabindex="-1">
+  <div class="modal-dialog">
+    <form method="POST" id="askQuestionForm" class="modal-content">
+      {% csrf_token %}
+      <div class="modal-header">
+        <h5 class="modal-title">Ask a Question</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <textarea name="question" class="form-control" rows="4" placeholder="Type your question..." required></textarea>
+      </div>
+
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-primary">Submit Question</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+<!-- LEAVE REVIEW / EDIT REVIEW  -->
+<div class="modal fade" id="leaveReviewModal" tabindex="-1">
+  <div class="modal-dialog">
+    <form method="POST" action="{% url 'student:leave_review' course.id %}" class="modal-content">
+      {% csrf_token %}
+      <div class="modal-header">
+        <h5 class="modal-title">
+            {% if user_review %}Edit Your Review{% else %}Leave a Review{% endif %}
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+
+        <div class="mb-3 text-center">
+          <span class="fw-semibold d-block mb-2">Your Rating</span>
+
+          <div class="rating-stars">
+              {% for i in "54321"|make_list %}
+              <input type="radio"
+                     id="star{{ i }}"
+                     name="rating"
+                     value="{{ i }}"
+                     {% if user_review and user_review.rating == i|add:"0" %}checked{% endif %}
+                     {% if not user_review and i == "5" %}required{% endif %}>
+              <label for="star{{ i }}">★</label>
+              {% endfor %}
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Your feedback</label>
+          <textarea name="comment" class="form-control" rows="4" required>
+{% if user_review %}{{ user_review.comment }}{% endif %}
+</textarea>
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="submit" class="btn btn-primary">
+            {% if user_review %}Update Review{% else %}Submit Review{% endif %}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+    const modal = document.getElementById("askQuestionModal");
+    const form = document.getElementById("askQuestionForm");
+
+    modal.addEventListener("show.bs.modal", function (event) {
+        const btn = event.relatedTarget;
+        const lectureId = btn.getAttribute("data-lecture-id");
+        form.action = `/student/lecture/${lectureId}/ask/`;
+    });
+
+});
+</script>
+
+
+<footer class="text-center mt-5">
+    <p>&copy; 2025 Bildung. All rights reserved.</p>
+</footer>
+
+</body>
+</html>

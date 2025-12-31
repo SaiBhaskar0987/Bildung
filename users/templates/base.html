@@ -4,11 +4,10 @@
     <meta charset="UTF-8">
     <title>Bildung</title>
 
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
-    <!-- Google Fonts -->
+
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
@@ -17,7 +16,6 @@
             background-color: #f8f9fc;
         }
 
-        /* Navigation */
         nav {
             background-color: #fff;
             padding: 0.75rem 1rem;
@@ -35,7 +33,6 @@
             text-decoration: underline;
         }
 
-        /* Footer placeholder (optional) */
         footer {
             text-align: center;
             padding: 2rem 0;
@@ -45,12 +42,22 @@
 </head>
 <body>
 
-    <!-- Navigation -->
     <nav class="container">
         <a href="/">Home</a>
-        <a href="/student/dashboard/">Student Dashboard</a>
-        <a href="/instructor/dashboard/">Instructor Dashboard</a>
-        <a href="/logout/">Logout</a>
+
+{% if request.user.is_authenticated and request.user.role == "student" %}
+    <a href="{% url 'student_dashboard' %}">Student Dashboard</a>
+{% else %}
+    <a href="{% url 'student_login' %}">Student Dashboard</a>
+{% endif %}
+        <!-- Instructor Dashboard Link -->
+{% if request.user.is_authenticated and request.user.role == "instructor" %}
+    <a href="{% url 'instructor_dashboard' %}">Instructor Dashboard</a>
+{% else %}
+    <a href="{% url 'instructor_login' %}">Instructor Dashboard</a>
+{% endif %}
+
+        <a href="{% url 'logout_view' %}">Logout</a>
     </nav>
 
     <!-- Main Content -->

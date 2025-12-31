@@ -19,24 +19,38 @@ from django.urls import path, include
 from django.http import HttpResponse
 from home import views as home_views
 
+from django.conf import settings
+from django.conf.urls.static import static
+
+from django.contrib.auth import views as auth_views    # ✅ Added for logout 
+from users.views import logout_view            # IMPORTANT
+
 # Fallback view for the main domain
 def home(request):
     return HttpResponse("Main Site - Bildung")
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("forums/", include("forums.urls")),
     path("chat/", include("chat.urls")),
 
-    # Main site root
-    path('', home_views.guest_home, name='guest_home'),
+    # Home Page → Use course_views.smart_home instead of home_views.smart_home
+    path('', home_views.smart_home, name='smart_home'),
 
-    # Include all user-related routes (signup, login, dashboards)
+    # User routes
     path("", include("users.urls")),
-    path('', include('courses.urls')),
+
+    path('accounts/logout/', logout_view, name='logout'),
+    path('accounts/', include('django.contrib.auth.urls')),
+    
+    path('courses/', include(('courses.urls', 'courses'), namespace='courses'))
 ]
 
 SUBDOMAIN_URLCONFS = {
     'instructor': 'courses.instructor_urls',
-    'student': 'courses.student_urls',  # you'll create later
+    'student': 'courses.student_urls',
 }
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

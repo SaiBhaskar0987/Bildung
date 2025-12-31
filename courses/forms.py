@@ -1,29 +1,62 @@
 from django import forms
 from django.utils.text import slugify
-from .models import Course, Lecture, Feedback, Enrollment
+from .models import Course, Lecture, Feedback, Enrollment, Module, LiveClass, CourseEvent, CourseReview
+from django.forms import inlineformset_factory
 
 
+# --------------------------
+# Course Form (with category)
+# --------------------------
 class CourseForm(forms.ModelForm):
     class Meta:
         model = Course
-        fields = ['title', 'slug', 'description', 'price', 'cover_image']
-        widgets = {
-            'description': forms.Textarea(attrs={'rows': 4})
-        }
-
-    def clean_slug(self):
-        slug = self.cleaned_data.get('slug') or slugify(self.cleaned_data.get('title', ''))
-        if Course.objects.filter(slug=slug).exists():
-            raise forms.ValidationError("This slug is already taken. Try another one.")
-        return slug
+        fields = ['title', 'description', 'price', 'category']  # Added 'category'
+        widgets = {'description': forms.Textarea(attrs={'rows': 4})}
 
 
+# --------------------------
+# Module Form
+# --------------------------
+class ModuleForm(forms.ModelForm):
+    class Meta:
+        model = Module
+        fields = ['title', 'description']
+
+
+# --------------------------
+# Lecture Form
+# --------------------------
 class LectureForm(forms.ModelForm):
     class Meta:
         model = Lecture
-        fields = ['title', 'content', 'video', 'file']
+        fields = ['title', 'video', 'file']
 
 
+# --------------------------
+# Inline Formsets
+# --------------------------
+
+ModuleFormSet = inlineformset_factory(
+    parent_model=Course,
+    model=Module,
+    form=ModuleForm,
+    fk_name='course',
+    extra=1,
+    can_delete=True
+)
+
+LectureFormSet = inlineformset_factory(
+    parent_model=Module,
+    model=Lecture,
+    form=LectureForm,
+    extra=1,
+    can_delete=True
+)
+
+
+# --------------------------
+# Feedback Form
+# --------------------------
 class FeedbackForm(forms.ModelForm):
     class Meta:
         model = Feedback
@@ -33,9 +66,74 @@ class FeedbackForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        course = kwargs.pop('course', None)  # passed from view
+        course = kwargs.pop('course', None)  
         super().__init__(*args, **kwargs)
         if course:
-            # restrict feedback to enrolled students
             enrolled_students = Enrollment.objects.filter(course=course).values_list("student", flat=True)
             self.fields['student'].queryset = course.students.filter(id__in=enrolled_students)
+
+class CourseEventForm(forms.ModelForm):
+
+    start_time = forms.DateTimeField(
+        widget=forms.DateTimeInput(attrs={'type': 'datetime-local'})
+    )
+
+    end_time = forms.DateTimeField(
+        widget=forms.DateTimeInput(attrs={'type': 'datetime-local'})
+    )
+
+    class Meta:
+        model = CourseEvent
+        fields = ['course', 'title', 'description', 'start_time', 'end_time']
+
+
+class LiveClassForm(forms.ModelForm):
+    class Meta:
+        model = LiveClass
+        fields = ['course', 'topic', 'date', 'time', 'meeting_link']
+        widgets = {
+            'date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'time': forms.TimeInput(attrs={'type': 'time', 'class': 'form-control'}),
+            'topic': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Topic Name'}),
+            'course': forms.Select(attrs={'class': 'form-select'}),
+            'meeting_link': forms.TextInput(attrs={'class': 'form-control'})
+        }
+    def clean(self):
+ 
+        cleaned_data = super().clean()
+        course = cleaned_data.get('course')
+        date = cleaned_data.get('date')
+        time = cleaned_data.get('time')
+
+        if not (course and date and time):
+            return cleaned_data
+
+        enrolled_students = Enrollment.objects.filter(course=course).values_list('student_id', flat=True)
+
+        if not enrolled_students.exists():
+            return cleaned_data  
+
+
+        conflicting_classes = (
+            LiveClass.objects
+            .filter(date=date, time=time)
+            .exclude(course=course)  
+            .filter(course__enrollments__student_id__in=enrolled_students)
+            .distinct()
+        )
+
+        if conflicting_classes.exists():
+            conflict = conflicting_classes.first()
+            instructor_name = conflict.instructor.get_full_name() or conflict.instructor.username
+            raise forms.ValidationError(
+                f"⚠️ Scheduling conflict! already "
+                f"'{conflict.course.title}' course by {instructor_name} was scheduled at this time."
+            )
+
+        return cleaned_data
+
+
+class CourseReviewForm(forms.ModelForm):
+    class Meta:
+        model = CourseReview
+        fields = ["rating", "comment"]

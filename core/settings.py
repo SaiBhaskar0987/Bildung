@@ -5,16 +5,25 @@ Django settings for core project.
 from pathlib import Path
 import os
 
+# ---------------------------------------------------------------------
+# Base
+# ---------------------------------------------------------------------
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'django-insecure-gu^1pt(^9a3gv=gw2jtq@q=q0r!%g1$ia+)msfttf$75dz54dt'
+
 DEBUG = True
+
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+
 
 # ---------------------------------------------------------------------
 # Applications
 # ---------------------------------------------------------------------
 INSTALLED_APPS = [
     'core.apps.CoreConfig',
+
+    # Django core
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -23,7 +32,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.sites',
 
-    # Your apps
+    # Local apps
     'users',
     'courses',
     'quizzes',
@@ -33,34 +42,36 @@ INSTALLED_APPS = [
 
     # Third-party
     'channels',
-    'subdomains',
 
-    # Added for Google Login
+    # Google Login
     'social_django',
 ]
+
 
 # ---------------------------------------------------------------------
 # Middleware
 # ---------------------------------------------------------------------
 MIDDLEWARE = [
-    "subdomains.middleware.SubdomainURLRoutingMiddleware",  # MUST be first
-    "django.middleware.security.SecurityMiddleware",
-    "django.contrib.sessions.middleware.SessionMiddleware",
-    "django.middleware.common.CommonMiddleware",
-    "django.middleware.csrf.CsrfViewMiddleware",
-    "django.contrib.auth.middleware.AuthenticationMiddleware",
-    "courses.middleware.ReminderMiddleware",
-    "django.contrib.messages.middleware.MessageMiddleware",
-    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'courses.middleware.ReminderMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+
 # ---------------------------------------------------------------------
-# Templates
+# URL & Templates
 # ---------------------------------------------------------------------
+ROOT_URLCONF = 'core.urls'
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -69,13 +80,17 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
 
-                # Added for Google Login
+                # Google Login
                 'social_django.context_processors.backends',
                 'social_django.context_processors.login_redirect',
             ],
         },
     },
 ]
+
+WSGI_APPLICATION = 'core.wsgi.application'
+ASGI_APPLICATION = 'core.asgi.application'
+
 
 # ---------------------------------------------------------------------
 # Database
@@ -94,9 +109,25 @@ DATABASES = {
     }
 }
 
+
+# ---------------------------------------------------------------------
+# Channels (Redis)
+# ---------------------------------------------------------------------
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
+        },
+    }
+}
+
+
 # ---------------------------------------------------------------------
 # Authentication
 # ---------------------------------------------------------------------
+AUTH_USER_MODEL = 'users.User'
+
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -104,42 +135,26 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
-AUTH_USER_MODEL = 'users.User'
-
 LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/accounts/post-login/'
 LOGOUT_REDIRECT_URL = '/'
 
-# Added for Google Login
 AUTHENTICATION_BACKENDS = (
-    'social_core.backends.google.GoogleOAuth2',  # Google OAuth
-    'django.contrib.auth.backends.ModelBackend',  # Default
+    'social_core.backends.google.GoogleOAuth2',
+    'django.contrib.auth.backends.ModelBackend',
 )
 
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '877092908953-h3cdlsagid0gijas8nr9kki2l90rg1c5.apps.googleusercontent.com' # Add your key  here
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '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'  # Add your client secret here
+# Google OAuth
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = ''
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = ''
 SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = ['email', 'profile']
 SOCIAL_AUTH_GOOGLE_OAUTH2_AUTH_EXTRA_ARGUMENTS = {
     'prompt': 'select_account',
     'access_type': 'offline',
 }
 
-LOGIN_REDIRECT_URL = '/google-redirect/'  # After Google login redirect
-LOGOUT_REDIRECT_URL = '/'
+SITE_ID = 1
 
-# ---------------------------------------------------------------------
-# Subdomains
-# ---------------------------------------------------------------------
-ROOT_URLCONF = "core.urls"
-
-SUBDOMAIN_URLCONFS = {
-    None: "core.urls",  # main domain
-    "admin": "users.admin_urls",
-    "student": "users.student_urls",
-    "instructor": "users.instructor_urls",
-}
-
-PARENT_HOST = "lvh.me"   # Needed for django-subdomains
-ALLOWED_HOSTS = ['.lvh.me', 'lvh.me', '127.0.0.1', 'localhost']
 
 # ---------------------------------------------------------------------
 # Static & Media
@@ -147,16 +162,9 @@ ALLOWED_HOSTS = ['.lvh.me', 'lvh.me', '127.0.0.1', 'localhost']
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-MEDIA_URL = "/media/"
-MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
-# ---------------------------------------------------------------------
-# Channels
-# ---------------------------------------------------------------------
-ASGI_APPLICATION = "core.asgi.application"
-CHANNEL_LAYERS = {
-    "default": {"BACKEND": "channels.layers.InMemoryChannelLayer"},
-}
 
 # ---------------------------------------------------------------------
 # Internationalization
@@ -166,23 +174,15 @@ TIME_ZONE = 'Asia/Kolkata'
 USE_I18N = True
 USE_TZ = True
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-LOGIN_REDIRECT_URL = '/accounts/post-login/'
-SITE_ID = 1
 
 # ---------------------------------------------------------------------
-# Email Configuration - Temporary Development Solution
+# Email (Development)
 # ---------------------------------------------------------------------
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 DEFAULT_FROM_EMAIL = 'Bildung Platform <noreply@bildung.com>'
 
+
 # ---------------------------------------------------------------------
-# Production Email Configuration (COMMENTED OUT FOR NOW)
+# Default PK
 # ---------------------------------------------------------------------
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# EMAIL_HOST = 'smtp.gmail.com'
-# EMAIL_PORT = 587
-# EMAIL_USE_TLS = True
-# EMAIL_HOST_USER = 'your-email@gmail.com'  # Replace with your Gmail
-# EMAIL_HOST_PASSWORD = 'your-app-password'  # Replace with Gmail App Password
-# DEFAULT_FROM_EMAIL = 'Bildung Platform <your-email@gmail.com>'
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

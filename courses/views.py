@@ -1557,7 +1557,7 @@ def instructor_account_settings(request):
             messages.success(request, "Notification preferences updated!")
             return redirect('instructor:account_settings')
 
-    return render(request, 'courses/instructor/instructor_account_settings.html', {
+    return render(request, 'instructor/instructor_account_settings.html', {
         'user': user,
         'profile': profile,
     })

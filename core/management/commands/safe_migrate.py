@@ -5,7 +5,7 @@ from django.db.migrations.executor import MigrationExecutor
 
 
 class Command(BaseCommand):
-    help = "Safely apply migrations (fake initial only when required)"
+    help = "Safely apply migrations"
 
     def handle(self, *args, **kwargs):
 
@@ -26,22 +26,35 @@ class Command(BaseCommand):
 
         existing_tables = set(connection.introspection.table_names())
 
-        fake_required = False
-        real_required = False
+        fake_migrations = []
+        real_migrations = []
 
         for migration, _ in plan:
-            if migration.initial:
-                for op in migration.operations:
-                    if hasattr(op, "name") and op.name.lower() in existing_tables:
-                        fake_required = True
+            needs_fake = False
+
+            for op in migration.operations:
+                if hasattr(op, "name"):
+                    table_name = op.name.lower()
+                    if table_name in existing_tables:
+                        needs_fake = True
+
+            if needs_fake:
+                fake_migrations.append(migration)
             else:
-                real_required = True
+                real_migrations.append(migration)
 
-        if fake_required:
-            self.stdout.write("🧩 Faking initial migrations (tables already exist)...")
-            call_command("migrate", fake_initial=True)
+        for migration in fake_migrations:
+            self.stdout.write(
+                f"🧩 Faking migration: {migration.app_label}.{migration.name}"
+            )
+            call_command(
+                "migrate",
+                migration.app_label,
+                migration.name,
+                fake=True,
+            )
 
-        if real_required:
+        if real_migrations:
             self.stdout.write("🚀 Applying schema changes...")
             call_command("migrate")
 

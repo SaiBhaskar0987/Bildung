@@ -3,33 +3,130 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Student Profile</title>
+<title>My Profile</title>
+ 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
+ 
+<style>
+/* ===== MODERN PROFILE STYLES ===== */
+body {
+    background: linear-gradient(135deg, #eef2ff, #f8f9ff);
+}
+ 
+/* Profile Card */
+.profile-card {
+    max-width: 650px;
+    margin: auto;
+    border-radius: 22px;
+    background: rgba(255,255,255,0.95);
+    box-shadow: 0 25px 60px rgba(0,0,0,0.12);
+    padding: 35px;
+    position: relative;
+}
+ 
+/* View Profile Image */
+.profile-avatar-view {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 5px solid #4f46e5;
+    background: #f1f1f1;
+}
+ 
+/* Edit Profile Image */
+.profile-avatar-edit {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px dashed #16a34a;
+    background: #f1f1f1;
+}
+ 
+/* Labels */
+.profile-label {
+    font-weight: 600;
+    color: #555;
+    min-width: 120px;
+    display: inline-block;
+}
+ 
+/* Values */
+.profile-value {
+    color: #333;
+}
+ 
+/* Inputs */
+.form-control, select, textarea {
+    border-radius: 12px !important;
+}
+ 
+/* Buttons */
+.btn-save {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    color: #fff;
+    border-radius: 12px;
+    padding: 10px 28px;
+    border: none;
+}
+ 
+.btn-save:hover {
+    opacity: 0.9;
+}
+ 
+.btn-cancel {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: #fff;
+    border-radius: 12px;
+    padding: 10px 28px;
+    border: none;
+}
+ 
+.btn-cancel:hover {
+    opacity: 0.9;
+}
+ 
+.btn-edit {
+    border-radius: 12px;
+    padding: 10px 30px;
+}
+ 
+/* Section Divider */
+.profile-divider {
+    height: 1px;
+    background: linear-gradient(to right, transparent, #dbe3ff, transparent);
+    margin: 25px 0;
+}
+</style>
 </head>
-<body class="bg-light">
-
+ 
+<body>
+ 
+<!-- ===== HEADER ===== -->
 <div class="d-flex justify-content-between align-items-center p-3 bg-white shadow-sm">
     <a href="{% url 'student_dashboard' %}" class="text-decoration-none text-dark">
         <h3 class="m-0 fw-bold">Bildung</h3>
     </a>
-
+ 
     <div class="d-flex align-items-center gap-3">
-        <h4 class="m-0">Hello, {{ user.first_name }} {{ user.last_name }} </h4>
+        <h5 class="m-0">Hello, {{ user.first_name }} {{ user.last_name }}</h5>
+ 
         <div class="dropdown">
-            <button class="btn rounded-circle shadow" style="background:gray;color:white;width:45px;height:45px;" type="button" data-bs-toggle="dropdown">
-                {{ request.user.username|first|upper }}
+            <button class="btn p-0 border-0 bg-transparent" data-bs-toggle="dropdown">
+                {% if profile.profile_picture %}
+                    <img src="{{ profile.profile_picture.url }}"
+                         class="rounded-circle shadow"
+                         style="width:45px;height:45px;object-fit:cover;border:2px solid #4f46e5;">
+                {% else %}
+                    <div class="rounded-circle shadow d-flex align-items-center justify-content-center"
+                         style="background:#6b7280;color:white;width:45px;height:45px;">
+                        {{ request.user.username|first|upper }}
+                    </div>
+                {% endif %}
             </button>
             <ul class="dropdown-menu dropdown-menu-end">
                 <li><a class="dropdown-item" href="{% url 'profile_view' %}">Profile</a></li>
-                <li><a class="dropdown-item" href="{% url 'student:my_courses' %}">My Courses</a></li>
-                <li><a class="dropdown-item" href="{% url 'student_my_activity' %}">My activity</a></li>
-                <li><a class="dropdown-item" href="{% url 'student:student_upcoming_classes' %}">My_schedules</a></li>
-                <li><a class="dropdown-item" href="{% url 'student:my_certificates' %}">My Certificates</a></li>
-                <li><a class="dropdown-item" href="#">Notifications</a></li>
-                <li><a class="dropdown-item" href="#">Payments</a></li>
-                <li><a class="dropdown-item" href="#">Help and Support</a></li>
-                
                 <li><a class="dropdown-item" href="{% url 'account_settings' %}">Account Settings</a></li>
                 <li><hr class="dropdown-divider"></li>
                 <li><a class="dropdown-item text-danger" href="{% url 'logout_view' %}">Logout</a></li>
@@ -37,122 +134,135 @@
         </div>
     </div>
 </div>
-
+ 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-<div class="container mt-4">
-    
-        <h2 class="mb-4 text-center">
-    {% if is_editing %}
-        ✏️ Edit My Profile
+ 
+<!-- ===== PROFILE SECTION ===== -->
+<div class="container mt-5">
+ 
+<h3 class="text-center mb-4">
+{% if is_editing %} ✏️ Edit Profile {% else %} 👤 My Profile {% endif %}
+</h3>
+ 
+<form method="post" {% if is_editing %}enctype="multipart/form-data"{% endif %}>
+{% csrf_token %}
+ 
+<div class="profile-card">
+ 
+{% if is_editing %}
+ 
+<!-- ===== EDIT PROFILE IMAGE ===== -->
+<div class="text-center mb-4">
+    {% if profile.profile_picture %}
+        <img src="{{ profile.profile_picture.url }}" class="profile-avatar-edit">
     {% else %}
-        {% if is_instructor_view %}
-            👤 Student Profile Details
-        {% else %}
-            👤 My Profile Details
-        {% endif %}
+        <img src="https://via.placeholder.com/150?text=Edit+Photo" class="profile-avatar-edit">
     {% endif %}
-</h2>
-
-
-        <form method="post" {% if is_editing %}enctype="multipart/form-data"{% endif %}>
-            {% csrf_token %}
-
-            <div class="card-body">
-
-                <h4 class="border-bottom pb-2 mb-3 text-primary">Account Information</h4>
-
-                {% if is_editing %}
-
-                    <div class="mb-3">
-                        <label class="form-label">First Name</label>
-                        {{ user_form.first_name }}
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Last Name</label>
-                        {{ user_form.last_name }}
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Email</label>
-                        {{ user_form.email }}
-                    </div>
-
-                {% else %}
-                    <p><strong>First Name:</strong> {{ profile.user.first_name|default:"N/A" }}</p>
-                    <p><strong>Last Name:</strong> {{ profile.user.last_name|default:"N/A" }}</p>
-                    <p><strong>Email:</strong> {{ profile.user.email }}</p>
-                {% endif %}
-
-                <h4 class="border-bottom pb-2 mt-4 mb-3 text-primary">Personal Profile</h4>
-
-                {% if is_editing %}
-
-                    <div class="mb-3">
-                        <label class="form-label">Phone</label>
-                        {{ profile_form.phone }}
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Gender</label>
-                        {{ profile_form.gender }}
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Date of Birth</label>
-                        {{ profile_form.date_of_birth }}
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Qualification</label>
-                        {{ profile_form.qualification }}
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">About Me</label>
-                        {{ profile_form.about_me }}
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Resume (PDF)</label>
-                        {{ profile_form.resume }}
-                    </div>
-
-                {% else %}
-                    <p><strong>Phone:</strong> {{ profile.phone|default:"N/A" }}</p>
-                    <p><strong>Gender:</strong> {{ profile.get_gender_display|default:"N/A" }}</p>
-                    <p><strong>Date of Birth:</strong> {{ profile.date_of_birth|default:"N/A" }}</p>
-                    <p><strong>Qualification:</strong> {{ profile.qualification|default:"N/A" }}</p>
-                    <p><strong>About Me:</strong> {{ profile.about_me|default:"N/A" }}</p>
-                    <p><strong>Resume:</strong>
-                        {% if profile.resume %}
-                            <a href="{{ profile.resume.url }}" target="_blank" class="btn btn-sm btn-outline-success">View Resume</a>
-                        {% else %} N/A {% endif %}
-                    </p>
-                {% endif %}
-
-            </div>
-
-            <div class="mt-4 d-flex justify-content-between">
-                {% if is_editing %}
-                    <button type="submit" class="btn btn-success btn-lg">💾 Save Changes</button>
-                    <a href="{% url 'profile_view' %}" class="btn btn-warning btn-lg">❌ Cancel</a>
-                {% else %}
-                    {% if not is_instructor_view %}
-                     <div class="text-end mb-3">
-                       <a href="{% url 'profile_edit' %}" class="btn btn-primary">Edit Profile</a>
-                     </div>
-                    {% endif %}
-
-                {% endif %}
-            </div>
-
-        </form>
+    <br>
+    <label class="btn btn-outline-success btn-sm mt-3">
+        Change Photo
+        <input type="file" name="profile_picture" hidden>
+    </label>
+</div>
+ 
+<div class="row">
+    <div class="col-md-6 mb-3">
+        <label>First Name</label>
+        {{ user_form.first_name }}
+    </div>
+    <div class="col-md-6 mb-3">
+        <label>Last Name</label>
+        {{ user_form.last_name }}
     </div>
 </div>
-
-
+ 
+<div class="mb-3">
+    <label>Email</label>
+    {{ user_form.email }}
+</div>
+ 
+<div class="mb-3">
+    <label>Phone</label>
+    {{ profile_form.phone }}
+</div>
+ 
+<div class="mb-3">
+    <label>Gender</label>
+    {{ profile_form.gender }}
+</div>
+ 
+<div class="mb-3">
+    <label>Date of Birth</label>
+    {{ profile_form.date_of_birth }}
+</div>
+ 
+<div class="mb-3">
+    <label>Qualification</label>
+    {{ profile_form.qualification }}
+</div>
+ 
+<div class="mb-3">
+    <label>About Me</label>
+    {{ profile_form.about_me }}
+</div>
+ 
+<div class="mb-3">
+    <label>Resume (PDF)</label>
+    {{ profile_form.resume }}
+</div>
+ 
+{% else %}
+ 
+<!-- ===== VIEW PROFILE IMAGE ===== -->
+<div class="text-center mb-4">
+    {% if profile.profile_picture %}
+        <img src="{{ profile.profile_picture.url }}" class="profile-avatar-view">
+    {% else %}
+        <img src="https://via.placeholder.com/120?text=Profile" class="profile-avatar-view">
+    {% endif %}
+</div>
+ 
+<p><span class="profile-label">Name:</span>
+<span class="profile-value">{{ profile.user.first_name }} {{ profile.user.last_name }}</span></p>
+ 
+<p><span class="profile-label">Email:</span>
+<span class="profile-value">{{ profile.user.email }}</span></p>
+ 
+<p><span class="profile-label">Phone:</span>
+<span class="profile-value">{{ profile.phone|default:"-" }}</span></p>
+ 
+<p><span class="profile-label">Gender:</span>
+<span class="profile-value">{{ profile.get_gender_display|default:"-" }}</span></p>
+ 
+<p><span class="profile-label">DOB:</span>
+<span class="profile-value">{{ profile.date_of_birth|default:"-" }}</span></p>
+ 
+<p><span class="profile-label">Qualification:</span>
+<span class="profile-value">{{ profile.qualification|default:"-" }}</span></p>
+ 
+<p><span class="profile-label">About:</span>
+<span class="profile-value">{{ profile.about_me|default:"-" }}</span></p>
+ 
+{% if profile.resume %}
+<a href="{{ profile.resume.url }}" target="_blank" class="btn btn-outline-success btn-sm mt-2">View Resume</a>
+{% endif %}
+ 
+{% endif %}
+ 
+<div class="profile-divider"></div>
+ 
+<div class="d-flex justify-content-between">
+{% if is_editing %}
+    <button type="submit" class="btn-save">Save Changes</button>
+    <a href="{% url 'profile_view' %}" class="btn-cancel">Cancel</a>
+{% else %}
+    <a href="{% url 'profile_edit' %}" class="btn btn-primary btn-edit">Edit Profile</a>
+{% endif %}
+</div>
+ 
+</div>
+</form>
+</div>
+ 
 </body>
 </html>
-

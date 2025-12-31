@@ -99,8 +99,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'bildung_db',
-        'USER': 'root',
-        'PASSWORD': 'sindhu',
+        'USER': 'root', # change with your MYSQL username
+        'PASSWORD': '00000', # change with your MYSQL password
         'HOST': 'localhost',
         'PORT': '3306',
         'OPTIONS': {

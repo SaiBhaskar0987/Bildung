@@ -1,51 +1,42 @@
 Step 0: Sync the Repository
-
-Ensure your local repository is synced with the develop branch.
+    - Ensure your local repository is synced with the develop branch.
 
 Step 1: Clone the Repository
-git clone https://github.com/SaiBhaskar0987/Bildung.git
+    - git clone https://github.com/SaiBhaskar0987/Bildung.git
 
 Step 2: Navigate to the Bildung Folder
-cd Bildung
+    - cd Bildung
+    Note :✔️ Ensure pyproject.toml exists in this directory.
 
-
-✔️ Ensure pyproject.toml exists in this directory.
-
-Step 3: Switch to the develop Branch
-git checkout develop
-git branch
+Step 3: Switch to the main Branch
+    - git checkout main
+    - git branch
 
 Step 4: Create Your Own Branch
-git checkout -b <your-branch-name>
+    - git checkout -b <your-branch-name>
 
 Step 5: Create a Virtual Environment
+    (Open VS Code → open the Bildung folder)
+        - python -m venv .uvenu
 
-(Open VS Code → open the Bildung folder)
-
-python -m venv .uvenu
-
-
-.uvenu is the virtual environment name.
-You may choose a different name if required.
+{.uvenu is the virtual environment name. You may choose a different name if required.}
 
 Step 6: Activate the Virtual Environment
-Git Bash
-source .uvenu/Scripts/activate
+        Git Bash
+        - source .uvenu/Scripts/activate
 
-PowerShell (VS Code Terminal)
-.uvenu\Scripts\Activate.ps1
+        PowerShell (VS Code Terminal)
+        - .uvenu\Scripts\Activate.ps1
 
 Step 7: Install UV Inside the Virtual Environment
-pip install uv
+    - pip install uv
 
 
-Verify installation:
+Step 8: Verify installation:
+    - pip list
 
-pip list
-
-Step 8: Install Dependencies from pyproject.toml
-
-✅ Recommended
+Step 9: Install Dependencies from pyproject.toml
+    ✅ Recommended
 
 uv sync
 

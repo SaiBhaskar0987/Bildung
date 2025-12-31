@@ -1,60 +1,79 @@
-
 document.addEventListener("DOMContentLoaded", () => {
-    document.getElementById("addLecture").addEventListener("click", () => {
 
-        let list = document.getElementById("lectureList");
+    const addLectureBtn = document.getElementById("addLecture");
 
-        let card = document.createElement("div");
-        card.classList.add("lecture-card");
-
-        card.innerHTML = `
-            <div class="lecture-header">
-                <span class="lecture-title">New Lecture</span>
-                <button class="delete-lecture-btn" onclick="this.closest('.lecture-card').remove()">✖</button>
-            </div>
-
-            <div class="lecture-body">
-
-                <label>Lecture Title</label>
-                <input type="text" class="lecture-title-input" placeholder="Enter lecture title">
-
-                <label>Upload Video</label>
-                <input type="file" accept="video/*" class="lecture-video-input">
-
-                <label>Upload PDF</label>
-                <input type="file" accept="application/pdf" class="lecture-file-input">
-
-            </div>
-        `;
-
-        list.appendChild(card);
+    addLectureBtn.addEventListener("click", () => {
+        addNewLectureCard();
     });
+
 });
+
+function addNewLectureCard() {
+
+    const list = document.getElementById("lectureList");
+
+    const card = document.createElement("div");
+    card.className = "lecture-card";
+
+    card.innerHTML = `
+        <div class="lecture-header">
+            <span class="lecture-title">New Lecture</span>
+            <button type="button"
+                    class="delete-lecture-btn"
+                    onclick="this.closest('.lecture-card').remove()">✖</button>
+        </div>
+
+        <div class="lecture-body">
+
+            <label>Lecture Title</label>
+            <input type="text"
+                   class="lecture-title-input"
+                   placeholder="Enter lecture title">
+
+            <label>Upload Video</label>
+            <input type="file"
+                   class="lecture-video-input"
+                   accept="video/*">
+
+            <label>Upload PDF</label>
+            <input type="file"
+                   class="lecture-file-input"
+                   accept="application/pdf">
+
+        </div>
+    `;
+
+    list.appendChild(card);
+}
 
 
 function saveModule() {
 
-    let fd = new FormData();
+    const fd = new FormData();
 
-    fd.append("module_title", document.getElementById("moduleTitle").value);
+    const moduleTitle = document.getElementById("moduleTitle").value.trim();
+    const moduleDescription = document.getElementById("moduleDescription").value.trim();
 
-    fd.append("description", document.getElementById("moduleDescription").value);
+    fd.append("module_title", moduleTitle);
+    fd.append("description", moduleDescription);
 
     const cards = document.querySelectorAll(".lecture-card");
     fd.append("lecture_count", cards.length);
 
-    cards.forEach((card, i) => {
+    cards.forEach((card, index) => {
 
-        fd.append(`lecture_title_${i}`, card.querySelector(".lecture-title-input").value || "");
+        const titleInput = card.querySelector(".lecture-title-input");
+        const videoInput = card.querySelector(".lecture-video-input");
+        const pdfInput = card.querySelector(".lecture-file-input");
 
-        let videoInput = card.querySelector(".lecture-video-input");
-        if (videoInput.files.length > 0) {
-            fd.append(`lecture_video_${i}`, videoInput.files[0]);
+        fd.append(`lecture_title_${index}`, titleInput.value.trim());
+
+        if (videoInput && videoInput.files.length > 0) {
+            fd.append(`lecture_video_${index}`, videoInput.files[0]);
         }
 
-        let pdfInput = card.querySelector(".lecture-file-input");
-        if (pdfInput.files.length > 0) {
-            fd.append(`lecture_pdf_${i}`, pdfInput.files[0]);
+        if (pdfInput && pdfInput.files.length > 0) {
+            fd.append(`lecture_pdf_${index}`, pdfInput.files[0]);
         }
     });
 
@@ -62,22 +81,19 @@ function saveModule() {
         method: "POST",
         body: fd
     })
-    .then(async res => {
-        let text = await res.text();
-        try {
-            return JSON.parse(text);
-        } catch (err) {
-            alert("Save failed – backend error.");
-            return null;
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === "success") {
+            alert("Module saved (draft)");
+            goBack();
+        } else {
+            alert("Save failed");
         }
     })
-    .then(data => {
-        if (!data) return;
-
-        alert("Module Saved!");
-        goBack();
-    })
-    .catch(err => alert("Error: " + err));
+    .catch(err => {
+        console.error(err);
+        alert("Server error while saving module");
+    });
 }
 
 function goBack() {

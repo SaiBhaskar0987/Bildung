@@ -271,8 +271,8 @@ body {
     margin-bottom: 6px;
     font-size: 13px;
     font-weight: 600;
-    color: #374151; /* gray-700 */
-    border-left: 3px solid #4f46e5; /* purple accent */
+    color: #374151; 
+    border-left: 3px solid #4f46e5; 
     padding-left: 6px;
 }
 
@@ -282,7 +282,9 @@ body {
 <body class="bg-light">
 
 <div class="d-flex justify-content-between align-items-center p-3 bg-white shadow-sm">
-    <h3 class="m-0 fw-bold">Bildung</h3>
+    <a href="{% url 'instructor_dashboard' %}" class="text-decoration-none text-dark">
+        <h3 class="m-0 fw-bold">Bildung</h3>
+    </a>
 
     <div class="dropdown">
         <button class="btn rounded-circle shadow"

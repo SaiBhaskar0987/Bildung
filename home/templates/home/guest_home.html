@@ -5,7 +5,6 @@
   <title>Bildung - Learn Anything</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
   <style>
@@ -55,9 +54,7 @@
     }
 
     .popular-course:hover { transform: translateY(-5px); }
-    
-    /* Chatbot Button */
-    /* Floating Buttons – FIXED RIGHT SIDE */
+
     .floating-btn {
         position: fixed;
         right: 25px;
@@ -75,13 +72,10 @@
         box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     }
 
-    /* Chatbot button bottom */
     #aiChatBtn { bottom: 25px; }
 
-    /* Notepad button above chatbot */
     #noteBtn { bottom: 95px; }
 
-    /* Chatbox Common Styling (Container Only) */
     .chatbox {
         position: fixed;
         right: 90px;
@@ -92,24 +86,18 @@
         flex-direction: column;
         box-shadow: 0 4px 16px rgba(0,0,0,0.25);
         z-index: 9998;
-        overflow: hidden;         /* PREVENT layout breaking */
+        overflow: hidden;     
     }
 
-    /* Chatbot Height */
     #aiChatBox {
         bottom: 90px;
         height: 400px;
     }
 
-    /* Notepad Height */
     #noteBox {
         bottom: 160px;
         height: 360px;
     }
-
-    /* -------------------------------------- */
-    /* INTERNAL CHATBOT UI (Isolated CSS)     */
-    /* -------------------------------------- */
 
     .chatbox .chat-header {
         background: #4c6ef5;
@@ -161,10 +149,6 @@
         border-radius: 6px;
         cursor: pointer;
     }
-
-    /* -------------------------------------- */
-    /* NOTEPAD INSIDE STYLING                 */
-    /* -------------------------------------- */
 
     #noteBox .note-info {
         padding: 8px 12px;
@@ -221,7 +205,6 @@
 </head>
 <body>
 
-  <!-- Navbar -->
   <nav class="navbar navbar-expand-lg navbar-light bg-light px-4">
     <a class="navbar-brand fw-bold" href="/">Bildung</a>
     <div class="ms-auto">
@@ -229,7 +212,7 @@
         {% if user.role == "student" %}
           <a href="{% url 'student_dashboard' %}" class="btn btn-outline-success me-2">Dashboard</a>
         {% elif user.role == "instructor" %}
-          <a href="{% url 'instructor:instructor_dashboard' %}" class="btn btn-outline-success me-2">Dashboard</a>
+          <a href="{% url 'instructor_dashboard' %}" class="btn btn-outline-success me-2">Dashboard</a>
         {% elif user.role == "admin" %}
           <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-success me-2">Admin</a>
         {% endif %}
@@ -242,7 +225,6 @@
     </div>
   </nav>
 
-  <!-- Hero Section -->
   <section class="hero">
     <h1>Learn Anything, Anytime, Anywhere</h1>
     <p>Join thousands of learners and instructors on Bildung.</p>
@@ -254,7 +236,6 @@
     </div>
   </section>
 
-  <!-- Popular Categories -->
   <section class="container my-5">
     <h2 class="mb-4">Popular Categories</h2>
     <div class="row text-center">
@@ -272,7 +253,6 @@
     </div>
   </section>
 
-  <!-- Top 4 Popular Courses -->
   <section class="popular-section container my-5">
     <h2 class="mb-4">Top 4 Popular Courses</h2>
     <div class="row">
@@ -297,7 +277,6 @@
     </div>
   </section>
 
-  <!-- Featured Courses -->
   <section class="container my-5">
     <h2 class="mb-4">Featured Courses</h2>
     <div class="row">
@@ -316,8 +295,6 @@
       {% endfor %}
     </div>
   </section>
-
-  <!-- CATEGORY POPUP -->
   <div class="modal fade" id="categoryModal" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
@@ -332,7 +309,6 @@
     </div>
   </div>
 
-  <!-- COURSE VIEW POPUP -->
   <div class="modal fade" id="courseModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
@@ -355,11 +331,9 @@
     </div>
   </div>
 
-<!-- Floating Buttons -->
 <div id="aiChatBtn" class="floating-btn">🤖</div>
 <div id="noteBtn" class="floating-btn">📝</div>
 
-<!-- Chatbot Window -->
 <div id="aiChatBox" class="chatbox">
     <div class="chat-header">
         <span>AI Chatbot</span>
@@ -374,27 +348,23 @@
     </div>
 </div>
 
-<!-- Notepad Window -->
 <div id="noteBox" class="chatbox">
     <div class="chat-header">
         <span>Quick Notepad</span>
         <button class="close-btn" onclick="toggleNote()">✖</button>
     </div>
-    
-    <!-- memory info bar -->
+
     <div class="note-info">
         <span id="storageInfo">Storage: 0/200MB</span>
         <span id="expiryInfo">Expires: -</span>
     </div>
     
     <textarea id="noteArea" class="note-area" placeholder="Write notes here..."></textarea>
-    
-    <!-- Storage warning -->
+
     <div id="storageWarning" class="storage-warning">
         ⚠️ Approaching storage limit (200MB)
     </div>
     
-    <!-- Save Button Section -->
     <div class="note-footer">
         <button class="save-note-btn" onclick="saveNote()">Save</button>
     </div>
@@ -403,11 +373,9 @@
     </div>
 </div>
 
-  <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
   <script>
-    // Category popup
     const allCourses = [
       {% for c in courses %}
       { title: "{{ c.title }}", category: "{{ c.category }}" },
@@ -461,9 +429,8 @@
       new bootstrap.Modal(document.getElementById("courseModal")).show();
     }
 
-    // Notepad with 200MB storage and 14-day expiry
     const NOTEPAD_CONFIG = {
-        MAX_STORAGE: 200 * 1024 * 1024, // 200MB in bytes
+        MAX_STORAGE: 200 * 1024 * 1024, 
         EXPIRY_DAYS: 14,
         STORAGE_KEY: 'quickNoteData'
     };
@@ -481,12 +448,10 @@
         }
     }
 
-    // Enhanced save function with storage limits
     function saveNote() {
         const text = document.getElementById("noteArea").value;
         const textSize = new Blob([text]).size;
         
-        // Check storage limit
         if (textSize > NOTEPAD_CONFIG.MAX_STORAGE) {
             alert(`Note too large! Maximum size is 200MB. Your note is ${formatBytes(textSize)}.`);
             return;
@@ -512,7 +477,6 @@
         }
     }
 
-    // Load note with expiry check
     function loadNote() {
         try {
             const saved = localStorage.getItem(NOTEPAD_CONFIG.STORAGE_KEY);
@@ -520,8 +484,7 @@
                 const noteData = JSON.parse(saved);
                 const now = new Date();
                 const expiry = new Date(noteData.expiry);
-                
-                // Check if note has expired
+
                 if (now > expiry) {
                     localStorage.removeItem(NOTEPAD_CONFIG.STORAGE_KEY);
                     document.getElementById("noteArea").value = "";
@@ -538,7 +501,6 @@
         }
     }
 
-    // Update storage information display
     function updateStorageInfo() {
         const saved = localStorage.getItem(NOTEPAD_CONFIG.STORAGE_KEY);
         const storageInfo = document.getElementById("storageInfo");
@@ -550,15 +512,12 @@
                 const noteData = JSON.parse(saved);
                 const textSize = noteData.size;
                 const expiry = new Date(noteData.expiry);
-                
-                // Update storage info
+
                 storageInfo.textContent = `Storage: ${formatBytes(textSize)}/200MB`;
-                
-                // Update expiry info
+
                 const daysLeft = Math.ceil((expiry - new Date()) / (1000 * 60 * 60 * 24));
                 expiryInfo.textContent = `Expires: ${daysLeft} day${daysLeft !== 1 ? 's' : ''}`;
-                
-                // Show warning if approaching limit
+
                 const usagePercent = (textSize / NOTEPAD_CONFIG.MAX_STORAGE) * 100;
                 if (usagePercent > 80) {
                     warning.style.display = 'block';
@@ -576,7 +535,6 @@
         }
     }
 
-    // Utility functions
     function formatBytes(bytes, decimals = 2) {
         if (bytes === 0) return '0 Bytes';
         
@@ -610,7 +568,6 @@
         }, 3000);
     }
 
-    // Auto-clean expired notes on page load
     function cleanupExpiredNotes() {
         const saved = localStorage.getItem(NOTEPAD_CONFIG.STORAGE_KEY);
         if (saved) {
@@ -663,12 +620,10 @@
         textarea.focus();
     }
 
-    // Initialize on page load
     document.addEventListener('DOMContentLoaded', function() {
         cleanupExpiredNotes();
         loadNote();
         
-        // Set up button event listeners
         document.getElementById("aiChatBtn").onclick = toggleAIChat;
         document.getElementById("noteBtn").onclick = toggleNote;
     });

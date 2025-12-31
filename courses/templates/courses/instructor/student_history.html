@@ -80,7 +80,7 @@
 
 <!-- Navigation -->
 <div class="d-flex justify-content-between align-items-center p-3 bg-white shadow-sm">
-    <a href="{% url 'instructor:instructor_dashboard' %}" class="text-decoration-none text-dark">
+    <a href="{% url 'instructor_dashboard' %}" class="text-decoration-none text-dark">
         <h3 class="m-0 fw-bold">Bildung</h3>
     </a>
 
@@ -96,7 +96,7 @@
                 <li><a class="dropdown-item" href="{% url 'instructor:add_course' %}">Create New Course</a></li>
                 <li><a class="dropdown-item" href="{% url 'instructor:students_list' %}">My Students</a></li>
                 <li><a class="dropdown-item" href="{% url 'instructor:calendar_view' %}">My Schedules</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor:instructor_notifications' %}">Notifications</a></li>
+                <li><a class="dropdown-item" href="{% url 'instructor_notifications' %}">Notifications</a></li>
                 <li><a class="dropdown-item" href="#">Earnings & Payments</a></li>
                 <li><a class="dropdown-item" href="#">Help & Support</a></li>
                 <li><a class="dropdown-item" href="{% url 'instructor:account_settings' %}">Account Settings</a></li>
@@ -106,7 +106,6 @@
     </div>
 </div>
 
-<!-- Header -->
 <div class="header">
     <div class="container text-center">
         <h1><i class="fas fa-user-graduate me-2"></i>Student Learning History</h1>
@@ -116,7 +115,6 @@
 
 <div class="container">
 
-    <!-- Overview Cards -->
     <div class="row mb-4">
         <div class="col-md-3 mb-3">
             <div class="stat-card">
@@ -190,7 +188,6 @@
         </div>
     </div>
 
-    <!-- QUIZ TAB -->
     <div id="quiz-tab" class="tab-content">
         <h3>Quiz Performance</h3>
 
@@ -218,7 +215,6 @@
         {% endif %}
     </div>
 
-    <!-- ATTENDANCE TAB -->
     <div id="attendance-tab" class="tab-content">
         <h3>Live Class Attendance</h3>
 
@@ -244,7 +240,6 @@
         </table>
     </div>
 
-    <!-- VIDEO TAB -->
 <div id="videos-tab" class="tab-content">
     <h3>Video Lessons Watched</h3>
 
@@ -281,7 +276,6 @@
     </div>
 </div>
 
-    <!-- Q&A TAB -->
 <div id="qna-tab" class="tab-content">
     <h3>Q&A Activity</h3>
 
@@ -318,7 +312,6 @@
 
 </div>
 
-    <!-- LOGIN HISTORY TAB -->
     <div id="login-tab" class="tab-content">
         <h3>Login History</h3>
 

@@ -6,7 +6,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('courses', '0022_create_missing_notification'),
+        ('courses', '0021_liveclassattendance_notification'),
     ]
 
     operations = [

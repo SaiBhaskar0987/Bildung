@@ -10,11 +10,17 @@ urlpatterns = [
     path("student/signup/", views.student_signup, name="student_signup"),
     path("student/login/", views.student_login, name="student_login"),
     path("student/dashboard/", views.student_dashboard, name="student_dashboard"),
+    path('account-settings/', views.account_settings, name='account_settings'),
     
-    # Student course-related URLs (namespaced)
+    # Student course-related URLs
     path("student/", include(("courses.student_urls", "student_courses"), namespace="student_courses")),
     path('profile/', views.profile_view_or_edit, name='profile_view'),
     path('profile/edit/', views.profile_view_or_edit, {'mode': 'edit'}, name='profile_edit'),
+    path('my-activity/', views.student_my_activity, name='student_my_activity'),
+    path("notifications/", views.student_notifications, name="student_notifications"),
+    path("notifications/recent/", views.get_recent_notifications, name="recent_notifications"),
+    path("notifications/mark-read/", views.mark_all_notifications, name="mark_all_notifications"),
+    path("notifications/mark/<int:notif_id>/",views.mark_notification,name="mark_notification"),
 
     # --- CUSTOM PASSWORD RESET URLs ---
     path('forgot-password/', views.custom_password_reset, name='forgot_password'),
@@ -26,8 +32,13 @@ urlpatterns = [
     # Instructor
     path("instructor/signup/", views.instructor_signup, name="instructor_signup"),
     path("instructor/login/", views.instructor_login, name="instructor_login"),
+    path('dashboard/', views.instructor_dashboard, name='instructor_dashboard'),
     path("instructor/profile/", views.instructor_profile_view_or_edit, name="instructor_profile_view"),
     path("instructor/profile/<str:mode>/", views.instructor_profile_view_or_edit, name="instructor_profile_edit"),
+     path("recent-notifications/", views.instructor_recent_notifications, name="instructor_recent_notifications"),
+    path("notifications/", views.instructor_notifications_page, name="instructor_notifications"),
+    path("mark-read/<int:notif_id>/", views.instructor_mark_read, name="mark_notification_read"),
+    path("mark-all-read/", views.instructor_mark_all_read, name="mark_notifications_read"),
 
     # Include all instructor dashboard & course URLs
     path("instructor/", include(("courses.instructor_urls", "instructor"), namespace="instructor")),

@@ -44,14 +44,14 @@
             <ul class="dropdown-menu dropdown-menu-end">
                 <li><a class="dropdown-item" href="{% url 'profile_view' %}">Profile</a></li>
                 <li><a class="dropdown-item" href="{% url 'student:my_courses' %}">My Courses</a></li>
-                <li><a class="dropdown-item" href="{% url 'student:student_my_activity' %}">My activity</a></li>
+                <li><a class="dropdown-item" href="{% url 'student_my_activity' %}">My activity</a></li>
                 <li><a class="dropdown-item" href="{% url 'student:student_upcoming_classes' %}">My_schedules</a></li>
                 <li><a class="dropdown-item" href="{% url 'student:my_certificates' %}">My Certificates</a></li>
-                <li><a class="dropdown-item" href="{% url 'student:student_notifications' %}">Notifications</a></li>
+                <li><a class="dropdown-item" href="{% url 'student_notifications' %}">Notifications</a></li>
                 <li><a class="dropdown-item" href="#">Payments</a></li>
                 <li><a class="dropdown-item" href="#">Help and Support</a></li>
-                <li><a class="dropdown-item" href="#">Feedback</a></li>
-                <li><a class="dropdown-item" href="{% url 'student:account_settings' %}">Account Settings</a></li>
+                
+                <li><a class="dropdown-item" href="{% url 'account_settings' %}">Account Settings</a></li>
                 <li><hr class="dropdown-divider"></li>
                 <li><a class="dropdown-item text-danger" href="{% url 'logout_view' %}">Logout</a></li>
             </ul>
@@ -110,12 +110,12 @@
 
 <script>
 function markRead(id) {
-    fetch("{% url 'student:mark_notification_read' 0 %}".replace("0", id))
+    fetch("{% url 'mark_notification' 0 %}".replace("0", id))
         .then(() => location.reload());
 }
 
 function markAllRead() {
-    fetch("{% url 'student:mark_notifications_read' %}")
+    fetch("{% url 'mark_all_notifications' %}")
         .then(() => location.reload());
 }
 </script>

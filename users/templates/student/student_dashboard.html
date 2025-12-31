@@ -194,7 +194,7 @@
             <div class="dropdown-menu dropdown-menu-end notif-panel shadow">
                 <h6 class="dropdown-header d-flex justify-content-between">
                     Notifications
-                    <a href="{% url 'student:student_notifications' %}" class="small">View All</a>
+                    <a href="{% url 'student_notifications' %}" class="small">View All</a>
                 </h6>
                 <div id="notifList"></div>
 
@@ -215,14 +215,13 @@
             <ul class="dropdown-menu dropdown-menu-end">
                 <li><a class="dropdown-item" href="{% url 'profile_view' %}">Profile</a></li>
                 <li><a class="dropdown-item" href="{% url 'student:my_courses' %}">My Courses</a></li>
-                <li><a class="dropdown-item" href="{% url 'student:student_my_activity' %}">My activity</a></li>
+                <li><a class="dropdown-item" href="{% url 'student_my_activity' %}">My activity</a></li>
                 <li><a class="dropdown-item" href="{% url 'student:student_upcoming_classes' %}">My_schedules</a></li>
                 <li><a class="dropdown-item" href="{% url 'student:my_certificates' %}">My Certificates</a></li>
-                <li><a class="dropdown-item" href="{% url 'student:student_notifications' %}">Notifications</a></li>
+                <li><a class="dropdown-item" href="{% url 'student_notifications' %}">Notifications</a></li>
                 <li><a class="dropdown-item" href="#">Payments</a></li>
                 <li><a class="dropdown-item" href="#">Help and Support</a></li>
-                <li><a class="dropdown-item" href="#">Feedback</a></li>
-                <li><a class="dropdown-item" href="{% url 'student:account_settings' %}">Account Settings</a></li>
+                <li><a class="dropdown-item" href="{% url 'account_settings' %}">Account Settings</a></li>
                 <li><hr class="dropdown-divider"></li>
                 <li><a class="dropdown-item text-danger" href="{% url 'logout_view' %}">Logout</a></li>
             </ul>
@@ -330,7 +329,7 @@
 document.addEventListener("DOMContentLoaded", function () {
 
     function loadNotifications() {
-        fetch("{% url 'student:recent_notifications' %}")
+        fetch("{% url 'recent_notifications' %}")
             .then(res => res.json())
             .then(data => {
 
@@ -360,7 +359,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
 
                 data.notifications.forEach(n => {
-                    const targetUrl = n.url && n.url !== "" ? n.url : "{% url 'student:student_notifications' %}";
+                    const targetUrl = n.url && n.url !== "" ? n.url : "{% url 'student_notifications' %}";
 
                     list.innerHTML += `
                         <div class="notif-item ${n.is_read ? "read" : "unread"}"
@@ -389,12 +388,12 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     window.markRead = function(id) {
-        const url = "{% url 'student:mark_notification_read' 0 %}".replace("0", id);
+        const url = "{% url 'mark_notification' 0 %}".replace("0", id);
         fetch(url).then(() => loadNotifications());
     };
 
     document.getElementById("markAllBtn").onclick = () => {
-        fetch("{% url 'student:mark_notifications_read' %}")
+        fetch("{% url 'mark_all_notifications' %}")
             .then(() => loadNotifications());
     };
 

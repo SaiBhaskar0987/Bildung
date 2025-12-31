@@ -12,7 +12,6 @@
     .settings-container { max-width: 1000px; margin: auto; }
     .settings-card { background: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom:20px; }
     .settings-header { background: blue; color:white; padding:30px 0; border-radius:10px 10px 0 0; }
-    .profile-picture { width:150px; height:150px; border-radius:50%; object-fit:cover; border:5px solid white; box-shadow:0 4px 15px rgba(0,0,0,0.2); }
     .nav-pills .nav-link.active { background: blue; color:white; }
     .settings-section { padding:30px; }
 </style>
@@ -61,12 +60,12 @@
     <div class="settings-container my-5">
         <div class="row">
  
+            <!-- LEFT MENU -->
             <div class="col-md-3">
                 <div class="settings-card">
                     <div class="settings-section">
                         <div class="nav flex-column nav-pills">
-                            <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#profile">Profile</button>
-                            <button class="nav-link" data-bs-toggle="pill" data-bs-target="#security">Security</button>
+                            <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#security">Security</button>
                             <button class="nav-link" data-bs-toggle="pill" data-bs-target="#notifications">Notifications</button>
                             <button class="nav-link" data-bs-toggle="pill" data-bs-target="#privacy">Privacy</button>
                         </div>
@@ -79,150 +78,72 @@
  
                 <div class="tab-content">
  
-                    <div class="tab-pane fade show active" id="profile">
-                        <div class="settings-card"><div class="settings-section">
-                           
-                            <h4 class="mb-4">Profile Information</h4>
- 
-                            <form method="post" enctype="multipart/form-data">
-                                {% csrf_token %}
- 
-                                <div class="text-center mb-4">
-                                    {% if profile.profile_picture %}
-                                        <img src="{{ profile.profile_picture.url }}" class="profile-picture">
-                                    {% else %}
-                                        <img src="https://via.placeholder.com/150?text=Profile" class="profile-picture">
-                                    {% endif %}
- 
-                                    <br>
-                                    <label for="profile_picture" class="btn btn-outline-primary btn-sm mt-2">
-                                        Change Photo
-                                    </label>
-                                    <input type="file" id="profile_picture" name="profile_picture" class="d-none">
-                                </div>
- 
-                                <!-- User Info -->
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label>First Name</label>
-                                        <input type="text" name="first_name" class="form-control" value="{{ user.first_name }}">
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label>Last Name</label>
-                                        <input type="text" name="last_name" class="form-control" value="{{ user.last_name }}">
-                                    </div>
-                                </div>
- 
-                                <div class="mb-3">
-                                    <label>Email</label>
-                                    <input type="email" name="email" class="form-control" value="{{ user.email }}">
-                                </div>
- 
-                                <div class="mb-3">
-                                    <label>Phone Number</label>
-                                    <input type="text" name="phone" class="form-control" value="{{ profile.phone }}">
-                                </div>
- 
-                                <div class="mb-3">
-                                    <label>About Me</label>
-                                    <textarea name="about_me" class="form-control" rows="4">{{ profile.about_me }}</textarea>
-                                </div>
- 
-                                <div class="mb-3">
-                                    <label>Gender</label>
-                                    <select name="gender" class="form-control">
-                                        <option value="">Select</option>
-                                        <option value="M" {% if profile.gender == "M" %}selected{% endif %}>Male</option>
-                                        <option value="F" {% if profile.gender == "F" %}selected{% endif %}>Female</option>
-                                        <option value="O" {% if profile.gender == "O" %}selected{% endif %}>Other</option>
-                                    </select>
-                                </div>
- 
-                                <div class="mb-3">
-                                    <label>Date of Birth</label>
-                                    <input type="date" name="date_of_birth" class="form-control"
-                                           value="{{ profile.date_of_birth|date:'Y-m-d' }}">
-                                </div>
- 
-                                <div class="mb-3">
-                                    <label>Qualification</label>
-                                    <input type="text" name="qualification" class="form-control" value="{{ profile.qualification }}">
-                                </div>
- 
-                                <div class="mb-3">
-                                    <label>Resume (PDF)</label><br>
-                                    {% if profile.resume %}
-                                        <a href="{{ profile.resume.url }}" target="_blank">View Existing Resume</a><br>
-                                    {% endif %}
-                                    <input type="file" name="resume" accept="application/pdf" class="form-control mt-2">
-                                </div>
- 
-                                <button type="submit" name="update_profile" class="btn btn-primary">Save Changes</button>
-                            </form>
- 
-                        </div></div>
-                    </div>
- 
                     <!-- SECURITY TAB -->
-                    <div class="tab-pane fade" id="security">
-                        <div class="settings-card"><div class="settings-section">
-                           
-                            <h4 class="mb-4">Change Password</h4>
+                    <div class="tab-pane fade show active" id="security">
+                        <div class="settings-card">
+                            <div class="settings-section">
  
-                            <form method="post">
-                                {% csrf_token %}
+                                <h4 class="mb-4">Change Password</h4>
  
-                                <label>Current Password / Phone No</label>
-                                <input type="password" name="old_password/phone no" class="form-control mb-3">
+                                <form method="post">
+                                    {% csrf_token %}
  
-                                <label>New Password/ Phone no</label>
-                                <input type="password" name="new_password1/phone no" class="form-control mb-3">
+                                    <label>Current Password</label>
+                                    <input type="password" name="old_password" class="form-control mb-3">
  
-                                <label>Confirm New Password/ Phone no</label>
-                                <input type="password" name="new_password2/ phone no" class="form-control mb-3">
+                                    <label>New Password</label>
+                                    <input type="password" name="new_password1" class="form-control mb-3">
  
-                                <button type="submit" name="change_password/phone no" class="btn btn-primary">Update Password</button>
-                            </form>
+                                    <label>Confirm New Password</label>
+                                    <input type="password" name="new_password2" class="form-control mb-3">
  
-                        </div></div>
+                                    <button type="submit" name="change_password" class="btn btn-primary">Update Password</button>
+                                </form>
+ 
+                            </div>
+                        </div>
                     </div>
  
                     <!-- NOTIFICATION TAB -->
                     <div class="tab-pane fade" id="notifications">
-                        <div class="settings-card"><div class="settings-section">
-                           
-                            <h4>Notification Preferences</h4>
+                        <div class="settings-card">
+                            <div class="settings-section">
  
-                            <form method="post">
-                                {% csrf_token %}
+                                <h4>Notification Preferences</h4>
  
-                                <div class="form-check form-switch mb-3">
-                                    <input class="form-check-input" type="checkbox" name="email_notifications" checked>
-                                    <label>Email Notifications</label>
-                                </div>
+                                <form method="post">
+                                    {% csrf_token %}
  
-                                <div class="form-check form-switch mb-3">
-                                    <input class="form-check-input" type="checkbox" name="course_updates" checked>
-                                    <label>Course Updates</label>
-                                </div>
-                                 
-                                 <div class="form-check form-switch mb-3">
-                                    <input class="form-check-input" type="checkbox" name="enrol_updates" checked>
-                                    <label>Enroll Update</label>
-                                </div>
+                                    <div class="form-check form-switch mb-3">
+                                        <input class="form-check-input" type="checkbox" name="email_notifications" checked>
+                                        <label>Email Notifications</label>
+                                    </div>
  
-                                <button type="submit" name="update_notifications" class="btn btn-primary">Save Preferences</button>
-                            </form>
+                                    <div class="form-check form-switch mb-3">
+                                        <input class="form-check-input" type="checkbox" name="course_updates" checked>
+                                        <label>Course Updates</label>
+                                    </div>
  
-                        </div></div>
+                                    <div class="form-check form-switch mb-3">
+                                        <input class="form-check-input" type="checkbox" name="enrol_updates" checked>
+                                        <label>Enroll Update</label>
+                                    </div>
+ 
+                                    <button type="submit" name="update_notifications" class="btn btn-primary">Save Preferences</button>
+                                </form>
+ 
+                            </div>
+                        </div>
                     </div>
  
                     <!-- PRIVACY TAB -->
                     <div class="tab-pane fade" id="privacy">
-                        <div class="settings-card"><div class="settings-section">
-                            <h4>Privacy Settings</h4>
-                            <p class="text-muted">More features coming soon...</p>
-                        </div></div>
+                        <div class="settings-card">
+                            <div class="settings-section">
+                                <h4>Privacy Settings</h4>
+                                <p class="text-muted">More features coming soon...</p>
+                            </div>
+                        </div>
                     </div>
  
                 </div>
@@ -234,18 +155,6 @@
 </div>
  
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
- 
-<script>
-document.getElementById("profile_picture").addEventListener("change", function(e){
-    if (e.target.files.length > 0) {
-        let reader = new FileReader();
-        reader.onload = function(e) {
-            document.querySelector(".profile-picture").src = e.target.result;
-        }
-        reader.readAsDataURL(e.target.files[0]);
-    }
-});
-</script>
  
 </body>
 </html>

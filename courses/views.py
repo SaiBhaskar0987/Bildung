@@ -57,6 +57,7 @@ def browse_courses(request):
     available_courses = Course.objects.exclude(students=request.user)
     return render(request, 'courses/student/browse_course.html', {'courses': available_courses})
 
+
 # -------------------------------
 # Student Views
 # -------------------------------
@@ -71,7 +72,7 @@ def enroll_course(request, course_id):
     Notification.objects.create(
         user=request.user,
         message=f"You have successfully enrolled in {course.title}.",
-        url=f"/student/course/{course.id}/"
+        url=f"/accounts/student/course/{course.id}/"
     )
 
     messages.success(request, f"Enrolled in {course.title}")
@@ -84,7 +85,7 @@ def my_courses(request):
         "enrolled_courses": enrolled_courses
     })
 
-@login_required(login_url='/student/login/')
+@login_required(login_url='accounts/student/login/')
 def student_course_detail(request, course_id):
     enrollment = get_object_or_404(
         Enrollment, course_id=course_id, student=request.user

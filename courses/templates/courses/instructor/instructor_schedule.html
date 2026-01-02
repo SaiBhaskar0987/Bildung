@@ -288,11 +288,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 props.event_description || "";
 
             if (props.type === "live_class") {
-                document.getElementById("editBtn").href = `/instructor/edit-class/${e.id}/`;
-                document.getElementById("deleteBtn").href = `/instructor/delete-class/${e.id}/`;
+                document.getElementById("editBtn").href = `/accounts/instructor/edit-class/${e.id}/`;
+                document.getElementById("deleteBtn").href = `/accounts/instructor/delete-class/${e.id}/`;
             } else {
-                document.getElementById("editBtn").href = `/instructor/edit-event/${e.id}/`;
-                document.getElementById("deleteBtn").href = `/instructor/delete-event/${e.id}/`;
+                document.getElementById("editBtn").href = `/accounts/instructor/edit-event/${e.id}/`;
+                document.getElementById("deleteBtn").href = `/accounts/instructor/delete-event/${e.id}/`;
             }
 
             new bootstrap.Modal(document.getElementById("eventModal")).show();

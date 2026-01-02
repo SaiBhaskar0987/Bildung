@@ -723,7 +723,7 @@ def google_oauth_entry(request):
     redirect_url = f"/social-auth/login/google-oauth2/?next={next_url}&prompt=select_account"
     return redirect(redirect_url)
 
-"""
+
 @login_required
 def google_login_redirect(request):
     user = request.user
@@ -745,47 +745,7 @@ def google_login_redirect(request):
         return redirect('student_dashboard')
     else:
         return redirect('auth_page')
-"""
-
-@login_required
-def google_login_redirect(request):
-    user = request.user
-    role_param = request.GET.get('type') or request.session.get('google_role')
-
-    if role_param:
-        request.session['google_role'] = role_param
-        user.role = role_param
-        user.save()
-
-    if user.role == "student":
-        Profile.objects.get_or_create(user=user)
-    elif user.role == "instructor":
-        InstructorProfile.objects.get_or_create(user=user)
-
-    if not EmailVerification.objects.filter(user=user).exists():
-
-        verification = EmailVerification.objects.create(user=user)
-
-        user.is_active = False
-        user.save()
-
-        send_verification_email(
-            request,
-            user,
-            role=user.role,
-            token=verification.token
-        )
-
-        return redirect("check_email")
-
-    if user.is_active:
-        if user.role == "student":
-            return redirect("student_dashboard")
-        elif user.role == "instructor":
-            return redirect("instructor_dashboard")
-
-    return redirect("smart_home")
-
+    
 
 def record_login(request, user):
     LoginHistory.objects.create(
@@ -810,26 +770,20 @@ def record_logout(request):
 def check_email(request):
     return render(request, "users/check_email.html")
 
+
 def verify_email(request, role, token):
     verification = get_object_or_404(EmailVerification, token=token)
     user = verification.user
-
     user.is_active = True
     user.save()
-
     verification.delete()
 
-    login(
-    request,
-    user,
-    backend='django.contrib.auth.backends.ModelBackend'
-)
+    return render(
+        request,
+        "users/verification_success.html",
+        {
+            "user": user,
+            "role": role
+        }
+    )
 
-    messages.success(request, "Email verified successfully!")
-
-    if role == "student":
-        return redirect("student_dashboard")
-    elif role == "instructor":
-        return redirect("instructor_dashboard")
-
-    return redirect("/")

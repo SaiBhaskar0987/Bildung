@@ -36,7 +36,7 @@ urlpatterns = [
     # Instructor
     path("instructor/signup/", views.instructor_signup, name="instructor_signup"),
     path("instructor/login/", views.instructor_login, name="instructor_login"),
-    path('dashboard/', views.instructor_dashboard, name='instructor_dashboard'),
+    path('instructor/dashboard/', views.instructor_dashboard, name='instructor_dashboard'),
     path("instructor/profile/", views.instructor_profile_view_or_edit, name="instructor_profile_view"),
     path("instructor/profile/<str:mode>/", views.instructor_profile_view_or_edit, name="instructor_profile_edit"),
      path("recent-notifications/", views.instructor_recent_notifications, name="instructor_recent_notifications"),

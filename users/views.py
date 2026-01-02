@@ -14,6 +14,8 @@ from django.contrib.auth.tokens import default_token_generator
 from django.conf import settings
 from courses.utils import check_and_send_reminders
 from django.contrib.auth import update_session_auth_hash
+from .models import EmailVerification
+from .utils import send_verification_email
 
 from .models import User, Profile, LoginHistory, InstructorProfile
 from .forms import StudentSignUpForm, InstructorSignUpForm, ProfileForm, UserDisplayForm, InstructorUserReadOnlyForm, InstructorUserForm, InstructorProfileForm
@@ -22,19 +24,44 @@ from courses.models import Course, Enrollment, Lecture, LectureProgress, Lecture
 def auth_page(request):
     return render(request, "users/auth_page.html")
 
+
 def student_signup(request):
     if request.method == 'POST':
         form = StudentSignUpForm(request.POST)
+
         if form.is_valid():
-            user = form.save()
-            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-            messages.success(request, f"Welcome {user.first_name}! Your account has been created.")
-            return redirect('student_dashboard')
+            user = form.save(commit=False)
+            user.role = "student"
+            user.is_active = False
+            user.set_password(form.cleaned_data["password1"])
+            user.save()
+
+            Profile.objects.create(user=user)
+
+            verification = EmailVerification.objects.create(user=user)
+
+            send_verification_email(
+                request,
+                user,
+                role="student",
+                token=verification.token
+            )
+
+            messages.success(
+                request,
+                "✅ Account created! Please check your email to verify your account."
+            )
+
+            return render(request, "users/check_email.html")
+
         else:
             messages.error(request, "Please correct the errors below.")
+
     else:
         form = StudentSignUpForm()
-    return render(request, 'student/student_signup.html', {'form': form})
+
+    return render(request, "student/student_signup.html", {"form": form})
+
 
 def student_login(request):
     if request.method == "POST":
@@ -324,6 +351,48 @@ def mark_notification(request, notif_id):
 
 # --- Instructor --- #
 
+def instructor_signup(request):
+    if request.method == 'POST':
+        form = InstructorSignUpForm(request.POST)
+
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.role = 'instructor'
+            user.is_active = False
+
+            raw_password = form.cleaned_data.get("password1") or form.cleaned_data.get("password")
+            if raw_password:
+                user.set_password(raw_password)
+
+            user.save()
+
+            InstructorProfile.objects.create(user=user)
+
+            verification = EmailVerification.objects.create(user=user)
+
+            send_verification_email(
+                request,
+                user,
+                role="instructor",
+                token=verification.token
+            )
+
+            messages.success(
+                request,
+                "✅ Account created! Please verify your email to activate your account."
+            )
+
+            return render(request, "users/check_email.html")
+
+        else:
+            messages.error(request, "Please correct the errors below.")
+
+    else:
+        form = InstructorSignUpForm()
+
+    return render(request, 'instructor/instructor_signup.html', {'form': form})
+
+
 def instructor_login(request):
     if request.method == "POST":
         form = AuthenticationForm(request, data=request.POST)
@@ -339,24 +408,6 @@ def instructor_login(request):
         form = AuthenticationForm()
     return render(request, "instructor/instructor_login.html", {"form": form})
 
-def instructor_signup(request):
-    if request.method == 'POST':
-        form = InstructorSignUpForm(request.POST)
-        if form.is_valid():
-            user = form.save(commit=False)
-            user.role = 'instructor'
-
-            raw_password = form.cleaned_data.get("password1") or form.cleaned_data.get("password")
-            if raw_password:
-                user.set_password(raw_password)
-            user.save()
-
-            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-            return redirect("instructor_dashboard")
-    else:
-        form = InstructorSignUpForm()
-
-    return render(request, 'instructor/instructor_signup.html', {'form': form})
 
 @login_required
 def instructor_dashboard(request):
@@ -663,7 +714,6 @@ def post_login_redirect_view(request):
         return redirect("auth_page")
 
 def google_oauth_entry(request):
-    """Capture ?type=student/instructor before sending to Google OAuth."""
     role = request.GET.get('type', '').strip()
     next_url = request.GET.get('next', '/google-redirect/').strip()
 
@@ -673,9 +723,9 @@ def google_oauth_entry(request):
     redirect_url = f"/social-auth/login/google-oauth2/?next={next_url}&prompt=select_account"
     return redirect(redirect_url)
 
+"""
 @login_required
 def google_login_redirect(request):
-    """Redirect Google-authenticated users to their appropriate dashboards."""
     user = request.user
     role_param = request.GET.get('type') or request.session.get('google_role')
 
@@ -695,7 +745,47 @@ def google_login_redirect(request):
         return redirect('student_dashboard')
     else:
         return redirect('auth_page')
-    
+"""
+
+@login_required
+def google_login_redirect(request):
+    user = request.user
+    role_param = request.GET.get('type') or request.session.get('google_role')
+
+    if role_param:
+        request.session['google_role'] = role_param
+        user.role = role_param
+        user.save()
+
+    if user.role == "student":
+        Profile.objects.get_or_create(user=user)
+    elif user.role == "instructor":
+        InstructorProfile.objects.get_or_create(user=user)
+
+    if not EmailVerification.objects.filter(user=user).exists():
+
+        verification = EmailVerification.objects.create(user=user)
+
+        user.is_active = False
+        user.save()
+
+        send_verification_email(
+            request,
+            user,
+            role=user.role,
+            token=verification.token
+        )
+
+        return redirect("check_email")
+
+    if user.is_active:
+        if user.role == "student":
+            return redirect("student_dashboard")
+        elif user.role == "instructor":
+            return redirect("instructor_dashboard")
+
+    return redirect("smart_home")
+
 
 def record_login(request, user):
     LoginHistory.objects.create(
@@ -716,3 +806,30 @@ def record_logout(request):
         if last_login_entry:
             last_login_entry.logout_time = timezone.now()
             last_login_entry.save()
+
+def check_email(request):
+    return render(request, "users/check_email.html")
+
+def verify_email(request, role, token):
+    verification = get_object_or_404(EmailVerification, token=token)
+    user = verification.user
+
+    user.is_active = True
+    user.save()
+
+    verification.delete()
+
+    login(
+    request,
+    user,
+    backend='django.contrib.auth.backends.ModelBackend'
+)
+
+    messages.success(request, "Email verified successfully!")
+
+    if role == "student":
+        return redirect("student_dashboard")
+    elif role == "instructor":
+        return redirect("instructor_dashboard")
+
+    return redirect("/")

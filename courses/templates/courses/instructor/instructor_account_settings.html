@@ -1,0 +1,216 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Instructor Account Settings</title>
+ 
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+ 
+<style>
+.settings-container {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+ 
+.settings-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    margin-bottom: 20px;
+    border: none;
+}
+ 
+.settings-header {
+    background: linear-gradient(135deg, #2563eb, #1e40af);
+    color: white;
+    padding: 40px 0;
+    border-radius: 12px 12px 0 0;
+    text-align: center;
+}
+ 
+.nav-pills .nav-link {
+    color: #374151;
+    padding: 14px 20px;
+    margin: 6px 0;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+ 
+.nav-pills .nav-link.active {
+    background: #2563eb;
+    color: white;
+}
+ 
+.nav-pills .nav-link:hover:not(.active) {
+    background-color: #f3f4f6;
+}
+ 
+.btn-primary {
+    background: #2563eb;
+    border: none;
+}
+ 
+.settings-section {
+    padding: 35px;
+}
+</style>
+</head>
+ 
+<body class="bg-light">
+ 
+<!-- ===== HEADER ===== -->
+<div class="d-flex justify-content-between align-items-center p-3 bg-white shadow-sm">
+    <a href="{% url 'instructor_dashboard' %}" class="text-decoration-none text-dark">
+        <h3 class="m-0 fw-bold">Bildung (Instructor)</h3>
+    </a>
+ 
+    <div class="d-flex align-items-center gap-3">
+        <h4 class="m-0">Hello, {{ user.first_name }} {{ user.last_name }}</h4>
+ 
+        <div class="dropdown">
+            <button class="btn rounded-circle shadow"
+                    style="background:gray;color:white;width:45px;height:45px;"
+                    data-bs-toggle="dropdown">
+                {{ request.user.username|first|upper }}
+            </button>
+ 
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="{% url 'instructor_profile_view' %}">Profile</a></li>
+                <li><a class="dropdown-item" href="{% url 'instructor:add_course' %}">Create Course</a></li>
+                <li><a class="dropdown-item" href="{% url 'instructor:students_list' %}">My Students</a></li>
+                <li><a class="dropdown-item" href="{% url 'instructor:calendar_view' %}">My Schedules</a></li>
+                <li><a class="dropdown-item" href="{% url 'instructor_notifications' %}">Notifications</a></li>
+                <li><a class="dropdown-item" href="{% url 'instructor:account_settings' %}">Account Settings</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item text-danger" href="{% url 'logout_view' %}">Logout</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+ 
+<!-- ===== PAGE CONTENT ===== -->
+<div class="container py-4">
+ 
+    <div class="settings-header">
+        <h1><i class="fas fa-cog me-2"></i>Account Settings</h1>
+        <p class="lead mb-0">Manage your security & preferences</p>
+    </div>
+ 
+    <div class="settings-container my-5">
+        <div class="row">
+ 
+            <!-- ===== LEFT MENU ===== -->
+            <div class="col-md-3 mb-4">
+                <div class="settings-card">
+                    <div class="settings-section">
+                        <div class="nav flex-column nav-pills">
+                            <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#security">
+                                <i class="fas fa-shield-alt me-2"></i>Security
+                            </button>
+                            <button class="nav-link" data-bs-toggle="pill" data-bs-target="#notifications">
+                                <i class="fas fa-bell me-2"></i>Notifications
+                            </button>
+                            <button class="nav-link" data-bs-toggle="pill" data-bs-target="#privacy">
+                                <i class="fas fa-lock me-2"></i>Privacy
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+ 
+            <!-- ===== RIGHT CONTENT ===== -->
+            <div class="col-md-9">
+                <div class="tab-content">
+ 
+                    <!-- ===== SECURITY ===== -->
+                    <div class="tab-pane fade show active" id="security">
+                        <div class="settings-card">
+                            <div class="settings-section">
+                                <h4 class="mb-4">Change Password</h4>
+ 
+                                <form method="post">
+                                    {% csrf_token %}
+                                    <label>Old Password</label>
+                                    <input type="password" name="old_password" class="form-control mb-3">
+ 
+                                    <label>New Password</label>
+                                    <input type="password" name="new_password1" class="form-control mb-3">
+ 
+                                    <label>Confirm Password</label>
+                                    <input type="password" name="new_password2" class="form-control mb-4">
+ 
+                                    <button type="submit" name="change_password" class="btn btn-primary">
+                                        Update Password
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+ 
+                    <!-- ===== NOTIFICATIONS ===== -->
+                    <div class="tab-pane fade" id="notifications">
+                        <div class="settings-card">
+                            <div class="settings-section">
+                                <h4 class="mb-4">Notification Preferences</h4>
+ 
+                                <form method="post">
+                                    {% csrf_token %}
+ 
+                                    <div class="form-check form-switch mb-3">
+                                        <input class="form-check-input" type="checkbox" checked>
+                                        <label>Email Notifications</label>
+                                    </div>
+ 
+                                    <div class="form-check form-switch mb-3">
+                                        <input class="form-check-input" type="checkbox" checked>
+                                        <label>Course Updates</label>
+                                    </div>
+ 
+                                    <div class="form-check form-switch mb-4">
+                                        <input class="form-check-input" type="checkbox" checked>
+                                        <label>Student Activity Updates</label>
+                                    </div>
+ 
+                                    <button class="btn btn-primary">Save Preferences</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+ 
+                    <!-- ===== PRIVACY ===== -->
+                    <div class="tab-pane fade" id="privacy">
+                        <div class="settings-card">
+                            <div class="settings-section">
+                                <h4 class="mb-4">Privacy Settings</h4>
+ 
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="radio" checked>
+                                    <label>Public Profile</label>
+                                </div>
+ 
+                                <div class="form-check mb-4">
+                                    <input class="form-check-input" type="radio">
+                                    <label>Private Profile</label>
+                                </div>
+ 
+                                <button class="btn btn-primary">Save Settings</button>
+                            </div>
+                        </div>
+                    </div>
+ 
+                </div>
+            </div>
+ 
+        </div>
+    </div>
+</div>
+ 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+ 
+ 

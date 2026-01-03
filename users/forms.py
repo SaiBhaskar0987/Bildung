@@ -10,7 +10,7 @@ class StudentSignUpForm(UserCreationForm):
 
     def save(self, commit=True):
         user = super().save(commit=False)
-        user.username = self.cleaned_data["email"]  # Email is used as username
+        user.username = self.cleaned_data["email"]  
         if commit:
             user.save()
         return user 
@@ -30,7 +30,7 @@ class InstructorSignUpForm(UserCreationForm):
     def save(self, commit=True):
         user = super().save(commit=False)
         user.role = "instructor"
-        user.username = self.cleaned_data["email"]  # Email is used as username
+        user.username = self.cleaned_data["email"]  
         if commit:
             user.save()
         return user 

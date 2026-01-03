@@ -94,7 +94,6 @@
 #aiChatBox { bottom: 90px; height: 400px; }
 #noteBox { bottom: 160px; height: 360px; }
 
-/* Chatbox header */
 .chatbox .chat-header {
     background: #4c6ef5;
     color: white;
@@ -110,7 +109,6 @@
     font-size: 18px;
 }
 
-/* Chatbot body */
 .chatbox .chat-body {
     padding: 10px;
     height: 270px;
@@ -128,7 +126,6 @@
     border: 1px solid #ddd;
 }
 
-/* Notepad */
 .note-info {
     padding: 8px 12px;
     background: #f8f9fa;
@@ -276,11 +273,9 @@
     </div>
 </section>
 
-
 <div id="aiChatBtn" class="floating-btn">🤖</div>
 <div id="noteBtn" class="floating-btn">📝</div>
 
-<!-- CHATBOT WINDOW -->
 <div id="aiChatBox" class="chatbox">
     <div class="chat-header">
         AI Chatbot
@@ -295,8 +290,6 @@
     </div>
 </div>
 
-
-<!-- NOTEPAD WINDOW -->
 <div id="noteBox" class="chatbox">
     <div class="chat-header">
         Quick Notepad
@@ -333,7 +326,6 @@ document.addEventListener("DOMContentLoaded", function () {
             .then(res => res.json())
             .then(data => {
 
-                // Update count
                 let bell = document.getElementById("notifBell");
                 let badge = bell.querySelector(".badge");
 
@@ -349,7 +341,6 @@ document.addEventListener("DOMContentLoaded", function () {
                     badge.remove();
                 }
 
-                // Render notifications
                 let list = document.getElementById("notifList");
                 list.innerHTML = "";
 

@@ -115,7 +115,7 @@
                 <li><a class="dropdown-item" href="{% url 'instructor_notifications' %}">Notifications</a></li>
                 <li><a class="dropdown-item" href="#">Earnings & Payments</a></li>
                 <li><a class="dropdown-item" href="#">Help & Support</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor:account_settings' %}">Account Settings</a></li>
+                <li><a class="dropdown-item" href="{% url 'instructor_account_settings' %}">Account Settings</a></li>
                 <li><hr class="dropdown-divider"></li>
                 <li><a class="dropdown-item text-danger" href="{% url 'logout_view' %}">Logout</a></li>
         </ul>
@@ -288,11 +288,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 props.event_description || "";
 
             if (props.type === "live_class") {
-                document.getElementById("editBtn").href = `/instructor/edit-class/${e.id}/`;
-                document.getElementById("deleteBtn").href = `/instructor/delete-class/${e.id}/`;
+                document.getElementById("editBtn").href = `/accounts/instructor/edit-class/${e.id}/`;
+                document.getElementById("deleteBtn").href = `/accounts/instructor/delete-class/${e.id}/`;
             } else {
-                document.getElementById("editBtn").href = `/instructor/edit-event/${e.id}/`;
-                document.getElementById("deleteBtn").href = `/instructor/delete-event/${e.id}/`;
+                document.getElementById("editBtn").href = `/accounts/instructor/edit-event/${e.id}/`;
+                document.getElementById("deleteBtn").href = `/accounts/instructor/delete-event/${e.id}/`;
             }
 
             new bootstrap.Modal(document.getElementById("eventModal")).show();

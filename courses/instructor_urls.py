@@ -27,7 +27,6 @@ urlpatterns = [
     path("reply/<int:reply_id>/delete/", views.delete_reply, name="delete_reply"),
     path("course/<int:course_id>/overview/", views.course_overview, name="course_overview"),
     path("course/<int:course_id>/student/<int:student_id>/history/",views.student_history, name="student_history"),
-    path("account-settings/", views.instructor_account_settings, name="account_settings"),
 
     # Edit Course
     path("courses/<int:course_id>/edit/", views.edit_course, name="edit_course"),

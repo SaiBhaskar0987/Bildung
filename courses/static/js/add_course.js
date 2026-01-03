@@ -109,7 +109,7 @@ function deleteModule(index) {
 
     if (item.type === "Module" && item.module_id) {
 
-        fetch(`/instructor/module/${item.module_id}/delete/`, {
+        fetch(`/accounts/instructor/module/${item.module_id}/delete/`, {
             method: "POST",
             headers: { "Content-Type": "application/json" }
         })
@@ -135,7 +135,7 @@ function openModule(index) {
 
     if (!item.module_id) {
 
-        fetch(`/instructor/module/create/`, {
+        fetch(`/accounts/instructor/module/create/`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ course_id: courseId })
@@ -147,7 +147,7 @@ function openModule(index) {
 
             saveCourse(() => {
                 window.location.href =
-                    `/instructor/courses/${courseId}/module/${data.module_id}/module_add/`;
+                    `/accounts/instructor/courses/${courseId}/module/${data.module_id}/module_add/`;
             });
         });
 
@@ -156,7 +156,7 @@ function openModule(index) {
 
     saveCourse(() => {
         window.location.href =
-            `/instructor/courses/${courseId}/module/${item.module_id}/module_add/`;
+            `/accounts/instructor/courses/${courseId}/module/${item.module_id}/module_add/`;
     });
 }
 
@@ -172,7 +172,7 @@ function saveCourse(callback = null) {
         structure: structure
     };
 
-    fetch(`/instructor/save/`, {
+    fetch(`/accounts/instructor/save/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
@@ -191,6 +191,6 @@ function publishCourse() {
     if (!courseId) return alert("Please save before publishing!");
 
     saveCourse(() => {
-        window.location.href = `/instructor/publish/${courseId}/`;
+        window.location.href = `/accounts/instructor/publish/${courseId}/`;
     });
 }

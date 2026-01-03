@@ -9,10 +9,11 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <script>
-        const BASE_URL = "/instructor";
+        const BASE_URL = "/accounts/instructor";
         const COURSE_ID = "{{ course_id }}";
         const MODULE_ID = "{{ module.id }}";
     </script>
+
 
 <style>
 
@@ -143,6 +144,7 @@
 
 </div>
 
+
 <div class="paper">
 
     <h1 class="title">ADD MODULE</h1>
@@ -211,14 +213,6 @@
     </div>
 
 </div>
-
-<script>
-
-function goBack() {
-    window.location.href = `/instructor/courses/add/?course_id=${COURSE_ID}`;
-}
-
-</script>
 
 <script src="{% static 'js/add_module.js' %}"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

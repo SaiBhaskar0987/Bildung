@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <title>Bildung - Learn Anything</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+ 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
+ 
   <style>
     body { font-family: 'Poppins', sans-serif; }
     .hero {
@@ -20,31 +20,33 @@
     }
     .hero h1 { font-size: 3rem; font-weight: bold; }
     .search-bar input { width: 60%; max-width: 500px; }
-
+    .btn-warning { padding: 0 20px; }
+ 
+ 
     .course-card { transition: transform 0.2s ease; }
     .course-card:hover {
       transform: translateY(-5px);
       box-shadow: 0 4px 15px rgba(0,0,0,0.2);
     }
-
+ 
     footer {
       background: #f8f9fa;
       padding: 20px 0;
       text-align: center;
       margin-top: 50px;
     }
-
+ 
     .popular-section {
       background: #f9fafc;
       padding: 60px 20px;
     }
-
+ 
     .popular-section h2 {
       font-weight: bold;
       margin-bottom: 30px;
       color: #333;
     }
-
+ 
     .popular-course {
       background: white;
       border-radius: 10px;
@@ -52,9 +54,9 @@
       box-shadow: 0 3px 8px rgba(0,0,0,0.1);
       transition: transform 0.2s;
     }
-
+ 
     .popular-course:hover { transform: translateY(-5px); }
-
+ 
     .floating-btn {
         position: fixed;
         right: 25px;
@@ -71,11 +73,11 @@
         font-size: 26px;
         box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     }
-
+ 
     #aiChatBtn { bottom: 25px; }
-
+ 
     #noteBtn { bottom: 95px; }
-
+ 
     .chatbox {
         position: fixed;
         right: 90px;
@@ -86,19 +88,19 @@
         flex-direction: column;
         box-shadow: 0 4px 16px rgba(0,0,0,0.25);
         z-index: 9998;
-        overflow: hidden;     
+        overflow: hidden;    
     }
-
+ 
     #aiChatBox {
         bottom: 90px;
         height: 400px;
     }
-
+ 
     #noteBox {
         bottom: 160px;
         height: 360px;
     }
-
+ 
     .chatbox .chat-header {
         background: #4c6ef5;
         color: white;
@@ -109,7 +111,7 @@
         justify-content: space-between;
         align-items: center;
     }
-
+ 
     .chatbox .close-btn {
         background: transparent;
         border: none;
@@ -118,21 +120,21 @@
         cursor: pointer;
         padding: 0;
     }
-
+ 
     .chatbox .chat-body {
         padding: 10px;
         height: 270px;
         overflow-y: auto;
         font-size: 14px;
     }
-
+ 
     .chatbox .chat-footer {
         display: flex;
         padding: 10px;
         gap: 5px;
         border-top: 1px solid #ddd;
     }
-
+ 
     .chatbox .chat-footer input {
         flex: 1;
         padding: 8px;
@@ -140,7 +142,7 @@
         border: 1px solid #ccc;
         outline: none;
     }
-
+ 
     .chatbox .chat-footer button {
         background: #4c6ef5;
         color: white;
@@ -149,7 +151,7 @@
         border-radius: 6px;
         cursor: pointer;
     }
-
+ 
     #noteBox .note-info {
         padding: 8px 12px;
         background: #f8f9fa;
@@ -159,7 +161,7 @@
         display: flex;
         justify-content: space-between;
     }
-
+ 
     #noteBox .note-area {
         width: 100%;
         height: 220px;
@@ -169,12 +171,12 @@
         resize: none;
         outline: none;
     }
-
+ 
     #noteBox .note-footer {
         text-align: right;
         padding: 8px 0;
     }
-
+ 
     #noteBox .save-note-btn {
         background: #4c6ef5;
         color: white;
@@ -183,7 +185,7 @@
         border: none;
         cursor: pointer;
     }
-
+ 
     #noteBox .bullet-btn {
         background: #198754;
         color: white;
@@ -193,7 +195,7 @@
         cursor: pointer;
         margin-bottom:10px;
     }
-
+ 
     #noteBox .storage-warning {
         color: #dc3545;
         font-size: 11px;
@@ -204,7 +206,7 @@
   </style>
 </head>
 <body>
-
+ 
   <nav class="navbar navbar-expand-lg navbar-light bg-light px-4">
     <a class="navbar-brand fw-bold" href="/">Bildung</a>
     <div class="ms-auto">
@@ -224,18 +226,21 @@
       {% endif %}
     </div>
   </nav>
-
+ 
   <section class="hero">
     <h1>Learn Anything, Anytime, Anywhere</h1>
     <p>Join thousands of learners and instructors on Bildung.</p>
-    <div class="search-bar mt-4">
-      <form method="get" action="{% url 'courses:course_list' %}">
-        <input type="text" class="form-control d-inline-block" name="q" placeholder="Search for courses...">
-        <button type="submit" class="btn btn-warning mt-3">Search</button>
-      </form>
+   <div class="search-bar mt-4">
+  <form method="get" action="{% url 'courses:course_list' %}">
+    <div class="input-group justify-content-center">
+      <input type="text" class="form-control" name="q" placeholder="Search for courses...">
+      <button type="submit" class="btn btn-warning">Search</button>
     </div>
+  </form>
+</div>
+ 
   </section>
-
+ 
   <section class="container my-5">
     <h2 class="mb-4">Popular Categories</h2>
     <div class="row text-center">
@@ -252,7 +257,7 @@
       {% endfor %}
     </div>
   </section>
-
+ 
   <section class="popular-section container my-5">
     <h2 class="mb-4">Top 4 Popular Courses</h2>
     <div class="row">
@@ -261,11 +266,11 @@
         <div class="popular-course h-100">
           <h5 class="fw-bold">{{ course.title }}</h5>
           <p class="text-muted mb-1">{{ course.category|title }}</p>
-
+ 
           {% if course.count %}
             <p class="text-secondary small mb-2">Repeated {{ course.count }} times</p>
           {% endif %}
-
+ 
           <a href="javascript:void(0)" onclick="viewCourse('{{ course.title }}')" class="btn btn-outline-primary btn-sm mt-2">
             View Course
           </a>
@@ -276,7 +281,7 @@
       {% endfor %}
     </div>
   </section>
-
+ 
   <section class="container my-5">
     <h2 class="mb-4">Featured Courses</h2>
     <div class="row">
@@ -308,7 +313,7 @@
       </div>
     </div>
   </div>
-
+ 
   <div class="modal fade" id="courseModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
@@ -316,24 +321,24 @@
           <h5 id="courseModalTitle" class="modal-title fw-bold"></h5>
           <button class="btn-close" data-bs-dismiss="modal"></button>
         </div>
-
+ 
         <div class="modal-body">
           <p><strong>Category:</strong> <span id="courseCategory"></span></p>
           <p><strong>Price:</strong> ₹<span id="coursePrice"></span></p>
           <p><strong>Description:</strong></p>
           <p id="courseDescription"></p>
         </div>
-
+ 
         <div class="modal-footer">
           <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
         </div>
       </div>
     </div>
   </div>
-
+ 
 <div id="aiChatBtn" class="floating-btn">🤖</div>
 <div id="noteBtn" class="floating-btn">📝</div>
-
+ 
 <div id="aiChatBox" class="chatbox">
     <div class="chat-header">
         <span>AI Chatbot</span>
@@ -347,24 +352,24 @@
         <button onclick="sendAIMessage()">Send</button>
     </div>
 </div>
-
+ 
 <div id="noteBox" class="chatbox">
     <div class="chat-header">
         <span>Quick Notepad</span>
         <button class="close-btn" onclick="toggleNote()">✖</button>
     </div>
-
+ 
     <div class="note-info">
         <span id="storageInfo">Storage: 0/200MB</span>
         <span id="expiryInfo">Expires: -</span>
     </div>
-    
+   
     <textarea id="noteArea" class="note-area" placeholder="Write notes here..."></textarea>
-
+ 
     <div id="storageWarning" class="storage-warning">
         ⚠️ Approaching storage limit (200MB)
     </div>
-    
+   
     <div class="note-footer">
         <button class="save-note-btn" onclick="saveNote()">Save</button>
     </div>
@@ -372,27 +377,27 @@
         <button class="bullet-btn" onclick="addBullet()"><h6>•Bullet point</h6></button>
     </div>
 </div>
-
+ 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
+ 
   <script>
     const allCourses = [
       {% for c in courses %}
       { title: "{{ c.title }}", category: "{{ c.category }}" },
       {% endfor %}
     ];
-
+ 
     function openCategoryPopup(categoryName) {
       const title = document.getElementById("categoryTitle");
       const list = document.getElementById("categoryCourseList");
-
+ 
       title.innerText =
         categoryName.charAt(0).toUpperCase() + categoryName.slice(1) + " Courses";
-
+ 
       list.innerHTML = "";
-
+ 
       const filtered = allCourses.filter(c => c.category === categoryName);
-
+ 
       if (filtered.length === 0) {
         list.innerHTML = "<li class='list-group-item'>No courses found.</li>";
       } else {
@@ -400,10 +405,10 @@
           list.innerHTML += `<li class="list-group-item">${c.title}</li>`
         );
       }
-
+ 
       new bootstrap.Modal(document.getElementById("categoryModal")).show();
     }
-
+ 
     // View Course popup
     const allDetailedCourses = [
       {% for c in courses %}
@@ -415,31 +420,31 @@
       },
       {% endfor %}
     ];
-
+ 
     function viewCourse(title) {
       const course = allDetailedCourses.find(c => c.title === title);
       if (!course) { alert("Course not found."); return; }
-
+ 
       document.getElementById("courseModalTitle").innerText = course.title;
       document.getElementById("courseCategory").innerText =
         course.category.charAt(0).toUpperCase() + course.category.slice(1);
       document.getElementById("coursePrice").innerText = course.price;
       document.getElementById("courseDescription").innerText = course.description;
-
+ 
       new bootstrap.Modal(document.getElementById("courseModal")).show();
     }
-
+ 
     const NOTEPAD_CONFIG = {
-        MAX_STORAGE: 200 * 1024 * 1024, 
+        MAX_STORAGE: 200 * 1024 * 1024,
         EXPIRY_DAYS: 14,
         STORAGE_KEY: 'quickNoteData'
     };
-
+ 
     function toggleAIChat() {
         const box = document.getElementById('aiChatBox');
         box.style.display = box.style.display === 'flex' ? 'none' : 'flex';
     }
-
+ 
     function toggleNote() {
         const box = document.getElementById('noteBox');
         box.style.display = box.style.display === 'flex' ? 'none' : 'flex';
@@ -447,23 +452,23 @@
             updateStorageInfo();
         }
     }
-
+ 
     function saveNote() {
         const text = document.getElementById("noteArea").value;
         const textSize = new Blob([text]).size;
-        
+       
         if (textSize > NOTEPAD_CONFIG.MAX_STORAGE) {
             alert(`Note too large! Maximum size is 200MB. Your note is ${formatBytes(textSize)}.`);
             return;
         }
-        
+       
         const noteData = {
             text: text,
             timestamp: new Date().toISOString(),
             expiry: new Date(Date.now() + NOTEPAD_CONFIG.EXPIRY_DAYS * 24 * 60 * 60 * 1000).toISOString(),
             size: textSize
         };
-        
+       
         try {
             localStorage.setItem(NOTEPAD_CONFIG.STORAGE_KEY, JSON.stringify(noteData));
             updateStorageInfo();
@@ -476,7 +481,7 @@
             }
         }
     }
-
+ 
     function loadNote() {
         try {
             const saved = localStorage.getItem(NOTEPAD_CONFIG.STORAGE_KEY);
@@ -484,7 +489,7 @@
                 const noteData = JSON.parse(saved);
                 const now = new Date();
                 const expiry = new Date(noteData.expiry);
-
+ 
                 if (now > expiry) {
                     localStorage.removeItem(NOTEPAD_CONFIG.STORAGE_KEY);
                     document.getElementById("noteArea").value = "";
@@ -492,7 +497,7 @@
                     showTemporaryMessage("Previous note has expired and was cleared.");
                     return;
                 }
-                
+               
                 document.getElementById("noteArea").value = noteData.text;
                 updateStorageInfo();
             }
@@ -500,31 +505,31 @@
             console.error("Error loading note:", e);
         }
     }
-
+ 
     function updateStorageInfo() {
         const saved = localStorage.getItem(NOTEPAD_CONFIG.STORAGE_KEY);
         const storageInfo = document.getElementById("storageInfo");
         const expiryInfo = document.getElementById("expiryInfo");
         const warning = document.getElementById("storageWarning");
-        
+       
         if (saved) {
             try {
                 const noteData = JSON.parse(saved);
                 const textSize = noteData.size;
                 const expiry = new Date(noteData.expiry);
-
+ 
                 storageInfo.textContent = `Storage: ${formatBytes(textSize)}/200MB`;
-
+ 
                 const daysLeft = Math.ceil((expiry - new Date()) / (1000 * 60 * 60 * 24));
                 expiryInfo.textContent = `Expires: ${daysLeft} day${daysLeft !== 1 ? 's' : ''}`;
-
+ 
                 const usagePercent = (textSize / NOTEPAD_CONFIG.MAX_STORAGE) * 100;
                 if (usagePercent > 80) {
                     warning.style.display = 'block';
                 } else {
                     warning.style.display = 'none';
                 }
-                
+               
             } catch (e) {
                 console.error("Error parsing note data:", e);
             }
@@ -534,19 +539,19 @@
             warning.style.display = 'none';
         }
     }
-
+ 
     function formatBytes(bytes, decimals = 2) {
         if (bytes === 0) return '0 Bytes';
-        
+       
         const k = 1024;
         const dm = decimals < 0 ? 0 : decimals;
         const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-        
+       
         const i = Math.floor(Math.log(bytes) / Math.log(k));
-        
+       
         return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
     }
-
+ 
     function showTemporaryMessage(message) {
         const tempMsg = document.createElement('div');
         tempMsg.textContent = message;
@@ -562,12 +567,12 @@
             font-size: 14px;
         `;
         document.body.appendChild(tempMsg);
-        
+       
         setTimeout(() => {
             document.body.removeChild(tempMsg);
         }, 3000);
     }
-
+ 
     function cleanupExpiredNotes() {
         const saved = localStorage.getItem(NOTEPAD_CONFIG.STORAGE_KEY);
         if (saved) {
@@ -575,7 +580,7 @@
                 const noteData = JSON.parse(saved);
                 const now = new Date();
                 const expiry = new Date(noteData.expiry);
-                
+               
                 if (now > expiry) {
                     localStorage.removeItem(NOTEPAD_CONFIG.STORAGE_KEY);
                     console.log("Expired note cleaned up");
@@ -585,49 +590,49 @@
             }
         }
     }
-
+ 
     function sendAIMessage() {
         let input = document.getElementById("aiInput");
         let messages = document.getElementById("aiMessages");
-
+ 
         if (input.value.trim() === "") return;
-
+ 
         messages.innerHTML += `<p><b>You:</b> ${input.value}</p>`;
         messages.innerHTML += `<p><b>AI:</b> Thinking...</p>`;
-
+ 
         setTimeout(() => {
             messages.innerHTML += `<p><b>AI:</b> This is AI response for: '${input.value}'</p>`;
             messages.scrollTop = messages.scrollHeight;
         }, 600);
-
+ 
         input.value = "";
     }
-
+ 
     function addBullet() {
         const textarea = document.getElementById("noteArea");
-
+ 
         const start = textarea.selectionStart;
         const end = textarea.selectionEnd;
-
+ 
         let text = textarea.value;
-
+ 
         const bullet = "• ";
-
+ 
         textarea.value = text.substring(0, start) + bullet + text.substring(end);
-
+ 
         textarea.selectionStart = textarea.selectionEnd = start + bullet.length;
-
+ 
         textarea.focus();
     }
-
+ 
     document.addEventListener('DOMContentLoaded', function() {
         cleanupExpiredNotes();
         loadNote();
-        
+       
         document.getElementById("aiChatBtn").onclick = toggleAIChat;
         document.getElementById("noteBtn").onclick = toggleNote;
     });
   </script>
-
+ 
 </body>
 </html>

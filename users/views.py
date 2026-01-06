@@ -1,5 +1,5 @@
 from io import BytesIO
-from django.http import FileResponse, JsonResponse
+from django.http import FileResponse, HttpResponse, JsonResponse
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth import login, authenticate, logout
@@ -16,6 +16,10 @@ from courses.utils import check_and_send_reminders
 from django.contrib.auth import update_session_auth_hash
 from .models import EmailVerification
 from .utils import send_verification_email
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib.auth.hashers import make_password 
+from django.urls import reverse
+from .models import PasswordChangeRequest
 
 from .models import User, Profile, LoginHistory, InstructorProfile
 from .forms import StudentSignUpForm, InstructorSignUpForm, ProfileForm, UserDisplayForm, InstructorUserReadOnlyForm, InstructorUserForm, InstructorProfileForm
@@ -113,75 +117,71 @@ def student_dashboard(request):
 
 @login_required
 def account_settings(request):
-    if request.user.role != "student":
-        return redirect("login")
-    
     user = request.user
-    profile, created = Profile.objects.get_or_create(user=user)
-    
-    if request.method == 'POST':
 
-        if 'update_profile' in request.POST:
-            
-            user.first_name = request.POST.get('first_name', user.first_name)
-            user.last_name = request.POST.get('last_name', user.last_name)
-            user.email = request.POST.get('email', user.email)
-            user.save()
+    if request.method == "POST" and "change_password" in request.POST:
+        current_password = request.POST.get("current_password")
+        new_password = request.POST.get("new_password")
+        confirm_password = request.POST.get("confirm_password")
 
-            profile.phone = request.POST.get('phone', profile.phone)
-            profile.about_me = request.POST.get('about_me', profile.about_me)
-            profile.gender = request.POST.get('gender', profile.gender)
-            profile.qualification = request.POST.get('qualification', profile.qualification)
+        # 1️⃣ Validate current password
+        if not user.check_password(current_password):
+            messages.error(request, "❌ Current password is incorrect")
+            return redirect("account_settings")
 
-            dob = request.POST.get('date_of_birth')
-            if dob:
-                profile.date_of_birth = dob
+        # 2️⃣ Validate new passwords
+        if new_password != confirm_password:
+            messages.error(request, "❌ New passwords do not match")
+            return redirect("account_settings")
 
-            if 'resume' in request.FILES:
-                profile.resume = request.FILES['resume']
+        # 3️⃣ Create password change request (NOT updating password yet)
+        password_request = PasswordChangeRequest.objects.create(
+            user=user,
+            new_password=make_password(new_password)  # hash before storing
+        )
 
-            if 'profile_picture' in request.FILES:
-                profile.profile_picture = request.FILES['profile_picture']
+        confirm_link = f"http://127.0.0.1:8000/confirm-password/{password_request.token}/"
 
-            profile.save()
+        # 🔗 PRINT LINK IN TERMINAL
+        print("\n🔐 PASSWORD CONFIRMATION LINK")
+        print(confirm_link)
+        print("⬆️ Click this link to confirm password change\n")
 
-            messages.success(request, "Profile updated successfully!")
-            return redirect('account_settings')
+        messages.info(
+            request,
+            "⚠️ Confirmation link generated. Check VS Code terminal."
+        )
 
-        elif 'change_password' in request.POST:
+        return redirect("account_settings")
 
-            old_password = request.POST.get('old_password')
-            new_password1 = request.POST.get('new_password1')
-            new_password2 = request.POST.get('new_password2')
-            
-            if user.check_password(old_password):
-                if new_password1 == new_password2:
-                    if len(new_password1) >= 8:
-                        user.set_password(new_password1)
-                        user.save()
-                        update_session_auth_hash(request, user)
-                        messages.success(request, "Password changed successfully!")
-                    else:
-                        messages.error(request, "Password must be at least 8 characters long.")
-                else:
-                    messages.error(request, "New passwords do not match.")
-            else:
-                messages.error(request, "Current password is incorrect.")
+    return render(request, "users/account_settings.html")
 
-            return redirect('account_settings')
 
-        elif 'update_notifications' in request.POST:
-            email_notifications = 'email_notifications' in request.POST
-            course_updates = 'course_updates' in request.POST
+def confirm_password_change(request, token):
+    password_request = get_object_or_404(
+        PasswordChangeRequest,
+        token=token,
+        is_confirmed=False
+    )
 
-            messages.success(request, "Notification preferences updated!")
-            return redirect('account_settings')
-    
-    context = {
-        'user': user,
-        'profile': profile,
-    }
-    return render(request, 'student/account_settings.html', context)
+    if request.method == "POST":
+        user = password_request.user
+
+        # ✅ Update password now
+        user.password = password_request.new_password
+        user.save()
+
+        update_session_auth_hash(request, user)
+
+        password_request.is_confirmed = True
+        password_request.save()
+
+        return HttpResponse(
+            "<h2>✅ Your password changed successfully</h2>"
+        )
+
+    return render(request, "users/confirm_password.html")
+
 
 @login_required
 def profile_view_or_edit(request, mode=None):

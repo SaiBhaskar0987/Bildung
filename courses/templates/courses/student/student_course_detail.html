@@ -314,7 +314,7 @@ document.addEventListener("DOMContentLoaded", () => {
     modal.addEventListener("show.bs.modal", function (event) {
         const btn = event.relatedTarget;
         const lectureId = btn.getAttribute("data-lecture-id");
-        form.action = `/student/lecture/${lectureId}/ask/`;
+        form.action = `/accounts/student/lecture/${lectureId}/ask/`;
     });
 
 });

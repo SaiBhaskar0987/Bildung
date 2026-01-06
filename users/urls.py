@@ -7,9 +7,12 @@ urlpatterns = [
     # =====================
     path("auth/", views.auth_page, name="auth_page"),
 
-    # =====================
-    # STUDENT AUTH
-    # =====================
+    #verification
+    path("check-email/", views.check_email, name="check_email"),
+    path("verify/<str:role>/<uuid:token>/", views.verify_email, name="verify_email"),
+
+    # Student
+
     path("student/signup/", views.student_signup, name="student_signup"),
     path("student/login/", views.student_login, name="student_login"),
     path("student/dashboard/", views.student_dashboard, name="student_dashboard"),
@@ -85,53 +88,19 @@ urlpatterns = [
     # =====================
     path("instructor/signup/", views.instructor_signup, name="instructor_signup"),
     path("instructor/login/", views.instructor_login, name="instructor_login"),
-    path("dashboard/", views.instructor_dashboard, name="instructor_dashboard"),
+    path('instructor/dashboard/', views.instructor_dashboard, name='instructor_dashboard'),
+    path("instructor/profile/", views.instructor_profile_view_or_edit, name="instructor_profile_view"),
+    path("instructor/profile/<str:mode>/", views.instructor_profile_view_or_edit, name="instructor_profile_edit"),
+     path("recent-notifications/", views.instructor_recent_notifications, name="instructor_recent_notifications"),
+    path("notifications/", views.instructor_notifications_page, name="instructor_notifications"),
+    path("mark-read/<int:notif_id>/", views.instructor_mark_read, name="mark_notification_read"),
+    path("mark-all-read/", views.instructor_mark_all_read, name="mark_notifications_read"),
+    path("settings/", views.instructor_account_settings, name="instructor_account_settings"),
 
-    path(
-        "instructor/profile/",
-        views.instructor_profile_view_or_edit,
-        name="instructor_profile_view",
-    ),
-    path(
-        "instructor/profile/<str:mode>/",
-        views.instructor_profile_view_or_edit,
-        name="instructor_profile_edit",
-    ),
+    # Include all instructor dashboard & course URLs
+    path("instructor/", include(("courses.instructor_urls", "instructor"), namespace="instructor")),
 
-    # Instructor notifications
-    path(
-        "recent-notifications/",
-        views.instructor_recent_notifications,
-        name="instructor_recent_notifications",
-    ),
-    path(
-        "notifications/",
-        views.instructor_notifications_page,
-        name="instructor_notifications",
-    ),
-    path(
-        "mark-read/<int:notif_id>/",
-        views.instructor_mark_read,
-        name="mark_notification_read",
-    ),
-    path(
-        "mark-all-read/",
-        views.instructor_mark_all_read,
-        name="mark_notifications_read",
-    ),
-
-    # Instructor courses
-    path(
-        "instructor/",
-        include(
-            ("courses.instructor_urls", "instructor"),
-            namespace="instructor",
-        ),
-    ),
-
-    # =====================
-    # ADMIN
-    # =====================
+    # Admin
     path("admin/dashboard/", views.admin_dashboard, name="admin_dashboard"),
 
     # =====================
@@ -144,21 +113,16 @@ urlpatterns = [
         name="post_login_redirect",
     ),
 
-    # =====================
-    # GOOGLE OAUTH
-    # =====================
-    path(
-        "social-auth/",
-        include("social_django.urls", namespace="social"),
-    ),
-    path(
-        "google/login/",
-        views.google_oauth_entry,
-        name="google_oauth_entry",
-    ),
-    path(
-        "google-redirect/",
-        views.google_login_redirect,
-        name="google_login_redirect",
-    ),
+    # Post-login redirect
+    path("post-login/", views.post_login_redirect_view, name="post_login_redirect"),
+
+    # Google OAuth Routes
+ #   path("social-auth/", include("social_django.urls", namespace="social")),
+    path("google/login/", views.google_oauth_entry, name="google_oauth_entry"),
+    path("google-redirect/", views.google_login_redirect, name="google_login_redirect"),
 ]
+
+
+
+    
+

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+
+<html>
+<body style="font-family: Arial, sans-serif; background:#f9f9f9; padding:20px;">
+
+  <div style="max-width:600px; margin:auto; background:white; padding:25px; border-radius:8px;">
+
+```
+<h2 style="color:#333;">Welcome to Bildung 🎓</h2>
+
+<p>Hello <strong>{{ user.first_name }}</strong>,</p>
+
+<p>
+  Thank you for signing up!  
+  Please verify your email address to activate your account.
+</p>
+
+<p style="text-align:center; margin:30px 0;">
+  <a href="{{ verify_url }}"
+     style="padding:12px 24px;
+            background:#28a745;
+            color:white;
+            text-decoration:none;
+            border-radius:6px;
+            font-weight:bold;">
+    ✅ Click here to verify
+  </a>
+</p>
+
+<p>If the button doesn’t work, copy and paste this link into your browser:</p>
+
+<p style="word-break:break-all; color:#0066cc;">
+  {{ verify_url }}
+</p>
+
+<hr style="margin:25px 0;">
+
+<p style="font-size:14px; color:#666;">
+  If you didn’t create this account, you can safely ignore this email.
+</p>
+
+<p style="font-size:14px; color:#666;">
+  — Bildung Team
+</p>
+```
+
+  </div>
+
+</body>
+</html>

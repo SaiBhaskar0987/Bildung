@@ -321,7 +321,8 @@ class Assignment(models.Model):
         ordering = ["sort_order"]
 
     def __str__(self):
-        return f"{self.course.title} - {self.title}"
+        return f"{self.course.title} - Assignment: {self.title}"
+
 
 
 # =========================
@@ -336,6 +337,7 @@ class Notification(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.message[:30]}"
+    
 
 
 # =========================
@@ -346,6 +348,7 @@ class LiveClassAttendance(models.Model):
     live_class = models.ForeignKey(LiveClass, on_delete=models.CASCADE)
     joined_at = models.DateTimeField(null=True, blank=True)
     duration = models.IntegerField(default=0)
+    
 class PasswordChangeRequest(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     new_password = models.CharField(max_length=255)  # hashed

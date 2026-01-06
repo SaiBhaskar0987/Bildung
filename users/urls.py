@@ -12,14 +12,12 @@ urlpatterns = [
     path("verify/<str:role>/<uuid:token>/", views.verify_email, name="verify_email"),
 
     # Student
-
     path("student/signup/", views.student_signup, name="student_signup"),
     path("student/login/", views.student_login, name="student_login"),
     path("student/dashboard/", views.student_dashboard, name="student_dashboard"),
 
-    # =====================
+
     # ACCOUNT SETTINGS (PASSWORD CONFIRM FLOW)
-    # =====================
     path("account-settings/", views.account_settings, name="account_settings"),
     path(
         "confirm-password/<uuid:token>/",
@@ -117,7 +115,6 @@ urlpatterns = [
     path("post-login/", views.post_login_redirect_view, name="post_login_redirect"),
 
     # Google OAuth Routes
- #   path("social-auth/", include("social_django.urls", namespace="social")),
     path("google/login/", views.google_oauth_entry, name="google_oauth_entry"),
     path("google-redirect/", views.google_login_redirect, name="google_login_redirect"),
 ]

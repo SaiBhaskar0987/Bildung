@@ -237,3 +237,12 @@ class Notification(models.Model):
     def __str__(self):
         return f"{self.user.username} - {self.message[:30]}"
     
+class PasswordChangeRequest(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    new_password = models.CharField(max_length=255)  
+    token = models.UUIDField(default=uuid.uuid4, unique=True)
+    is_confirmed = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Password change for {self.user.email}"

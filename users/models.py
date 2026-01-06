@@ -1,3 +1,4 @@
+import uuid
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.conf import settings
@@ -137,3 +138,17 @@ class EmailVerification(models.Model):
 
     def __str__(self):
         return f"{self.user.email} - {self.token}"
+    
+class PasswordChangeRequest(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="user_password_change_requests"  # ✅ FIX
+    )
+    new_password = models.CharField(max_length=255)  # hashed
+    token = models.UUIDField(default=uuid.uuid4, unique=True)
+    is_confirmed = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Password change for {self.user.email}"

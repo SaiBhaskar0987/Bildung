@@ -38,7 +38,12 @@
             <ul class="dropdown-menu dropdown-menu-end">
                 <li><a class="dropdown-item" href="{% url 'profile_view' %}">Profile</a></li>
                 <li><a class="dropdown-item" href="{% url 'student:my_courses' %}">My Courses</a></li>
-                <li><a class="dropdown-item" href="{% url 'student_my_activity' %}">My Activity</a></li>
+                <li><a class="dropdown-item" href="{% url 'student_my_activity' %}">My activity</a></li>
+                <li><a class="dropdown-item" href="{% url 'student:student_upcoming_classes' %}">My_schedules</a></li>
+                <li><a class="dropdown-item" href="{% url 'student:my_certificates' %}">My Certificates</a></li>
+                <li><a class="dropdown-item" href="{% url 'student_notifications' %}">Notifications</a></li>
+                <li><a class="dropdown-item" href="#">Payments</a></li>
+                <li><a class="dropdown-item" href="#">Help and Support</a></li>
                 <li><a class="dropdown-item" href="{% url 'account_settings' %}">Account Settings</a></li>
                 <li><hr class="dropdown-divider"></li>
                 <li><a class="dropdown-item text-danger" href="{% url 'logout_view' %}">Logout</a></li>
@@ -57,7 +62,6 @@
     <div class="settings-container my-5">
         <div class="row">
 
-            <!-- LEFT MENU -->
             <div class="col-md-3">
                 <div class="settings-card">
                     <div class="settings-section">
@@ -70,11 +74,9 @@
                 </div>
             </div>
 
-            <!-- RIGHT CONTENT -->
             <div class="col-md-9">
                 <div class="tab-content">
 
-                    <!-- SECURITY TAB -->
                     <div class="tab-pane fade show active" id="security">
                         <div class="settings-card">
                             <div class="settings-section">
@@ -121,7 +123,6 @@
                         </div>
                     </div>
 
-                    <!-- NOTIFICATIONS TAB -->
                     <div class="tab-pane fade" id="notifications">
                         <div class="settings-card">
                             <div class="settings-section">
@@ -131,7 +132,6 @@
                         </div>
                     </div>
 
-                    <!-- PRIVACY TAB -->
                     <div class="tab-pane fade" id="privacy">
                         <div class="settings-card">
                             <div class="settings-section">

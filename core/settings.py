@@ -100,7 +100,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'bildung_db',
         'USER': 'root', # change with your MYSQL username
-        'PASSWORD': '00000', # change with your MYSQL password
+        'PASSWORD': 'Test@123', # change with your MYSQL password
         'HOST': 'localhost',
         'PORT': '3306',
         'OPTIONS': {
@@ -186,3 +186,12 @@ DEFAULT_FROM_EMAIL = 'Bildung Platform <noreply@bildung.com>'
 # Default PK
 # ---------------------------------------------------------------------
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+
+# ---------------------------------------------------------------------
+# AI Assist Settings
+EXCEL_PATH = "media/Q_A/Bildung_QA.xlsx"
+EMBEDDING_MODEL_PATH = 'all-MiniLM-L6-v2'
+OLLAMA_MODEL = 'ollama_chat/deepseek-r1:8b'
+OLLAMA_URL = 'http://localhost:11434'

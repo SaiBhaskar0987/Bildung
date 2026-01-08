@@ -1,9 +1,8 @@
 from django.shortcuts import redirect, render
-from courses.models import Course
 from django.db.models import Count
+from courses.models import Course
 
 def smart_home(request):
-
     if request.user.is_authenticated:
         role_redirects = {
             "student": "student_dashboard",
@@ -14,20 +13,35 @@ def smart_home(request):
         if dashboard:
             return redirect(dashboard)
 
+    selected_category = request.GET.get("category")
+
     popular_categories = (
         Course.objects
         .values("category")
-        .annotate(course_count=Count("id"))
-        .order_by("-course_count")
+        .annotate(total=Count("id"))
+        .order_by("-total")
     )
 
-    popular_courses = (
-        Course.objects
-        .annotate(enroll_count=Count("enrollments"))  
-        .order_by("-enroll_count", "-created_at")[:4]
+    most_used_category = (
+        popular_categories[0]["category"]
+        if popular_categories.exists()
+        else None
     )
 
-    selected_category = request.GET.get("category")
+    active_category = selected_category or most_used_category
+
+    total_courses = Course.objects.count()
+
+    if total_courses <= 4:
+        popular_courses = Course.objects.order_by("-created_at", "-id")
+    else:
+        popular_courses = (
+            Course.objects
+            .filter(category=active_category)
+            .order_by("-created_at", "-id")[:4]
+            if active_category
+            else []
+        )
 
     courses_qs = Course.objects.order_by("-created_at", "-id")
 
@@ -41,6 +55,8 @@ def smart_home(request):
         "popular_courses": popular_courses,
         "courses": courses,
         "selected_category": selected_category,
+        "active_category": active_category,
+        "most_used_category": most_used_category,
     }
 
     return render(request, "home/guest_home.html", context)

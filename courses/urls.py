@@ -7,6 +7,8 @@ app_name = 'courses'
 urlpatterns = [
     # Public
     path('', views.course_list, name='course_list'),
+    path("course/<int:course_id>/", views.view_course,name="view_course"),
+
 
     # Student URLs
     path('student/courses/', views.browse_courses, name='browse_courses'),

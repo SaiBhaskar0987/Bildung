@@ -8,9 +8,9 @@ def instructor_required(view_func):
     @wraps(view_func)
     def _wrapped(request, *args, **kwargs):
         if not request.user.is_authenticated:
-            return redirect('instructor_login')  # fixed here
+            return redirect('instructor_login')
         if getattr(request.user, 'role', None) != 'instructor':
             messages.error(request, "You must be an instructor to access this page.")
-            return redirect('student_dashboard')  # keep students away
+            return redirect('student_dashboard')  
         return view_func(request, *args, **kwargs)
     return _wrapped

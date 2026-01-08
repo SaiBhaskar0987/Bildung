@@ -14,7 +14,7 @@ class SubdomainURLRoutingMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        host = request.get_host().split(':')[0]  # remove port
+        host = request.get_host().split(':')[0] 
         subdomain = host.split('.')[0]
 
         if subdomain == 'student':
@@ -24,7 +24,7 @@ class SubdomainURLRoutingMiddleware:
         elif subdomain == 'admin':
             request.urlconf = 'users.admin_urls'
         else:
-            request.urlconf = settings.ROOT_URLCONF  # main site
+            request.urlconf = settings.ROOT_URLCONF  
 
         response = self.get_response(request)
         return response

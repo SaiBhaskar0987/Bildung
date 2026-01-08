@@ -8,6 +8,9 @@ class Quiz(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     quiz_order = models.PositiveIntegerField(default=0)
 
+    class Meta:
+        ordering = ["quiz_order", "id"]
+
     def __str__(self):
         return f"{self.title} ({self.course.title})"
 

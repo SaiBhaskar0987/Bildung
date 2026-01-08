@@ -4,28 +4,43 @@ from django.db.models import Count
 
 def smart_home(request):
 
-    popular_titles_qs = (
+    if request.user.is_authenticated:
+        role_redirects = {
+            "student": "student_dashboard",
+            "instructor": "instructor_dashboard",
+            "admin": "admin_dashboard",
+        }
+        dashboard = role_redirects.get(request.user.role)
+        if dashboard:
+            return redirect(dashboard)
+
+    popular_categories = (
         Course.objects
-        .values('title', 'category')
-        .annotate(count=Count('title'))
-        .order_by('-count', '-id')[:4]
+        .values("category")
+        .annotate(course_count=Count("id"))
+        .order_by("-course_count")
     )
 
-    popular_titles = list(popular_titles_qs)
-    #print("Popular courses queryset:", popular_titles)
+    popular_courses = (
+        Course.objects
+        .annotate(enroll_count=Count("enrollments"))  
+        .order_by("-enroll_count", "-created_at")[:4]
+    )
 
-    courses = Course.objects.all()[:6]
-    if request.user.is_authenticated:
-        if request.user.role == "student":
-            return redirect('student_dashboard')
-        elif request.user.role == "instructor":
-            return redirect('instructor_dashboard')
-        elif request.user.role == "admin":
-            return redirect('admin_dashboard')
+    selected_category = request.GET.get("category")
+
+    courses_qs = Course.objects.order_by("-created_at", "-id")
+
+    if selected_category:
+        courses_qs = courses_qs.filter(category=selected_category)
+
+    courses = courses_qs[:6]
 
     context = {
-        'courses': courses,
-        'popular_courses': popular_titles,
+        "popular_categories": popular_categories,
+        "popular_courses": popular_courses,
+        "courses": courses,
+        "selected_category": selected_category,
     }
 
-    return render(request, 'home/guest_home.html', context)
+    return render(request, "home/guest_home.html", context)

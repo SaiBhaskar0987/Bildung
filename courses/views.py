@@ -5,12 +5,10 @@ from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from django.utils.dateparse import parse_datetime, parse_date, parse_time
 from django.views.decorators.csrf import csrf_exempt
-
-
 from courses.utils import check_and_send_reminders
 from quizzes.models import Quiz, QuizResult
 from .models import Assignment, Course, CourseBlock, Enrollment, Certificate, Lecture, LectureProgress, Feedback, CourseEvent, Module, LiveClass, LectureQuestion, Notification, QuestionReply, CourseReview, LiveClassAttendance
-from users.models import InstructorProfile, LoginHistory, User
+from users.models import LoginHistory, User
 from .forms import LectureForm, FeedbackForm, LiveClassForm, CourseReviewForm, CourseEventForm
 from users.decorators import instructor_required
 from django.db.models import Q, Count, Sum ,Avg
@@ -21,7 +19,7 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import A4
 from django.http import FileResponse, HttpResponseForbidden, JsonResponse
 import json
-from django.contrib.auth import update_session_auth_hash
+from django.db.models import Prefetch
 
 # -------------------------------
 # Common Views
@@ -37,16 +35,59 @@ def get_instructor_average_rating(instructor):
         course__instructor=instructor
     ).aggregate(avg=Avg('rating'))['avg'] or 0
 
+
 def course_list(request):
-    query = request.GET.get('q')
+    query = request.GET.get("q")
+    category = request.GET.get("category")
+
     courses = Course.objects.all()
 
     if query:
         courses = courses.filter(
-            Q(title__icontains=query)
+            Q(title__icontains=query) |
+            Q(description__icontains=query)
         )
 
-    return render(request, 'courses/course_list.html', {'courses': courses, 'query': query})
+    if category:
+        courses = courses.filter(category=category)
+
+    enrolled_course_ids = []
+    if request.user.is_authenticated and request.user.role == "student":
+        enrolled_course_ids = Enrollment.objects.filter(
+            student=request.user
+        ).values_list("course_id", flat=True)
+
+    context = {
+        "courses": courses,
+        "query": query,
+        "enrolled_course_ids": enrolled_course_ids,
+    }
+
+    return render(request, "courses/course_list.html", context)
+
+
+def view_course(request, course_id):
+    course = get_object_or_404(Course, id=course_id)
+
+    modules = (
+        course.modules
+        .order_by("module_order", "id")
+        .prefetch_related(
+            Prefetch(
+                "lectures",
+                queryset=Lecture.objects.order_by("lecture_order", "id")
+            )
+        )
+    )
+
+    context = {
+        "course": course,
+        "modules": modules,
+    }
+
+    return render(request, "courses/view_course.html", context)
+
+
 
 @login_required(login_url='/login/')
 def browse_courses(request):
@@ -1176,7 +1217,7 @@ def publish_course(request, course_id):
 
 def edit_course(request, course_id):
     course = get_object_or_404(Course, id=course_id)
-    blocks = CourseBlock.objects.filter(course=course).order_by("order")
+    blocks = CourseBlock.objects.filter(course=course).order_by("block_order")
 
     return render(request, "courses/instructor/edit_course.html", {
         "course": course,

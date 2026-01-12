@@ -1,13 +1,15 @@
 from typing_extensions import Literal
 import dspy
-from aiassist.search_engine import PandasVectorSearch
 from core import settings
+from sentence_transformers import SentenceTransformer, util
+import os
+import pandas as pd
 
 
-
-# Configuring local Ollama LLM
-lm = dspy.LM(settings.OLLAMA_MODEL, api_base=settings.OLLAMA_URL, api_key='')
-print("DEBUG: Configured local Ollama LLM.", lm)
+# Configuring local LLM which is being runned using Ollama model runner
+# LLM name and LLM url is declared in settings.py
+lm = dspy.LM(settings.LOCAL_MODEL_NAME, api_base=settings.LOCAL_MODEL_URL, api_key='')
+print("DEBUG: Configured local Model running using Ollama model runner .", lm)
 dspy.settings.configure(lm=lm)
 
 
@@ -41,18 +43,60 @@ class CourseAgentSignature(dspy.Signature):
 
 # --- Modules ---
 class CourseAgent(dspy.Module):
-    def __init__(self, search_engine: PandasVectorSearch):
+    def __init__(self):
         super().__init__()
         self.prog = dspy.ChainOfThought(CourseAgentSignature)
-        self.search_engine = search_engine
+        self.load_dataset_encode()
+        
 
     def forward(self, question):
-        retrieved_fact = self.search_engine.search(question)
+        retrieved_fact = self.search_dataset(question)
         if retrieved_fact:
             return self.prog(context=retrieved_fact, question=question), True
         else:
             return self.prog(context="Use general knowledge.", question=question), False
 
+    def load_dataset_encode(self):
+        print(f"Loading Knowledge Base from {settings.DATASET_PATH}...")
+
+        if not os.path.exists(settings.DATASET_PATH):
+            # Fallback for safety
+            print("Warning: Excel file not found. Creating empty DF.")
+            self.df = pd.DataFrame(columns=["Question", "Answer"])
+            self.question_embeddings = None
+            return
+
+        self.df = pd.read_excel(settings.DATASET_PATH)
+        
+        print(f"Loading Embedding Model: {settings.EMBEDDING_MODEL_PATH}")
+        # model_path = './local_model' -- this can be used to load a local model if needed
+        self.encoder = SentenceTransformer(settings.EMBEDDING_MODEL_PATH)
+        
+        # Pre-compute embeddings
+        self.question_embeddings = self.encoder.encode(
+            self.df['Question'].tolist(), 
+            convert_to_tensor=True
+        )
+        print("Knowledge Base Loaded.")
+        return None
+    
+
+    def search_dataset(self, query: str, threshold=0.4):
+        if self.df.empty or self.question_embeddings is None:
+            return None
+            
+        query_embedding = self.encoder.encode(query, convert_to_tensor=True)
+        hits = util.semantic_search(query_embedding, self.question_embeddings, top_k=1)
+        
+        if not hits or not hits[0]:
+            return None
+            
+        best_hit = hits[0][0]
+
+        if best_hit['score'] > threshold:
+            return self.df.iloc[best_hit['corpus_id']]['Answer']
+        
+        return None
 
 
 
@@ -61,9 +105,8 @@ class CourseAgent(dspy.Module):
 class ClassifierAgent(dspy.Module):
     def __init__(self):
         super().__init__()
-        search_engine: PandasVectorSearch = PandasVectorSearch()
         self.predictor = dspy.ChainOfThought(ClassifierSignature)
-        self.course_agent = CourseAgent(search_engine)
+        self.course_agent = CourseAgent()
 
     def forward(self, question):
         prediction = self.predictor(question=question)

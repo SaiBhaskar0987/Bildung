@@ -191,7 +191,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # ---------------------------------------------------------------------
 # AI Assist Settings
-EXCEL_PATH = "media/Q_A/Bildung_QA.xlsx"
+DATASET_PATH = "media/Q_A/Bildung_QA.xlsx"
 EMBEDDING_MODEL_PATH = 'all-MiniLM-L6-v2'
-OLLAMA_MODEL = 'ollama_chat/deepseek-r1:8b'
-OLLAMA_URL = 'http://localhost:11434'
+LOCAL_MODEL_NAME = 'ollama_chat/qwen2.5:1.5b'
+LOCAL_MODEL_URL = 'http://localhost:11434'

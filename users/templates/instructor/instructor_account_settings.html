@@ -108,9 +108,6 @@
                 <div class="settings-card">
                     <div class="settings-section">
                         <div class="nav flex-column nav-pills">
-                            <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#profile">
-                                <i class="fas fa-user me-2"></i>Profile
-                            </button>
                             <button class="nav-link" data-bs-toggle="pill" data-bs-target="#security">
                                 <i class="fas fa-shield-alt me-2"></i>Security
                             </button>
@@ -127,88 +124,6 @@
  
             <div class="col-md-9">
                 <div class="tab-content">
- 
-                    <div class="tab-pane fade show active" id="profile">
-                        <div class="settings-card"><div class="settings-section">
- 
-                            <h4 class="mb-4">Professional Profile</h4>
- 
-                            <form method="post" enctype="multipart/form-data">
-                                {% csrf_token %}
- 
-                                <div class="text-center mb-4">
-                                     {% if profile.profile_picture %}
-                                         <img src="{{ profile.profile_picture.url }}" class="profile-picture">
-                                     {% else %}
-                                           <img src="https://via.placeholder.com/150" class="profile-picture">
-                                     {% endif %}
- 
-                                    <br>
-                                    <label for="profile_picture" class="btn btn-outline-primary btn-sm mt-2">
-                                        Change Photo
-                                    </label>
-                                    <input type="file" id="profile_picture" name="profile_picture" class="d-none">
-                                </div>
- 
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label>First Name</label>
-                                        <input type="text" name="first_name" class="form-control" value="{{ user.first_name }}">
-                                    </div>
-                                    <div class="col-md-6 mb-3">
-                                        <label>Last Name</label>
-                                        <input type="text" name="last_name" class="form-control" value="{{ user.last_name }}">
-                                    </div>
-                                </div>
- 
-                                <div class="mb-3">
-                                    <label>Email</label>
-                                    <input type="email" name="email" class="form-control" value="{{ user.email }}">
-                                </div>
- 
-                                <div class="mb-3">
-                                    <label>Phone</label>
-                                    <input type="text" name="phone" class="form-control" value="{{ profile.phone }}">
-                                </div>
- 
-                                <div class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <label>Professional Title</label>
-                                        <input type="text" name="professional_title" class="form-control"
-                                               value="{{ profile.professional_title }}">
-                                    </div>
- 
-                                    <div class="col-md-6 mb-3">
-                                        <label>Expertise</label>
-                                        <input type="text" name="expertise" class="form-control"
-                                               value="{{ profile.expertise }}">
-                                    </div>
-                                </div>
- 
-                                <div class="mb-3">
-                                    <label>Years of Experience</label>
-                                    <input type="number" name="experience" class="form-control"
-                                           value="{{ profile.experience }}">
-                                </div>
- 
-                                <div class="mb-3">
-                                    <label>Qualification</label>
-                                    <input type="text" name="qualification" class="form-control"
-                                           value="{{ profile.qualification }}">
-                                </div>
- 
-                                <div class="mb-3">
-                                    <label>About Me</label>
-                                    <textarea name="about_me" class="form-control" rows="4">{{ profile.about_me }}</textarea>
-                                </div>
- 
-                                <button type="submit" name="update_profile" class="btn btn-primary">
-                                    Save Changes
-                                </button>
-                            </form>
- 
-                        </div></div>
-                    </div>
  
                     <div class="tab-pane fade" id="security">
                         <div class="settings-card"><div class="settings-section">

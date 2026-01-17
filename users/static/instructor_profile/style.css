@@ -1,0 +1,88 @@
+/* Page background with a soft diagonal gradient */
+body {
+    background: linear-gradient(135deg, #eef2ff, #f8f9ff);
+}
+ 
+/* Main profile card container */
+.profile-card {
+    max-width: 650px;                 /* Limits card width */
+    margin: auto;                     /* Centers the card horizontally */
+    border-radius: 22px;              /* Rounded corners */
+    background: rgba(255,255,255,0.95); /* Slightly transparent white */
+    box-shadow: 0 25px 60px rgba(0,0,0,0.12); /* Soft shadow effect */
+    padding: 35px;                    /* Inner spacing */
+}
+ 
+/* Profile image shown in view mode */
+.profile-avatar-view {
+    width: 120px;                     /* Avatar width */
+    height: 120px;                    /* Avatar height */
+    border-radius: 50%;               /* Makes the image circular */
+    object-fit: cover;                /* Keeps image proportion */
+    border: 5px solid #4f46e5;        /* Solid blue border */
+    background: #f1f1f1;              /* Fallback background color */
+}
+ 
+/* Profile image shown in edit mode */
+.profile-avatar-edit {
+    width: 150px;                     /* Larger size for editing */
+    height: 150px;
+    border-radius: 50%;               /* Circular shape */
+    object-fit: cover;
+    border: 4px dashed #16a34a;       /* Dashed green border */
+    background: #f1f1f1;
+}
+ 
+/* Labels for profile fields (e.g., Name, Email) */
+.profile-label {
+    font-weight: 600;                 /* Semi-bold text */
+    color: #555;                      /* Muted text color */
+    min-width: 140px;                /* Fixed label width */
+    display: inline-block;            /* Allows width control */
+}
+
+/* Values displayed next to labels */
+.profile-value {
+    color: #333;                      /* Darker text for values */
+}
+ 
+/* Input fields and text areas styling */
+.form-control, textarea {
+    border-radius: 12px !important;   /* Rounded input corners */
+}
+ 
+/* Save button styling */
+.btn-save {
+    background: linear-gradient(135deg, #22c55e, #16a34a); /* Green gradient */
+    color: #fff;                      /* White text */
+    border-radius: 12px;
+    padding: 10px 28px;
+    border: none;                     /* Removes default border */
+}
+
+/* Cancel button styling */
+.btn-cancel {
+    background: linear-gradient(135deg, #ef4444, #dc2626); /* Red gradient */
+    color: #fff;
+    border-radius: 12px;
+    padding: 10px 28px;
+    border: none;
+}
+
+/* Edit button styling */
+.btn-edit {
+    border-radius: 12px;              /* Rounded corners */
+    padding: 10px 30px;               /* Button size */
+}
+ 
+/* Divider line between profile sections */
+.profile-divider {
+    height: 1px;                      /* Thin horizontal line */
+    background: linear-gradient(
+        to right,
+        transparent,
+        #dbe3ff,
+        transparent
+    );                                /* Faded divider effect */
+    margin: 25px 0;                   /* Vertical spacing */
+}

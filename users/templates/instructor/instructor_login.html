@@ -1,19 +1,21 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="container mt-5">
-  <div class="col-md-6 offset-md-3">
-    <div class="card shadow p-4">
-      <h2>Instructor Login</h2>
+<div class="container mt-5">         <!-- Main container to center content and add top margin -->
+  <div class="col-md-6 offset-md-3"> <!-- Column centered on medium screens -->
+    <div class="card shadow p-4">    <!-- Card box with shadow & padding for login form -->
+      <h2>Instructor Login</h2>      <!-- Page heading -->
+
       
     {% if messages %}
-  <div aria-live="polite" aria-atomic="true" class="position-relative">
-    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;">
+  <div aria-live="polite" aria-atomic="true" class="position-relative">  <!-- it is for accessibility support of message -->
+    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;"> <!-- Fixed position container to show toast notifications on top-right -->
+
       {% for message in messages %}
         <div class="toast align-items-center text-white bg-{{ message.tags }} border-0"
              role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="5000"
-             id="autoToast">
-          <div class="d-flex">
-            <div class="toast-body">
+             id="autoToast">  <!-- Toast to display success/error messages -->
+          <div class="d-flex"> <!-- Flex container to align message text and close button -->
+            <div class="toast-body"> <!-- Place where the text message is displayed -->
               {{ message }}
             </div>
             <button type="button" class="btn-close btn-close-white me-2 m-auto"
@@ -47,25 +49,25 @@
 
 {% endif %}
 
-      <form method="post">
+      <form method="post">  <!-- Login form container -->
         {% csrf_token %}
         {{ form.as_p }}
-        <button type="submit" class="btn btn-success w-100">Login</button>
+        <button type="submit" class="btn btn-success w-100">Login</button> <!-- Submit button -->
       </form>
 
-      <p class="mt-2 text-center">
+      <p class="mt-2 text-center"> <!-- Forgot password link section -->
         <a href="{% url 'forgot_password' %}">Forgot Password?</a>
       </p>
 
-      <div class="text-center my-3">
-        <span class="text-muted">Or continue with</span>
-        <hr class="mt-2 mb-3">
-        <a href="{% url 'google_oauth_entry' %}?type=instructor" class="btn btn-outline-danger w-100">
+      <div class="text-center my-3"> <!-- Divider and social login section -->
+        <span class="text-muted">Or continue with</span>  <!-- Label for social login -->
+        <hr class="mt-2 mb-3"> <!-- Horizontal separator -->
+        <a href="{% url 'google_oauth_entry' %}?type=instructor" class="btn btn-outline-danger w-100"> <!-- Google Auth login button -->
           <i class="fab fa-google"></i> Continue with Google
         </a>
       </div>
 
-      <p class="mt-3">Don't have an account? 
+      <p class="mt-3">Don't have an account?    <!-- Signup redirect section -->
         <a href="{% url 'instructor_signup' %}">Instructor Signup</a>
       </p>
     </div>

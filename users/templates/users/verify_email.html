@@ -1,21 +1,21 @@
 <!DOCTYPE html>
 
 <html>
-<body style="font-family: Arial, sans-serif; background:#f9f9f9; padding:20px;">
+<body style="font-family: Arial, sans-serif; background:#f9f9f9; padding:20px;"> <!-- Body Start -->
 
-  <div style="max-width:600px; margin:auto; background:white; padding:25px; border-radius:8px;">
+  <div style="max-width:600px; margin:auto; background:white; padding:25px; border-radius:8px;"> <!-- Container Start -->
 
 ```
-<h2 style="color:#333;">Welcome to Bildung 🎓</h2>
+<h2 style="color:#333;">Welcome to Bildung 🎓</h2> 
 
 <p>Hello <strong>{{ user.first_name }}</strong>,</p>
 
-<p>
+<p> 
   Thank you for signing up!  
   Please verify your email address to activate your account.
 </p>
-
-<p style="text-align:center; margin:30px 0;">
+ 
+<p style="text-align:center; margin:30px 0;"> <!-- Verification Button Start -->
   <a href="{{ verify_url }}"
      style="padding:12px 24px;
             background:#28a745;
@@ -27,19 +27,19 @@
   </a>
 </p>
 
-<p>If the button doesn’t work, copy and paste this link into your browser:</p>
+<p>If the button doesn’t work, copy and paste this link into your browser:</p> <!-- Fallback Link -->
 
-<p style="word-break:break-all; color:#0066cc;">
+<p style="word-break:break-all; color:#0066cc;"> <!-- Link Styling -->
   {{ verify_url }}
 </p>
 
-<hr style="margin:25px 0;">
+<hr style="margin:25px 0;"> <!-- Separator -->
 
-<p style="font-size:14px; color:#666;">
+<p style="font-size:14px; color:#666;"> <!-- Footer Note -->
   If you didn’t create this account, you can safely ignore this email.
 </p>
 
-<p style="font-size:14px; color:#666;">
+<p style="font-size:14px; color:#666;"> <!-- Closing Note -->
   — Bildung Team
 </p>
 ```

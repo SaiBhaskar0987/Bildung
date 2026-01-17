@@ -1,208 +1,87 @@
 {% extends "base.html" %}
+{% load static %} 
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'student_login/styles.css' %}">
+{% endblock %}
+
 {% block content %}
-<div class="container mt-5">
-  <div class="col-md-6 offset-md-3">
-    <div class="card shadow p-4">
-      <h2 class="text-center mb-4">Student Login</h2>
+<div class="container mt-5"> <!-- Main container -->
+  <div class="row justify-content-center"> <!-- Centered row -->
+    <div class="col-md-6"> <!-- Centered column -->
+      <div class="card shadow p-4"> <!-- Card for login form -->
+        <h2 class="text-center mb-4">Student Login</h2> <!-- Heading -->
 
-      {% if messages %}
-  <div aria-live="polite" aria-atomic="true" class="position-relative">
-    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;">
-      {% for message in messages %}
-        <div class="toast align-items-center text-white bg-{{ message.tags }} border-0"
-             role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="5000"
-             id="autoToast">
-          <div class="d-flex">
-            <div class="toast-body">
-              {{ message }}
-            </div>
-            <button type="button" class="btn-close btn-close-white me-2 m-auto"
-                    data-bs-dismiss="toast"></button>
-          </div>
-        </div>
-      {% endfor %}
-    </div>
-  </div>
+        {% if messages %}
+        <div aria-live="polite" aria-atomic="true" class="position-relative"> <!-- Toast container -->
+          <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;"> <!-- Toasts position -->
+            {% for message in messages %}
+              <div class="toast align-items-center text-white bg-{{ message.tags }} border-0" 
+                   role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="5000">
+                <div class="d-flex">
+                  <div class="toast-body">
+                    {{ message }}
+                  </div> <!-- Toast body -->
+                  <button type="button"
+                          class="btn-close btn-close-white me-2 m-auto"
+                          data-bs-dismiss="toast"></button>
+                </div> <!-- Toast flex container -->
+              </div> <!-- Single toast -->
+            {% endfor %}
+          </div> <!-- Toasts position -->
+        </div> <!-- Toast container -->
+        {% endif %}
 
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        var toastEl = document.getElementById("autoToast");
-        if (toastEl) {
-            var toast = new bootstrap.Toast(toastEl);
-            toast.show();
-
-            setTimeout(function() {
-                const msg = toastEl.innerText.toLowerCase();
-
-                if (msg.includes("login")) {
-                    window.location.href = "{% url 'student_dashboard' %}";
-                }
-
-                if (msg.includes("logout")) {
-                    window.location.href = "{% url 'auth_page' %}";
-                }
-            }, 5000);
-        }
-    });
-  </script>
-
-{% endif %}
-
-      {% if form.non_field_errors %}
+        {% if form.non_field_errors %}
         <div class="alert alert-warning alert-dismissible fade show" role="alert">
           {% for error in form.non_field_errors %}
             {{ error }}
           {% endfor %}
           <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-      {% endif %}
+        </div> <!-- Non-field errors alert -->
+        {% endif %}
 
-      <form method="post">
-        {% csrf_token %}
-        
-        <div class="mb-3">
-          <label for="{{ form.username.id_for_label }}" class="form-label">
-            <i class="fas fa-envelope me-2"></i>Email or Username
-          </label>
-          {{ form.username }}
-          {% if form.username.errors %}
-            <div class="text-danger small mt-1">
-              {% for error in form.username.errors %}
-                {{ error }}
-              {% endfor %}
-            </div>
-          {% endif %}
-        </div>
+        <form method="post" novalidate>
+          {% csrf_token %}
 
-        <div class="mb-3">
-          <label for="{{ form.password.id_for_label }}" class="form-label">
-            <i class="fas fa-lock me-2"></i>Password
-          </label>
-          <div class="input-group">
+          <div class="mb-3"> 
+            <label for="{{ form.username.id_for_label }}" class="form-label">
+              Email or Username
+            </label>
+            {{ form.username }}
+          </div><!-- Username/Email Field -->
+
+          <div class="mb-3"> 
+            <label for="{{ form.password.id_for_label }}" class="form-label">
+              Password
+            </label>
             {{ form.password }}
-           
-          </div>
-          {% if form.password.errors %}
-            <div class="text-danger small mt-1">
-              {% for error in form.password.errors %}
-                {{ error }}
-              {% endfor %}
-            </div>
-          {% endif %}
-        </div>
+          </div> <!-- Password Field -->
 
-        <div class="mb-3 form-check">
-          <input type="checkbox" class="form-check-input" id="remember_me" name="remember_me">
-          <label class="form-check-label" for="remember_me">Remember me</label>
-        </div>
+          <button type="submit" class="btn btn-success w-100 py-2">
+            Login
+          </button> <!-- Submit Button -->
+        </form> <!-- Login Form -->
 
-        <button type="submit" class="btn btn-success w-100 py-2">
-          <i class="fas fa-sign-in-alt me-2"></i>Login
-        </button>
-      </form>
+        <p class="mt-3 text-center">
+          <a href="{% url 'forgot_password' %}">Forgot Password?</a>
+        </p> <!-- Forgot Password Link -->
 
-      <p class="mt-2 text-center">
-         <a href="{% url 'forgot_password' %}">Forgot Password?</a>
-      </p>
-
-      <div class="text-center my-3">
-        <span class="text-muted">Or continue with</span>
-        <hr class="mt-2 mb-3">
-        <a href="{% url 'google_oauth_entry' %}?type=student" class="btn btn-outline-danger w-100">
-          <i class="fab fa-google me-2"></i> Continue with Google
-        </a>
+        <p class="text-center mb-0">
+          Don't have an account?
+          <a href="{% url 'student_signup' %}" class="fw-bold">
+            Student Signup
+          </a>
+        </p> <!-- Signup Link -->
       </div>
-
-      <p class="mt-3 text-center">
-        Don't have an account? 
-        <a href="{% url 'student_signup' %}" class="text-decoration-none fw-bold">Student Signup</a>
-      </p>
     </div>
   </div>
 </div>
 
-<style>
-.form-control {
-  border-radius: 8px;
-  padding: 12px 15px;
-  border: 1px solid #ddd;
-  transition: all 0.3s ease;
-}
-
-.form-control:focus {
-  border-color: #198754;
-  box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25);
-}
-
-.btn-success {
-  background-color: #198754;
-  border-color: #198754;
-  transition: all 0.3s ease;
-}
-
-.btn-success:hover {
-  background-color: #157347;
-  border-color: #146c43;
-  transform: translateY(-1px);
-}
-
-.alert {
-  border-radius: 8px;
-  border: none;
-}
-
-.card {
-  border: none;
-  border-radius: 15px;
-}
-
-/* Style form fields specifically */
-#id_username, #id_password {
-  width: 100%;
-  padding: 12px 15px;
-}
-
-.input-group {
-  position: relative;
-}
-
-#togglePassword {
-  border-radius: 0 8px 8px 0;
-}
-</style>
-
 <script>
-// Toggle password visibility
-document.getElementById('togglePassword').addEventListener('click', function() {
-  const passwordInput = document.getElementById('id_password');
-  const icon = this.querySelector('i');
-  
-  if (passwordInput.type === 'password') {
-    passwordInput.type = 'text';
-    icon.classList.remove('fa-eye');
-    icon.classList.add('fa-eye-slash');
-  } else {
-    passwordInput.type = 'password';
-    icon.classList.remove('fa-eye-slash');
-    icon.classList.add('fa-eye');
-  }
-});
-
-// Auto-hide normal alerts after 5 seconds
-document.addEventListener('DOMContentLoaded', function() {
-  const alerts = document.querySelectorAll('.alert');
-  alerts.forEach(function(alert) {
-    setTimeout(function() {
-      const bsAlert = new bootstrap.Alert(alert);
-      bsAlert.close();
-    }, 5000);
-  });
-
-  // 🔥 Show Bootstrap Toast messages (login/logout popup)
-  var toastList = [].slice.call(document.querySelectorAll('.toast'));
-  toastList.map(function (toastEl) {
-    var toast = new bootstrap.Toast(toastEl);
-    toast.show();
+document.addEventListener('DOMContentLoaded', function () {
+  document.querySelectorAll('.toast').forEach(function (toastEl) {
+    new bootstrap.Toast(toastEl).show();
   });
 });
 </script>

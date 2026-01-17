@@ -1,81 +1,79 @@
 {% load static %}
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8" /> 
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-  <link rel="stylesheet" type="text/css" href="{% static 'inst_signup/style.css' %}">
-
+  <link rel="stylesheet" href="{% static 'student_signup/style.css' %}">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
   <title>Student Registration</title>
 </head>
 <body>
-  <nav class="container">
+  <nav class="container"> <!-- Navigation container -->
     <a href="/">Home</a>
   </nav>
 
-  <div class="container">
-    <div class="header">
+  <div class="container"> <!-- Main content page -->
+    <div class="header">  <!-- Page header -->
       <h1>Create Your Account</h1>
       <p>Join our learning community as a Student</p>
     </div>
 
-    <div class="container mt-5">
-      <div class="col-md-6 offset-md-3">
-        <div class="card shadow p-4">
+    <div class="container mt-5"> <!-- Form container -->
+      <div class="col-md-6 offset-md-3"> <!-- Centered column -->
+        <div class="card shadow p-4"> <!-- Card for form -->
 
           <form method="post">
             {% csrf_token %}
 
-            <div class="row">
+            <div class="row"> <!-- First and Last Name side by side -->
               <div class="form-group">
                 {{ form.first_name.label_tag }}
                 {{ form.first_name }}
                 {% if form.first_name.errors %}{{ form.first_name.errors }}{% endif %}
               </div>
-              <div class="form-group">
+              <div class="form-group"> <!-- Last Name -->
                 {{ form.last_name.label_tag }}
                 {{ form.last_name }}
                 {% if form.last_name.errors %}{{ form.last_name.errors }}{% endif %}
               </div>
             </div>
 
-            <div class="form-group">
+            <div class="form-group"> <!-- Email Field -->
               {{ form.email.label_tag }}
               {{ form.email }}
               {% if form.email.errors %}{{ form.email.errors }}{% endif %}
             </div>
 
-            <div class="form-group">
+            <div class="form-group"> <!-- Password Field with toggle -->
               {{ form.password1.label_tag }}
               {{ form.password1 }}
               <i class="fa-solid fa-eye toggle-password" data-target="{{ form.password1.id_for_label }}"></i>
               {% if form.password1.errors %}{{ form.password1.errors }}{% endif %}
             </div>
 
-            <div class="form-group">
+            <div class="form-group"> <!-- Confirm Password Field with toggle -->
               {{ form.password2.label_tag }}
               {{ form.password2 }}
               <i class="fa-solid fa-eye toggle-password" data-target="{{ form.password2.id_for_label }}"></i>
               {% if form.password2.errors %}{{ form.password2.errors }}{% endif %}
             </div>
 
-            <button type="submit" class="btn btn-success w-100">Sign Up</button>
+            <button type="submit" class="btn btn-success w-100">Sign Up</button> <!-- Submit Button -->
           </form>
 
-          <div class="text-center my-3">
-            <span class="text-muted">Or sign up with</span>
-            <hr class="mt-2 mb-3">
+          <div class="text-center my-3"> <!-- OAuth Section -->
+           
+            <hr class="mt-2 mb-3"> 
             <a href="{% url 'google_oauth_entry' %}?type=student" class="btn btn-outline-danger w-100">
               <i class="fab fa-google"></i> Continue with Google
             </a>
           </div>
 
           <p class="mt-3">Already have an account? 
-            <a href="{% url 'student_login' %}">Student Login</a>
+            <a href="{% url 'student_login' %}">Student Login</a> 
           </p>
         </div>
       </div>

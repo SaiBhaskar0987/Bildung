@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,169 +8,26 @@
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <style>
-        :root {
-            --primary-color: #4361ee;
-            --secondary-color: #3f37c9;
-            --success-color: #4cc9f0;
-            --warning-color: #f72585;
-            --light-color: #f8f9fa;
-            --dark-color: #212529;
-        }
-
-        body {
-            background-color: #f5f7fb;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        /* Dashboard Header */
-        .dashboard-header {
-            background: #ffffff;
-            padding: 15px 20px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-        }
-
-        /* Activity Page Styles */
-        .activity-header {
-            background: linear-gradient(135deg, #4361ee, #3a0ca3);
-            color: white;
-            padding: 60px 0;
-            border-radius: 0 0 20px 20px;
-            margin-bottom: 30px;
-        }
-        
-        .tab-buttons {
-            display: flex;
-            gap: 10px;
-            margin: 20px 0;
-            flex-wrap: wrap;
-        }
-
-        .tab-button {
-            padding: 12px 24px;
-            background: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-weight: 500;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-
-        .tab-button.active {
-            background: var(--primary-color);
-            color: white;
-        }
-
-        .tab-button:hover:not(.active) {
-            background: #e9ecef;
-        }
-
-        .tab-content {
-            display: none;
-            padding: 25px;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            margin-top: 20px;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        .stat-card {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            text-align: center;
-            transition: transform 0.2s;
-            height: 100%;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-3px);
-        }
-
-        .stat-card i {
-            font-size: 2rem;
-            margin-bottom: 10px;
-            color: var(--primary-color);
-        }
-
-        .progress-container {
-            height: 10px;
-            background-color: #e9ecef;
-            border-radius: 5px;
-            margin: 10px 0;
-            overflow: hidden;
-        }
-
-        .progress-bar {
-            height: 100%;
-            border-radius: 5px;
-            background-color: var(--primary-color);
-            transition: width 0.5s ease;
-        }
-
-        .activity-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        .activity-table th, .activity-table td {
-            padding: 12px 15px;
-            text-align: left;
-            border-bottom: 1px solid #e9ecef;
-        }
-
-        .activity-table th {
-            background-color: #f8f9fa;
-            font-weight: 600;
-        }
-
-        .status-success { color: #28a745; font-weight: 600; }
-        .status-failure { color: #dc3545; font-weight: 600; }
-
-        .course-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px;
-            border: 1px solid #e9ecef;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            background: white;
-        }
-
-        .qna-item {
-            padding: 15px;
-            border-left: 4px solid var(--primary-color);
-            background: #f8f9fa;
-            border-radius: 4px;
-            margin-bottom: 15px;
-        }
-    </style>
+    <link rel="stylesheet" href="{% static 'student_my_activity/style.css' %}">
+    
 </head>
 <body>
 
-<!-- Student Dashboard Header -->
-<div class="dashboard-header d-flex justify-content-between align-items-center">
-    <a href="{% url 'student_dashboard' %}" class="text-decoration-none text-dark">
+
+<div class="dashboard-header d-flex justify-content-between align-items-center"> <!-- Header Container -->
+    <a href="{% url 'student_dashboard' %}" class="text-decoration-none text-dark"> <!-- Logo and Home Link -->
         <h3 class="m-0 fw-bold">Bildung</h3>
     </a>
 
-    <div class="d-flex align-items-center gap-3">
-        <h5 class="m-0">Hello, {{ user.first_name }} {{ user.last_name }}</h5>
-
-        <div class="dropdown">
+    <div class="d-flex align-items-center gap-3"> <!-- User Info and Dropdown -->
+        <h5 class="m-0">Hello, {{ user.first_name }} {{ user.last_name }}</h5> <!-- Greeting -->
+ 
+        <div class="dropdown"> <!-- Profile Dropdown -->
             <button class="btn rounded-circle shadow" style="background:gray;color:white;width:45px;height:45px;" type="button" data-bs-toggle="dropdown">
                 {{ request.user.username|first|upper }}
-            </button>
-            <ul class="dropdown-menu dropdown-menu-end">
+            </button> <!-- Dropdown Toggle -->
+
+            <ul class="dropdown-menu dropdown-menu-end"> <!-- Dropdown Menu -->
                 <li><a class="dropdown-item" href="{% url 'profile_view' %}">Profile</a></li>
                 <li><a class="dropdown-item" href="{% url 'student:my_courses' %}">My Courses</a></li>
                 <li><a class="dropdown-item" href="{% url 'student:student_upcoming_classes' %}">My Schedules</a></li>
@@ -186,44 +44,44 @@
     </div>
 </div>
 
-<!-- Activity Header -->
-<div class="activity-header">
-    <div class="container text-center">
+
+<div class="activity-header"> <!-- Header Section -->
+    <div class="container text-center"> <!-- Centered Content -->
         <h1><i class="fas fa-chart-line me-2"></i>My Learning Activity</h1>
         <p class="lead">Track your progress, attendance, and learning journey</p>
     </div>
 </div>
 
-<div class="container mb-5">
+<div class="container mb-5"> <!-- Main Container -->
 
     <!-- Overview Stats -->
-    <div class="row mb-4">
-        <div class="col-md-3 mb-3">
-            <div class="stat-card">
-                <i class="fas fa-book-open"></i>
-                <h3>{{ total_enrolled_courses }}</h3>
+    <div class="row mb-4"> <!-- Stats Row -->
+        <div class="col-md-3 mb-3"> <!-- Individual Stat Card -->
+            <div class="stat-card"> <!-- Stat Card -->
+                <i class="fas fa-book-open"></i> <!-- Icon -->
+                <h3>{{ total_enrolled_courses }}</h3> <!-- Stat Number -->
                 <p>Enrolled Courses</p>
             </div>
         </div>
 
-        <div class="col-md-3 mb-3">
-            <div class="stat-card">
-                <i class="fas fa-check-circle"></i>
-                <h3>{{ total_completed_lectures }}</h3>
+        <div class="col-md-3 mb-3"> <!-- Individual Stat Card -->
+            <div class="stat-card"> <!-- Stat Card -->
+                <i class="fas fa-check-circle"></i> <!-- Icon -->
+                <h3>{{ total_completed_lectures }}</h3> <!-- Stat Number -->
                 <p>Completed Lectures</p>
             </div>
         </div>
 
-        <div class="col-md-3 mb-3">
-            <div class="stat-card">
+        <div class="col-md-3 mb-3"> <!-- Individual Stat Card -->
+            <div class="stat-card"> <!-- Stat Card -->
                 <i class="fas fa-chart-line"></i>
                 <h3>{{ overall_progress }}%</h3>
                 <p>Overall Progress</p>
             </div>
         </div>
 
-        <div class="col-md-3 mb-3">
-            <div class="stat-card">
+        <div class="col-md-3 mb-3"> <!-- Individual Stat Card -->
+            <div class="stat-card"> <!-- Stat Card -->
                 <i class="fas fa-clock"></i>
                 <h3>12h</h3>
                 <p>Study Time</p>
@@ -231,8 +89,8 @@
         </div>
     </div>
 
-    <!-- Tabs -->
-    <div class="tab-buttons">
+    
+    <div class="tab-buttons"> <!-- Tab Buttons -->
         <button class="tab-button active" onclick="openTab(event, 'courses-tab')"><i class="fas fa-book me-2"></i>Courses & Progress</button>
         <button class="tab-button" onclick="openTab(event, 'attendance-tab')"><i class="fas fa-user-check me-2"></i>Attendance</button>
         <button class="tab-button" onclick="openTab(event, 'history-tab')"><i class="fas fa-history me-2"></i>Login History</button>
@@ -240,45 +98,45 @@
         <button class="tab-button" onclick="openTab(event, 'qna-tab')"><i class="fas fa-question-circle me-2"></i>Q&A Activity</button>
     </div>
 
-    <!-- Courses & Progress Tab -->
-    <div id="courses-tab" class="tab-content active">
+    
+    <div id="courses-tab" class="tab-content active"> <!-- Courses & Progress Content -->
         <h3>Enrolled Courses & Progress</h3>
 
         {% for progress in course_progress %}
-        <div class="course-item">
-            <div class="course-details flex-grow-1">
+        <div class="course-item"> <!-- Individual Course Item -->
+            <div class="course-details flex-grow-1"> <!-- Course Details -->
                 <h4>{{ progress.course.title }}</h4>
                 <p class="mb-1">Instructor: <strong>{{ progress.course.instructor.get_full_name }}</strong></p>
                 <p class="mb-0">Progress: <strong>{{ progress.completed_lectures }}/{{ progress.total_lectures }} lectures</strong></p>
             </div>
 
-            <div class="progress-container" style="width: 200px;">
-                <div class="progress-bar" style="width: {{ progress.progress_percent }}%;"></div>
-                <span class="progress-text">{{ progress.progress_percent }}% Complete</span>
+            <div class="progress-container" style="width: 200px;"> <!-- Progress Bar Container -->
+                <div class="progress-bar" style="width: {{ progress.progress_percent }}%;"></div> <!-- Progress Bar -->
+                <span class="progress-text">{{ progress.progress_percent }}% Complete</span> <!-- Progress Text -->
             </div>
         </div>
         {% empty %}
-        <div class="text-center py-4">
-            <i class="fas fa-book fa-3x text-muted mb-3"></i>
+        <div class="text-center py-4"> <!-- No Courses Message -->
+            <i class="fas fa-book fa-3x text-muted mb-3"></i> <!-- Icon -->
             <p class="text-muted">You haven't enrolled in any courses yet.</p>
             <a href="{% url 'courses:browse_courses' %}" class="btn btn-primary">Browse Courses</a>
         </div>
         {% endfor %}
 
-        <!-- Recent Video Progress -->
-        <h3 class="mt-5">Recent Video Progress</h3>
+        
+        <h3 class="mt-5">Recent Video Progress</h3> <!-- Section Heading -->
 
         {% if recent_videos %}
-        <table class="activity-table">
-            <thead>
-                <tr>
+        <table class="activity-table"> <!-- Recent Videos Table -->
+            <thead> <!-- Table Header -->
+                <tr> 
                     <th>Video Title</th>
                     <th>Course</th>
                     <th>Status</th>
                     <th>Last Watched</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody> <!-- Table Body -->
                 {% for video in recent_videos %}
                 <tr>
                     <td>{{ video.lecture.title }}</td>
@@ -290,40 +148,40 @@
             </tbody>
         </table>
         {% else %}
-        <div class="text-center py-4">
+        <div class="text-center py-4"> <!-- No Video Progress Message -->
             <i class="fas fa-play-circle fa-3x text-muted mb-3"></i>
             <p class="text-muted">No video progress yet.</p>
         </div>
         {% endif %}
     </div>
 
-    <!-- Attendance Tab -->
-    <div id="attendance-tab" class="tab-content">
+ 
+    <div id="attendance-tab" class="tab-content"> <!-- Attendance Content -->
         <h3>Attendance Overview</h3>
 
-        <div class="row mt-4">
-            <div class="col-md-3 mb-3">
-                <div class="stat-card">
+        <div class="row mt-4"> <!-- Attendance Stats Row -->
+            <div class="col-md-3 mb-3"> <!-- Individual Stat Card -->
+                <div class="stat-card"> <!-- Stat Card -->
                     <h4>Total Classes</h4>
-                    <p class="big-number">{{ attendance_data.total_classes }}</p>
+                    <p class="big-number">{{ attendance_data.total_classes }}</p> <!-- Stat Number -->
                 </div>
             </div>
 
-            <div class="col-md-3 mb-3">
+            <div class="col-md-3 mb-3"> <!-- Individual Stat Card -->
                 <div class="stat-card">
                     <h4>Classes Attended</h4>
                     <p class="big-number">{{ attendance_data.classes_attended }}</p>
                 </div>
             </div>
 
-            <div class="col-md-3 mb-3">
+            <div class="col-md-3 mb-3"> <!-- Individual Stat Card -->
                 <div class="stat-card">
                     <h4>Attendance %</h4>
                     <p class="big-number">{{ attendance_data.attendance_percentage }}%</p>
                 </div>
             </div>
 
-            <div class="col-md-3 mb-3">
+            <div class="col-md-3 mb-3"> <!-- Individual Stat Card -->
                 <div class="stat-card">
                     <h4>Absences</h4>
                     <p class="big-number">{{ attendance_data.absences }}</p>
@@ -331,10 +189,10 @@
             </div>
         </div>
 
-        <h3 class="mt-4">Live Classes Joined</h3>
+        <h3 class="mt-4">Live Classes Joined</h3> <!-- Section Heading -->
 
-        <table class="activity-table">
-            <thead>
+        <table class="activity-table"> <!-- Live Classes Table -->
+            <thead> <!-- Table Header -->
                 <tr>
                     <th>Class Title</th>
                     <th>Date & Time</th>
@@ -342,7 +200,7 @@
                     <th>Duration</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody> <!-- Table Body -->
                 {% for class in attendance_data.live_classes %}
                 <tr>
                     <td>{{ class.title }}</td>
@@ -357,12 +215,12 @@
         </table>
     </div>
 
-    <!-- Login History Tab -->
-    <div id="history-tab" class="tab-content">
+    
+    <div id="history-tab" class="tab-content"> <!-- Login History Content -->
     <h3>Login History</h3>
 
-    <table class="activity-table">
-        <thead>
+    <table class="activity-table"> <!-- Login History Table -->
+        <thead> <!-- Table Header -->
             <tr>
                 <th>Login Date</th>
                 <th>Login Time</th>
@@ -371,7 +229,7 @@
                 <th>Logout Time</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody> <!-- Table Body -->
             {% for login in login_history %}
             <tr>
                 <td>{{ login.login_time|date:"Y-m-d" }}</td>
@@ -391,7 +249,7 @@
 
                 <td>
     {% if forloop.first and not login.logout_time %}
-        <span class="text-warning">Active</span>
+        <span class="text-warning">Active</span> <!-- Highlight active session -->
     {% elif login.logout_time %}
         {{ login.logout_time|date:"H:i" }}
     {% else %}
@@ -411,12 +269,12 @@
     </table>
 </div>
 
-   <div id="videos-tab" class="tab-content">
+   <div id="videos-tab" class="tab-content"> <!-- Video Lessons Watched Content -->
     <h3>Video Lessons Watched</h3>
 
     {% if video_lessons_watched %}
-    <table class="activity-table">
-        <thead>
+    <table class="activity-table"> <!-- Video Lessons Watched Table -->
+        <thead> <!-- Table Header -->
             <tr>
                 <th>Lecture Title</th>
                 <th>Course</th>
@@ -424,7 +282,7 @@
                 <th>Completed On</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody> <!-- Table Body -->
             {% for v in video_lessons_watched %}
             <tr>
                 <td>{{ v.lecture.title }}</td>
@@ -436,27 +294,27 @@
         </tbody>
     </table>
     {% else %}
-    <div class="text-center py-4">
+    <div class="text-center py-4"> <!-- No Video Lessons Message -->
         <i class="fas fa-video fa-3x text-muted mb-3"></i>
         <p class="text-muted">You haven't completed any video lessons yet.</p>
     </div>
     {% endif %}
 </div>
 
-    <div id="qna-tab" class="tab-content">
+    <div id="qna-tab" class="tab-content"> <!-- Q&A Activity Content -->
     <h3>Q&A Activity</h3>
 
     {% for qna in qna_activity %}
-    <div class="qna-item">
+    <div class="qna-item"> <!-- Individual Q&A Item -->
         <p class="fw-bold">Q: {{ qna.question }}</p>
         <p class="text-muted">
             Course: {{ qna.lecture.module.course.title }} |
             Posted: {{ qna.created_at|date:"Y-m-d" }}
         </p>
 
-        <!-- Replies -->
+        
         {% if qna.replies.all %}
-            <div class="mt-2 ps-3 border-start border-2">
+            <div class="mt-2 ps-3 border-start border-2"> <!-- Replies Container -->
                 {% for reply in qna.replies.all %}
                     <p class="text-primary fw-bold">
                         {{ reply.user.get_full_name }} replied:
@@ -470,26 +328,24 @@
         {% endif %}
     </div>
     {% empty %}
-    <div class="text-center py-4">
+    <div class="text-center py-4"> <!-- No Q&A Activity Message -->
         <i class="fas fa-question-circle fa-3x text-muted mb-3"></i>
         <p class="text-muted">No Q&A activity yet.</p>
     </div>
     {% endfor %}
 </div>
 
-
-
 </div>
 
-<footer class="bg-light py-4 mt-5">
-    <div class="container text-center">
+<footer class="bg-light py-4 mt-5"> <!-- Footer -->
+    <div class="container text-center"> <!-- Centered Content -->
         <p class="mb-0">&copy; 2025 Bildung. All rights reserved.</p>
     </div>
 </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script> <!-- Bootstrap JS -->
 
-<script>
+<script> <!-- Tab Functionality -->
     function openTab(evt, tabName) {
         document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
         document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));

@@ -1012,13 +1012,13 @@ def save_course(request):
         if item["type"] == "Module":
             if item.get("module_id"):  
                 module = Module.objects.get(id=item["module_id"])
-                module.order = index
+                module.module_order = index
                 module.save()
             else:
                 module = Module.objects.create(
                     course=course,
                     title=item.get("title", "Module"),
-                    order=index
+                    module_order=index
                 )
                 item["module_id"] = module.id
 
@@ -1043,7 +1043,7 @@ def save_course(request):
                 course=course,
                 instructor=request.user,
                 topic=item.get("title", "Live Class"),
-                order=index
+                assignment_order=index
             )
             item["liveclass_id"] = lc.id
 

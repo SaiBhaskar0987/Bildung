@@ -1,4 +1,6 @@
-<!DOCTYPE html>
+{% load static %}
+
+ <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -6,39 +8,32 @@
 <title>Notifications</title>
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="{% static 'instructor_notifications/style.css' %}">
 
-<style>
-.notif-card {
-    border-left: 5px solid #0d6efd;
-    transition: 0.2s ease-in-out;
-}
-.notif-unread {
-    background: #fff8e6;
-    border-left-color: #ffc107 !important;
-}
-.notif-card:hover {
-    background-color: #f6f9ff;
-}
-</style>
+
+
 </head>
 
-<body class="bg-light">
+<body class="bg-light"> <!-- Sets light background color for entire page -->
+
 
 <!-- HEADER -->
-<div class="d-flex justify-content-between align-items-center p-3 bg-white shadow-sm">
+<div class="d-flex justify-content-between align-items-center p-3 bg-white shadow-sm"> <!-- Flex container for header with logo on left and profile dropdown on right -->
+    <a href="{% url 'instructor_dashboard' %}" class="text-decoration-none text-dark"> <!-- Brand logo container -->
 
-    <a href="{% url 'instructor_dashboard' %}" class="text-decoration-none text-dark">
         <h3 class="m-0 fw-bold">Bildung</h3>
     </a>
 
-    <div class="dropdown">
+    <div class="dropdown"> <!-- Dropdown wrapper for user profile -->
+
         <button class="btn rounded-circle shadow"
                 style="background:gray;color:white;width:45px;height:45px;"
                 data-bs-toggle="dropdown">
             {{ request.user.username|first|upper }}
-        </button>
+        </button>.       <!-- Circular user avatar button -->
 
-        <ul class="dropdown-menu dropdown-menu-end">
+
+        <ul class="dropdown-menu dropdown-menu-end"> <!-- Dropdown menu aligned to right -->
             <li><a class="dropdown-item" href="{% url 'instructor_profile_view' %}">Profile</a></li>
                 <li><a class="dropdown-item" href="{% url 'instructor:add_course' %}">Create New Course</a></li>
                 <li><a class="dropdown-item" href="{% url 'instructor:students_list' %}">My Students</a></li>
@@ -54,20 +49,21 @@
 </div>
 
 <!-- MAIN CONTENT -->
-<div class="container mt-4 mb-5">
+<div class="container mt-4 mb-5"> <!-- Main container with top and bottom spacing -->
 
-    <div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="d-flex justify-content-between align-items-center mb-3"> <!-- Flex row for page title & action button -->
         <h3 class="fw-bold">Notifications</h3>
 
-        <button onclick="markAllRead()" class="btn btn-sm btn-outline-primary">
+        <button onclick="markAllRead()" class="btn btn-sm btn-outline-primary"> <!-- Button to mark all notifications as read -->
             Mark All as Read
         </button>
     </div>
 
     {% if notifications %}
         {% for n in notifications %}
-        <div class="p-3 mb-3 shadow-sm rounded notif-card {% if not n.is_read %}notif-unread{% endif %}">
-            <div class="d-flex justify-content-between">
+        <div class="p-3 mb-3 shadow-sm rounded notif-card {% if not n.is_read %}notif-unread{% endif %}">  <!-- Notification card with shadow & conditional unread styling -->
+            <div class="d-flex justify-content-between"><!-- Flex layout separating message and actions -->
+
 
                 <!-- MESSAGE + TIME -->
                 <div>
@@ -78,7 +74,7 @@
                     </small>
                 </div>
 
-                <div class="text-end">
+                <div class="text-end">  <!-- Right-aligned action buttons -->
 
                     {% if n.url %}
                     <!-- MAIN FIX: ALWAYS OPEN n.url EXACTLY -->
@@ -86,10 +82,10 @@
                     {% endif %}
 
                     {% if not n.is_read %}
-                    <button class="btn btn-sm btn-outline-secondary"
+                    <button class="btn btn-sm btn-outline-secondary" 
                             onclick="markRead({{ n.id }})">
                         Mark Read
-                    </button>
+                    </button>   <!-- Mark individual notification as read -->
                     {% endif %}
                 </div>
 
@@ -97,7 +93,8 @@
         </div>
         {% endfor %}
     {% else %}
-        <p class="text-center text-muted mt-5">No notifications yet.</p>
+        <p class="text-center text-muted mt-5">No notifications yet.</p><!-- Message shown when no notifications exist -->
+
     {% endif %}
 
 </div>

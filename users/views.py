@@ -7,7 +7,6 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.core.mail import send_mail
-from django.template.loader import render_to_string
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.contrib.auth.tokens import default_token_generator
@@ -18,7 +17,6 @@ from .models import EmailVerification
 from .utils import send_verification_email
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth.hashers import make_password 
-from django.urls import reverse
 from .models import PasswordChangeRequest
 
 from .models import User, Profile, LoginHistory, InstructorProfile
@@ -92,7 +90,7 @@ def student_dashboard(request):
         messages.error(request, "Access denied. Student area only.")
         return redirect("login")
     check_and_send_reminders(request.user)
-    all_courses = Course.objects.all()
+    all_courses = Course.objects.order_by("-created_at")[:4]
 
     unread_count = Notification.objects.filter(
         user=request.user,
@@ -124,25 +122,21 @@ def account_settings(request):
         new_password = request.POST.get("new_password")
         confirm_password = request.POST.get("confirm_password")
 
-        # 1️⃣ Validate current password
         if not user.check_password(current_password):
             messages.error(request, "❌ Current password is incorrect")
             return redirect("account_settings")
 
-        # 2️⃣ Validate new passwords
         if new_password != confirm_password:
             messages.error(request, "❌ New passwords do not match")
             return redirect("account_settings")
 
-        # 3️⃣ Create password change request (NOT updating password yet)
         password_request = PasswordChangeRequest.objects.create(
             user=user,
-            new_password=make_password(new_password)  # hash before storing
+            new_password=make_password(new_password) 
         )
 
         confirm_link = f"http://127.0.0.1:8000/confirm-password/{password_request.token}/"
 
-        # 🔗 PRINT LINK IN TERMINAL
         print("\n🔐 PASSWORD CONFIRMATION LINK")
         print(confirm_link)
         print("⬆️ Click this link to confirm password change\n")
@@ -154,7 +148,7 @@ def account_settings(request):
 
         return redirect("account_settings")
 
-    return render(request, "users/account_settings.html")
+    return render(request, "student/account_settings.html")
 
 
 def confirm_password_change(request, token):
@@ -167,7 +161,6 @@ def confirm_password_change(request, token):
     if request.method == "POST":
         user = password_request.user
 
-        # ✅ Update password now
         user.password = password_request.new_password
         user.save()
 

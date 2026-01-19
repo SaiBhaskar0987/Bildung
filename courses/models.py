@@ -43,8 +43,12 @@ class Module(models.Model):
     description = models.TextField(blank=True, null=True)
     module_order = models.PositiveIntegerField(default=0)
 
+    class Meta:
+        ordering = ["module_order", "id"]
+
     def __str__(self):
         return f"{self.course.title} - {self.title}"
+
 
 class CourseBlock(models.Model):
     BLOCK_TYPES = [
@@ -70,6 +74,9 @@ class Lecture(models.Model):
     video = models.FileField(upload_to="lectures/videos/", blank=True, null=True)
     file = models.FileField(upload_to="lectures/files/", blank=True, null=True)
     lecture_order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ["lecture_order", "id"]
 
     def __str__(self):
         return f"{self.module.title} - {self.title}"
@@ -150,6 +157,8 @@ class LiveClass(models.Model):
     def start_datetime(self):
         dt = datetime.datetime.combine(self.date, self.time)
         return timezone.make_aware(dt)
+    class Meta:
+        ordering = ["live_class_order", "id"]
 
     def __str__(self):
         return f"{self.topic} ({self.course.title}) on {self.date} at {self.time}"

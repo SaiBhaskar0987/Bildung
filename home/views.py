@@ -1,31 +1,62 @@
 from django.shortcuts import redirect, render
-from courses.models import Course
 from django.db.models import Count
+from courses.models import Course
 
 def smart_home(request):
+    if request.user.is_authenticated:
+        role_redirects = {
+            "student": "student_dashboard",
+            "instructor": "instructor_dashboard",
+            "admin": "admin_dashboard",
+        }
+        dashboard = role_redirects.get(request.user.role)
+        if dashboard:
+            return redirect(dashboard)
 
-    popular_titles_qs = (
+    selected_category = request.GET.get("category")
+
+    popular_categories = (
         Course.objects
-        .values('title', 'category')
-        .annotate(count=Count('title'))
-        .order_by('-count', '-id')[:4]
+        .values("category")
+        .annotate(total=Count("id"))
+        .order_by("-total")
     )
 
-    popular_titles = list(popular_titles_qs)
-    #print("Popular courses queryset:", popular_titles)
+    most_used_category = (
+        popular_categories[0]["category"]
+        if popular_categories.exists()
+        else None
+    )
 
-    courses = Course.objects.all()[:6]
-    if request.user.is_authenticated:
-        if request.user.role == "student":
-            return redirect('student_dashboard')
-        elif request.user.role == "instructor":
-            return redirect('instructor_dashboard')
-        elif request.user.role == "admin":
-            return redirect('admin_dashboard')
+    active_category = selected_category or most_used_category
+
+    total_courses = Course.objects.count()
+
+    if total_courses <= 4:
+        popular_courses = Course.objects.order_by("-created_at", "-id")
+    else:
+        popular_courses = (
+            Course.objects
+            .filter(category=active_category)
+            .order_by("-created_at", "-id")[:4]
+            if active_category
+            else []
+        )
+
+    courses_qs = Course.objects.order_by("-created_at", "-id")
+
+    if selected_category:
+        courses_qs = courses_qs.filter(category=selected_category)
+
+    courses = courses_qs[:6]
 
     context = {
-        'courses': courses,
-        'popular_courses': popular_titles,
+        "popular_categories": popular_categories,
+        "popular_courses": popular_courses,
+        "courses": courses,
+        "selected_category": selected_category,
+        "active_category": active_category,
+        "most_used_category": most_used_category,
     }
 
-    return render(request, 'home/guest_home.html', context)
+    return render(request, "home/guest_home.html", context)

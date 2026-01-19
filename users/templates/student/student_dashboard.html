@@ -10,7 +10,6 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
 <style>
-
 .hero {
     background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),
                  url("https://images.unsplash.com/photo-1522202176988-66273c2fd55f");
@@ -31,13 +30,13 @@
     background-position: center;
 }
 
-
 .notif-panel {
     width: 360px !important;
     max-height: 400px !important;
     padding: 0;
     overflow-y: auto;
 }
+
 .notif-item {
     padding: 10px 14px;
     display: flex;
@@ -57,7 +56,6 @@
 }
 .notif-text { flex: 1; }
 
-
 .floating-btn {
     position: fixed;
     right: 25px;
@@ -72,11 +70,10 @@
     cursor: pointer;
     z-index: 9999;
     font-size: 26px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
 }
+
 #aiChatBtn { bottom: 25px; }
 #noteBtn { bottom: 95px; }
-
 
 .chatbox {
     position: fixed;
@@ -156,6 +153,7 @@
     border-radius: 6px;
     padding: 5px 14px;
 }
+
 .storage-warning {
     color: red;
     font-size: 12px;
@@ -163,14 +161,18 @@
     display: none;
 }
 
+footer {
+      background: #f8f9fa;
+      padding: 20px 0;
+      text-align: center;
+      margin-top: 50px;
+    }
 </style>
 </head>
-
 
 <body class="bg-light">
 
 <div class="d-flex justify-content-between align-items-center p-3 bg-white shadow-sm">
-
     <a href="{% url 'student_dashboard' %}" class="text-decoration-none text-dark">
         <h3 class="m-0 fw-bold"><i class="fas fa-graduation-cap"></i> Bildung</h3>
     </a>
@@ -223,14 +225,12 @@
                 <li><a class="dropdown-item text-danger" href="{% url 'logout_view' %}">Logout</a></li>
             </ul>
         </div>
-
     </div>
 </div>
 
 <section class="hero">
     <h1>Welcome, {{ user.first_name }} {{ user.last_name }}!</h1>
     <p>Learn Anything, Anytime, Anywhere</p>
-
     <form method="get" action="{% url 'courses:course_list' %}" class="d-flex justify-content-center mt-4">
         <input type="text" name="q" class="form-control w-50" placeholder="Search for courses..." required>
         <button class="btn btn-warning ms-2">Search</button>
@@ -241,10 +241,34 @@
     <h2 class="mb-4">Popular Categories</h2>
 
     <div class="row">
-        <div class="col-md-3 mb-3"><button onclick="filterCategory('programming')" class="btn btn-outline-primary w-100 py-3">Programming</button></div>
-        <div class="col-md-3 mb-3"><button onclick="filterCategory('business')" class="btn btn-outline-success w-100 py-3">Business</button></div>
-        <div class="col-md-3 mb-3"><button onclick="filterCategory('design')" class="btn btn-outline-warning w-100 py-3">Design</button></div>
-        <div class="col-md-3 mb-3"><button onclick="filterCategory('music')" class="btn btn-outline-danger w-100 py-3">Music</button></div>
+        <div class="col-md-3 mb-3">
+            <button data-category="programming"
+                    onclick="filterCategory(this)"
+                    class="btn btn-outline-primary w-100 py-3">
+                Programming
+            </button>
+        </div>
+        <div class="col-md-3 mb-3">
+            <button data-category="business"
+                    onclick="filterCategory(this)"
+                    class="btn btn-outline-success w-100 py-3">
+                Business
+            </button>
+        </div>
+        <div class="col-md-3 mb-3">
+            <button data-category="design"
+                    onclick="filterCategory(this)"
+                    class="btn btn-outline-warning w-100 py-3">
+                Design
+            </button>
+        </div>
+        <div class="col-md-3 mb-3">
+            <button data-category="music"
+                    onclick="filterCategory(this)"
+                    class="btn btn-outline-danger w-100 py-3">
+                Music
+            </button>
+        </div>
     </div>
 </section>
 
@@ -253,25 +277,44 @@
 
     <div class="row g-4" id="courseContainer">
         {% for course in all_courses %}
-        <div class="col-md-3 col-sm-6 course-item" data-category="{{ course.category }}">
+        <div class="col-md-3 col-sm-6 course-item"
+             data-category="{{ course.category }}"
+             data-index="{{ forloop.counter }}">
             <div class="card shadow-sm border-0 course-card h-100">
-                <div class="course-image" style="background-image:url('{{ course.thumbnail.url }}')"></div>
+                <div class="course-image"
+                     style="background-image:url('{{ course.thumbnail.url }}')"></div>
 
                 <div class="card-body d-flex flex-column">
                     <h5 class="fw-bold">{{ course.title }}</h5>
                     <p class="text-muted small">{{ course.description|truncatewords:15 }}</p>
 
                     {% if course.id in enrolled_course_ids %}
-                    <a href="{% url 'student:student_course_detail' course.id %}" class="btn btn-primary mt-auto">View Course</a>
+                        <a href="{% url 'student:student_course_detail' course.id %}"
+                           class="btn btn-primary mt-auto">View Course</a>
                     {% else %}
-                    <a href="{% url 'student:enroll_course' course.id %}" class="btn btn-success mt-auto">Enroll Now</a>
+                        <a href="{% url 'courses:view_course' course.id %}"
+                           class="btn btn-primary mt-auto">Enroll Now</a>
                     {% endif %}
                 </div>
             </div>
         </div>
         {% endfor %}
     </div>
+
+    <div class="text-center mt-4">
+        <button id="seeMoreBtn"
+                class="btn btn-outline-primary px-4"
+                onclick="showMoreCourses()">
+            See More Courses →
+        </button>
+    </div>
 </section>
+
+<footer class="bg-light py-4 mt-5">
+    <div class="container text-center">
+        <p class="mb-0">&copy; 2025 Bildung. All rights reserved.</p>
+    </div>
+</footer>
 
 <div id="aiChatBtn" class="floating-btn">🤖</div>
 <div id="noteBtn" class="floating-btn">📝</div>
@@ -315,7 +358,6 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
 
 <script>
 
@@ -391,26 +433,75 @@ document.addEventListener("DOMContentLoaded", function () {
     loadNotifications();
     setInterval(loadNotifications, 5000);
 });
-</script>
 
+let activeCategory = null;
+let visibleLimit = 4;
 
-<script>
+document.addEventListener("DOMContentLoaded", () => {
+    applyLimit();
+});
 
-function filterCategory(cat) {
-    const cards = document.querySelectorAll('.course-item');
+function applyLimit() {
+    const cards = document.querySelectorAll(".course-item");
+    let shown = 0;
 
     cards.forEach(card => {
-        let category = card.dataset.category || "other";
+        const matches =
+            !activeCategory || card.dataset.category === activeCategory;
 
-        if (cat === category || cat === "all") {
+        if (matches && shown < visibleLimit) {
             card.style.display = "block";
+            shown++;
         } else {
             card.style.display = "none";
         }
     });
+
+    toggleSeeMore(cards);
+}
+
+function filterCategory(button) {
+    const selected = button.dataset.category;
+    const buttons = document.querySelectorAll("[data-category]");
+
+    if (activeCategory === selected) {
+        activeCategory = null;
+        visibleLimit = 4;
+        buttons.forEach(b => b.classList.remove("active"));
+        applyLimit();
+        return;
+    }
+
+    activeCategory = selected;
+    visibleLimit = 4;
+
+    buttons.forEach(b => b.classList.remove("active"));
+    button.classList.add("active");
+
+    applyLimit();
+}
+
+function showMoreCourses() {
+    visibleLimit += 4;
+    applyLimit();
+}
+
+function toggleSeeMore(cards) {
+    const btn = document.getElementById("seeMoreBtn");
+    let hidden = 0;
+
+    cards.forEach(card => {
+        if (
+            (!activeCategory || card.dataset.category === activeCategory) &&
+            card.style.display === "none"
+        ) {
+            hidden++;
+        }
+    });
+
+    btn.style.display = hidden > 0 ? "inline-block" : "none";
 }
 </script>
-
 
 <script>
 function toggleAIChat() {
@@ -434,10 +525,6 @@ function sendAIMessage() {
 
     input.value = "";
 }
-</script>
-
-
-<script>
 
 const NOTE_KEY = "quickNoteData";
 const MAX_SIZE = 800 * 1024 * 1024;  

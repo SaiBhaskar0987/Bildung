@@ -69,7 +69,6 @@
                 <li><a class="dropdown-item text-danger" href="{% url 'logout_view' %}">Logout</a></li>
             </ul>
         </div>
-
     </div>
 </div>
 
@@ -116,6 +115,14 @@
             </div>
         </div>
         {% endfor %}
+    </div>
+
+    <div class="text-center mt-4">
+        <button id="seeMoreBtn"
+                class="btn btn-outline-primary px-4"
+                onclick="showMoreCourses()">
+            See More Courses →
+        </button>
     </div>
 </section>
 
@@ -237,26 +244,73 @@ document.addEventListener("DOMContentLoaded", function () {
     loadNotifications();
     setInterval(loadNotifications, 5000);
 });
-</script>
 
+let activeCategory = null;
+let visibleLimit = 4;
 
 <script> <!-- Course Filtering Script -->
 
-function filterCategory(cat) {
-    const cards = document.querySelectorAll('.course-item');
+function applyLimit() {
+    const cards = document.querySelectorAll(".course-item");
+    let shown = 0;
 
     cards.forEach(card => {
-        let category = card.dataset.category || "other";
+        const matches =
+            !activeCategory || card.dataset.category === activeCategory;
 
-        if (cat === category || cat === "all") {
+        if (matches && shown < visibleLimit) {
             card.style.display = "block";
+            shown++;
         } else {
             card.style.display = "none";
         }
     });
+
+    toggleSeeMore(cards);
+}
+
+function filterCategory(button) {
+    const selected = button.dataset.category;
+    const buttons = document.querySelectorAll("[data-category]");
+
+    if (activeCategory === selected) {
+        activeCategory = null;
+        visibleLimit = 4;
+        buttons.forEach(b => b.classList.remove("active"));
+        applyLimit();
+        return;
+    }
+
+    activeCategory = selected;
+    visibleLimit = 4;
+
+    buttons.forEach(b => b.classList.remove("active"));
+    button.classList.add("active");
+
+    applyLimit();
+}
+
+function showMoreCourses() {
+    visibleLimit += 4;
+    applyLimit();
+}
+
+function toggleSeeMore(cards) {
+    const btn = document.getElementById("seeMoreBtn");
+    let hidden = 0;
+
+    cards.forEach(card => {
+        if (
+            (!activeCategory || card.dataset.category === activeCategory) &&
+            card.style.display === "none"
+        ) {
+            hidden++;
+        }
+    });
+
+    btn.style.display = hidden > 0 ? "inline-block" : "none";
 }
 </script>
-
 
 <script> <!-- AI Chatbot Script -->
 function toggleAIChat() {

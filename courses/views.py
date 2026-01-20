@@ -5,12 +5,10 @@ from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from django.utils.dateparse import parse_datetime, parse_date, parse_time
 from django.views.decorators.csrf import csrf_exempt
-
-
 from courses.utils import check_and_send_reminders
 from quizzes.models import Quiz, QuizResult
 from .models import Assignment, Course, CourseBlock, Enrollment, Certificate, Lecture, LectureProgress, Feedback, CourseEvent, Module, LiveClass, LectureQuestion, Notification, QuestionReply, CourseReview, LiveClassAttendance
-from users.models import InstructorProfile, LoginHistory, User
+from users.models import LoginHistory, User
 from .forms import LectureForm, FeedbackForm, LiveClassForm, CourseReviewForm, CourseEventForm
 from users.decorators import instructor_required
 from django.db.models import Q, Count, Sum ,Avg
@@ -21,7 +19,7 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import A4
 from django.http import FileResponse, HttpResponseForbidden, JsonResponse
 import json
-from django.contrib.auth import update_session_auth_hash
+from django.db.models import Prefetch
 
 # -------------------------------
 # Common Views
@@ -37,16 +35,59 @@ def get_instructor_average_rating(instructor):
         course__instructor=instructor
     ).aggregate(avg=Avg('rating'))['avg'] or 0
 
+
 def course_list(request):
-    query = request.GET.get('q')
+    query = request.GET.get("q")
+    category = request.GET.get("category")
+
     courses = Course.objects.all()
 
     if query:
         courses = courses.filter(
-            Q(title__icontains=query)
+            Q(title__icontains=query) |
+            Q(description__icontains=query)
         )
 
-    return render(request, 'courses/course_list.html', {'courses': courses, 'query': query})
+    if category:
+        courses = courses.filter(category=category)
+
+    enrolled_course_ids = []
+    if request.user.is_authenticated and request.user.role == "student":
+        enrolled_course_ids = Enrollment.objects.filter(
+            student=request.user
+        ).values_list("course_id", flat=True)
+
+    context = {
+        "courses": courses,
+        "query": query,
+        "enrolled_course_ids": enrolled_course_ids,
+    }
+
+    return render(request, "courses/course_list.html", context)
+
+
+def view_course(request, course_id):
+    course = get_object_or_404(Course, id=course_id)
+
+    modules = (
+        course.modules
+        .order_by("module_order", "id")
+        .prefetch_related(
+            Prefetch(
+                "lectures",
+                queryset=Lecture.objects.order_by("lecture_order", "id")
+            )
+        )
+    )
+
+    context = {
+        "course": course,
+        "modules": modules,
+    }
+
+    return render(request, "courses/view_course.html", context)
+
+
 
 @login_required(login_url='/login/')
 def browse_courses(request):
@@ -940,7 +981,7 @@ def save_module(request, module_id):
     lecture_count = int(request.POST.get("lecture_count", 0))
 
     existing_lectures = list(
-        module.lectures.all().order_by("order", "id")
+        module.lectures.all().order_by("lecture_order", "id")
     )
 
     for i in range(lecture_count):
@@ -951,17 +992,17 @@ def save_module(request, module_id):
 
         if i < len(existing_lectures):
             lecture = existing_lectures[i]
-
         else:
             lecture = Lecture(module=module)
 
         lecture.title = lec_title or f"Lecture {i + 1}"
-        lecture.order = i
+
+        lecture.lecture_order = i
 
         if video:
             lecture.video = video
         if pdf:
-            lecture.file = pdf  
+            lecture.file = pdf
 
         lecture.save()
 
@@ -970,6 +1011,7 @@ def save_module(request, module_id):
             lecture.delete()
 
     return JsonResponse({"status": "success"})
+
 
 @csrf_exempt
 @login_required
@@ -1010,7 +1052,7 @@ def save_course(request):
     for index, item in enumerate(structure):
 
         if item["type"] == "Module":
-            if item.get("module_id"):  
+            if item.get("module_id"):
                 module = Module.objects.get(id=item["module_id"])
                 module.module_order = index
                 module.save()
@@ -1026,7 +1068,7 @@ def save_course(request):
             q = Quiz.objects.create(
                 course=course,
                 title=item.get("title", "Quiz"),
-                order=index
+                quiz_order=index
             )
             item["quiz_id"] = q.id
 
@@ -1034,7 +1076,7 @@ def save_course(request):
             a = Assignment.objects.create(
                 course=course,
                 title=item.get("title", "Assignment"),
-                order=index
+                assignment_order=index
             )
             item["assignment_id"] = a.id
 
@@ -1058,22 +1100,29 @@ def save_course(request):
         "structure": updated_structure
     })
 
+
 @csrf_exempt
 @login_required
 def delete_module(request, module_id):
 
-    module = get_object_or_404(Module, id=module_id, course__instructor=request.user)
+    module = get_object_or_404(
+        Module,
+        id=module_id,
+        course__instructor=request.user
+    )
     course = module.course
 
-    module.delete()  
+    module.delete()
 
-    updated = []
-    for item in course.structure_json:
-        if item.get("module_id") != module_id:
-            updated.append(item)
+    updated = [
+        item for item in (course.structure_json or [])
+        if item.get("module_id") != module_id
+    ]
 
-    for i, item in enumerate(updated):
-        item["order"] = i
+    for index, item in enumerate(updated):
+        mid = item.get("module_id")
+        if mid:
+            Module.objects.filter(id=mid).update(module_order=index)
 
     course.structure_json = updated
     course.save()
@@ -1089,7 +1138,7 @@ def delete_module(request, module_id):
 def edit_module(request, course_id, module_id):
     module = get_object_or_404(Module, id=module_id, course_id=course_id)
 
-    lectures = module.lectures.all().order_by("id")
+    lectures = module.lectures.all().order_by("lecture_order", "id")
 
     return render(request, "courses/instructor/edit_module.html", {
         "module": module,
@@ -1116,7 +1165,7 @@ def add_module(request, course_id, module_id):
         "course_id": course_id,
         "module": module,
         "order_index": order_index,
-        "lectures": module.lectures.all().order_by("id"),
+        "lectures": module.lectures.all().order_by("lecture_order", "id"),
     })
 
 @login_required
@@ -1168,7 +1217,7 @@ def publish_course(request, course_id):
 
 def edit_course(request, course_id):
     course = get_object_or_404(Course, id=course_id)
-    blocks = CourseBlock.objects.filter(course=course).order_by("order")
+    blocks = CourseBlock.objects.filter(course=course).order_by("block_order")
 
     return render(request, "courses/instructor/edit_course.html", {
         "course": course,

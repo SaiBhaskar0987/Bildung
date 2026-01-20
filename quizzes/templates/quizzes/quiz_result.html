@@ -1,10 +1,24 @@
-<h2>{{ quiz.title }} - Result</h2>
+<h3>{{ quiz.title }} – Result</h3>
+<p class="fw-bold">
+  Score: {{ result.score }} / {{ answers|length }}
+</p>
 
-{% if result %}
-  <p>Your Score: <b>{{ result.score }}%</b></p>
-  <p>Submitted at: {{ result.submitted_at }}</p>
-{% else %}
-  <p>No results found for this quiz.</p>
-{% endif %}
+<hr>
 
-<a href="{% url 'quiz_list' quiz.course.id %}">Back to quizzes</a>
+{% for a in answers %}
+<div class="mb-2">
+  <strong>{{ a.question.question_text }}</strong><br>
+  Your answer: {{ a.choice.text }}
+
+  {% if a.choice.is_correct %}
+    ✅
+  {% else %}
+    ❌
+  {% endif %}
+</div>
+{% endfor %}
+
+<a href="{% url 'student:student_course_detail' course_id %}">
+    Back to Course
+</a>
+

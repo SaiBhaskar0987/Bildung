@@ -1,0 +1,106 @@
+<h2>{{ quiz.title }} (Preview)</h2>
+
+<form method="post" id="quizForm">
+  {% csrf_token %}
+
+  {% for q in questions %}
+  <div class="card mb-3">
+    <div class="card-body">
+
+      <strong>Q{{ forloop.counter }}.</strong>
+
+      <span class="view-mode">
+        {{ q.question_text }}
+      </span>
+
+      <textarea
+        class="edit-mode form-control mt-1"
+        name="question_{{ q.id }}"
+        style="display:none;"
+      >{{ q.question_text }}</textarea>
+
+      <ul class="mt-2 list-unstyled">
+        {% for c in q.choices.all %}
+        <li>
+
+          <span class="view-mode {% if c.is_correct %}text-success{% endif %}">
+            {{ c.text }}
+          </span>
+
+          <div class="edit-mode" style="display:none;">
+            <label>
+              <input
+                type="radio"
+                name="correct_{{ q.id }}"
+                value="{{ c.id }}"
+                {% if c.is_correct %}checked{% endif %}
+              >
+              <input
+                type="text"
+                name="choice_{{ c.id }}"
+                value="{{ c.text }}"
+                class="form-control d-inline-block"
+                style="width: 80%;"
+              >
+            </label>
+          </div>
+
+        </li>
+        {% endfor %}
+      </ul>
+
+    </div>
+  </div>
+  {% endfor %}
+
+  <button
+    type="button"
+    class="btn btn-primary"
+    id="editBtn"
+  >
+    Edit
+  </button>
+
+  <button
+    type="submit"
+    class="btn btn-success"
+    id="saveBtn"
+    style="display:none;"
+  >
+    Save Changes
+  </button>
+
+  <button
+    type="button"
+    class="btn btn-secondary"
+    id="cancelBtn"
+    style="display:none;"
+  >
+    Cancel
+  </button>
+
+  <a href="javascript:history.back()" class="btn btn-link">
+    Back
+  </a>
+</form>
+<script>
+  const editBtn = document.getElementById("editBtn");
+  const saveBtn = document.getElementById("saveBtn");
+  const cancelBtn = document.getElementById("cancelBtn");
+
+  const viewEls = document.querySelectorAll(".view-mode");
+  const editEls = document.querySelectorAll(".edit-mode");
+
+  editBtn.onclick = () => {
+    viewEls.forEach(el => el.style.display = "none");
+    editEls.forEach(el => el.style.display = "block");
+
+    editBtn.style.display = "none";
+    saveBtn.style.display = "inline-block";
+    cancelBtn.style.display = "inline-block";
+  };
+
+  cancelBtn.onclick = () => {
+    location.reload();
+  };
+</script>

@@ -54,6 +54,17 @@ urlpatterns = [
     path("lecture/<int:lecture_id>/delete/", views.delete_lecture, name="delete_lecture"),
     path("module/<int:module_id>/delete/", views.delete_module, name="delete_module"),
 
+    path("course/<int:course_id>/quiz/<int:quiz_id>/", views.add_quiz, name="add_quiz"),
+    path("course/<int:course_id>/quiz/<int:quiz_id>/save/", views.save_quiz, name="save_quiz"),
+    path("quiz/<int:quiz_id>/question/add/", views.add_quiz_question, name="add_quiz_question"),
+    path("course/<int:course_id>/quiz/<int:quiz_id>/edit/", views.edit_quiz, name="edit_quiz"),
+   path(
+    "quiz/<int:quiz_id>/inline-preview/",
+    views.quiz_inline_preview,
+    name="quiz_inline_preview"
+)
+
+
 ]
     
 

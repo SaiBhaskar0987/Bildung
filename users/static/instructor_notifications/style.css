@@ -1,0 +1,16 @@
+/* Styles the notification card with a blue left border and smooth hover transition */
+.notif-card {
+    border-left: 5px solid #0d6efd;
+    transition: 0.2s ease-in-out;
+}
+
+/* Highlights unread notifications with a light yellow background and warning-colored border */
+.notif-unread {
+    background: #fff8e6;
+    border-left-color: #ffc107 !important;
+}
+
+/* Changes background color when the notification card is hovered */
+.notif-card:hover {
+    background-color: #f6f9ff;
+}

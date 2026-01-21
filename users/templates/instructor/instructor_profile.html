@@ -7,106 +7,42 @@
 <title>Instructor Profile</title>
  
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="{% static 'instructor_profile/style.css' %}">
  
-<style>
-body {
-    background: linear-gradient(135deg, #eef2ff, #f8f9ff);
-}
- 
-.profile-card {
-    max-width: 650px;
-    margin: auto;
-    border-radius: 22px;
-    background: rgba(255,255,255,0.95);
-    box-shadow: 0 25px 60px rgba(0,0,0,0.12);
-    padding: 35px;
-}
- 
-.profile-avatar-view {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 5px solid #4f46e5;
-    background: #f1f1f1;
-}
 
-.profile-avatar-edit {
-    width: 150px;
-    height: 150px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 4px dashed #16a34a;
-    background: #f1f1f1;
-}
-
-.profile-label {
-    font-weight: 600;
-    color: #555;
-    min-width: 140px;
-    display: inline-block;
-}
-.profile-value {
-    color: #333;
-}
- 
-.form-control, textarea {
-    border-radius: 12px !important;
-}
- 
-.btn-save {
-    background: linear-gradient(135deg, #22c55e, #16a34a);
-    color: #fff;
-    border-radius: 12px;
-    padding: 10px 28px;
-    border: none;
-}
-.btn-cancel {
-    background: linear-gradient(135deg, #ef4444, #dc2626);
-    color: #fff;
-    border-radius: 12px;
-    padding: 10px 28px;
-    border: none;
-}
-.btn-edit {
-    border-radius: 12px;
-    padding: 10px 30px;
-}
- 
-/* Divider */
-.profile-divider {
-    height: 1px;
-    background: linear-gradient(to right, transparent, #dbe3ff, transparent);
-    margin: 25px 0;
-}
-</style>
 </head>
  
 <body>
+ 
+<!-- ===== HEADER ===== -->
+<div class="d-flex justify-content-between align-items-center p-3 bg-white shadow-sm"> <!-- Main header container layout for logo (left) & user info (right) -->
+    <a href="{% url 'instructor_dashboard' %}" class="text-decoration-none text-dark"> <!-- Logo container with link to instructor dashboard -->
 
-<div class="d-flex justify-content-between align-items-center p-3 bg-white shadow-sm">
-    <a href="{% url 'instructor_dashboard' %}" class="text-decoration-none text-dark">
         <h3 class="m-0 fw-bold">Bildung</h3>
     </a>
  
-    <div class="d-flex align-items-center gap-3">
-        <h5 class="m-0">Hello, {{ user.first_name }} {{ user.last_name }}</h5>
- 
-        <div class="dropdown">
-            <button class="btn p-0 border-0 bg-transparent" data-bs-toggle="dropdown">
-                {% if profile.profile_picture %}
+    <div class="d-flex align-items-center gap-3"> <!-- Right-side header greeting text and profile dropdown -->
+
+        <h5 class="m-0">Hello, {{ user.first_name }} {{ user.last_name }}</h5><!-- Displays logged in instructor name -->
+
+        <div class="dropdown">   <!-- Dropdown wrapper for profile menu -->
+            <button class="btn p-0 border-0 bg-transparent" data-bs-toggle="dropdown"> <!-- Button that triggers dropdown menu -->
+
+                {% if profile.profile_picture %}    <!-- Profile image if uploaded -->
                     <img src="{{ profile.profile_picture.url }}"
                          class="rounded-circle shadow"
                          style="width:45px;height:45px;object-fit:cover;border:2px solid #4f46e5;">
                 {% else %}
-                    <div class="rounded-circle shadow d-flex align-items-center justify-content-center"
-                         style="background:#6b7280;color:white;width:45px;height:45px;">
+                    <div class="rounded-circle shadow d-flex align-items-center justify-content-center" 
+                         style="background:#6b7280;color:white;width:45px;height:45px;"> <!-- Default avatar with first letter of username -->
+
                         {{ request.user.username|first|upper }}
                     </div>
                 {% endif %}
             </button>
  
-            <ul class="dropdown-menu dropdown-menu-end">
+            <ul class="dropdown-menu dropdown-menu-end">  <!-- Dropdown menu list aligned to right -->
+
                  <li><a class="dropdown-item" href="{% url 'instructor_profile_view' %}">Profile</a></li>
                 <li><a class="dropdown-item" href="{% url 'instructor:add_course' %}">Create New Course</a></li>
                 <li><a class="dropdown-item" href="{% url 'instructor:students_list' %}">My Students</a></li>
@@ -123,8 +59,10 @@ body {
 </div>
  
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+ 
+<!-- ===== PROFILE SECTION ===== -->
+<div class="container mt-5"> <!-- Main container for profile content with top margin -->
 
-<div class="container mt-5">
  
 <h3 class="text-center mb-4">
 {% if is_editing %} ✏️ Edit Instructor Profile {% else %} 👤 Instructor Profile {% endif %}
@@ -133,35 +71,40 @@ body {
 <form method="post" enctype="multipart/form-data">
 {% csrf_token %}
  
-<div class="profile-card">
+<div class="profile-card"> <!-- Profile card wrapper for view/edit content -->
  
 {% if is_editing %}
  
-<div class="text-center mb-4">
+<!-- EDIT IMAGE -->
+<div class="text-center mb-4"> <!-- Centered container for editable profile image -->
     {% if profile.profile_picture %}
         <img src="{{ profile.profile_picture.url }}" class="profile-avatar-edit">
     {% else %}
         <img src="https://via.placeholder.com/150?text=Edit+Photo" class="profile-avatar-edit">
     {% endif %}
     <br>
-    <label class="btn btn-outline-success btn-sm mt-3">
+    <label class="btn btn-outline-success btn-sm mt-3"> <!-- Styled button for uploading new profile photo -->
+
         Change Photo
         <input type="file" name="profile_picture" hidden>
     </label>
 </div>
  
 <div class="row">
-    <div class="col-md-6 mb-3">
+    <div class="col-md-6 mb-3">     <!-- Column for first name input -->
+
         <label>First Name</label>
         {{ user_form.first_name }}
     </div>
-    <div class="col-md-6 mb-3">
+    <div class="col-md-6 mb-3">    <!-- Column for last name input -->
+
         <label>Last Name</label>
         {{ user_form.last_name }}
     </div>
 </div>
  
-<div class="mb-3">
+<div class="mb-3"> <!-- Individual form field wrappers with spacing -->
+
     <label>Email</label>
     {{ user_form.email }}
 </div>
@@ -213,7 +156,8 @@ body {
  
 {% else %}
  
-<div class="text-center mb-4">
+<!-- VIEW IMAGE -->
+<div class="text-center mb-4"> <!-- Centered container for profile image (view mode) -->
     {% if profile.profile_picture %}
         <img src="{{ profile.profile_picture.url }}" class="profile-avatar-view">
     {% else %}
@@ -260,9 +204,11 @@ View Resume
  
 {% endif %}
  
-<div class="profile-divider"></div>
+<div class="profile-divider"></div> <!-- Divider line separating content and actions -->
+
  
-<div class="d-flex justify-content-between">
+<div class="d-flex justify-content-between"> <!-- Action buttons container aligned left and right -->
+
 {% if is_editing %}
     <button type="submit" class="btn-save">Save Changes</button>
     <a href="{% url 'instructor_profile_view' %}" class="btn-cancel">Cancel</a>

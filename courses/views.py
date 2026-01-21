@@ -1344,10 +1344,27 @@ def save_quiz(request, course_id, quiz_id):
         course__instructor=request.user
     )
 
+    course = quiz.course
     data = json.loads(request.body)
 
     quiz.title = data.get("title", quiz.title)
-    quiz.save()
+    quiz.save(update_fields=["title"])
+
+    question_source = data.get("question_source")  
+
+    if question_source:
+        structure = course.structure_json or []
+
+        for item in structure:
+            if (
+                item.get("type") == "Quiz"
+                and str(item.get("quiz_id")) == str(quiz_id)
+            ):
+                item["source"] = question_source
+                break
+
+        course.structure_json = structure
+        course.save(update_fields=["structure_json"])
 
     questions_payload = data.get("questions")
 
@@ -1357,12 +1374,10 @@ def save_quiz(request, course_id, quiz_id):
             "message": "Quiz updated (questions untouched)"
         })
 
-
     for q in questions_payload:
         question = QuizQuestion.objects.create(
             quiz=quiz,
             question_text=q["question"],
-            correct_answer=q["correct_answer"],
             is_auto_generated=(q.get("source") == "ai")
         )
 
@@ -1375,7 +1390,7 @@ def save_quiz(request, course_id, quiz_id):
 
     return JsonResponse({
         "status": "ok",
-        "message": "Quiz and questions saved"
+        "message": "Quiz, questions, and source preference saved"
     })
 
 @login_required

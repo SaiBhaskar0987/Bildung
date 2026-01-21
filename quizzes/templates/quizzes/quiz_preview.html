@@ -1,48 +1,58 @@
-<h2>{{ quiz.title }} (Preview)</h2>
+<h2 class="mb-4">{{ quiz.title }} <small class="text-muted">(Preview)</small></h2>
 
 <form method="post" id="quizForm">
   {% csrf_token %}
 
   {% for q in questions %}
-  <div class="card mb-3">
+  <div class="card mb-4 shadow-sm">
     <div class="card-body">
 
-      <strong>Q{{ forloop.counter }}.</strong>
+      <div class="mb-3">
+        <strong class="fs-5">Q{{ forloop.counter }}.</strong>
+        <span class="view-mode ms-2">
+          {{ q.question_text }}
+        </span>
 
-      <span class="view-mode">
-        {{ q.question_text }}
-      </span>
+        <textarea
+          class="edit-mode form-control mt-2"
+          name="question_{{ q.id }}"
+          style="display:none;"
+        >{{ q.question_text }}</textarea>
+      </div>
 
-      <textarea
-        class="edit-mode form-control mt-1"
-        name="question_{{ q.id }}"
-        style="display:none;"
-      >{{ q.question_text }}</textarea>
-
-      <ul class="mt-2 list-unstyled">
+      <ul class="list-group list-group-flush">
         {% for c in q.choices.all %}
-        <li>
+        <li class="list-group-item rounded mb-2
+            {% if c.is_correct %}bg-success bg-opacity-10 border-success{% endif %}
+        ">
 
-          <span class="view-mode {% if c.is_correct %}text-success{% endif %}">
-            {{ c.text }}
-          </span>
+          <div class="view-mode d-flex align-items-center">
+            <span class="{% if c.is_correct %}fw-bold text-success{% endif %}">
+              {{ c.text }}
+            </span>
+
+            {% if c.is_correct %}
+              <span class="badge bg-success ms-2">Correct</span>
+            {% endif %}
+          </div>
 
           <div class="edit-mode" style="display:none;">
-            <label>
-              <input
-                type="radio"
-                name="correct_{{ q.id }}"
-                value="{{ c.id }}"
-                {% if c.is_correct %}checked{% endif %}
-              >
+            <div class="input-group">
+              <div class="input-group-text">
+                <input
+                  type="radio"
+                  name="correct_{{ q.id }}"
+                  value="{{ c.id }}"
+                  {% if c.is_correct %}checked{% endif %}
+                >
+              </div>
               <input
                 type="text"
                 name="choice_{{ c.id }}"
                 value="{{ c.text }}"
-                class="form-control d-inline-block"
-                style="width: 80%;"
+                class="form-control"
               >
-            </label>
+            </div>
           </div>
 
         </li>
@@ -53,36 +63,25 @@
   </div>
   {% endfor %}
 
-  <button
-    type="button"
-    class="btn btn-primary"
-    id="editBtn"
-  >
-    Edit
-  </button>
+  <div class="mt-4">
+    <button type="button" class="btn btn-primary" id="editBtn">
+      Edit
+    </button>
 
-  <button
-    type="submit"
-    class="btn btn-success"
-    id="saveBtn"
-    style="display:none;"
-  >
-    Save Changes
-  </button>
+    <button type="submit" class="btn btn-success" id="saveBtn" style="display:none;">
+      Save Changes
+    </button>
 
-  <button
-    type="button"
-    class="btn btn-secondary"
-    id="cancelBtn"
-    style="display:none;"
-  >
-    Cancel
-  </button>
+    <button type="button" class="btn btn-secondary" id="cancelBtn" style="display:none;">
+      Cancel
+    </button>
 
-  <a href="javascript:history.back()" class="btn btn-link">
-    Back
-  </a>
+    <a href="javascript:history.back()" class="btn btn-link">
+      Back
+    </a>
+  </div>
 </form>
+
 <script>
   const editBtn = document.getElementById("editBtn");
   const saveBtn = document.getElementById("saveBtn");

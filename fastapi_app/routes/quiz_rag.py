@@ -1,4 +1,3 @@
-
 from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy.orm import Session
 
@@ -15,6 +14,7 @@ def generate_quiz(
     quiz_id: int,
     scope: str = Query("all_before"),
     mode: str = Query("auto"),
+    source: str = "both",
     payload: dict = Body(default={}),
     db: Session = Depends(get_db),
 ):
@@ -36,6 +36,7 @@ def generate_quiz(
     vector_store = get_or_create_vector_store(
         quiz_id=quiz_id,
         scope=scope,
+        source=source, 
         db=db,
     )
 
@@ -53,7 +54,6 @@ def generate_quiz(
         num_questions=num_questions,
     )
     print("🧠 Generating", num_questions, "questions")
-
 
     if not questions:
         return {

@@ -4,12 +4,18 @@ const QUIZ_BLOCK = {{ quiz_block|default:"null"|safe }};
 
 let QUIZ_MODE = QUIZ_BLOCK?.quiz_mode || null;
 let QUIZ_SCOPE = QUIZ_BLOCK?.scope || "all_before";
+let QUESTION_SOURCE = QUIZ_BLOCK?.source || "both";
 let ALL_QUESTIONS = [];
 
 document.addEventListener("DOMContentLoaded", () => {
   {% if quiz.title %}
     quizTitle.value = "{{ quiz.title|escapejs }}";
   {% endif %}
+
+  const sourceSelect = document.getElementById("question_source");
+  if (sourceSelect) {
+    sourceSelect.value = QUESTION_SOURCE;
+  }
  
   if (!QUIZ_MODE) {
     new bootstrap.Modal(quizModeModal, { backdrop: "static" }).show();
@@ -53,12 +59,17 @@ function confirmScopeAndGenerate() {
 function generateAIQuestions() {
   let count = parseInt(questionCount.value) || 5;
 
+  QUESTION_SOURCE = document.getElementById("question_source").value;
+
   aiStatus.innerText = "⏳ Generating questions...";
-  fetch(`http://127.0.0.1:8001/quiz/${QUIZ_ID}/generate?scope=${QUIZ_SCOPE}&mode=auto`, {
+  fetch(
+    `http://127.0.0.1:8001/quiz/${QUIZ_ID}/generate` +
+    `?scope=${QUIZ_SCOPE}&source=${QUESTION_SOURCE}&mode=auto`,
+   {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ num_questions: count })
-  })
+   })
   .then(res => res.json())
   .then(data => {
     if (!Array.isArray(data.questions) || data.questions.length === 0) {
@@ -117,8 +128,11 @@ function saveQuiz() {
 
   const payload = {
     title: quizTitle.value,
+    quiz_mode: QUIZ_MODE,
+    scope: QUIZ_SCOPE,
+    question_source: document.getElementById("question_source").value
   };
-
+  
   if (ALL_QUESTIONS.length > 0) {
     payload.questions = ALL_QUESTIONS;
   }

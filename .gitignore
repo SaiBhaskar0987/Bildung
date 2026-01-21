@@ -1,0 +1,10 @@
+# Environment variables
+.env
+
+# Media / uploaded files
+media/
+media/**
+
+# Django migrations (ignore all except __init__.py)
+**/migrations/**
+!**/migrations/__init__.py

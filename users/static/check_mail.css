@@ -1,11 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Verify Your Email</title>
-
-  <style>
-    body {
+body {
       background: #f4f6f8;
       font-family: Arial, sans-serif;
     }
@@ -35,21 +28,3 @@
       background: #6c757d;
       margin-top: 10px;
     }
-  </style>
-</head>
-
-<body>
-
-<div class="container">
-  <h2>📩 Check your email</h2>
-
-  <p>We’ve sent a verification link to your email address.</p>
-  <p>Please verify your email to activate your account.</p>
-
-    <a href="/" class="btn btn-secondary">← Go Home</a>
-
-
-</div>
-
-</body>
-</html>

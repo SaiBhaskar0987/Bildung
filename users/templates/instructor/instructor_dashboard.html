@@ -1,4 +1,3 @@
-{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,19 +6,206 @@
 <title>Instructor Dashboard</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-<link rel="stylesheet" type="text/css" href="{% static 'instructor_dashboard/inst_dash.css' %}">
 
+<style>
 
+.floating-btn {
+    position: fixed;
+    right: 25px;
+    width: 55px;
+    height: 55px;
+    background: #4c6ef5;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 9999;
+    font-size: 26px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+#aiChatBtn { bottom: 25px; }
+
+#noteBtn { bottom: 95px; }
+
+.chatbox {
+    position: fixed;
+    right: 90px;
+    width: 320px;
+    background: white;
+    border-radius: 12px;
+    display: none;
+    flex-direction: column;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+    z-index: 9998;
+    overflow: hidden;       
+}
+
+#aiChatBox {
+    bottom: 90px;
+    height: 400px;
+}
+
+#noteBox {
+    bottom: 160px;
+    height: 360px;
+}
+
+.chatbox .chat-header {
+    background: #4c6ef5;
+    color: white;
+    padding: 12px;
+    font-weight: 600;
+    font-size: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chatbox .close-btn {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 0;
+}
+
+.chatbox .chat-body {
+    padding: 10px;
+    height: 270px;
+    overflow-y: auto;
+    font-size: 14px;
+}
+
+.chatbox .chat-footer {
+    display: flex;
+    padding: 10px;
+    gap: 5px;
+    border-top: 1px solid #ddd;
+}
+
+.chatbox .chat-footer input {
+    flex: 1;
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    outline: none;
+}
+
+.chatbox .chat-footer button {
+    background: #4c6ef5;
+    color: white;
+    padding: 7px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+#noteBox .note-info {
+    padding: 8px 12px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    font-size: 12px;
+    color: #6c757d;
+    display: flex;
+    justify-content: space-between;
+}
+
+#noteBox .note-area {
+    width: 100%;
+    height: 220px;
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid #bbb;
+    resize: none;
+    outline: none;
+}
+
+#noteBox .note-footer {
+    text-align: right;
+    padding: 8px 0;
+}
+
+#noteBox .save-note-btn {
+    background: #4c6ef5;
+    color: white;
+    padding: 7px 14px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+}
+
+#noteBox .bullet-btn {
+    background: #198754;
+    color: white;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-bottom:10px;
+}
+
+#noteBox .storage-warning {
+    color: #dc3545;
+    font-size: 11px;
+    margin-top: 5px;
+    display: none;
+    padding: 0 10px;
+}
+
+.course-card:hover {
+  transform: translateY(-5px);
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
+.course-card img {
+  transition: transform 0.3s ease;
+}
+.course-card:hover img {
+  transform: scale(1.03);
+}
+
+.notif-panel {
+    width: 360px !important;
+    max-height: 400px !important;
+    padding: 0;
+    overflow-y: auto;
+}
+
+.notif-item {
+    padding: 10px 14px;
+    display: flex;
+    gap: 10px;
+    cursor: pointer;
+}
+.notif-item.unread { background: #fff6d8; }
+.notif-item:hover { background: #f3f3f3; }
+
+.notif-avatar {
+    width: 32px;
+    height: 32px;
+    background: #c9c9c9;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.notif-text { flex: 1; }
+
+</style>
 </head>
 <body class="bg-light">
-  <div class="d-flex justify-content-between align-items-center p-3 bg-white shadow-sm"> <!--navigation bar with brand name,notifications,user profile menu --> 
+  <div class="d-flex justify-content-between align-items-center p-3 bg-white shadow-sm">
     <a href="{% url 'instructor_dashboard' %}" class="text-decoration-none text-dark">
         <h3 class="m-0 fw-bold">Bildung</h3>
     </a>  
     <div class="d-flex align-items-center gap-4">
 
     <!-- Notification Bell -->
-    <div class="dropdown position-relative"> <!-- Notification bell shows unread notifications -->
+    <div class="dropdown position-relative">
         <a class="fs-4 text-dark position-relative" href="#" id="notifBell" data-bs-toggle="dropdown">
             <i class="fa-solid fa-bell"></i>
 
@@ -31,8 +217,7 @@
             {% endif %}
         </a>
 
-        <div class="dropdown-menu dropdown-menu-end notif-panel shadow"> <!-- Notification dropdown panel contains notification list & mark-all button -->
-
+        <div class="dropdown-menu dropdown-menu-end notif-panel shadow">
             <h6 class="dropdown-header d-flex justify-content-between">
                 Notifications
                 <a href="{% url 'instructor_notifications' %}" class="small">View All</a>
@@ -48,8 +233,7 @@
         </div>
     </div>
 
-        <div class="dropdown"><!-- User profile dropdown with profile,courses,settings,& logout -->
-
+        <div class="dropdown">
             <button class="btn rounded-circle shadow" style="background:gray;color:white;width:45px;height:45px;" type="button" data-bs-toggle="dropdown">
                 {{ request.user.username|first|upper }}
             </button>
@@ -70,11 +254,9 @@
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-<div class="container-fluid bg-light py-5 min-vh-100"> <!-- Main dashboard wrapper with full height and padding -->
+<div class="container-fluid bg-light py-5 min-vh-100">
 
-
-  <div class="d-flex justify-content-between align-items-center mb-5"> <!-- Dashboard welcome section with heading and greeting -->
-
+  <div class="d-flex justify-content-between align-items-center mb-5">
     <div>
       <h2 class="fw-bold text-dark mb-1">Instructor Dashboard</h2>
       <p class="text-muted">Welcome back, {{ request.user.get_full_name|default:request.user.username }}! Manage your courses and performance.</p>
@@ -83,13 +265,10 @@
   </div>
 
 
-  <div class="card shadow-sm border-0 mb-5 rounded-4"> <!-- Card displays instructor details -->
-
+  <div class="card shadow-sm border-0 mb-5 rounded-4">
     <div class="card-body">
-      <div class="row text-center"> <!-- Row containing total courses, students, earnings, and rating -->
-
-        <div class="col-md-3 border-end"> <!-- Individual block (Total Courses,Students,Earnings,Rating) -->
-
+      <div class="row text-center">
+        <div class="col-md-3 border-end">
           <h6 class="text-muted">Total Courses</h6>
           <h3 class="fw-bold text-primary">{{ courses|length }}</h3>
         </div>
@@ -116,11 +295,11 @@
 
 {% if courses %}
 
-  <div class="row g-4"> <!-- Courses grid container -->
+  <div class="row g-4">
     {% for course in courses %}
-    <div class="col-md-4"> <!-- Individual course card container -->
-      <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100 course-card"> <!-- Card with image,details,action button -->
-        <div class="position-relative"> <!-- Course thumbnail-->
+    <div class="col-md-4">
+      <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100 course-card">
+        <div class="position-relative">
           <a href="{% url 'instructor:course_detail' course.id %}">
             <img src="{{ course.thumbnail.url|default:'https://via.placeholder.com/400x220?text=Course+Image' }}" 
                  class="card-img-top" alt="{{ course.title }}">
@@ -130,7 +309,7 @@
           </span>
         </div>
 
-        <div class="card-body"> <!-- Course title,description,price,students -->
+        <div class="card-body">
           <h5 class="fw-bold text-dark mb-2">{{ course.title }}</h5>
           <p class="text-muted small mb-3">{{ course.description|truncatewords:18 }}</p>
 
@@ -142,7 +321,7 @@
             <span class="fw-bold text-success">₹{{ course.price|default:"Free" }}</span>
           </div>
 
-          <div class="d-grid gap-2 mt-3"> <!-- Action buttons for viewing,editing,overview,feedback,scheduling -->
+          <div class="d-grid gap-2 mt-3">
             <a href="{% url 'instructor:course_detail' course.id %}" class="btn btn-outline-primary btn-sm">
               <i class="bi bi-eye"></i> View Course
             </a>
@@ -169,8 +348,7 @@
     {% endfor %}
   </div>
   {% else %}
-  <div class="alert alert-info text-center mt-5 shadow-sm rounded-3"> <!-- Info alert shows when instructor has no courses found -->
-
+  <div class="alert alert-info text-center mt-5 shadow-sm rounded-3">
     <h5 class="fw-semibold">No Courses Found</h5>
     <p class="mb-0">You haven't added any courses yet. <a href="{% url 'instructor:add_course' %}" class="text-primary fw-semibold">Create your first course</a> now!</p>
   </div>
@@ -178,47 +356,46 @@
 
 </div>
 <!-- Floating Buttons -->
-<div id="aiChatBtn" class="floating-btn">🤖</div> <!-- Floating AI chatbot button -->
-<div id="noteBtn" class="floating-btn">📝</div> <!-- Floating quick notepad button -->
-
+<div id="aiChatBtn" class="floating-btn">🤖</div>
+<div id="noteBtn" class="floating-btn">📝</div>
 
 <!-- Chatbot Window -->
-<div id="aiChatBox" class="chatbox"> <!-- AI chatbot popup container -->
-    <div class="chat-header"> <!-- Chatbot header with title & close button -->
+<div id="aiChatBox" class="chatbox">
+    <div class="chat-header">
         <span>AI Chatbot</span>
         <button class="close-btn" onclick="toggleAIChat()">✖</button>
     </div>
-    <div class="chat-body" id="aiMessages"> <!-- Chat messages display area -->
+    <div class="chat-body" id="aiMessages">
         <p><b>AI:</b> Hi! How can I help you today?</p>
     </div>
-    <div class="chat-footer"> <!-- Chat input & send button -->
+    <div class="chat-footer">
         <input type="text" id="aiInput" placeholder="Type message..." />
         <button onclick="sendAIMessage()">Send</button>
     </div>
 </div>
 
 <!-- Notepad Window -->
-<div id="noteBox" class="chatbox"> <!-- Quick notepad popup container -->
-    <div class="chat-header"> <!-- Notepad header with title and close button -->
+<div id="noteBox" class="chatbox">
+    <div class="chat-header">
         <span>Quick Notepad</span>
         <button class="close-btn" onclick="toggleNote()">✖</button>
     </div>
     
-    <div class="note-info"> <!-- Storage usage and expiry infor -->
+    <div class="note-info">
         <span id="storageInfo">Storage: 0/800MB</span>
         <span id="expiryInfo">Expires: -</span>
     </div>
     
     <textarea id="noteArea" class="note-area" placeholder="Write notes here..."></textarea>
 
-    <div id="storageWarning" class="storage-warning"> <!-- Warning message when storage is exceeded-->
+    <div id="storageWarning" class="storage-warning">
         ⚠️ Approaching storage limit (800MB)
     </div>
 
-    <div class="note-footer"> <!-- Save button for notes -->
+    <div class="note-footer">
         <button class="save-note-btn" onclick="saveNote()">Save</button>
     </div>
-    <div class="note-tools"> <!-- Tools section for adding bullet points -->
+    <div class="note-tools">
         <button class="bullet-btn" onclick="addBullet()"><h6>•Bullet point</h6></button>
     </div>
 </div>
@@ -369,7 +546,7 @@
         const saved = localStorage.getItem(NOTEPAD_CONFIG.STORAGE_KEY);
         if (saved) {
             try {
-                const noteData = JSON.parse(saved); 
+                const noteData = JSON.parse(saved);
                 const now = new Date();
                 const expiry = new Date(noteData.expiry);
                 
@@ -459,7 +636,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 data.notifications.forEach(n => {
                     const url = n.url && n.url !== "" ? n.url : "{% url 'instructor_notifications' %}";
                     list.innerHTML += `
-                        <div class="notif-item ${n.is_read ? "read" : "unread"}"  
+                        <div class="notif-item ${n.is_read ? "read" : "unread"}"
                              onclick="window.location.href='${url}'">
                             <div class="notif-avatar">${n.message.charAt(0)}</div>
                             <div class="notif-text">

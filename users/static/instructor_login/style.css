@@ -1,64 +1,58 @@
-/* Reset default browser margin, padding and use border-box sizing */
 *{
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-/* Body styling: font, background image with dark overlay, center content */
 body {
   font-family: 'Poppins', sans-serif;
   background-image: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
                     url('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=2071&auto=format&fit=crop');
-  background-size: cover;              /* Make background cover entire screen */
-  background-position: center;         /* Center the background image */
-  background-attachment: fixed;        /* Keep background fixed while scrolling */
-  color: #fff;                         /* Default text color */
-  display: flex;                       /* Enable flexbox */
-  justify-content: center;             /* Center horizontally */
-  align-items: center;                 /* Center vertically */
-  min-height: 100vh;                   /* Full viewport height */
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
 }
 
-/* Container for buttons placed at the top-left */
+/* Top-left button container */
 .top-buttons {
-  position: absolute;                  /* Position relative to viewport */
+  position: absolute;
   top: 20px;
   left: 20px;
-  display: flex;                       /* Arrange buttons horizontally */
-  gap: 10px;                           /* Space between buttons */
+  display: flex;
+  gap: 10px;
 }
 
-/* Styling for top navigation buttons */
 .top-buttons a {
-  text-decoration: none;               /* Remove underline */
+  text-decoration: none;
   padding: 10px 18px;
-  background-color: #4a90e2;           /* Button background */
+  background-color: #4a90e2;
   color: white;
   font-size: 0.95rem;
   font-weight: 600;
-  border-radius: 8px;                  /* Rounded corners */
+  border-radius: 8px;
   transition: background-color 0.3s ease;
 }
 
-/* Hover effect for top buttons */
 .top-buttons a:hover {
   background-color: #357abd;
 }
 
-/* Login form container with glassmorphism effect */
 .login-form {
   width: 100%;
-  max-width: 420px;                    /* Limit form width */
+  max-width: 420px;
   background-color: rgba(0, 0, 0, 0.3);
   padding: 2.5rem;
   border-radius: 15px;
   border: 1px solid rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(12px);         /* Glass blur effect */
+  backdrop-filter: blur(12px);
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
 }
 
-/* Main heading style */
 h2 {
   font-size: 2rem;
   font-weight: 700;
@@ -66,7 +60,6 @@ h2 {
   margin-bottom: 0.5rem;
 }
 
-/* Subtitle text below heading */
 .subtitle {
   text-align: center;
   color: #d1d1d1;
@@ -74,13 +67,11 @@ h2 {
   font-size: 0.95rem;
 }
 
-/* Wrapper for each input field */
 .input-group {
   margin-bottom: 1.5rem;
-  position: relative;                 /* Needed for absolute elements inside */
+  position: relative;
 }
 
-/* Label styling */
 .input-group label {
   display: block;
   font-weight: 600;
@@ -88,11 +79,10 @@ h2 {
   color: #e0e0e0;
 }
 
-/* Input field styling */
 .input-group input {
   width: 100%;
   padding: 12px 15px;
-  padding-right: 45px;                /* Space for password toggle icon */
+  padding-right: 45px;
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 8px;
@@ -101,18 +91,15 @@ h2 {
   transition: border-color 0.3s ease;
 }
 
-/* Placeholder text color */
 .input-group input::placeholder {
   color: #b0b0b0;
 }
 
-/* Input focus effect */
 .input-group input:focus {
   outline: none;
   border-color: #4a90e2;
 }
 
-/* Remember-me and forgot-password row */
 .options {
   display: flex;
   justify-content: space-between;
@@ -122,19 +109,16 @@ h2 {
   margin-bottom: 1.5rem;
 }
 
-/* Forgot password link styling */
 .forgot-password {
   color: #c7c7c7;
   text-decoration: none;
   transition: color 0.3s ease;
 }
 
-/* Hover effect for forgot password link */
 .forgot-password:hover {
   color: #4a90e2;
 }
 
-/* Login button styling */
 .login-button {
   width: 100%;
   padding: 14px;
@@ -148,13 +132,11 @@ h2 {
   transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
-/* Hover animation for login button */
 .login-button:hover {
   background-color: #357abd;
   transform: translateY(-2px);
 }
 
-/* Bottom text below form */
 .bottom-text {
   text-align: center;
   margin-top: 1.5rem;
@@ -162,19 +144,16 @@ h2 {
   color: #d1d1d1;
 }
 
-/* Signup link styling */
 .bottom-text a {
   color: #4a90e2;
   font-weight: 600;
   text-decoration: none;
 }
 
-/* Hover effect for signup link */
 .bottom-text a:hover {
   text-decoration: underline;
 }
 
-/* Show/Hide password icon positioning */
 .toggle-password {
   position: absolute;
   top: 70%;
@@ -186,7 +165,6 @@ h2 {
   transition: color 0.3s ease;
 }
 
-/* Hover effect for password toggle icon */
 .toggle-password:hover {
   color: #ffffff;
 }

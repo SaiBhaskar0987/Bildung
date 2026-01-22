@@ -1,310 +1,163 @@
-/* =========================
-   General Body Styles
-   ========================= */
+/* General Body Styles */
 body {
-  /* Sets a clean default font for the page */
   font-family: Arial, sans-serif;
-
-  /* Background image for the full page */
   background-image: url('https://img.freepik.com/free-photo/still-life-books-versus-technology_23-2150062916.jpg');
-  
-  /* Prevents the image from repeating */
   background-repeat: no-repeat;
-
-  /* Makes the image cover the full screen */
   background-size: cover;
-
-  /* Centers content horizontally */
   display: flex;
   justify-content: center;
-
-  /* Centers content vertically */
   align-items: center;
-
-  /* Ensures full viewport height */
   min-height: 100vh;
-
-  /* Removes default browser margin */
   margin: 0;
 }
 
-/* =========================
-   Main Container
-   ========================= */
+/* Main Container */
 .container {
-  /* Limits container width */
   max-width: 600px;
-
-  /* Centers container with spacing */
   margin: 40px auto;
-
-  /* Semi-transparent dark background for readability */
-  background: rgba(0, 0, 0, 0.6);
-
-  /* Rounded corners */
+  background: rgba(0, 0, 0, 0.6); /* Transparent overlay for better contrast */
   border-radius: 10px;
-
-  /* Adds depth with shadow */
   box-shadow: 0 5px 15px black;
-
-  /* Inner spacing */
   padding: 32px 25px 24px 25px;
 }
 
-/* =========================
-   Header Section
-   ========================= */
+/* Header */
 .header {
-  /* Centers header text */
   text-align: center;
-
-  /* Space below header */
   margin-bottom: 12px;
 }
 
 .header h1 {
-  /* White heading text */
   color: white;
   margin: 0;
 }
 
 .header p {
-  /* Light text color for subtitle */
   color: #e0e0e0;
-
-  /* Small spacing above paragraph */
   margin-top: 6px;
-
-  /* Slightly smaller font */
   font-size: 0.95rem;
 }
 
-/* =========================
-   Subheadings
-   ========================= */
+/* Subheadings */
 h2 {
-  /* Center-align subheadings */
   text-align: center;
-
-  /* Space below heading */
   margin-bottom: 15px;
-
-  /* White text color */
   color: white;
 }
 
-/* =========================
-   Form Layout
-   ========================= */
+/* Form Layout */
 form {
-  /* Stack form elements vertically */
   display: flex;
   flex-direction: column;
-
-  /* Space between fields */
   gap: 13px;
 }
 
-/* Row for side-by-side inputs */
 .row {
   display: flex;
   gap: 14px;
 }
 
-/* Makes each form group take equal width */
 .row .form-group {
   flex: 1;
 }
 
-/* =========================
-   Form Groups
-   ========================= */
+/* Form Groups */
 .form-group {
-  /* Vertical layout for label + input */
   display: flex;
   flex-direction: column;
-
-  /* Required for positioning eye icon */
   position: relative;
 }
 
 .form-group label {
-  /* Bold label text */
   font-weight: 600;
-
-  /* Space below label */
   margin-bottom: 4px;
-
-  /* White label text */
   color: white;
 }
 
-/* Input, select and textarea styles */
 .form-group input,
 .form-group select,
 .form-group textarea {
-  /* Inner spacing */
   padding: 9px;
-
-  /* Rounded input corners */
   border-radius: 5px;
-
-  /* Light border */
   border: 1px solid #d2dbe7;
-
-  /* Comfortable font size */
   font-size: 15px;
-
-  /* Space below input */
   margin-bottom: 3px;
-
-  /* White background */
   background: white;
-
-  /* Smooth border animation */
   transition: border 0.17s;
 }
 
-/* Focus state for inputs */
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
-  /* Blue border when focused */
   border-color: #2563eb;
-
-  /* Removes default outline */
   outline: none;
 }
 
-/* =========================
-   Toggle Password Eye Icon
-   ========================= */
+/* Toggle Password Eye Icon */
 .toggle-password {
-  /* Positions eye icon inside input */
   position: absolute;
   right: 12px;
   top: 36px;
-
-  /* Pointer cursor on hover */
   cursor: pointer;
-
-  /* Light gray color */
   color: #b1b1b1;
-
-  /* Icon size */
   font-size: 1.1em;
-
-  /* Smooth hover effect */
   transition: color .18s;
 }
 
-/* Eye icon hover effect */
 .toggle-password:hover {
   color: #2563eb;
 }
 
-/* =========================
-   Submit Button
-   ========================= */
+/* Submit Button */
 .btn {
-  /* Space above button */
   margin-top: 12px;
-
-  /* Primary blue background */
   background-color: #2563eb;
-
-  /* White text */
   color: white;
-
-  /* Bold text */
   font-weight: bold;
-
-  /* Button padding */
   padding: 12px 0;
-
-  /* Removes border */
   border: none;
-
-  /* Rounded corners */
   border-radius: 5px;
-
-  /* Font size */
   font-size: 16px;
-
-  /* Letter spacing for emphasis */
   letter-spacing: 1px;
-
-  /* Pointer cursor */
   cursor: pointer;
-
-  /* Smooth hover animation */
   transition: background-color .2s;
 }
 
-/* Button hover effect */
 .btn:hover {
   background: #1741a4;
 }
 
-/* =========================
-   Top Buttons (Home / Back)
-   ========================= */
+/* Top Buttons (Home / Back) */
 .top-buttons {
-  /* Fixes position on screen */
   position: absolute;
   top: 20px;
   left: 20px;
-
-  /* Horizontal button layout */
   display: flex;
   gap: 10px;
-
-  /* Keeps buttons above other elements */
   z-index: 1000;
 }
 
 .top-buttons a {
-  /* Removes underline */
   text-decoration: none;
-
-  /* Button padding */
   padding: 10px 18px;
-
-  /* Blue background */
   background-color: #007bff;
-
-  /* White text */
   color: white;
-
-  /* Font size */
   font-size: 0.95rem;
-
-  /* Bold text */
   font-weight: 600;
-
-  /* Rounded buttons */
   border-radius: 6px;
-
-  /* Smooth hover effect */
   transition: background-color 0.3s ease;
 }
 
-/* Hover effect for top buttons */
 .top-buttons a:hover {
   background-color: #0056b3;
 }
 
-/* =========================
-   Responsive Design
-   ========================= */
+/* Responsive */
 @media (max-width: 600px) {
-  /* Adjust container for small screens */
   .container {
     max-width: 98vw;
     padding: 18px 5vw;
   }
-
-  /* Stack form fields vertically */
   .row {
     flex-direction: column;
     gap: 0;

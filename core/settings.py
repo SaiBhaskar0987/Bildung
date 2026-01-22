@@ -100,7 +100,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'bildung_db',
         'USER': 'root', # change with your MYSQL username
-        'PASSWORD': '00000', # change with your MYSQL password
+        'PASSWORD': '*****', # change with your MYSQL password
         'HOST': 'localhost',
         'PORT': '3306',
         'OPTIONS': {
@@ -186,3 +186,9 @@ DEFAULT_FROM_EMAIL = 'Bildung Platform <noreply@bildung.com>'
 # Default PK
 # ---------------------------------------------------------------------
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# ---------------------------------------------------------------------
+# For Invite Link
+# ---------------------------------------------------------------------
+SITE_URL = 'http://127.0.0.1:8000'

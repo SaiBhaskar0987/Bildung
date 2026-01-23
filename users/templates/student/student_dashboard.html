@@ -126,6 +126,37 @@
     border: 1px solid #ddd;
 }
 
+/* Styling for the Formatted Content */
+    .ai-message code {
+        background-color: #f1f3f5;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-family: monospace;
+        color: #d63384; /* Pinkish red for inline code */
+    }
+
+    .ai-message pre {
+        background-color: #212529;
+        color: #f8f9fa;
+        padding: 10px;
+        border-radius: 6px;
+        overflow-x: auto;
+        margin-top: 10px;
+        margin-bottom: 10px;
+    }
+
+    .ai-message pre code {
+        background-color: transparent;
+        color: inherit;
+        padding: 0;
+    }
+
+    #askButton:disabled {
+    background-color: #ccc !important;
+    cursor: not-allowed;
+    opacity: 0.7;
+    }
+
 .note-info {
     padding: 8px 12px;
     background: #f8f9fa;
@@ -285,8 +316,8 @@
         <p><b>AI:</b> Hi! How can I help you today?</p>
     </div>
     <div class="chat-footer">
-        <input type="text" id="aiInput" placeholder="Type message...">
-        <button onclick="sendAIMessage()">Send</button>
+        <input type="text" id="aiInput" placeholder="Type message..." />
+        <button id="askButton" onclick="sendAIMessage()">Send</button>
     </div>
 </div>
 
@@ -418,22 +449,81 @@ function toggleAIChat() {
     box.style.display = (box.style.display === "flex") ? "none" : "flex";
 }
 
-function sendAIMessage() {
-    let input = document.getElementById("aiInput");
-    let messages = document.getElementById("aiMessages");
+ document.getElementById('aiInput').addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            sendAIMessage();
+        }
+    });    
+ 
+    async function sendAIMessage() {
+        let askButton = document.getElementById("askButton");
+        let input = document.getElementById("aiInput");
+        askButton.disabled = true;
+        input.disabled = true;
+        let messages = document.getElementById("aiMessages");
+ 
+        if (input.value.trim() === "") return;
 
-    if (!input.value.trim()) return;
-
-    messages.innerHTML += `<p><b>You:</b> ${input.value}</p>`;
-    messages.innerHTML += `<p><b>AI:</b> Thinking...</p>`;
-
-    setTimeout(() => {
-        messages.innerHTML += `<p><b>AI:</b> This is a demo response for: "${input.value}"</p>`;
+        // Add user's message to chat
+        messages.innerHTML += `<p><b>You:</b> ${input.value}</p>`;
+        messages.innerHTML += `<p><b>AI:</b> Thinking...</p>`;
         messages.scrollTop = messages.scrollHeight;
-    }, 500);
 
-    input.value = "";
-}
+        try {
+
+            // Make POST request to /api/ai/ask
+            const response = await fetch('/api/ai/ask', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ question: input.value }),
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            const formattedAnswer = formatAIResponse(data.answer);
+            askButton.disabled = false;
+            aiInput.disabled = false;
+            aiInput.focus = true;
+            askButton.disabled = false;
+            aiInput.disabled = false;
+
+            // Remove "Thinking..." and add the actual response
+            messages.innerHTML = messages.innerHTML.replace('<p><b>AI:</b> Thinking...</p>', '');
+            messages.innerHTML += `<p><b>AI:</b> ${formattedAnswer}</p>`;
+      
+        } catch (error) {
+            // Handle errors (e.g., network issues, server errors)
+            messages.innerHTML = messages.innerHTML.replace('<p><b>AI:</b> Thinking...</p>', '');
+            messages.innerHTML += `<p><b>AI:</b> Sorry, I couldn't process your request. Error: ${error.message}</p>`;
+        }
+
+        messages.scrollTop = messages.scrollHeight;
+        input.value = "";
+    }
+
+    function formatAIResponse(text) {
+      if (!text) return "";
+
+      let safeText = text.replace(/&/g, "&amp;")
+                        .replace(/</g, "&lt;")
+                        .replace(/>/g, "&gt;");
+
+      safeText = safeText.replace(/\\(.?)\\*/g, '<b>$1</b>');
+
+      safeText = safeText.replace(/\n(\|-)\s+(.)/g, '<br>• $2');
+
+      safeText = safeText.replace(/\n(\d+\.)\s+(.*)/g, '<br><b>$1</b> $2');
+
+      safeText = safeText.replace(/\n/g, '<br>');
+
+      return safeText;
+  }
 </script>
 
 

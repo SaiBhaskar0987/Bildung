@@ -15,7 +15,7 @@ class AskResponse(BaseModel):
 agent = ClassifierAgent()
 
 @app.post("/ask", response_model=AskResponse)
-async def ask_ai(request: AskRequest):
+def ask_ai(request: AskRequest):
     """
     Endpoint to query the AI model.
     Expects a JSON payload: {"question": "your question here"}

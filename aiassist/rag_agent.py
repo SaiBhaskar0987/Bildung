@@ -4,11 +4,12 @@ from core import settings
 from sentence_transformers import SentenceTransformer, util
 import os
 import pandas as pd
+import time
 
 
 # Configuring local LLM which is being runned using Ollama model runner
 # LLM name and LLM url is declared in settings.py
-lm = dspy.LM(settings.LOCAL_MODEL_NAME, api_base=settings.LOCAL_MODEL_URL, api_key='')
+lm = dspy.LM(settings.LOCAL_MODEL_NAME, api_base=settings.LOCAL_MODEL_URL, api_key='', timeout=30)
 print("DEBUG: Configured local Model running using Ollama model runner .", lm)
 dspy.settings.configure(lm=lm)
 
@@ -22,6 +23,8 @@ class ClassifierSignature(dspy.Signature):
     CRITICAL INSTRUCTION: check for keywords first. If the query contains words 'course' or 'certificate' (in any context), the classification MUST be 'course'.
     1. 'course': Questions about courses related modules of a e-learning platform like what is the course structure, how to enroll, how to download certificate etc.
     2. 'general': Questions about account issues, greetings, help and support or non-academic topics.
+    IMPORTANT: For complex answers or explanations, ALWAYS use numbered lists or bullet points. 
+    Avoid long paragraphs.
     """
     # The input field
     question = dspy.InputField(desc="The user's raw question text")
@@ -32,7 +35,11 @@ class ClassifierSignature(dspy.Signature):
 
 
 class CourseAgentSignature(dspy.Signature):
-    """Answer the question based strictly on the retrieved context."""
+    """
+    Answer the question based strictly on the retrieved context.
+    IMPORTANT: For complex answers or explanations, ALWAYS use numbered lists or bullet points. 
+    Avoid long paragraphs.
+    """
     context = dspy.InputField(desc="Verified facts from the FAQ Excel sheet")
     question = dspy.InputField()
     answer = dspy.OutputField(desc="Concise conversational response")
@@ -115,9 +122,11 @@ class ClassifierAgent(dspy.Module):
         # Logic Flow
         if 'course' in category:
             answer_pred, context_used = self.course_agent(question)
+            time.sleep(5)
             return answer_pred.answer, "Course", context_used
         else:
             # Default to General
             print("Routing to General response.", prediction)
+            time.sleep(5)
             return prediction.response, "General", False
         

@@ -23,14 +23,12 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-        /* Dashboard Header */
         .dashboard-header {
             background: #ffffff;
             padding: 15px 20px;
             box-shadow: 0 2px 6px rgba(0,0,0,0.1);
         }
 
-        /* Activity Page Styles */
         .activity-header {
             background: linear-gradient(135deg, #4361ee, #3a0ca3);
             color: white;
@@ -156,7 +154,6 @@
 </head>
 <body>
 
-<!-- Student Dashboard Header -->
 <div class="dashboard-header d-flex justify-content-between align-items-center">
     <a href="{% url 'student_dashboard' %}" class="text-decoration-none text-dark">
         <h3 class="m-0 fw-bold">Bildung</h3>
@@ -186,7 +183,6 @@
     </div>
 </div>
 
-<!-- Activity Header -->
 <div class="activity-header">
     <div class="container text-center">
         <h1><i class="fas fa-chart-line me-2"></i>My Learning Activity</h1>
@@ -196,7 +192,6 @@
 
 <div class="container mb-5">
 
-    <!-- Overview Stats -->
     <div class="row mb-4">
         <div class="col-md-3 mb-3">
             <div class="stat-card">
@@ -231,7 +226,6 @@
         </div>
     </div>
 
-    <!-- Tabs -->
     <div class="tab-buttons">
         <button class="tab-button active" onclick="openTab(event, 'courses-tab')"><i class="fas fa-book me-2"></i>Courses & Progress</button>
         <button class="tab-button" onclick="openTab(event, 'attendance-tab')"><i class="fas fa-user-check me-2"></i>Attendance</button>
@@ -240,7 +234,6 @@
         <button class="tab-button" onclick="openTab(event, 'qna-tab')"><i class="fas fa-question-circle me-2"></i>Q&A Activity</button>
     </div>
 
-    <!-- Courses & Progress Tab -->
     <div id="courses-tab" class="tab-content active">
         <h3>Enrolled Courses & Progress</h3>
 
@@ -265,7 +258,6 @@
         </div>
         {% endfor %}
 
-        <!-- Recent Video Progress -->
         <h3 class="mt-5">Recent Video Progress</h3>
 
         {% if recent_videos %}
@@ -297,7 +289,6 @@
         {% endif %}
     </div>
 
-    <!-- Attendance Tab -->
     <div id="attendance-tab" class="tab-content">
         <h3>Attendance Overview</h3>
 
@@ -357,7 +348,6 @@
         </table>
     </div>
 
-    <!-- Login History Tab -->
     <div id="history-tab" class="tab-content">
     <h3>Login History</h3>
 
@@ -454,7 +444,6 @@
             Posted: {{ qna.created_at|date:"Y-m-d" }}
         </p>
 
-        <!-- Replies -->
         {% if qna.replies.all %}
             <div class="mt-2 ps-3 border-start border-2">
                 {% for reply in qna.replies.all %}
@@ -476,8 +465,6 @@
     </div>
     {% endfor %}
 </div>
-
-
 
 </div>
 

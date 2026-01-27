@@ -32,7 +32,6 @@
 </head>
 <body class="bg-light">
 
-<!-- HEADER -->
 <div class="d-flex justify-content-between align-items-center p-3 bg-white shadow-sm">
     <a href="{% url 'student_dashboard' %}" class="text-decoration-none text-dark">
         <h3 class="m-0 fw-bold">Bildung</h3>
@@ -72,10 +71,7 @@
 
 <div class="container py-5">
 
-<!-- COURSE HEADER -->
 <h2 class="fw-bold mb-4 text-primary">{{ course.title }}</h2>
-
-<!-- COURSE OVERVIEW -->
 <div class="card shadow-sm border-0 mb-4 p-4 rounded-4">
     <h5 class="mb-3 text-secondary">Course Overview</h5>
 
@@ -97,7 +93,6 @@
 </div>
 
 
-<!-- PROGRESS CARD -->
 <div class="card shadow-sm border-0 mb-4 p-4 rounded-4">
 
     <div class="d-flex justify-content-between align-items-center mb-2">
@@ -146,7 +141,6 @@
 </div>
 
 
-<!-- COURSE CONTENT -->
 {% for item in ordered_items %}
 
   {% if item.type == "module" %}
@@ -211,10 +205,25 @@
   {% endif %}
 
   {% if item.type == "quiz" %}
-    <div class="card shadow-sm rounded-4 mb-4 p-4 border-warning">
-      <h5 class="fw-bold text-warning mb-0">📝 {{ item.title }}</h5>
-    </div>
+   <div class="card shadow-sm rounded-4 mb-4 p-4 border-warning">
+     <h5 class="fw-bold text-warning">📝 {{ item.title }}</h5>
+
+    {% if item.completed %}
+      <span class="badge bg-success">✔ Completed</span>
+
+    {% elif item.unlocked %}
+      <a href="{% url 'take_quiz' item.obj.id %}"
+         class="btn btn-primary btn-sm">
+        ▶ Take Quiz
+      </a>
+
+    {% else %}
+      <span class="badge bg-danger">🔒 Locked</span>
+    {% endif %}
+
+   </div>
   {% endif %}
+
 
   {% if item.type == "assignment" %}
     <div class="card shadow-sm rounded-4 mb-4 p-4 border-info">
@@ -233,7 +242,6 @@
 {% endfor %}
 
 
-<!-- ASK QUESTIONS -->
 <div class="modal fade" id="askQuestionModal" tabindex="-1">
   <div class="modal-dialog">
     <form method="POST" id="askQuestionForm" class="modal-content">
@@ -255,7 +263,6 @@
 </div>
 
 
-<!-- LEAVE REVIEW / EDIT REVIEW  -->
 <div class="modal fade" id="leaveReviewModal" tabindex="-1">
   <div class="modal-dialog">
     <form method="POST" action="{% url 'student:leave_review' course.id %}" class="modal-content">

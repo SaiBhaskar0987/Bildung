@@ -1,0 +1,27 @@
+body {
+      background: #f7f9fb;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .login-card {
+      background: #fff;
+      border-radius: 10px;
+      padding: 40px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    .login-card h2 {
+      margin-bottom: 25px;
+      font-weight: bold;
+      text-align: center;
+    }
+    .switch-link {
+      margin-top: 15px;
+      display: block;
+      text-align: center;
+      font-size: 0.9rem;
+    }
+  

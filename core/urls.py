@@ -16,6 +16,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path("forums/", include("forums.urls")),
     path("chat/", include("chat.urls")),
+    path("quizzes/", include("quizzes.urls")),
+
 
     path('', home_views.smart_home, name='smart_home'),
     path('social-auth/', include('social_django.urls', namespace='social')),

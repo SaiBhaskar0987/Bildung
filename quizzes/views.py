@@ -1,7 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from .models import Quiz, Question, Choice, StudentAnswer,  QuizResult
+from .models import Quiz, QuizChoice, QuizQuestion, StudentAnswer,  QuizResult
 from courses.models import Course
 
 @login_required
@@ -10,34 +9,128 @@ def quiz_list(request, course_id):
     quizzes = course.quizzes.all()
     return render(request, "quizzes/quiz_list.html", {"course": course, "quizzes": quizzes})
 
-
 @login_required
 def take_quiz(request, quiz_id):
     quiz = get_object_or_404(Quiz, id=quiz_id)
 
+    if QuizResult.objects.filter(student=request.user, quiz=quiz).exists():
+        return redirect("student:student_course_detail", quiz.course.id)
+
+    questions = QuizQuestion.objects.filter(
+        quiz=quiz
+    ).prefetch_related("choices")
+
     if request.method == "POST":
         score = 0
-        total = quiz.questions.count()
 
-        for question in quiz.questions.all():
-            choice_id = request.POST.get(str(question.id))
-            if choice_id:
-                choice = Choice.objects.get(id=choice_id)
-                StudentAnswer.objects.create(student=request.user, question=question, choice=choice)
-                if choice.is_correct:
-                    score += 1
+        for q in questions:
+            choice_id = request.POST.get(f"q_{q.id}")
+            if not choice_id:
+                continue
 
-        percentage = int((score / total) * 100) if total > 0 else 0
-        QuizResult.objects.create(student=request.user, quiz=quiz, score=percentage)
+            choice = QuizChoice.objects.get(id=choice_id)
 
-        messages.success(request, f"Quiz submitted! Your score: {percentage}%")
-        return redirect("quiz_result", quiz_id=quiz.id)
+            StudentAnswer.objects.create(
+                student=request.user,
+                question=q,
+                choice=choice
+            )
 
-    return render(request, "quizzes/take_quiz.html", {"quiz": quiz})
+            if choice.is_correct:
+                score += 1
 
+        QuizResult.objects.create(
+            student=request.user,
+            quiz=quiz,
+            score=score
+        )
+
+        return redirect("quiz_result", quiz.id)
+
+    return render(request, "quizzes/take_quiz.html", {
+        "quiz": quiz,
+        "questions": questions
+    })
 
 @login_required
 def quiz_result(request, quiz_id):
     quiz = get_object_or_404(Quiz, id=quiz_id)
-    result = QuizResult.objects.filter(student=request.user, quiz=quiz).last()
-    return render(request, "quizzes/quiz_result.html", {"quiz": quiz, "result": result})
+
+    course_id = quiz.course_id
+
+    result = get_object_or_404(
+        QuizResult,
+        quiz=quiz,
+        student=request.user
+    )
+
+    answers = (
+        StudentAnswer.objects
+        .filter(
+            student=request.user,
+            question__quiz=quiz
+        )
+        .select_related("question", "choice")
+    )
+
+    return render(
+        request,
+        "quizzes/quiz_result.html",
+        {
+            "quiz": quiz,
+            "course_id": course_id,  
+            "result": result,
+            "answers": answers
+        }
+    )
+
+
+@login_required
+def preview_quiz(request, course_id, quiz_id):
+    quiz = get_object_or_404(
+        Quiz,
+        id=quiz_id,
+        course_id=course_id,
+        course__instructor=request.user
+    )
+
+    questions = (
+        quiz.questions
+        .prefetch_related("choices")
+        .order_by("created_at")
+    )
+
+    if request.method == "POST":
+        for q in questions:
+            q_text = request.POST.get(f"question_{q.id}")
+            if q_text:
+                q.question_text = q_text
+                q.save()
+
+            correct_choice_id = request.POST.get(f"correct_{q.id}")
+
+            for choice in q.choices.all():
+                c_text = request.POST.get(f"choice_{choice.id}")
+                if c_text:
+                    choice.text = c_text
+
+                choice.is_correct = (
+                    str(choice.id) == str(correct_choice_id)
+                )
+
+                choice.save()
+
+        return redirect(
+            "instructor:quiz_preview",
+            course_id=course_id,
+            quiz_id=quiz_id
+        )
+
+    return render(
+        request,
+        "quizzes/quiz_preview.html",
+        {
+            "quiz": quiz,
+            "questions": questions
+        }
+    )

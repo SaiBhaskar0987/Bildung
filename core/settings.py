@@ -193,3 +193,9 @@ DEFAULT_FROM_EMAIL = 'Bildung Platform <noreply@bildung.com>'
 # Default PK
 # ---------------------------------------------------------------------
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# ---------------------------------------------------------------------
+# For Invite Link
+# ---------------------------------------------------------------------
+SITE_URL = 'http://127.0.0.1:8000'

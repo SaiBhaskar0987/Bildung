@@ -1,0 +1,429 @@
+:root {
+    --primary-color: #007bff;     /* Blue for actions/links */
+    --secondary-color: #6c757d;    /* Gray for secondary text */
+    --success-color: #28a745;     /* Green for sign-up button */
+    --white: #ffffff;
+    --light-gray: #f8f9fa;
+    --dark-blue-bg: #1e3c72;      /* Deep blue for a professional touch */
+    --border-color: #ced4da;
+    --box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+} /* Root Variables */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+} /* Reset and Box Sizing */
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    /* Professional Background: Subtle linear gradient for depth and professionalism */
+    background: linear-gradient(135deg, var(--dark-blue-bg) 0%, #2a5298 100%);
+    background-attachment: fixed; /* Ensures the gradient covers the whole viewport */
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+} /* Body Styles */
+
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 15px;
+    padding-right: 15px;
+} /* Container */
+
+
+nav.container {
+    padding-top: 25px;
+    padding-bottom: 25px;
+    /* Position the nav content to the far left */
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+} /* Navigation Container */
+
+nav a {
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 1.2rem;
+    padding: 8px 15px;
+    border-radius: 4px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    
+    color: var(--white); /* White text */
+    background-color: rgba(255, 255, 255, 0.2); /* Semi-transparent white highlight */
+    border: 1px solid rgba(255, 255, 255, 0.4);
+} /* Home Link Styling */
+
+nav a:hover {
+    color: var(--white);
+    background-color: rgba(255, 255, 255, 0.3);
+} /* Home Link Hover Effect */
+
+
+.header {
+    text-align: center;
+    margin-top: 20px;
+    margin-bottom: 30px;
+} /* Header Section */
+
+.header h1 {
+    color: var(--white); /* White text against the dark background */
+    font-size: 2.5rem;
+    margin-bottom: 5px;
+    font-weight: 300;
+    letter-spacing: 0.5px;
+} /* Header Title */
+
+.header p {
+    color: rgba(255, 255, 255, 0.8); /* Slightly faded white for secondary text */
+    font-size: 1.1rem;
+} /* Header Subtitle */
+
+
+.mt-5 {
+    /* Adjusted margin top to keep the form centered comfortably */
+    margin-top: 1rem !important; 
+    padding-bottom: 40px; /* Ensure space at the bottom */
+} /* Margin Top Adjustment */
+
+.col-md-6.offset-md-3 {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 500px; /* Slightly wider card for better form visibility */
+    width: 100%;
+} /* Centered Form Card */
+
+.card {
+    background-color: var(--white);
+    border: none; /* Removed default border */
+    border-radius: 0.75rem; /* More pronounced rounded corners */
+    box-shadow: var(--box-shadow);
+} /* Card Styling */
+
+.p-4 {
+    padding: 2rem !important; /* Increased padding */
+} /* Card Padding */
+
+
+.form-group {
+    margin-bottom: 1rem;
+    position: relative;
+} /* Form Groups */
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.4rem;
+    font-weight: 600;
+    color: #495057;
+    font-size: 0.95rem;
+} /* Form Labels */
+
+.form-group input:not([type="checkbox"]),
+.form-group select,
+.form-group textarea {
+    display: block;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #495057;
+    background-color: var(--light-gray); /* Light input background */
+    border: 1px solid var(--border-color);
+    border-radius: 0.35rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+} /* Form Controls */
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    background-color: var(--white);
+    border-color: var(--primary-color);
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+} /* Input Focus Styles */
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 120px;
+} /* Textarea Resize */
+
+.form-group ul.errorlist {
+    color: #dc3545;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+    padding-left: 1.25rem;
+    list-style-type: none;
+} /* Error List Styling */
+
+
+.row {
+    display: flex;
+    gap: 20px; 
+    margin-bottom: 1rem;
+} /* Stack fields vertically on small screens */
+
+.row .form-group {
+    flex: 1;
+    margin-bottom: 0; 
+} /* Remove bottom margin for side-by-side fields */
+
+
+.toggle-password {
+    position: absolute;
+    right: 15px;
+    top: 38px; /* Adjusted to align with the center of the input field */
+    cursor: pointer;
+    color: var(--secondary-color);
+    font-size: 1rem;
+    transition: color 0.2s ease;
+} /* Password Toggle Icon */
+
+.toggle-password:hover {
+    color: var(--primary-color);
+} /* Password Toggle Icon */
+
+
+.btn {
+    display: inline-block;
+    font-weight: 600; /* Bolder text */
+    text-align: center;
+    padding: 0.75rem 1rem;
+    font-size: 1.1rem; /* Slightly larger text */
+    line-height: 1.5;
+    border-radius: 0.5rem; /* More rounded corners */
+    cursor: pointer;
+    transition: all 0.2s ease;
+} /* Buttons */
+
+.w-100 {
+    width: 100% !important;
+} /* Full Width Button */
+
+.btn-success {
+    color: var(--white);
+    background-color: var(--success-color);
+    border-color: var(--success-color);
+    letter-spacing: 0.5px;
+} /* Buttons */
+
+.btn-success:hover {
+    background-color: #1e7e34;
+    border-color: #1e7e34;
+    transform: translateY(-1px); /* Subtle lift effect */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+} /* Buttons */
+
+
+p.mt-3 {
+    text-align: center;
+    color: var(--secondary-color);
+    font-size: 0.95rem;
+} /* Login Link Text */
+
+p.mt-3 a {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 700;
+} /* Login Link Text */
+
+p.mt-3 a:hover {
+    color: #0056b3;
+    text-decoration: underline;
+} /* Login Link Text */
+
+/*
+  Media Queries for Responsiveness
+*/
+@media (max-width: 576px) {
+    .row {
+        flex-direction: column;
+        gap: 0;
+    } /* Stack fields vertically on small screens */
+    
+    .row .form-group {
+        margin-bottom: 1rem;
+    } /* Stack fields vertically on small screens */
+    
+    .header h1 {
+        font-size: 2rem;
+    } /* Header Title */
+
+    .p-4 {
+        padding: 1.5rem !important;
+    } /* Adjust padding for smaller screens */
+
+} /* Small devices (landscape phones, less than 576px) */
+
+
+  
+    .input-group {
+      position: relative;
+      margin-bottom: 1rem;
+    } /* Input Groups */
+
+    .input-group i {
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #666;
+      z-index: 3;
+    } /* Input Group Icons */
+
+    .input-group input,
+    .input-group select {
+      width: 100%;
+      padding: 12px 15px 12px 45px;
+      border: 2px solid #e1e5e9;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      background: white;
+      height: 50px;
+    } /* Input Group Fields */
+
+    .input-group input:focus,
+    .input-group select:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    } /* Input Group Focus */
+
+    .form-group {
+      margin-bottom: 1rem;
+    } /* Form Groups */
+
+    .form-group label {
+      font-weight: 500;
+      margin-bottom: 8px;
+      color: #333;
+      display: block;
+    } /* Form Group Labels */
+
+    .form-group input {
+      width: 100%;
+      padding: 12px 15px;
+      border: 2px solid #e1e5e9;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: border-color 0.3s ease;
+    } /* Password Toggle Icon */
+
+    .form-group input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    } /* Password Toggle Icon */
+
+    .toggle-password {
+      position: absolute;
+      right: 15px;
+      top: 70%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: #666;
+      z-index: 3;
+    } /* Password Toggle Icon */
+
+    .btn-success {
+      background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+      border: none;
+      font-weight: 600;
+      padding: 12px;
+      transition: all 0.3s ease;
+    } /* Buttons */
+
+    .btn-success:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+    } /* Buttons */
+
+    .btn-outline-danger {
+      border: 2px solid #dc3545;
+      color: #dc3545;
+      font-weight: 500;
+      padding: 12px;
+      transition: all 0.3s ease;
+    } /* Buttons */
+
+    .btn-outline-danger:hover {
+      background: #dc3545;
+      color: white;
+      transform: translateY(-2px);
+    } /* Buttons */
+
+    .card {
+      border: none;
+      border-radius: 15px;
+    } /* Cards */
+
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    } /* Header Section */
+
+    .header h1 {
+      color: white;
+      margin-bottom: 10px;
+    } /* Header Title */
+
+    .header p {
+      color: white;
+      font-size: 1.1rem;
+    } /* Header Subtitle */
+
+    .input-group select {
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background-image: url("data:image/svg+xml;charset=US-ASCII,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'><path fill='%23666' d='M2 0L0 2h4zm0 5L0 3h4z'/></svg>");
+      background-repeat: no-repeat;
+      background-position: right 15px center;
+      background-size: 12px;
+      padding-right: 40px;
+    } /* Custom Select Arrow */
+
+    .errorlist {
+      color: #dc3545;
+      font-size: 0.875rem;
+      margin-top: 5px;
+      list-style: none;
+      padding-left: 0;
+    } /* Error List Styling */
+
+    .is-invalid {
+      border-color: #dc3545 !important;
+    } /* Invalid Feedback Styling */
+
+    .invalid-feedback {
+      display: block;
+      width: 100%;
+      margin-top: 0.25rem;
+      font-size: 0.875rem;
+      color: #dc3545;
+    } /* Responsive Name Fields */
+
+    .name-row {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 1rem;
+    } /* Responsive Name Fields */
+
+    .name-field {
+      flex: 1;
+    } /* Side-by-side name fields */
+
+    .name-field .form-group {
+      margin-bottom: 0;
+    } /* Remove bottom margin for side-by-side fields */
+ 
+    @media (max-width: 768px) {
+      .name-row {
+        flex-direction: column;
+        gap: 1rem;
+      } /* Stack fields vertically on small screens */
+
+    } /* Responsive Name Fields */

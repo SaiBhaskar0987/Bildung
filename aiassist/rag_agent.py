@@ -1,16 +1,15 @@
 from typing_extensions import Literal
 import dspy
 from core import settings
+import pandas as pd
 from sentence_transformers import SentenceTransformer, util
 import os
-import pandas as pd
-import time
 
 
-# Configuring local LLM which is being runned using Ollama model runner
-# LLM name and LLM url is declared in settings.py
+
+# Configuring local LLM is being pulled using ollama model runner
 lm = dspy.LM(settings.LOCAL_MODEL_NAME, api_base=settings.LOCAL_MODEL_URL, api_key='', timeout=30)
-print("DEBUG: Configured local Model running using Ollama model runner .", lm)
+print("DEBUG: Configured local Ollama LLM.", lm)
 dspy.settings.configure(lm=lm)
 
 
@@ -23,8 +22,7 @@ class ClassifierSignature(dspy.Signature):
     CRITICAL INSTRUCTION: check for keywords first. If the query contains words 'course' or 'certificate' (in any context), the classification MUST be 'course'.
     1. 'course': Questions about courses related modules of a e-learning platform like what is the course structure, how to enroll, how to download certificate etc.
     2. 'general': Questions about account issues, greetings, help and support or non-academic topics.
-    IMPORTANT: For complex answers or explanations, ALWAYS use numbered lists or bullet points. 
-    Avoid long paragraphs.
+    IMPORTANT: For complex answers or explanations, ALWAYS use numbered lists or bullet points. Avoid long paragraphs. For simple answers, keep it concise.
     """
     # The input field
     question = dspy.InputField(desc="The user's raw question text")
@@ -48,21 +46,38 @@ class CourseAgentSignature(dspy.Signature):
 
 
 
-# --- Modules ---
+# --- DSPY Modules ---
 class CourseAgent(dspy.Module):
     def __init__(self):
         super().__init__()
         self.prog = dspy.ChainOfThought(CourseAgentSignature)
         self.load_dataset_encode()
-        
 
     def forward(self, question):
         retrieved_fact = self.search_dataset(question)
         if retrieved_fact:
             return self.prog(context=retrieved_fact, question=question), True
         else:
-            return self.prog(context="Use general knowledge.", question=question), False
+            domain_context = """
+                You are an intelligent assistant for an e-learning platform.
 
+                Answer based on:
+                - online course learning experience
+                - student guidance and best practices
+                - certifications, progress tracking, and assessments
+                - common educational workflows
+                - platform features for learners
+                - platform navigation concepts
+                - e-learning platform issues and resolutions
+
+                If the question is conceptual, explain clearly.
+                If it is about learning process, give practical steps.
+                Use bullet points or numbered lists for complex answers.
+                """
+
+            return self.prog(context=domain_context, question=question), False
+
+        
     def load_dataset_encode(self):
         print(f"Loading Knowledge Base from {settings.DATASET_PATH}...")
 
@@ -109,6 +124,7 @@ class CourseAgent(dspy.Module):
 
 
 
+
 class ClassifierAgent(dspy.Module):
     def __init__(self):
         super().__init__()
@@ -122,11 +138,10 @@ class ClassifierAgent(dspy.Module):
         # Logic Flow
         if 'course' in category:
             answer_pred, context_used = self.course_agent(question)
-            time.sleep(5)
+            print("Routing to Course response.", answer_pred)
             return answer_pred.answer, "Course", context_used
         else:
             # Default to General
             print("Routing to General response.", prediction)
-            time.sleep(5)
             return prediction.response, "General", False
         

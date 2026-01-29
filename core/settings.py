@@ -4,6 +4,13 @@ Django settings for core project.
 
 from pathlib import Path
 import os
+from dotenv import load_dotenv
+import os
+
+load_dotenv()   
+
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+
 
 # ---------------------------------------------------------------------
 # Base
@@ -100,7 +107,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'bildung_db',
         'USER': 'root', # change with your MYSQL username
-        'PASSWORD': 'Test@123', # change with your MYSQL password
+        'PASSWORD': '', # change with your MYSQL password
         'HOST': 'localhost',
         'PORT': '3306',
         'OPTIONS': {
@@ -145,8 +152,8 @@ AUTHENTICATION_BACKENDS = (
 )
 
 # Google OAuth
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = ''
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = ''
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '' # Add your key  here
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = ''  # Add your client secret here
 SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = ['email', 'profile']
 SOCIAL_AUTH_GOOGLE_OAUTH2_AUTH_EXTRA_ARGUMENTS = {
     'prompt': 'select_account',

@@ -228,10 +228,12 @@
 
     <div class="tab-buttons">
         <button class="tab-button active" onclick="openTab(event, 'courses-tab')"><i class="fas fa-book me-2"></i>Courses & Progress</button>
+        <button class="tab-button" onclick="openTab(event, 'quizzes-tab')"><i class="fas fa-list-check me-2"></i>Quizzes</button>
         <button class="tab-button" onclick="openTab(event, 'attendance-tab')"><i class="fas fa-user-check me-2"></i>Attendance</button>
         <button class="tab-button" onclick="openTab(event, 'history-tab')"><i class="fas fa-history me-2"></i>Login History</button>
         <button class="tab-button" onclick="openTab(event, 'videos-tab')"><i class="fas fa-play-circle me-2"></i>Video Lessons Watched</button>
         <button class="tab-button" onclick="openTab(event, 'qna-tab')"><i class="fas fa-question-circle me-2"></i>Q&A Activity</button>
+      
     </div>
 
     <div id="courses-tab" class="tab-content active">
@@ -285,6 +287,51 @@
         <div class="text-center py-4">
             <i class="fas fa-play-circle fa-3x text-muted mb-3"></i>
             <p class="text-muted">No video progress yet.</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <div id="quizzes-tab" class="tab-content">
+        <h3>Quiz Activity</h3>
+        {% if quiz_activity %}
+        <table class="activity-table">
+            <thead>
+                <tr>
+                    <th>Quiz</th>
+                    <th>Course</th>
+                    <th>Score</th>
+                    <th>Status</th>
+                    <th>Attempted On</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for q in quiz_activity %}
+                <tr>
+                    <td>{{ q.quiz.title }}</td>
+                    <td>{{ q.quiz.course.title }}</td>
+                    <td>
+                        {% if q.score is not None %}
+                        {{ q.score }}
+                        {% else %}
+                        —
+                        {% endif %}
+                    </td>
+                    <td class="status-success">
+                        {% if q.completed %}
+                        Completed
+                        {% else %}
+                        Attempted
+                        {% endif %}
+                    </td>
+                    <td>{{ q.submitted_at|date:"Y-m-d H:i" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="text-center py-4">
+            <i class="fas fa-list-check fa-3x text-muted mb-3"></i>
+            <p class="text-muted">You haven't attempted any quizzes yet.</p>
         </div>
         {% endif %}
     </div>
@@ -465,7 +512,7 @@
     </div>
     {% endfor %}
 </div>
-
+   
 </div>
 
 <footer class="bg-light py-4 mt-5">

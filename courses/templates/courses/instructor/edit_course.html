@@ -161,6 +161,19 @@
         <option value="programming" {% if course.category == 'programming' %}selected{% endif %}>Programming</option>
         <option value="others" {% if course.category == 'others' %}selected{% endif %}>Others</option>
     </select>
+    
+    <label class="label">Course Level</label>
+    <select id="courseLevel" class="input-box">
+        <option value="beginner" {% if course.level == "beginner" %}selected{% endif %}>
+          Beginner
+       </option>
+       <option value="intermediate" {% if course.level == "intermediate" %}selected{% endif %}>
+          Intermediate
+       </option>
+      <option value="advanced" {% if course.level == "advanced" %}selected{% endif %}>
+          Advanced
+      </option>
+    </select>
 
     <hr class="divider">
 

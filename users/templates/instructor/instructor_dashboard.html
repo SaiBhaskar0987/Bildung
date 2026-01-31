@@ -195,6 +195,30 @@
 }
 .notif-text { flex: 1; }
 
+.course-scroll {
+    display: flex;
+    gap: 20px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 12px;
+    scroll-behavior: smooth;
+}
+
+.course-scroll::-webkit-scrollbar {
+    height: 6px;
+}
+
+.course-scroll::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 4px;
+}
+
+.course-scroll-card {
+    min-width: 360px;
+    max-width: 360px;
+    flex-shrink: 0;
+}
+
 </style>
 </head>
 <body class="bg-light">
@@ -204,7 +228,6 @@
     </a>  
     <div class="d-flex align-items-center gap-4">
 
-    <!-- Notification Bell -->
     <div class="dropdown position-relative">
         <a class="fs-4 text-dark position-relative" href="#" id="notifBell" data-bs-toggle="dropdown">
             <i class="fa-solid fa-bell"></i>
@@ -258,14 +281,13 @@
 
   <div class="d-flex justify-content-between align-items-center mb-5">
     <div>
-      <h2 class="fw-bold text-dark mb-1">Instructor Dashboard</h2>
-      <p class="text-muted">Welcome back, {{ request.user.get_full_name|default:request.user.username }}! Manage your courses and performance.</p>
+      <h2 class="fw-bold text-dark ms-2 mb-2">Instructor Dashboard</h2>
+      <p class="text-muted ms-2">Welcome back, {{ request.user.get_full_name|default:request.user.username }}! Manage your courses and performance.</p>
     </div>
 
   </div>
 
-
-  <div class="card shadow-sm border-0 mb-5 rounded-4">
+  <div class="card shadow-sm border-0 mb-5 rounded-4 ms-2">
     <div class="card-body">
       <div class="row text-center">
         <div class="col-md-3 border-end">
@@ -290,28 +312,18 @@
     </div>
   </div>
 
+  <h3 class="fw-bold mb-4 text-dark ms-2">Your Courses</h3>
 
-  <h4 class="fw-semibold mb-4 text-dark">Your Courses</h4>
 
 {% if courses %}
-
-  <div class="row g-4">
+ <div class="course-scroll" id="instructorCourseScroll ms-2">
     {% for course in courses %}
-    <div class="col-md-4">
+    <div class="course-scroll-card ms-2">
       <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100 course-card">
-        <div class="position-relative">
-          <a href="{% url 'instructor:course_detail' course.id %}">
-            <img src="{{ course.thumbnail.url|default:'https://via.placeholder.com/400x220?text=Course+Image' }}" 
-                 class="card-img-top" alt="{{ course.title }}">
-          </a>
-          <span class="position-absolute top-0 end-0 bg-primary text-white px-2 py-1 small rounded-bottom-start">
-            {{ course.level|default:"All Levels" }}
-          </span>
-        </div>
 
         <div class="card-body">
           <h5 class="fw-bold text-dark mb-2">{{ course.title }}</h5>
-          <p class="text-muted small mb-3">{{ course.description|truncatewords:18 }}</p>
+          <p class="text-muted small mb-3">{{ course.description|truncatewords:10 }}</p>
 
           <div class="d-flex justify-content-between align-items-center mb-2">
             <span class="text-muted small"><i class="bi bi-people"></i> 
@@ -355,11 +367,10 @@
   {% endif %}
 
 </div>
-<!-- Floating Buttons -->
+
 <div id="aiChatBtn" class="floating-btn">🤖</div>
 <div id="noteBtn" class="floating-btn">📝</div>
 
-<!-- Chatbot Window -->
 <div id="aiChatBox" class="chatbox">
     <div class="chat-header">
         <span>AI Chatbot</span>
@@ -374,7 +385,6 @@
     </div>
 </div>
 
-<!-- Notepad Window -->
 <div id="noteBox" class="chatbox">
     <div class="chat-header">
         <span>Quick Notepad</span>
@@ -403,7 +413,7 @@
 <script>
 
     const NOTEPAD_CONFIG = {
-        MAX_STORAGE: 800 * 1024 * 1024, // 800MB in bytes
+        MAX_STORAGE: 800 * 1024 * 1024, 
         EXPIRY_DAYS: 14,
         STORAGE_KEY: 'quickNoteData'
     };

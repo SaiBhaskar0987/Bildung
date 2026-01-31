@@ -167,6 +167,31 @@ footer {
       text-align: center;
       margin-top: 50px;
     }
+
+.recommend-scroll {
+    display: flex;
+    gap: 16px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 10px;
+    scroll-behavior: smooth;
+}
+
+.recommend-scroll::-webkit-scrollbar {
+    height: 6px;
+}
+
+.recommend-scroll::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 4px;
+}
+
+.recommend-card {
+    min-width: 240px;
+    max-width: 240px;
+    flex-shrink: 0;
+}
+
 </style>
 </head>
 
@@ -214,8 +239,8 @@ footer {
             <ul class="dropdown-menu dropdown-menu-end">
                 <li><a class="dropdown-item" href="{% url 'profile_view' %}">Profile</a></li>
                 <li><a class="dropdown-item" href="{% url 'student:my_courses' %}">My Courses</a></li>
-                <li><a class="dropdown-item" href="{% url 'student_my_activity' %}">My activity</a></li>
                 <li><a class="dropdown-item" href="{% url 'student:student_upcoming_classes' %}">My_schedules</a></li>
+                <li><a class="dropdown-item" href="{% url 'student_my_activity' %}">My activity</a></li>
                 <li><a class="dropdown-item" href="{% url 'student:my_certificates' %}">My Certificates</a></li>
                 <li><a class="dropdown-item" href="{% url 'student_notifications' %}">Notifications</a></li>
                 <li><a class="dropdown-item" href="#">Payments</a></li>
@@ -240,75 +265,85 @@ footer {
 <section class="container my-5">
     <h2 class="mb-4">Popular Categories</h2>
 
-    <div class="row">
-        <div class="col-md-3 mb-3">
-            <button data-category="programming"
-                    onclick="filterCategory(this)"
-                    class="btn btn-outline-primary w-100 py-3">
-                Programming
-            </button>
+    <div class="d-flex flex-nowrap gap-3 overflow-auto category-row">
+
+        <div class="flex-shrink-0" style="min-width:220px;">
+            <button data-category="programming" onclick="filterCategory(this)"
+                    class="btn btn-outline-primary w-100 py-3">Programming</button>
         </div>
-        <div class="col-md-3 mb-3">
-            <button data-category="business"
-                    onclick="filterCategory(this)"
-                    class="btn btn-outline-success w-100 py-3">
-                Business
-            </button>
+        <div class="flex-shrink-0" style="min-width:220px;">
+            <button data-category="business" onclick="filterCategory(this)"
+                    class="btn btn-outline-success w-100 py-3">Business</button>
         </div>
-        <div class="col-md-3 mb-3">
-            <button data-category="design"
-                    onclick="filterCategory(this)"
-                    class="btn btn-outline-warning w-100 py-3">
-                Design
-            </button>
+        <div class="flex-shrink-0" style="min-width:220px;">
+            <button data-category="design" onclick="filterCategory(this)"
+                    class="btn btn-outline-warning w-100 py-3">Design</button>
         </div>
-        <div class="col-md-3 mb-3">
-            <button data-category="music"
-                    onclick="filterCategory(this)"
-                    class="btn btn-outline-danger w-100 py-3">
-                Music
-            </button>
+        <div class="flex-shrink-0" style="min-width:220px;">
+            <button data-category="music" onclick="filterCategory(this)"
+                    class="btn btn-outline-danger w-100 py-3">Music</button>
+        </div>
+        <div class="flex-shrink-0" style="min-width:220px;">
+            <button data-category="others" onclick="filterCategory(this)"
+                    class="btn btn-outline-success w-100 py-3">Others</button>
         </div>
     </div>
 </section>
 
 <section class="container my-5">
-    <h3 class="fw-bold mb-4">Featured Courses</h3>
+    <h2 class="mb-4">Featured Courses</h2>
 
-    <div class="row g-4" id="courseContainer">
+    <div class="recommend-scroll" id="featuredScroll">
         {% for course in all_courses %}
-        <div class="col-md-3 col-sm-6 course-item"
-             data-category="{{ course.category }}"
-             data-index="{{ forloop.counter }}">
+        <div class="recommend-card" data-category="{{ course.category }}">
             <div class="card shadow-sm border-0 course-card h-100">
                 <div class="course-image"
                      style="background-image:url('{{ course.thumbnail.url }}')"></div>
 
                 <div class="card-body d-flex flex-column">
-                    <h5 class="fw-bold">{{ course.title }}</h5>
-                    <p class="text-muted small">{{ course.description|truncatewords:15 }}</p>
+                    <h5 class="mb-2">{{ course.title }}</h5>
+                    <p class="text-muted small">{{ course.description|truncatewords:10 }}</p>
 
-                    {% if course.id in enrolled_course_ids %}
-                        <a href="{% url 'student:student_course_detail' course.id %}"
-                           class="btn btn-primary mt-auto">View Course</a>
-                    {% else %}
-                        <a href="{% url 'courses:view_course' course.id %}"
-                           class="btn btn-primary mt-auto">Enroll Now</a>
-                    {% endif %}
+                    <a href="{% url 'courses:view_course' course.id %}"
+                       class="btn btn-sm btn-primary mt-auto">
+                        View Course
+                    </a>
                 </div>
             </div>
         </div>
         {% endfor %}
     </div>
+</section>
 
-    <div class="text-center mt-4">
-        <button id="seeMoreBtn"
-                class="btn btn-outline-primary px-4"
-                onclick="showMoreCourses()">
-            See More Courses →
-        </button>
+{% if recommended_courses %}
+<section class="container my-5">
+    <h2 class="mb-4">
+        Recommended for You
+        <span class="text-muted fs-6">(Based on your interests)</span>
+    </h2>
+
+    <div class="recommend-scroll" id="recommendScroll">
+        {% for course in recommended_courses %}
+        <div class="recommend-card" data-category="{{ course.category }}">
+            <div class="card shadow-sm h-100">
+                <div class="course-image"
+                     style="background-image:url('{{ course.thumbnail.url }}')"></div>
+
+                <div class="card-body d-flex flex-column">
+                    <h5 class="mb-2">{{ course.title }}</h5>
+                    <p class="text-muted small">{{ course.description|truncatewords:10 }}</p>
+
+                    <a href="{% url 'courses:view_course' course.id %}"
+                       class="btn btn-sm btn-outline-primary mt-auto">
+                        View Course
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
     </div>
 </section>
+{% endif %}
 
 <footer class="bg-light py-4 mt-5">
     <div class="container text-center">
@@ -433,73 +468,33 @@ document.addEventListener("DOMContentLoaded", function () {
     loadNotifications();
     setInterval(loadNotifications, 5000);
 });
+</script>
 
+<script>
 let activeCategory = null;
-let visibleLimit = 4;
-
-document.addEventListener("DOMContentLoaded", () => {
-    applyLimit();
-});
-
-function applyLimit() {
-    const cards = document.querySelectorAll(".course-item");
-    let shown = 0;
-
-    cards.forEach(card => {
-        const matches =
-            !activeCategory || card.dataset.category === activeCategory;
-
-        if (matches && shown < visibleLimit) {
-            card.style.display = "block";
-            shown++;
-        } else {
-            card.style.display = "none";
-        }
-    });
-
-    toggleSeeMore(cards);
-}
 
 function filterCategory(button) {
     const selected = button.dataset.category;
     const buttons = document.querySelectorAll("[data-category]");
+    const cards = document.querySelectorAll(
+        "#featuredScroll .recommend-card, #recommendScroll .recommend-card"
+    );
 
     if (activeCategory === selected) {
         activeCategory = null;
-        visibleLimit = 4;
         buttons.forEach(b => b.classList.remove("active"));
-        applyLimit();
+        cards.forEach(card => card.style.display = "block");
         return;
     }
 
     activeCategory = selected;
-    visibleLimit = 4;
-
     buttons.forEach(b => b.classList.remove("active"));
     button.classList.add("active");
 
-    applyLimit();
-}
-
-function showMoreCourses() {
-    visibleLimit += 4;
-    applyLimit();
-}
-
-function toggleSeeMore(cards) {
-    const btn = document.getElementById("seeMoreBtn");
-    let hidden = 0;
-
     cards.forEach(card => {
-        if (
-            (!activeCategory || card.dataset.category === activeCategory) &&
-            card.style.display === "none"
-        ) {
-            hidden++;
-        }
+        card.style.display =
+            card.dataset.category === selected ? "block" : "none";
     });
-
-    btn.style.display = hidden > 0 ? "inline-block" : "none";
 }
 </script>
 
@@ -612,6 +607,27 @@ function addBullet() {
 document.getElementById("aiChatBtn").onclick = toggleAIChat;
 document.getElementById("noteBtn").onclick = toggleNote;
 </script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    function enableHorizontalScroll(id) {
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        el.addEventListener("wheel", function (e) {
+            if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+                e.preventDefault();
+                el.scrollLeft += e.deltaY;
+            }
+        }, { passive: false });
+    }
+
+    enableHorizontalScroll("recommendScroll");
+    enableHorizontalScroll("featuredScroll");
+});
+</script>
+
 
 </body>
 </html>

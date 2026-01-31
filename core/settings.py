@@ -41,7 +41,7 @@ INSTALLED_APPS = [
 
     # Local apps
     'users',
-    'courses',
+    'courses.apps.CoursesConfig',
     'quizzes',
     'forums',
     'chat',
@@ -107,7 +107,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'bildung_db',
         'USER': 'root', # change with your MYSQL username
-        'PASSWORD': '', # change with your MYSQL password
+        'PASSWORD': '@Saiteja123', # change with your MYSQL password
         'HOST': 'localhost',
         'PORT': '3306',
         'OPTIONS': {
@@ -151,9 +151,16 @@ AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
 )
 
+ACCOUNT_AUTHENTICATION_METHOD = "email"
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_UNIQUE_EMAIL = True
+
+SOCIALACCOUNT_ADAPTER = "users.adapters.CustomSocialAccountAdapter"
+
 # Google OAuth
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '' # Add your key  here
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = ''  # Add your client secret here
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '877092908953-h3cdlsagid0gijas8nr9kki2l90rg1c5.apps.googleusercontent.com' # Add your key  here
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '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'  # Add your client secret here
 SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = ['email', 'profile']
 SOCIAL_AUTH_GOOGLE_OAUTH2_AUTH_EXTRA_ARGUMENTS = {
     'prompt': 'select_account',

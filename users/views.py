@@ -44,7 +44,9 @@ def student_signup(request):
 
             Profile.objects.create(user=user)
 
-            verification = EmailVerification.objects.create(user=user)
+            verification, created = EmailVerification.objects.get_or_create(
+                user=user
+            )
 
             send_verification_email(
                 request,

@@ -10,6 +10,196 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 <link rel="stylesheet" type="text/css" href="{% static 'student_dashboard/style.css' %}">
 
+<style>
+.hero {
+    background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),
+                 url("https://images.unsplash.com/photo-1522202176988-66273c2fd55f");
+    background-size: cover;
+    background-position: center;
+    padding: 100px 20px;
+    text-align: center;
+    color: white;
+}
+
+.course-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+.course-image {
+    height: 180px;
+    background-size: cover;
+    background-position: center;
+}
+
+.notif-panel {
+    width: 360px !important;
+    max-height: 400px !important;
+    padding: 0;
+    overflow-y: auto;
+}
+
+.notif-item {
+    padding: 10px 14px;
+    display: flex;
+    gap: 10px;
+}
+.notif-item.unread { background: #fff6d8; }
+.notif-item:hover { background: #f3f3f3; cursor: pointer; }
+
+.notif-avatar {
+    width: 32px;
+    height: 32px;
+    background: #c9c9c9;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.notif-text { flex: 1; }
+
+.floating-btn {
+    position: fixed;
+    right: 25px;
+    width: 55px;
+    height: 55px;
+    background: #4c6ef5;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    z-index: 9999;
+    font-size: 26px;
+}
+
+#aiChatBtn { bottom: 25px; }
+#noteBtn { bottom: 95px; }
+
+.chatbox {
+    position: fixed;
+    right: 90px;
+    width: 320px;
+    background: white;
+    border-radius: 12px;
+    display: none;
+    flex-direction: column;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+    z-index: 9998;
+    overflow: hidden;
+}
+
+#aiChatBox { bottom: 90px; height: 400px; }
+#noteBox { bottom: 160px; height: 360px; }
+
+.chatbox .chat-header {
+    background: #4c6ef5;
+    color: white;
+    padding: 12px;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+}
+.chatbox .close-btn {
+    border: none;
+    background: transparent;
+    color: white;
+    font-size: 18px;
+}
+
+.chatbox .chat-body {
+    padding: 10px;
+    height: 270px;
+    overflow-y: auto;
+}
+.chat-footer {
+    display: flex;
+    padding: 10px;
+    gap: 5px;
+}
+.chat-footer input {
+    flex: 1;
+    border-radius: 6px;
+    padding: 7px;
+    border: 1px solid #ddd;
+}
+
+/* Styling for the Formatted Content */
+    .ai-message code {
+        background-color: #f1f3f5;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-family: monospace;
+        color: #d63384; /* Pinkish red for inline code */
+    }
+
+    .ai-message pre {
+        background-color: #212529;
+        color: #f8f9fa;
+        padding: 10px;
+        border-radius: 6px;
+        overflow-x: auto;
+        margin-top: 10px;
+        margin-bottom: 10px;
+    }
+
+    .ai-message pre code {
+        background-color: transparent;
+        color: inherit;
+        padding: 0;
+    }
+
+    #askButton:disabled {
+    background-color: #ccc !important;
+    cursor: not-allowed;
+    opacity: 0.7;
+    }
+
+.note-info {
+    padding: 8px 12px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #ddd;
+    font-size: 12px;
+    display: flex;
+    justify-content: space-between;
+}
+.note-area {
+    width: 100%;
+    height: 220px;
+    padding: 10px;
+    border: 1px solid #bbb;
+    border-radius: 8px;
+    resize: none;
+}
+.note-footer { text-align: right; padding: 10px; }
+.save-note-btn {
+    padding: 7px 14px;
+    background: #4c6ef5;
+    color: white;
+    border-radius: 6px;
+}
+.bullet-btn {
+    margin: 5px 10px;
+    background: #198754;
+    color: white;
+    border-radius: 6px;
+    padding: 5px 14px;
+}
+
+.storage-warning {
+    color: red;
+    font-size: 12px;
+    text-align: center;
+    display: none;
+}
+
+footer {
+      background: #f8f9fa;
+      padding: 20px 0;
+      text-align: center;
+      margin-top: 50px;
+    }
+</style>
 </head>
 
 <body class="bg-light">
@@ -180,8 +370,8 @@
         <p><b>AI:</b> Hi! How can I help you today?</p>
     </div>
     <div class="chat-footer">
-        <input type="text" id="aiInput" placeholder="Type message...">
-        <button onclick="sendAIMessage()">Send</button>
+        <input type="text" id="aiInput" placeholder="Type message..." />
+        <button id="askButton" onclick="sendAIMessage()">Send</button>
     </div>
 </div>
 
@@ -316,27 +506,90 @@ function filterCategory(button) {
 </script>
 
 <script>
-function toggleAIChat() {
-    const box = document.getElementById("aiChatBox");
-    box.style.display = (box.style.display === "flex") ? "none" : "flex";
-}
+    function toggleAIChat() {
+        const box = document.getElementById("aiChatBox");
+        box.style.display = (box.style.display === "flex") ? "none" : "flex";
+    }
 
-function sendAIMessage() {
-    let input = document.getElementById("aiInput");
-    let messages = document.getElementById("aiMessages");
+    document.getElementById('aiInput').addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                sendAIMessage();
+            }
+        });    
+ 
+    async function sendAIMessage() {
+        let askButton = document.getElementById("askButton");
+        let input = document.getElementById("aiInput");
+        askButton.disabled = true;
+        input.disabled = true;
+        let messages = document.getElementById("aiMessages");
+ 
+        if (input.value.trim() === "") return;
 
-    if (!input.value.trim()) return;
-
-    messages.innerHTML += `<p><b>You:</b> ${input.value}</p>`;
-    messages.innerHTML += `<p><b>AI:</b> Thinking...</p>`;
-
-    setTimeout(() => {
-        messages.innerHTML += `<p><b>AI:</b> This is a demo response for: "${input.value}"</p>`;
+        // Add user's message to chat
+        messages.innerHTML += `<p><b>You:</b> ${input.value}</p>`;
+        messages.innerHTML += `<p><b>AI:</b> Thinking...</p>`;
         messages.scrollTop = messages.scrollHeight;
-    }, 500);
 
-    input.value = "";
-}
+        try {
+
+            // Make POST request to /api/ai/ask
+            const response = await fetch('/api/ai/ask', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ question: input.value }),
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            const formattedAnswer = formatAIResponse(data.answer);
+            askButton.disabled = false;
+            aiInput.disabled = false;
+            aiInput.focus = true;
+            askButton.disabled = false;
+            aiInput.disabled = false;
+
+            // Remove "Thinking..." and add the actual response
+            messages.innerHTML = messages.innerHTML.replace('<p><b>AI:</b> Thinking...</p>', '');
+            messages.innerHTML += `<p><b>AI:</b> ${formattedAnswer}</p>`;
+      
+        } catch (error) {
+            // Handle errors (e.g., network issues, server errors)
+            messages.innerHTML = messages.innerHTML.replace('<p><b>AI:</b> Thinking...</p>', '');
+            messages.innerHTML += `<p><b>AI:</b> Sorry, I couldn't process your request. Error: ${error.message}</p>`;
+        }
+
+        messages.scrollTop = messages.scrollHeight;
+        input.value = "";
+    }
+
+    function formatAIResponse(text) {
+      if (!text) return "";
+
+      let safeText = text.replace(/&/g, "&amp;")
+                        .replace(/</g, "&lt;")
+                        .replace(/>/g, "&gt;");
+
+      safeText = safeText.replace(/\\(.?)\\*/g, '<b>$1</b>');
+
+      safeText = safeText.replace(/\n(\|-)\s+(.)/g, '<br>• $2');
+
+      safeText = safeText.replace(/\n(\d+\.)\s+(.*)/g, '<br><b>$1</b> $2');
+
+      safeText = safeText.replace(/\n/g, '<br>');
+
+      return safeText;
+  }
+</script>
+
+
+<script>
 
 const NOTE_KEY = "quickNoteData";
 const MAX_SIZE = 800 * 1024 * 1024;  

@@ -41,7 +41,7 @@ INSTALLED_APPS = [
 
     # Local apps
     'users',
-    'courses',
+    'courses.apps.CoursesConfig',
     'quizzes',
     'forums',
     'chat',
@@ -150,6 +150,13 @@ AUTHENTICATION_BACKENDS = (
     'social_core.backends.google.GoogleOAuth2',
     'django.contrib.auth.backends.ModelBackend',
 )
+
+ACCOUNT_AUTHENTICATION_METHOD = "email"
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_UNIQUE_EMAIL = True
+
+SOCIALACCOUNT_ADAPTER = "users.adapters.CustomSocialAccountAdapter"
 
 # Google OAuth
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '' # Add your key  here

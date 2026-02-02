@@ -4,6 +4,9 @@ from django.conf import settings
 from django.core.mail import send_mail
 from .models import User, EmailVerification
 from core import settings as core_settings
+from django.contrib.auth.signals import user_logged_in, user_logged_out
+from django.utils import timezone
+from .models import LoginHistory
 
 @receiver(post_save, sender=User)
 def send_invite_on_creation(sender, instance, created, **kwargs):
@@ -40,3 +43,26 @@ def send_invite_on_creation(sender, instance, created, **kwargs):
             print(f"✅ Invitation sent to {instance.email}")
         except Exception as e:
             print(f"❌ Failed to send invite: {e}")
+
+
+@receiver(user_logged_in)
+def log_user_login(sender, request, user, **kwargs):
+    LoginHistory.objects.filter(
+        user=user,
+        logout_time__isnull=True
+    ).update(logout_time=timezone.now())
+
+    LoginHistory.objects.create(
+        user=user,
+        login_time=timezone.now(),
+        status="Success",
+        device=request.META.get("HTTP_USER_AGENT", "Unknown Device")
+    )
+
+
+@receiver(user_logged_out)
+def log_user_logout(sender, request, user, **kwargs):
+    LoginHistory.objects.filter(
+        user=user,
+        logout_time__isnull=True
+    ).update(logout_time=timezone.now())

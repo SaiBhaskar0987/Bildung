@@ -152,3 +152,11 @@ class PasswordChangeRequest(models.Model):
 
     def __str__(self):
         return f"Password change for {self.user.email}"
+
+class CourseSearch(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    keyword = models.CharField(max_length=255)
+    searched_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.keyword}"

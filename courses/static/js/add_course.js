@@ -177,12 +177,19 @@ function openQuiz(index) {
 
 
 function saveCourse(callback = null) {
+    const level = document.getElementById("courseLevel").value;
+
+    if (!level) {
+        alert("Please select a course level");
+        return;
+    }
     const payload = {
         course_id: courseId,
         title: document.getElementById("courseTitle").value,
         description: document.getElementById("courseDescription").value,
         price: document.getElementById("coursePrice").value,
         category: document.getElementById("courseCategory").value,
+        level: level,
         structure: structure
     };
 

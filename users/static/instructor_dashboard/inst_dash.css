@@ -213,3 +213,27 @@
 
 /* Notification text container */
 .notif-text { flex: 1; }
+
+.course-scroll {
+    display: flex;
+    gap: 20px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 12px;
+    scroll-behavior: smooth;
+}
+
+.course-scroll::-webkit-scrollbar {
+    height: 6px;
+}
+
+.course-scroll::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 4px;
+}
+
+.course-scroll-card {
+    min-width: 360px;
+    max-width: 360px;
+    flex-shrink: 0;
+}

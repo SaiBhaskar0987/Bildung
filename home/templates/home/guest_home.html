@@ -258,6 +258,31 @@
         display: none;
         padding: 0 10px;
     }
+
+.featured-scroll {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 10px;
+  scroll-behavior: smooth;
+}
+
+.featured-scroll::-webkit-scrollbar {
+  height: 6px;
+}
+
+.featured-scroll::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 4px;
+}
+
+.featured-card {
+  min-width: 280px;
+  max-width: 280px;
+  flex-shrink: 0;
+}
+
   </style>
 </head>
 
@@ -318,14 +343,15 @@
     {% endfor %}
   </div>
 </section>
-
-<section class="popular-section container">
+<section class="container">
   <h2>Top 4 Popular Courses</h2>
 
   <div class="row g-4">
 
   {% for course in popular_courses %}
-    <div class="col-md-3 col-sm-6">
+    <div class="col-md-3 col-sm-6 course-item"
+         data-category="{{ course.category }}">
+
       <div class="card h-100 shadow-sm border-0 course-card">
 
         {% if course.thumbnail %}
@@ -338,9 +364,10 @@
         {% endif %}
 
         <div class="card-body d-flex flex-column">
-          <h6 class="fw-bold mb-1">{{ course.title }}</h6>
-          <p class="text-muted small mb-2">
-            Category: {{ course.category|title }}
+          <h4 class="mb-2">{{ course.title }}</h4>
+          <p class="text-muted">{{ course.description|truncatewords:8 }}</p>
+          <p class="small mb-2">
+            <strong>Category:</strong> {{ course.category|title }}
           </p>
 
           <a href="{% url 'courses:view_course' course.id %}"
@@ -350,52 +377,45 @@
         </div>
       </div>
     </div>
+  {% empty %}
+    <p>No popular courses found.</p>
+  {% endfor %}
 
-    {% empty %}
-      <p>No popular courses found.</p>
+  </div>
+</section>
+<section class="container">
+  <h2>Featured Courses</h2>
+
+  <div class="featured-scroll" id="featuredScroll">
+    {% for course in courses %}
+    <div class="featured-card course-item"
+         data-category="{{ course.category }}">
+
+      <div class="card course-card h-100">
+        {% if course.thumbnail %}
+          <img src="{{ course.thumbnail.url }}"
+               class="card-img-top"
+               style="height:180px;object-fit:cover;">
+        {% endif %}
+
+        <div class="card-body d-flex flex-column">
+          <h4 class="mb-2">{{ course.title }}</h4>
+          <p class="text-muted">{{ course.description|truncatewords:8 }}</p>
+          <p class="small mb-2">
+            <strong>Category:</strong> {{ course.category|title }}
+          </p>
+
+          <a href="{% url 'courses:view_course' course.id %}"
+             class="btn btn-primary mt-auto">
+            View Course
+          </a>
+        </div>
+      </div>
+    </div>
     {% endfor %}
   </div>
 </section>
 
-<section class="container">
-  <h2>Featured Courses</h2>
-
-  <div class="row" id="courseContainer">
-    {% for course in courses %}
-      <div class="col-md-4 mb-3 course-item"
-           data-category="{{ course.category }}">
-
-        <div class="card course-card h-100">
-          {% if course.thumbnail %}
-            <img src="{{ course.thumbnail.url }}"
-                 class="card-img-top"
-                 style="height:180px;object-fit:cover;">
-          {% endif %}
-
-          <div class="card-body d-flex flex-column">
-            <h5 class="fw-bold">{{ course.title }}</h5>
-            <p class="text-muted">{{ course.description|truncatewords:15 }}</p>
-            <p><strong>Category:</strong> {{ course.category|title }}</p>
-
-            <a href="{% url 'courses:view_course' course.id %}"
-               class="btn btn-primary mt-auto">
-              View Course
-            </a>
-          </div>
-        </div>
-      </div>
-    {% empty %}
-      <p>No courses available.</p>
-    {% endfor %}
-  </div>
-  {% if courses|length >= 5 %}
-  <div class="text-center mt-3">
-    <a href="{% url 'courses:course_list' %}?category={{ activeCategory }}"
-       class="btn btn-outline-primary px-4">
-      See More Courses →
-    </a>
-  </div>
-{% endif %}
 
 </section>
 <footer class="bg-light py-4 mt-5">
@@ -731,6 +751,19 @@ function toggleCategory(category, btn) {
         document.getElementById("noteBtn").onclick = toggleNote;
     });
 
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const slider = document.getElementById("featuredScroll");
+  if (!slider) return;
+
+  slider.addEventListener("wheel", function (e) {
+    if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+      e.preventDefault();
+      slider.scrollLeft += e.deltaY;
+    }
+  }, { passive: false });
+});
 </script>
 
 </body>

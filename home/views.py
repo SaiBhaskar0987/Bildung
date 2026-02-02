@@ -22,41 +22,22 @@ def smart_home(request):
         .order_by("-total")
     )
 
-    most_used_category = (
-        popular_categories[0]["category"]
-        if popular_categories.exists()
-        else None
+    popular_courses = (
+        Course.objects
+        .annotate(popularity=Count("enrollments"))  
+        .order_by("-popularity", "-created_at")[:4]
     )
 
-    active_category = selected_category or most_used_category
-
-    total_courses = Course.objects.count()
-
-    if total_courses <= 4:
-        popular_courses = Course.objects.order_by("-created_at", "-id")
-    else:
-        popular_courses = (
-            Course.objects
-            .filter(category=active_category)
-            .order_by("-created_at", "-id")[:4]
-            if active_category
-            else []
-        )
-
-    courses_qs = Course.objects.order_by("-created_at", "-id")
+    courses = Course.objects.order_by("-created_at")
 
     if selected_category:
-        courses_qs = courses_qs.filter(category=selected_category)
-
-    courses = courses_qs[:6]
+        courses = courses.filter(category=selected_category)
 
     context = {
         "popular_categories": popular_categories,
         "popular_courses": popular_courses,
         "courses": courses,
         "selected_category": selected_category,
-        "active_category": active_category,
-        "most_used_category": most_used_category,
     }
 
     return render(request, "home/guest_home.html", context)

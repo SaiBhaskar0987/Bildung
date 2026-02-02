@@ -25,7 +25,11 @@ class Course(models.Model):
     category = models.CharField(
         max_length=50, choices=CATEGORY_CHOICES, default='programming'
     )
-
+    
+    level = models.CharField(
+        max_length=20,
+        choices=[("beginner","Beginner"),("intermediate","Intermediate"),("advanced","Advanced")], default="beginner"
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     structure_json = models.JSONField(default=dict)
 

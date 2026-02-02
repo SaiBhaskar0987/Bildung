@@ -9,7 +9,7 @@ from fastapi import requests
 from courses.utils import check_and_send_reminders
 from quizzes.models import Quiz, QuizChoice, QuizQuestion, QuizResult
 from .models import Assignment, Course, CourseBlock, Enrollment, Certificate, Lecture, LectureProgress, Feedback, CourseEvent, Module, LiveClass, LectureQuestion, Notification, QuestionReply, CourseReview, LiveClassAttendance
-from users.models import LoginHistory, User
+from users.models import CourseSearch, LoginHistory, User
 from .forms import LectureForm, FeedbackForm, LiveClassForm, CourseReviewForm, CourseEventForm
 from users.decorators import instructor_required
 from django.db.models import Q, Count, Sum ,Avg
@@ -21,6 +21,8 @@ from reportlab.lib.pagesizes import A4
 from django.http import FileResponse, HttpResponseForbidden, JsonResponse
 import json
 from django.db.models import Prefetch
+from courses.services.recommendation_service import get_recommended_courses
+
 
 # -------------------------------
 # Common Views
@@ -43,7 +45,12 @@ def course_list(request):
 
     courses = Course.objects.all()
 
-    if query:
+    if query and request.user.is_authenticated and request.user.role == "student":
+        CourseSearch.objects.create(
+            user=request.user,
+            keyword=query.lower()
+        )
+
         courses = courses.filter(
             Q(title__icontains=query) |
             Q(description__icontains=query)
@@ -122,10 +129,18 @@ def enroll_course(request, course_id):
 
 @login_required
 def my_courses(request):
-    enrolled_courses = Enrollment.objects.filter(student=request.user).select_related('course')
+    enrollments = Enrollment.objects.filter(
+        student=request.user
+    ).select_related("course")
+
+    recommended_courses = get_recommended_courses(request.user)
+
     return render(request, "courses/student/my_courses.html", {
-        "enrolled_courses": enrolled_courses
+        "enrollments": enrollments,
+        "has_enrollments": enrollments.exists(),
+        "recommended_courses": recommended_courses,
     })
+
 
 @login_required(login_url='accounts/student/login/')
 def student_course_detail(request, course_id):
@@ -142,10 +157,16 @@ def student_course_detail(request, course_id):
             completed=True
         ).values_list("lecture_id", flat=True)
     )
+    progress_map = set(
+        LectureProgress.objects.filter(
+            student=request.user,
+            lecture__in=lectures,
+            completed=True
+        ).values_list("lecture_id", flat=True))
 
     total = lectures.count()
     completed = len(completed_lectures)
-    progress_percent = int((completed / total * 100) if total else 0)
+    progress_percent = round((completed / total * 100), 2) if total else 0
 
     quiz_results = {
         r.quiz_id: r
@@ -250,6 +271,7 @@ def student_course_detail(request, course_id):
             "total": total,
             "completed": completed,
             "progress_percent": progress_percent,
+            "progress_map": progress_map,
         }
     )
 
@@ -309,7 +331,7 @@ def auto_mark_complete(request, lecture_id):
             lecture__module__course=course,
             completed=True
         ).count()
-        progress_percent = int((completed_lectures / total_lectures) * 100) if total_lectures > 0 else 0
+        progress_percent = round((completed_lectures / total_lectures * 100), 2) if total_lectures > 0 else 0
 
         return JsonResponse({
             "status": "success",
@@ -356,7 +378,7 @@ def student_progress(request, course_id):
         completed=True
     ).count() if total > 0 else 0
 
-    progress_percent = int((completed / total * 100) if total else 0)
+    progress_percent = round((completed / total * 100), 2) if total else 0
 
     context = {
         'course': course,
@@ -964,6 +986,7 @@ def add_course(request):
             "course_description": course.description,
             "course_price": course.price,
             "course_category": course.category,
+            "course_level": course.level,
         })
 
     return render(request, "courses/instructor/add_course.html", {
@@ -973,6 +996,7 @@ def add_course(request):
         "course_description": "",
         "course_price": "",
         "course_category": "",
+        "course_level": "",  
     })
 
 
@@ -1068,13 +1092,16 @@ def save_course(request):
     data = json.loads(request.body)
     course_id = data.get("course_id")
     structure = data.get("structure", [])
-
+    level = data.get("level")
+    if level not in ["beginner", "intermediate", "advanced"]:
+        return JsonResponse({"error": "Invalid course level"}, status=400)
     if course_id:
         course = get_object_or_404(Course, id=course_id, instructor=request.user)
         course.title = data["title"]
         course.description = data["description"]
         course.price = data["price"]
         course.category = data["category"]
+        course.level = level
         course.save()
     else:
         course = Course.objects.create(
@@ -1083,6 +1110,7 @@ def save_course(request):
             description=data["description"],
             price=data["price"],
             category=data["category"],
+            level=level, 
         )
 
     updated_structure = []
@@ -1711,9 +1739,8 @@ def student_history(request, course_id, student_id):
         completed=True
     ).count()
 
-    progress_percent = (
-        (completed_lectures / total_lectures * 100) if total_lectures > 0 else 0
-    )
+    progress_percent = round(
+        (completed_lectures / total_lectures * 100), 2) if total_lectures > 0 else 0
 
     quiz_results = QuizResult.objects.filter(student=student, quiz__course=course).select_related("quiz")
 

@@ -164,3 +164,35 @@
     text-align: center;
     display: none;
 } /* Profile Picture */
+
+
+footer {
+      background: #f8f9fa;
+      padding: 20px 0;
+      text-align: center;
+      margin-top: 50px;
+    }
+
+.recommend-scroll {
+    display: flex;
+    gap: 16px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 10px;
+    scroll-behavior: smooth;
+}
+
+.recommend-scroll::-webkit-scrollbar {
+    height: 6px;
+}
+
+.recommend-scroll::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 4px;
+}
+
+.recommend-card {
+    min-width: 240px;
+    max-width: 240px;
+    flex-shrink: 0;
+}

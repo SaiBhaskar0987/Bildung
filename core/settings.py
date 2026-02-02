@@ -195,6 +195,13 @@ DEFAULT_FROM_EMAIL = 'Bildung Platform <noreply@bildung.com>'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
+
+# ---------------------------------------------------------------------
+# AI Assist Settings
+DATASET_PATH = "media/Q_A/Bildung_QA.xlsx"
+EMBEDDING_MODEL_PATH = 'all-MiniLM-L6-v2'
+LOCAL_MODEL_NAME = 'ollama_chat/qwen2.5:1.5b'
+LOCAL_MODEL_URL = 'http://localhost:11434'
 # ---------------------------------------------------------------------
 # For Invite Link
 # ---------------------------------------------------------------------

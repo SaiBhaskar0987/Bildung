@@ -1,5 +1,0 @@
-.settings-container { max-width: 1000px; margin: auto; }
-    .settings-card { background: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom:20px; }
-    .settings-header { background: blue; color:white; padding:30px 0; border-radius:10px 10px 0 0; }
-    .nav-pills .nav-link.active { background: blue; color:white; }
-    .settings-section { padding:30px; }

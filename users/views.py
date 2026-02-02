@@ -380,7 +380,10 @@ def instructor_signup(request):
 
             InstructorProfile.objects.create(user=user)
 
-            verification = EmailVerification.objects.create(user=user)
+            verification, created = EmailVerification.objects.get_or_create(
+                user=user
+            )
+            
 
             send_verification_email(
                 request,

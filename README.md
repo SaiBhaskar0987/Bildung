@@ -220,9 +220,11 @@ BILDUNG/
 
 │   ├── routes/                    # API endpoints
 
+│   │   ├── ai_assist.py            # AI chatbot endpoints
+
 │   │   ├── quiz_rag.py             # AI quiz generation endpoints
 
-│   │   └── chat_rag.py             # AI chatbot endpoints
+│   │   └── quiz.py.py             
 
 │   │
 
@@ -238,11 +240,11 @@ BILDUNG/
 
 │   │
 
-│   ├── services/                  # AI service layer
+│   ├── services/                    # AI service layer
 
-│   │   ├── whisper_service.py      # Video → text transcription
+│   │   ├── quiz_access.py          # quiz accessible lectures
 
-│   │   └── llm_service.py          # LLM calls \& prompts
+│   │   └── rag_agent.py            # LLM calls & prompts for ai assist
 
 │   │
 
@@ -258,7 +260,7 @@ BILDUNG/
 
 │   │   └── files/                 # Uploaded PDFs
 
-│   ├── certificates/              # Generated certificates (90% completion)
+│   ├── Q_A/                       # question and answers excel sheets
 
 │   └── resumes/                   # Uploaded resumes (if enabled)
 
@@ -575,7 +577,7 @@ Context Retrieval
 
     ↓
 
-AI Quiz Generation
+AI Response / Quiz
 
 
 📡 Quiz Generation API

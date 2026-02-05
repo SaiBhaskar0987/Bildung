@@ -117,7 +117,7 @@ Conversational AI powered by retrieved course content
 | -------- | ----------------------------------------- |
 | Backend  | Django 5.2+, FastAPI                      |
 | Database | MySQL                                     |
-| AI       | OpenAI, Whisper, RAG, AI Chatbot          |
+| AI       | OpenAI/Ollama, DSPy, RAG, Whisper       |
 | Auth     | Django Auth, Google OAuth (social_django) |
 | Frontend | HTML, CSS, Bootstrap, JavaScript          |
 | Media    | FFmpeg                                    |
@@ -260,7 +260,7 @@ BILDUNG/
 
 │   │   └── files/                 # Uploaded PDFs
 
-│   ├── Q_A/                       # question and answers excel sheets
+│   ├── Q_A/                       # question and answers excel sheets for ai_assist
 
 │   └── resumes/                   # Uploaded resumes (if enabled)
 
@@ -351,18 +351,7 @@ Linux
 sudo apt install ffmpeg
 
 
-5️⃣ AI chatbot setup
-
-Configuration in settings.py
-
-# AI Assist Settings
-EXCEL_PATH = "media/Q_A/Bildung_QA.xlsx"
-EMBEDDING_MODEL_PATH = 'all-MiniLM-L6-v2'
-OLLAMA_MODEL = 'ollama_chat/deepseek-r1:8b'
-OLLAMA_URL = 'http://localhost:11434'
-
-
-6️⃣ Environment Variables
+5️⃣  Environment Variables
 
 Create a .env file in the project root:
 
@@ -371,7 +360,7 @@ OPENAI_API_KEY=your_openai_api_key
 ⚠️ Never commit .env to GitHub.
 
 
-7️⃣ Database Setup (MySQL)
+6️⃣ Database Setup (MySQL)
 
 Django Configuration in settings.py
 
@@ -402,9 +391,9 @@ python manage.py migrate
 
 python manage.py createsuperuser
 
-8️⃣ Chat Setup
 
-8️⃣ ⚙️ Google OAuth Setup
+
+7️⃣ ⚙️ Google OAuth Setup
 
 1️⃣ Create Google OAuth Credentials
 
@@ -515,7 +504,7 @@ Click Continue with Google
 Select your Google account
 
 
-9️⃣ Required Directories
+8️⃣ Required Directories
 
 
 Ensure these directories exist:
@@ -602,6 +591,23 @@ POST /quiz/{quiz_id}/generate
 Example
 
 POST /quiz/5/generate?scope=all_before\&source=both\&mode=auto
+
+
+📡 AI Assist API
+
+POST /ai/ask
+
+Request
+{
+  "question": "How do I enroll in a course?"
+}
+
+Response
+{
+  "answer": "To enroll, open the course page and click Enroll.",
+  "category": "platform",
+  "context_used": true
+}
 
 
 🧠 RAG Cache

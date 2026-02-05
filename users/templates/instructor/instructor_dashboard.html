@@ -375,15 +375,13 @@
  
         if (input.value.trim() === "") return;
 
-        // Add user's message to chat
         messages.innerHTML += `<p><b>You:</b> ${input.value}</p>`;
         messages.innerHTML += `<p><b>AI:</b> Thinking...</p>`;
         messages.scrollTop = messages.scrollHeight;
 
         try {
 
-            // Make POST request to /api/ai/ask
-            const response = await fetch('/api/ai/ask', {
+            const response = await fetch("http://127.0.0.1:8001/ai/ask", {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -403,12 +401,10 @@
             askButton.disabled = false;
             aiInput.disabled = false;
 
-            // Remove "Thinking..." and add the actual response
             messages.innerHTML = messages.innerHTML.replace('<p><b>AI:</b> Thinking...</p>', '');
             messages.innerHTML += `<p><b>AI:</b> ${formattedAnswer}</p>`;
       
         } catch (error) {
-            // Handle errors (e.g., network issues, server errors)
             messages.innerHTML = messages.innerHTML.replace('<p><b>AI:</b> Thinking...</p>', '');
             messages.innerHTML += `<p><b>AI:</b> Sorry, I couldn't process your request. Error: ${error.message}</p>`;
         }

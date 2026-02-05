@@ -201,6 +201,7 @@
     </div>
     <div class="chat-footer">
         <input type="text" id="aiInput" placeholder="Type message..." />
+        
         <button id="askButton" onclick="sendAIMessage()">Send</button>
     </div>
 </div>
@@ -357,15 +358,13 @@ function filterCategory(button) {
  
         if (input.value.trim() === "") return;
 
-        // Add user's message to chat
         messages.innerHTML += `<p><b>You:</b> ${input.value}</p>`;
         messages.innerHTML += `<p><b>AI:</b> Thinking...</p>`;
         messages.scrollTop = messages.scrollHeight;
 
         try {
 
-            // Make POST request to /api/ai/ask
-            const response = await fetch('/api/ai/ask', {
+            const response = await fetch("http://127.0.0.1:8001/ai/ask", {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

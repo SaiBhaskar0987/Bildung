@@ -14,16 +14,17 @@ from django.contrib.auth.tokens import default_token_generator
 from django.conf import settings
 from courses.utils import check_and_send_reminders
 from django.contrib.auth import update_session_auth_hash
-from .models import EmailVerification
-from .utils import send_verification_email
-from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth.hashers import make_password 
 from django.urls import reverse
 from .models import PasswordChangeRequest
 
+from .models import EmailVerification
+from .utils import send_verification_email
+
 from .models import User, Profile, LoginHistory, InstructorProfile
 from .forms import StudentSignUpForm, InstructorSignUpForm, ProfileForm, UserDisplayForm, InstructorUserReadOnlyForm, InstructorUserForm, InstructorProfileForm
 from courses.models import Course, Enrollment, Lecture, LectureProgress, LectureQuestion, LiveClass, LiveClassAttendance, Notification
+
 
 def auth_page(request):
     return render(request, "users/auth_page.html")
@@ -786,4 +787,63 @@ def verify_email(request, role, token):
             "role": role
         }
     )
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import update_session_auth_hash
+from django.core.mail import send_mail
+from django.conf import settings
+from django.shortcuts import render, redirect
+
+
+@login_required
+def account_settings(request):
+    if request.method == "POST":
+        current_password = request.POST.get("current_password")
+        new_password = request.POST.get("new_password")
+        confirm_password = request.POST.get("confirm_password")
+
+        user = request.user
+
+        # 1) Validate current password
+        if not user.check_password(current_password):
+            messages.error(request, "Current password is incorrect.")
+            return redirect("account_settings")
+
+        # 2) Validate new password match
+        if new_password != confirm_password:
+            messages.error(request, "New password and Confirm password do not match.")
+            return redirect("account_settings")
+
+        # 3) Update password
+        user.set_password(new_password)
+        user.save()
+
+        # 4) Keep user logged in after password change
+        update_session_auth_hash(request, user)
+
+        # 5) Send confirmation email
+        subject = "Password Changed Successfully"
+        message = f"""
+Hi {user.get_full_name() or user.username},
+
+Your account password has been changed successfully.
+
+If you did not perform this action, please contact support immediately.
+
+Regards,
+Bildung Platform Team
+        """.strip()
+
+        send_mail(
+            subject=subject,
+            message=message,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[user.email],
+            fail_silently=False,
+        )
+
+        messages.success(request, "Password updated successfully. Confirmation email generated.")
+        return redirect("account_settings")
+
+    return render(request, "account_settings.html")
 

@@ -64,7 +64,6 @@ class Module(models.Model):
     def __str__(self):
         return f"{self.course.title} - {self.title}"
 
-
 # =========================
 # COURSE BLOCK
 # =========================
@@ -81,11 +80,21 @@ class CourseBlock(models.Model):
     title = models.CharField(max_length=255, blank=True)
     sort_order = models.PositiveIntegerField(default=0)
 
+    # ✅ ADD THIS (THIS FIXES EVERYTHING)
+    assignment = models.ForeignKey(
+        "Assignment",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="course_blocks"
+    )
+
     class Meta:
         ordering = ["sort_order"]
 
     def __str__(self):
         return f"{self.type} - {self.title or 'Untitled'}"
+
 
 
 # =========================
@@ -308,14 +317,37 @@ class CourseReview(models.Model):
 # =========================
 # ASSIGNMENT
 # =========================
+# =========================
+# ASSIGNMENT (MERGED)
+# =========================
 class Assignment(models.Model):
     course = models.ForeignKey(
         Course,
         related_name="assignments",
         on_delete=models.CASCADE
     )
+
+    module = models.ForeignKey(
+        Module,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True
+    )
+
     title = models.CharField(max_length=255)
+
+    description = models.TextField(blank=True)
+    due_date = models.DateTimeField(null=True, blank=True)
+    max_marks = models.PositiveIntegerField(default=0)
+
+    file = models.FileField(
+        upload_to="assignments/",
+        null=True,
+        blank=True
+    )
+
     sort_order = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["sort_order"]
@@ -358,3 +390,107 @@ class PasswordChangeRequest(models.Model):
 
     def __str__(self):
         return f"Password change for {self.user.email}"
+
+
+class AssignmentQuestion(models.Model):
+    assignment = models.ForeignKey(
+        Assignment,
+        on_delete=models.CASCADE,
+        related_name="questions"
+    )
+
+    question_text = models.TextField()
+
+    # ✅ NEW (required for coding assignment)
+    expected_solution = models.TextField(
+        null=True,
+        blank=True
+    )
+
+    # ✅ NEW (AI evaluation support)
+    keywords = models.JSONField(default=list)
+
+    # ✅ NEW (language restriction)
+    allowed_languages = models.JSONField(
+        default=list,
+        help_text='["c", "cpp", "java", "python"]'
+    )
+
+    # ✅ NEW (marks per question)
+    max_marks = models.IntegerField(default=10)
+
+
+
+# =========================
+# STUDENT ASSIGNMENT ATTEMPT
+# =========================
+class StudentAssignment(models.Model):
+    student = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="assignment_attempts"
+    )
+    assignment = models.ForeignKey(
+        Assignment,
+        on_delete=models.CASCADE,
+        related_name="student_attempts"
+    )
+    start_time = models.DateTimeField()
+    end_time = models.DateTimeField()
+    score = models.IntegerField(default=0)
+    status = models.CharField(max_length=20, default="IN_PROGRESS")
+
+    class Meta:
+        unique_together = ("student", "assignment")
+
+
+
+# =========================
+# STUDENT ANSWERS
+# =========================
+class StudentAnswer(models.Model):
+    student = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="assignment_answers"
+    )
+
+    assignment = models.ForeignKey(
+        Assignment,
+        on_delete=models.CASCADE,
+        related_name="answers"
+    )
+
+    question = models.ForeignKey(
+        AssignmentQuestion,
+        on_delete=models.CASCADE,
+        related_name="student_answers"
+    )
+
+    # ✅ NEW (TEMPORARILY NULLABLE – REQUIRED FOR MIGRATION)
+    programming_language = models.CharField(
+        max_length=10,
+        null=True,
+        blank=True,
+        help_text="c / cpp / java / python"
+    )
+
+    # ✅ NEW (TEMPORARILY NULLABLE – REQUIRED FOR MIGRATION)
+    answer_code = models.TextField(
+        null=True,
+        blank=True
+    )
+
+    # ✅ NEW (evaluation result)
+    score = models.IntegerField(default=0)
+    feedback = models.TextField(blank=True)
+
+    submitted_at = models.DateTimeField(
+    auto_now_add=True,
+    null=True,
+    blank=True
+)
+
+
+
+

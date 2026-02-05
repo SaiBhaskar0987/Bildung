@@ -3,135 +3,118 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Edit Course </title>
+    <title>Edit Course</title>
 
+    <!-- CSS -->
     <link rel="stylesheet" href="{% static 'css/add_course.css' %}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
+    <!-- JS Globals -->
     <script>
         const BASE_URL = "/accounts/instructor";
         const COURSE_ID = "{{ course.id }}";
     </script>
 
-<style>
+    <style>
+        .topbar {
+            background: white;
+            padding: 12px 25px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
-.topbar {
-    background: white;
-    padding: 12px 25px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
+        .topbar-title {
+            font-size: 26px;
+            font-weight: 700;
+            text-decoration: none;
+            color: #222;
+        }
 
-.topbar-title {
-    font-size: 26px;
-    font-weight: 700;
-    text-decoration: none;
-    color: #222;
-}
+        #topRow {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 18px;
+            margin-top: 15px;
+            justify-content: center;
+        }
 
-#topRow {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 18px;
-    margin-top: 15px;
-    justify-content: center;
-}
+        .builder-card {
+            width: 230px;
+            height: 170px;
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+            padding: 15px;
+            cursor: grab;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            border: 3px dashed transparent;
+            transition: 0.2s;
+        }
 
-#dropZone {
-    margin-bottom: 30px;   
-}
+        .builder-card:hover {
+            transform: scale(1.03);
+        }
 
-.builder-card {
-    width: 230px;
-    height: 170px;
-    background: #fff;
-    border-radius: 14px;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.12);
-    padding: 15px;
-    cursor: grab;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    border: 3px dashed transparent;
-    transition: 0.2s;
-}
+        .card-title {
+            font-size: 18px;
+            font-weight: 700;
+            text-align: center;
+            color: #333;
+        }
 
-.builder-card:hover {
-    transform: scale(1.03);
-}
+        .card-actions {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
 
-.card-title {
-    font-size: 18px;
-    font-weight: 700;
-    text-align: center;
-    color: #333;
-}
+        .open-module-btn {
+            background: #4caf50;
+            color: white;
+            border-radius: 6px;
+            border: none;
+            padding: 6px 12px;
+            font-size: 13px;
+        }
 
-.card-actions {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-}
+        .delete-module-btn {
+            background: #ff3d3d;
+            color: white;
+            border-radius: 6px;
+            border: none;
+            padding: 6px 12px;
+            font-size: 13px;
+        }
 
-.open-module-btn {
-    background: #4caf50;
-    color: white;
-    border-radius: 6px;
-    border: none;
-    padding: 6px 12px;
-    cursor: pointer;
-    font-size: 13px;
-}
+        .module-card { border-color: #6aa9ff; }
+        .quiz-card { border-color: #ffc466; }
+        .assignment-card { border-color: #8df2a1; }
+        .liveclass-card { border-color: #ffa7d1; }
 
-.delete-module-btn {
-    background: #ff3d3d;
-    color: white;
-    border-radius: 6px;
-    border: none;
-    padding: 6px 12px;
-    cursor: pointer;
-    font-size: 13px;
-}
-
-.module-card { border-color: #6aa9ff; }
-.quiz-card { border-color: #ffc466; }
-.assignment-card { border-color: #8df2a1; }
-.liveclass-card { border-color: #ffa7d1; }
-
-
-.drop-zone {
-    width: 230px;
-    height: 170px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 42px;
-    background: #f7f9ff;
-    border: 3px dashed #aab4d4;
-    border-radius: 14px;
-    color: #69739b;
-    cursor: pointer;
-    transition: 0.2s ease;
-}
-
-.drop-zone:hover {
-    border-color: #5167ff;
-    color: #5167ff;
-    transform: scale(1.05);
-}
-
-</style>
+        .drop-zone {
+            width: 230px;
+            height: 170px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 42px;
+            background: #f7f9ff;
+            border: 3px dashed #aab4d4;
+            border-radius: 14px;
+            cursor: pointer;
+        }
+    </style>
 </head>
 
 <body class="bg-light">
 
+<!-- ================= TOP BAR ================= -->
 <div class="topbar">
-
-    <a href="{% url 'instructor_dashboard' %}" class="topbar-title">
-        Bildung
-    </a>
+    <a href="{% url 'instructor_dashboard' %}" class="topbar-title">Bildung</a>
 
     <div class="dropdown">
         <button class="btn rounded-circle shadow"
@@ -141,22 +124,19 @@
         </button>
 
         <ul class="dropdown-menu dropdown-menu-end">
-               <li><a class="dropdown-item" href="{% url 'instructor_profile_view' %}">Profile</a></li>
-               <li><a class="dropdown-item" href="{% url 'instructor_profile_view' %}">Profile</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor:add_course' %}">Create New Course</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor:students_list' %}">My Students</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor:calendar_view' %}">My Schedules</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor_notifications' %}">Notifications</a></li>
-                <li><a class="dropdown-item" href="#">Earnings & Payments</a></li>
-                <li><a class="dropdown-item" href="#">Help & Support</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor_account_settings' %}">Account Settings</a></li>
-                <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item text-danger" href="{% url 'logout_view' %}">Logout</a></li>
+            <li><a class="dropdown-item" href="{% url 'instructor_profile_view' %}">Profile</a></li>
+            <li><a class="dropdown-item" href="{% url 'instructor:add_course' %}">Create New Course</a></li>
+            <li><a class="dropdown-item" href="{% url 'instructor:students_list' %}">My Students</a></li>
+            <li><a class="dropdown-item" href="{% url 'instructor:calendar_view' %}">My Schedules</a></li>
+            <li><a class="dropdown-item" href="{% url 'instructor_notifications' %}">Notifications</a></li>
+            <li><a class="dropdown-item" href="{% url 'instructor_account_settings' %}">Account Settings</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item text-danger" href="{% url 'logout_view' %}">Logout</a></li>
         </ul>
     </div>
 </div>
 
-
+<!-- ================= CONTENT ================= -->
 <div class="paper">
 
     <h1 class="title">EDIT COURSE</h1>
@@ -184,70 +164,53 @@
     <h1 class="title">MODULE BUILDER</h1>
 
     <div id="topRow">
-
         {% for block in course.structure_json %}
         <div class="builder-card
             {% if block.type == 'Module' %}module-card{% endif %}
             {% if block.type == 'Quiz' %}quiz-card{% endif %}
             {% if block.type == 'Assignment' %}assignment-card{% endif %}
             {% if block.type == 'Live Class' %}liveclass-card{% endif %}"
-
             draggable="true"
+
             data-type="{{ block.type }}"
             data-title="{{ block.title }}"
             data-description="{{ block.description|default:'' }}"
+            data-lectures='{{ block.lectures|default:"[]"|safe }}'
+
             data-module-id="{{ block.module_id|default:'' }}"
             data-quiz-id="{{ block.quiz_id|default:'' }}"
             data-assignment-id="{{ block.assignment_id|default:'' }}"
             data-liveclass-id="{{ block.liveclass_id|default:'' }}"
-            data-lectures='{{ block.lectures|default:"[]"|safe }}'
         >
 
             <div class="card-title">{{ block.title }}</div>
 
             <div class="card-actions">
-
                 {% if block.type == "Module" %}
-                <button class="open-module-btn"
-                        onclick="openModule({{ forloop.counter0 }})">
-                    Edit
-                </button>
+                <button class="open-module-btn" onclick="openModule({{ forloop.counter0 }})">Edit</button>
                 {% endif %}
 
-                <button class="delete-module-btn"
-                        onclick="deleteModule({{ forloop.counter0 }})">
-                    ✖
-                </button>
+                {% if block.type == "Assignment" %}
+                <button class="open-module-btn" onclick="openAssignment({{ forloop.counter0 }})">Edit</button>
+                {% endif %}
 
+                <button class="delete-module-btn" onclick="deleteBlock({{ forloop.counter0 }})">✖</button>
             </div>
         </div>
         {% endfor %}
 
         <div id="dropZone" class="drop-zone">+</div>
-
     </div>
 
-
-    <div class="bottom-area">
-
-        <div class="drag-row">
-            <div class="draggable-btn module-btn" draggable="true" data-type="Module">Module</div>
-            <div class="draggable-btn quiz-btn" draggable="true" data-type="Quiz">Quiz</div>
-            <div class="draggable-btn assignment-btn" draggable="true" data-type="Assignment">Assignment</div>
-            <div class="draggable-btn liveclass-btn" draggable="true" data-type="Live Class">Live Class</div>
-        </div>
-
-        <div class="actions">
-            <button class="save-main" onclick="saveCourse()">Save Changes</button>
-            <button class="publish-main" onclick="publishCourse()">Publish</button>
-        </div>
-
-        <div class="note">💡 Drag items onto the + box to add them</div>
+    <div class="actions mt-3">
+        <button class="save-main" onclick="saveCourse()">Save Changes</button>
+        <button class="publish-main" onclick="publishCourse()">Publish</button>
     </div>
 
+    <div class="note">💡 Drag items onto the + box to add them</div>
 </div>
 
-
+<!-- ================= SCRIPTS ================= -->
 <script src="{% static 'js/edit_course.js' %}"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 

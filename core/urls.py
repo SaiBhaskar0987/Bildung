@@ -22,11 +22,14 @@ urlpatterns = [
     path('google-redirect/', google_login_redirect, name='google_redirect'),
 
     path("accounts/", include("users.urls")), 
+    path("", include("users.urls")),
 
     path('accounts/logout/', logout_view, name='logout'),
     path('account/', include('django.contrib.auth.urls')),
     
-    path('courses/', include(('courses.urls', 'courses'), namespace='courses'))
+    path('courses/', include(('courses.urls', 'courses'), namespace='courses')),
+
+    path("api/", include("courses.urls")),
 
 ]
 

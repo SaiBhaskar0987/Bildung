@@ -59,15 +59,16 @@ urlpatterns = [
     # CUSTOM PASSWORD RESET
     # =====================
     path("forgot-password/", views.custom_password_reset, name="forgot_password"),
-    path(
-        "password-reset-sent/",
-        views.password_reset_sent,
-        name="password_reset_sent",
-    ),
+    path("password-reset-sent/", views.password_reset_sent, name="password_reset_sent"),
     path(
         "password-reset-confirm/<uidb64>/<token>/",
         views.custom_password_reset_confirm,
-        name="password_reset_confirm",
+        name="password_reset_confirm"
+    ),
+    path(
+        "password-reset-complete/",
+        views.password_reset_complete,
+        name="password_reset_complete"
     ),
 
     # =====================

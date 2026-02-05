@@ -100,7 +100,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'bildung_db',
         'USER': 'root',  # change with your MYSQL username
-        'PASSWORD': 'sindhu',  # change with your MYSQL password
+        'PASSWORD': '',  # change with your MYSQL password
         'HOST': 'localhost',
         'PORT': '3306',
         'OPTIONS': {
@@ -145,8 +145,8 @@ AUTHENTICATION_BACKENDS = (
 )
 
 # Google OAuth
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '193235458171-isoivolktv58d4c7iuru06nn5op41421.apps.googleusercontent.com'
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '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'
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = ''
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = ''
 SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = ['email', 'profile']
 SOCIAL_AUTH_GOOGLE_OAUTH2_AUTH_EXTRA_ARGUMENTS = {
     'prompt': 'select_account',
@@ -208,10 +208,8 @@ DEFAULT_FROM_EMAIL = 'Bildung Platform <noreply@bildung.com>'
 # ---------------------------------------------------------------------
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-OPENAI_API_KEY = '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'
 
 #OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 
-#HF_API_KEY = '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'
-HF_API_KEY = "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"
+HF_API_KEY = ""

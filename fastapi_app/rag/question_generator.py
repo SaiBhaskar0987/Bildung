@@ -65,6 +65,7 @@ def _extract_json(text: str):
     except Exception:
         return None
 
+
 def generate_questions(vector_store, num_questions=5):
 
     retriever = vector_store.as_retriever(

@@ -41,3 +41,9 @@ app.include_router(ai_assist.router)
 def health():
     return {"status": "OK"}
 
+@app.get("/")
+def api_root():
+    return {
+        "status": "ok",
+        "service": "FastAPI running inside Django",
+    }

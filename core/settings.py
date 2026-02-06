@@ -30,6 +30,9 @@ ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 INSTALLED_APPS = [
     'core.apps.CoreConfig',
 
+    #ASGI server
+    'daphne', 
+
     # Django core
     'django.contrib.admin',
     'django.contrib.auth',

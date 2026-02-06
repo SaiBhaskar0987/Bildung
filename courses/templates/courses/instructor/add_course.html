@@ -40,8 +40,6 @@
     margin-top: 30px;
 }
 
-
-
 .builder-card {
     width: 180px;
     height: 160px;
@@ -183,11 +181,21 @@
         <option value="others" {% if course_category == 'others' %}selected{% endif %}>Others</option>
     </select>
 
+    <label class="label">Course Level</label>
+    <select id="courseLevel" class="input-box">
+        <option value="" disabled selected>Select Level</option>
+        <option value="beginner" {% if course_level == 'beginner' %}selected{% endif %}>Beginner</option>
+        <option value="intermediate" {% if course_level == 'intermediate' %}selected{% endif %}>Intermediate</option>
+        <option value="advanced" {% if course_level == 'advanced' %}selected{% endif %}>Advanced</option>
+    </select>
+
     <hr class="divider">
 
     <h1 class="title">MODULE BUILDER</h1>
 
-    <div id="topRow"></div>
+    <div id="moduleBuilder">
+          <div id="topRow"></div>
+    </div>
 
     <div class="bottom-area">
 

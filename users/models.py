@@ -143,12 +143,20 @@ class PasswordChangeRequest(models.Model):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name="user_password_change_requests"  # ✅ FIX
+        related_name="user_password_change_requests"  
     )
-    new_password = models.CharField(max_length=255)  # hashed
+    new_password = models.CharField(max_length=255)  
     token = models.UUIDField(default=uuid.uuid4, unique=True)
     is_confirmed = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"Password change for {self.user.email}"
+
+class CourseSearch(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    keyword = models.CharField(max_length=255)
+    searched_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.keyword}"

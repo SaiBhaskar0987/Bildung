@@ -1,0 +1,90 @@
+body {
+    background: linear-gradient(135deg, #eef2ff, #f8f9ff);
+} /* General Styles */
+
+
+.profile-card {
+    max-width: 650px;
+    margin: auto;
+    border-radius: 22px;
+    background: rgba(255,255,255,0.95);
+    box-shadow: 0 25px 60px rgba(0,0,0,0.12);
+    padding: 35px;
+    position: relative;
+} /* Profile Header */
+
+
+.profile-avatar-view {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 5px solid #4f46e5;
+    background: #f1f1f1;
+} /* Profile Header */
+
+
+.profile-avatar-edit {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px dashed #16a34a;
+    background: #f1f1f1;
+} /* Profile Header */
+
+
+.profile-label {
+    font-weight: 600;
+    color: #555;
+    min-width: 120px;
+    display: inline-block;
+} /* Labels */
+
+
+.profile-value {
+    color: #333;
+} /* Values */
+
+
+.form-control, select, textarea {
+    border-radius: 12px !important;
+} /* Form Controls */
+
+
+.btn-save {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    color: #fff;
+    border-radius: 12px;
+    padding: 10px 28px;
+    border: none;
+} /* Save Button */
+
+.btn-save:hover {
+    opacity: 0.9;
+} /* Cancel Button */
+
+.btn-cancel {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: #fff;
+    border-radius: 12px;
+    padding: 10px 28px;
+    border: none;
+} /* Cancel Button */
+
+.btn-cancel:hover {
+    opacity: 0.9;
+} /* Edit Profile Button */
+
+.btn-edit {
+    border-radius: 12px;
+    padding: 10px 30px;
+} /* Edit Profile Button */
+
+
+.profile-divider {
+    height: 1px;
+    background: linear-gradient(to right, transparent, #dbe3ff, transparent);
+    margin: 25px 0;
+} /* Divider */
+

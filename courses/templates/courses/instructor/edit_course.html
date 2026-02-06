@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Edit Course </title>
+    <title>Edit Course</title>
 
     <link rel="stylesheet" href="{% static 'css/add_course.css' %}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -35,12 +35,8 @@
     display: flex;
     flex-wrap: wrap;
     gap: 18px;
-    margin-top: 15px;
+    margin-top: 30px;
     justify-content: center;
-}
-
-#dropZone {
-    margin-bottom: 30px;   
 }
 
 .builder-card {
@@ -55,18 +51,12 @@
     flex-direction: column;
     justify-content: space-between;
     border: 3px dashed transparent;
-    transition: 0.2s;
-}
-
-.builder-card:hover {
-    transform: scale(1.03);
 }
 
 .card-title {
     font-size: 18px;
     font-weight: 700;
     text-align: center;
-    color: #333;
 }
 
 .card-actions {
@@ -81,7 +71,6 @@
     border-radius: 6px;
     border: none;
     padding: 6px 12px;
-    cursor: pointer;
     font-size: 13px;
 }
 
@@ -91,7 +80,6 @@
     border-radius: 6px;
     border: none;
     padding: 6px 12px;
-    cursor: pointer;
     font-size: 13px;
 }
 
@@ -99,7 +87,6 @@
 .quiz-card { border-color: #ffc466; }
 .assignment-card { border-color: #8df2a1; }
 .liveclass-card { border-color: #ffa7d1; }
-
 
 .drop-zone {
     width: 230px;
@@ -111,27 +98,25 @@
     background: #f7f9ff;
     border: 3px dashed #aab4d4;
     border-radius: 14px;
-    color: #69739b;
     cursor: pointer;
-    transition: 0.2s ease;
+}
+.bottom-area {
+    margin-top: 30px;   
 }
 
-.drop-zone:hover {
-    border-color: #5167ff;
-    color: #5167ff;
-    transform: scale(1.05);
+.drag-row {
+    margin-top: 25px;   
+    display: flex;
+    gap: 14px;
+    justify-content: center;
 }
-
 </style>
 </head>
 
 <body class="bg-light">
 
 <div class="topbar">
-
-    <a href="{% url 'instructor_dashboard' %}" class="topbar-title">
-        Bildung
-    </a>
+    <a href="{% url 'instructor_dashboard' %}" class="topbar-title">Bildung</a>
 
     <div class="dropdown">
         <button class="btn rounded-circle shadow"
@@ -141,8 +126,7 @@
         </button>
 
         <ul class="dropdown-menu dropdown-menu-end">
-               <li><a class="dropdown-item" href="{% url 'instructor_profile_view' %}">Profile</a></li>
-               <li><a class="dropdown-item" href="{% url 'instructor_profile_view' %}">Profile</a></li>
+            <li><a class="dropdown-item" href="{% url 'instructor_profile_view' %}">Profile</a></li>
                 <li><a class="dropdown-item" href="{% url 'instructor:add_course' %}">Create New Course</a></li>
                 <li><a class="dropdown-item" href="{% url 'instructor:students_list' %}">My Students</a></li>
                 <li><a class="dropdown-item" href="{% url 'instructor:calendar_view' %}">My Schedules</a></li>
@@ -156,7 +140,6 @@
     </div>
 </div>
 
-
 <div class="paper">
 
     <h1 class="title">EDIT COURSE</h1>
@@ -165,7 +148,7 @@
     <input id="courseTitle" class="input-box" value="{{ course.title }}">
 
     <label class="label">Description</label>
-    <textarea id="courseDescription" class="input-box" style="height:80px;">{{ course.description }}</textarea>
+    <textarea id="courseDescription" class="input-box">{{ course.description }}</textarea>
 
     <label class="label">Price (₹)</label>
     <input id="coursePrice" type="number" class="input-box" value="{{ course.price }}">
@@ -178,35 +161,42 @@
         <option value="programming" {% if course.category == 'programming' %}selected{% endif %}>Programming</option>
         <option value="others" {% if course.category == 'others' %}selected{% endif %}>Others</option>
     </select>
+    
+    <label class="label">Course Level</label>
+    <select id="courseLevel" class="input-box">
+        <option value="beginner" {% if course.level == "beginner" %}selected{% endif %}>
+          Beginner
+       </option>
+       <option value="intermediate" {% if course.level == "intermediate" %}selected{% endif %}>
+          Intermediate
+       </option>
+      <option value="advanced" {% if course.level == "advanced" %}selected{% endif %}>
+          Advanced
+      </option>
+    </select>
 
     <hr class="divider">
 
     <h1 class="title">MODULE BUILDER</h1>
 
     <div id="topRow">
-
         {% for block in course.structure_json %}
         <div class="builder-card
             {% if block.type == 'Module' %}module-card{% endif %}
             {% if block.type == 'Quiz' %}quiz-card{% endif %}
             {% if block.type == 'Assignment' %}assignment-card{% endif %}
             {% if block.type == 'Live Class' %}liveclass-card{% endif %}"
-
             draggable="true"
             data-type="{{ block.type }}"
-            data-title="{{ block.title }}"
-            data-description="{{ block.description|default:'' }}"
             data-module-id="{{ block.module_id|default:'' }}"
             data-quiz-id="{{ block.quiz_id|default:'' }}"
             data-assignment-id="{{ block.assignment_id|default:'' }}"
             data-liveclass-id="{{ block.liveclass_id|default:'' }}"
-            data-lectures='{{ block.lectures|default:"[]"|safe }}'
-        >
+            data-lectures='{{ block.lectures|default:"[]"|safe }}'>
 
             <div class="card-title">{{ block.title }}</div>
 
             <div class="card-actions">
-
                 {% if block.type == "Module" %}
                 <button class="open-module-btn"
                         onclick="openModule({{ forloop.counter0 }})">
@@ -214,22 +204,25 @@
                 </button>
                 {% endif %}
 
+                {% if block.type == "Quiz" %}
+                <button class="open-module-btn"
+                        onclick="openQuiz({{ forloop.counter0 }})">
+                    Edit
+                </button>
+                {% endif %}
+
                 <button class="delete-module-btn"
-                        onclick="deleteModule({{ forloop.counter0 }})">
+                        onclick="deleteBlock({{ forloop.counter0 }})">
                     ✖
                 </button>
-
             </div>
         </div>
         {% endfor %}
 
         <div id="dropZone" class="drop-zone">+</div>
-
     </div>
 
-
     <div class="bottom-area">
-
         <div class="drag-row">
             <div class="draggable-btn module-btn" draggable="true" data-type="Module">Module</div>
             <div class="draggable-btn quiz-btn" draggable="true" data-type="Quiz">Quiz</div>
@@ -247,9 +240,8 @@
 
 </div>
 
-
-<script src="{% static 'js/edit_course.js' %}"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{% static 'js/edit_course.js' %}"></script>
 
 </body>
 </html>

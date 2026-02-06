@@ -4,6 +4,13 @@ Django settings for core project.
 
 from pathlib import Path
 import os
+from dotenv import load_dotenv
+import os
+
+load_dotenv()   
+
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+
 
 # ---------------------------------------------------------------------
 # Base
@@ -34,7 +41,7 @@ INSTALLED_APPS = [
 
     # Local apps
     'users',
-    'courses',
+    'courses.apps.CoursesConfig',
     'quizzes',
     'forums',
     'chat',
@@ -100,7 +107,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'bildung_db',
         'USER': 'root', # change with your MYSQL username
-        'PASSWORD': '00000', # change with your MYSQL password
+        'PASSWORD': '', # change with your MYSQL password
         'HOST': 'localhost',
         'PORT': '3306',
         'OPTIONS': {
@@ -144,9 +151,16 @@ AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
 )
 
+ACCOUNT_AUTHENTICATION_METHOD = "email"
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_UNIQUE_EMAIL = True
+
+SOCIALACCOUNT_ADAPTER = "users.adapters.CustomSocialAccountAdapter"
+
 # Google OAuth
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = ''
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = ''
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '' # Add your key  here
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = ''  # Add your client secret here
 SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = ['email', 'profile']
 SOCIAL_AUTH_GOOGLE_OAUTH2_AUTH_EXTRA_ARGUMENTS = {
     'prompt': 'select_account',
@@ -186,3 +200,16 @@ DEFAULT_FROM_EMAIL = 'Bildung Platform <noreply@bildung.com>'
 # Default PK
 # ---------------------------------------------------------------------
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+
+# ---------------------------------------------------------------------
+# AI Assist Settings
+DATASET_PATH = "media/Q_A/Bildung_QA.xlsx"
+EMBEDDING_MODEL_PATH = 'all-MiniLM-L6-v2'
+LOCAL_MODEL_NAME = 'ollama_chat/qwen2.5:1.5b'
+LOCAL_MODEL_URL = 'http://localhost:11434'
+# ---------------------------------------------------------------------
+# For Invite Link
+# ---------------------------------------------------------------------
+SITE_URL = 'http://127.0.0.1:8000'

@@ -7,19 +7,21 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.core.mail import send_mail
-from django.template.loader import render_to_string
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.contrib.auth.tokens import default_token_generator
 from django.conf import settings
 from courses.utils import check_and_send_reminders
 from django.contrib.auth import update_session_auth_hash
+from django.db.models import Count
+
+from quizzes.models import QuizResult
 from .models import EmailVerification
 from .utils import send_verification_email
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth.hashers import make_password 
-from django.urls import reverse
 from .models import PasswordChangeRequest
+from courses.services.recommendation_service import get_recommended_courses
 
 from .models import User, Profile, LoginHistory, InstructorProfile
 from .forms import StudentSignUpForm, InstructorSignUpForm, ProfileForm, UserDisplayForm, InstructorUserReadOnlyForm, InstructorUserForm, InstructorProfileForm
@@ -42,7 +44,9 @@ def student_signup(request):
 
             Profile.objects.create(user=user)
 
-            verification = EmailVerification.objects.create(user=user)
+            verification, created = EmailVerification.objects.get_or_create(
+                user=user
+            )
 
             send_verification_email(
                 request,
@@ -74,7 +78,6 @@ def student_login(request):
             user = form.get_user()
             if hasattr(user, 'role') and user.role == "student":
                 login(request, user)
-                record_login(request, user)
                 messages.success(request, f"Welcome back, {user.username}!")
                 return redirect("student_dashboard")
             else:
@@ -89,10 +92,14 @@ def student_login(request):
 @login_required
 def student_dashboard(request):
     if request.user.role != "student":
-        messages.error(request, "Access denied. Student area only.")
+        messages.error(request, "Access denied.")
         return redirect("login")
+
     check_and_send_reminders(request.user)
-    all_courses = Course.objects.all()
+
+    enrolled_course_ids = Enrollment.objects.filter(
+        student=request.user
+    ).values_list("course_id", flat=True)
 
     unread_count = Notification.objects.filter(
         user=request.user,
@@ -103,15 +110,21 @@ def student_dashboard(request):
         user=request.user,
         is_read=False
     ).order_by("-created_at")[:5]
-    enrolled_course_ids = Enrollment.objects.filter(
-        student=request.user
-    ).values_list("course_id", flat=True)
+
+    recommended_courses = get_recommended_courses(request.user)
+
+    all_courses = (
+        Course.objects
+        .annotate(popularity=Count("enrollments"))
+        .order_by("-popularity", "-created_at")
+    )
 
     return render(request, "student/student_dashboard.html", {
         "all_courses": all_courses,
+        "recommended_courses": recommended_courses,
+        "enrolled_course_ids": enrolled_course_ids,
         "unread_count": unread_count,
         "unread_notifications": unread_notifications,
-        "enrolled_course_ids": enrolled_course_ids,
     })
 
 
@@ -124,25 +137,21 @@ def account_settings(request):
         new_password = request.POST.get("new_password")
         confirm_password = request.POST.get("confirm_password")
 
-        # 1️⃣ Validate current password
         if not user.check_password(current_password):
             messages.error(request, "❌ Current password is incorrect")
             return redirect("account_settings")
 
-        # 2️⃣ Validate new passwords
         if new_password != confirm_password:
             messages.error(request, "❌ New passwords do not match")
             return redirect("account_settings")
 
-        # 3️⃣ Create password change request (NOT updating password yet)
         password_request = PasswordChangeRequest.objects.create(
             user=user,
-            new_password=make_password(new_password)  # hash before storing
+            new_password=make_password(new_password) 
         )
 
         confirm_link = f"http://127.0.0.1:8000/confirm-password/{password_request.token}/"
 
-        # 🔗 PRINT LINK IN TERMINAL
         print("\n🔐 PASSWORD CONFIRMATION LINK")
         print(confirm_link)
         print("⬆️ Click this link to confirm password change\n")
@@ -154,7 +163,7 @@ def account_settings(request):
 
         return redirect("account_settings")
 
-    return render(request, "users/account_settings.html")
+    return render(request, "student/account_settings.html")
 
 
 def confirm_password_change(request, token):
@@ -167,7 +176,6 @@ def confirm_password_change(request, token):
     if request.method == "POST":
         user = password_request.user
 
-        # ✅ Update password now
         user.password = password_request.new_password
         user.save()
 
@@ -278,6 +286,11 @@ def student_my_activity(request):
             for rec in attendance_records
         ]
     }
+    quiz_activity = (
+        QuizResult.objects.filter(student=user)
+            .select_related("quiz", "quiz__course")
+            .order_by("-submitted_at")
+        )
 
     login_history = LoginHistory.objects.filter(user=user).order_by("-login_time")[:25]
 
@@ -300,6 +313,7 @@ def student_my_activity(request):
         "overall_progress": overall_progress,
         "course_progress": course_progress,
         "recent_videos": recent_videos,
+        "quiz_activity": quiz_activity,
         "video_lessons_watched": video_lessons_watched,
         "attendance_data": attendance_data,
         "login_history": login_history,
@@ -368,7 +382,10 @@ def instructor_signup(request):
 
             InstructorProfile.objects.create(user=user)
 
-            verification = EmailVerification.objects.create(user=user)
+            verification, created = EmailVerification.objects.get_or_create(
+                user=user
+            )
+            
 
             send_verification_email(
                 request,
@@ -400,7 +417,6 @@ def instructor_login(request):
             user = form.get_user()
             if hasattr(user, 'role') and user.role == "instructor":
                 login(request, user)
-                record_login(request, user)
                 return redirect("instructor_dashboard")
             else:
                 messages.error(request, "This login is only for instructors.")
@@ -428,9 +444,7 @@ def instructor_dashboard(request):
         "unread_count": unread_count,
     })
 
-
 def logout_view(request):
-    record_logout(request)
     logout(request)
     messages.success(request, "You have been successfully logged out.")
     return redirect("auth_page")
@@ -702,13 +716,10 @@ def post_login_redirect_view(request):
         return redirect("auth_page")
     
     if user.role == "student":
-        record_login(request, user)
         return redirect("student_dashboard")
     elif user.role == "instructor":
-        record_login(request, user)
         return redirect("instructor_dashboard")
     elif user.role == "admin":
-        record_login(request, user)
         return redirect("admin_dashboard")
     else:
         return redirect("auth_page")

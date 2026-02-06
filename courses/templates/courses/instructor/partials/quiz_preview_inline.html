@@ -1,0 +1,19 @@
+<div class="mt-3 p-3 border rounded bg-light">
+
+  <h5 class="fw-bold">{{ quiz.title }}</h5>
+
+  {% for q in questions %}
+    <div class="mb-3">
+      <strong>Q{{ forloop.counter }}.</strong> {{ q.question_text }}
+
+      <ul class="mt-1">
+        {% for c in q.choices.all %}
+          <li class="{% if c.is_correct %}text-success fw-bold{% endif %}">
+            {{ c.text }}
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endfor %}
+
+</div>

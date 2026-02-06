@@ -1,0 +1,105 @@
+<h2 class="mb-4">{{ quiz.title }} <small class="text-muted">(Preview)</small></h2>
+
+<form method="post" id="quizForm">
+  {% csrf_token %}
+
+  {% for q in questions %}
+  <div class="card mb-4 shadow-sm">
+    <div class="card-body">
+
+      <div class="mb-3">
+        <strong class="fs-5">Q{{ forloop.counter }}.</strong>
+        <span class="view-mode ms-2">
+          {{ q.question_text }}
+        </span>
+
+        <textarea
+          class="edit-mode form-control mt-2"
+          name="question_{{ q.id }}"
+          style="display:none;"
+        >{{ q.question_text }}</textarea>
+      </div>
+
+      <ul class="list-group list-group-flush">
+        {% for c in q.choices.all %}
+        <li class="list-group-item rounded mb-2
+            {% if c.is_correct %}bg-success bg-opacity-10 border-success{% endif %}
+        ">
+
+          <div class="view-mode d-flex align-items-center">
+            <span class="{% if c.is_correct %}fw-bold text-success{% endif %}">
+              {{ c.text }}
+            </span>
+
+            {% if c.is_correct %}
+              <span class="badge bg-success ms-2">Correct</span>
+            {% endif %}
+          </div>
+
+          <div class="edit-mode" style="display:none;">
+            <div class="input-group">
+              <div class="input-group-text">
+                <input
+                  type="radio"
+                  name="correct_{{ q.id }}"
+                  value="{{ c.id }}"
+                  {% if c.is_correct %}checked{% endif %}
+                >
+              </div>
+              <input
+                type="text"
+                name="choice_{{ c.id }}"
+                value="{{ c.text }}"
+                class="form-control"
+              >
+            </div>
+          </div>
+
+        </li>
+        {% endfor %}
+      </ul>
+
+    </div>
+  </div>
+  {% endfor %}
+
+  <div class="mt-4">
+    <button type="button" class="btn btn-primary" id="editBtn">
+      Edit
+    </button>
+
+    <button type="submit" class="btn btn-success" id="saveBtn" style="display:none;">
+      Save Changes
+    </button>
+
+    <button type="button" class="btn btn-secondary" id="cancelBtn" style="display:none;">
+      Cancel
+    </button>
+
+    <a href="javascript:history.back()" class="btn btn-link">
+      Back
+    </a>
+  </div>
+</form>
+
+<script>
+  const editBtn = document.getElementById("editBtn");
+  const saveBtn = document.getElementById("saveBtn");
+  const cancelBtn = document.getElementById("cancelBtn");
+
+  const viewEls = document.querySelectorAll(".view-mode");
+  const editEls = document.querySelectorAll(".edit-mode");
+
+  editBtn.onclick = () => {
+    viewEls.forEach(el => el.style.display = "none");
+    editEls.forEach(el => el.style.display = "block");
+
+    editBtn.style.display = "none";
+    saveBtn.style.display = "inline-block";
+    cancelBtn.style.display = "inline-block";
+  };
+
+  cancelBtn.onclick = () => {
+    location.reload();
+  };
+</script>

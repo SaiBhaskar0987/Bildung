@@ -78,7 +78,6 @@
 
 <body class="bg-light">
 
-<!-- Navigation -->
 <div class="d-flex justify-content-between align-items-center p-3 bg-white shadow-sm">
     <a href="{% url 'instructor_dashboard' %}" class="text-decoration-none text-dark">
         <h3 class="m-0 fw-bold">Bildung</h3>
@@ -149,7 +148,6 @@
         </div>
     </div>
 
-    <!-- Tabs -->
     <div class="tab-buttons">
         <button class="tab-button active" onclick="openTab(event,'progress-tab')">
             <i class="fas fa-chart-bar me-2"></i>Progress
@@ -176,7 +174,6 @@
         </button>
     </div>
 
-    <!-- PROGRESS TAB -->
     <div id="progress-tab" class="tab-content active">
         <h3>Course Progress</h3>
         <p>{{ completed_lectures }} / {{ total_lectures }} lectures completed</p>

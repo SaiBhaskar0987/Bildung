@@ -1,8 +1,6 @@
-from fastapi import FastAPI, Depends, HTTPException
-from sqlalchemy.orm import Session
+from fastapi import FastAPI
 from fastapi_app.dependencies import get_db
-from fastapi_app.routes import quiz, quiz_manual, quiz_rag
-from fastapi_app.models.course import Course
+from fastapi_app.routes import quiz, quiz_manual, quiz_rag, ai_assist
 from fastapi.middleware.cors import CORSMiddleware
 
 from dotenv import load_dotenv
@@ -33,6 +31,8 @@ app.add_middleware(
 app.include_router(quiz.router) 
 app.include_router(quiz_rag.router)
 app.include_router(quiz_manual.router)
+app.include_router(ai_assist.router)
+
 
 # -------------------------------------------------
 # Health Check

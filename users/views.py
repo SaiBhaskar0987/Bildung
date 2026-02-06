@@ -1,8 +1,8 @@
-from io import BytesIO
-from django.http import FileResponse, HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse
+from django.urls import reverse
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, render, redirect
-from django.contrib.auth import login, authenticate, logout
+from django.contrib.auth import login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
@@ -451,87 +451,92 @@ def logout_view(request):
 
 
 def custom_password_reset(request):
-    if request.method == 'POST':
-        email = request.POST.get('email')
-        try:
-            user = User.objects.get(email=email)
+    """
+    Step 1: Request password reset
+    """
+    if request.method == "POST":
+        email = request.POST.get("email")
+
+        user = User.objects.filter(email=email).first()
+
+        if user:
             token = default_token_generator.make_token(user)
             uid = urlsafe_base64_encode(force_bytes(user.pk))
-            reset_url = f"{request.scheme}://{request.get_host()}/password-reset-confirm/{uid}/{token}/"
-            user_role = user.role if hasattr(user, 'role') else 'user'
-            subject = f"Password Reset Request - Bildung Platform"
+
+            reset_path = reverse(
+                "password_reset_confirm",
+                kwargs={"uidb64": uid, "token": token}
+            )
+            reset_url = f"{request.scheme}://{request.get_host()}{reset_path}"
+
+            subject = "Password Reset Request - Bildung"
             message = f"""
-Hello {user.username},
+Hello {user.first_name or user.username},
 
-You're receiving this email because you requested a password reset for your {user_role} account.
+You requested a password reset for your Bildung account.
 
-Please click the link below to reset your password:
+Reset your password using the link below:
 {reset_url}
 
-If you didn't request this reset, please ignore this email.
+If you didn’t request this, you can safely ignore this email.
 
 Thanks,
-The Bildung Platform Team
+Bildung Team
 """
-            
-            try:
-                send_mail(
-                    subject,
-                    message,
-                    settings.DEFAULT_FROM_EMAIL,
-                    [email],
-                    fail_silently=False,
-                )
-                return redirect('password_reset_sent')
-                
-            except Exception as e:
-                print(f"Email sending failed: {e}")
-                return redirect('password_reset_sent')
-            
-        except User.DoesNotExist:
-            return redirect('password_reset_sent')
-    
-    return render(request, 'forgot_password.html')
 
-def password_reset_sent(request):
-    return render(request, 'password_reset_sent.html')
+            send_mail(
+                subject,
+                message,
+                settings.DEFAULT_FROM_EMAIL,
+                [email],
+                fail_silently=True,  
+            )
+
+        return redirect("password_reset_sent")
+
+    return render(request, "forgot_password.html")
 
 def custom_password_reset_confirm(request, uidb64, token):
+    """
+    Step 2: Set new password
+    """
     try:
         uid = force_str(urlsafe_base64_decode(uidb64))
         user = User.objects.get(pk=uid)
-        
-        if default_token_generator.check_token(user, token):
-            if request.method == 'POST':
-                new_password = request.POST.get('new_password')
-                confirm_password = request.POST.get('confirm_password')
-                
-                if new_password and len(new_password) >= 8:
-                    if new_password == confirm_password:
-                        user.set_password(new_password)
-                        user.save()
-                        messages.success(request, 'Your password has been reset successfully! You can now login with your new password.')
+    except (TypeError, ValueError, User.DoesNotExist):
+        messages.error(request, "Invalid or expired reset link.")
+        return redirect("auth_page")
 
-                        if hasattr(user, 'role'):
-                            if user.role == 'instructor':
-                                return redirect('instructor_login')
-                            elif user.role == 'student':
-                                return redirect('student_login')
+    if not default_token_generator.check_token(user, token):
+        messages.error(request, "This password reset link has expired.")
+        return redirect("auth_page")
 
-                        return redirect('auth_page')
-                    else:
-                        messages.error(request, 'Passwords do not match.')
-                else:
-                    messages.error(request, 'Password must be at least 8 characters long.')
-            
-            return render(request, 'password_reset_confirm.html')
-        else:
-            messages.error(request, 'Invalid or expired reset link.')
-            return redirect('auth_page')
-            
-    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
-        messages.error(request, 'Invalid reset link.')
-        return redirect('auth_page')
+    if request.method == "POST":
+        new_password = request.POST.get("new_password")
+        confirm_password = request.POST.get("confirm_password")
+
+        if not new_password or len(new_password) < 8:
+            messages.error(request, "Password must be at least 8 characters long.")
+            return render(request, "password_reset_confirm.html")
+
+        if new_password != confirm_password:
+            messages.error(request, "Passwords do not match.")
+            return render(request, "password_reset_confirm.html")
+
+        user.set_password(new_password)
+        user.save()
+
+        return redirect("password_reset_complete")
+
+    return render(request, "password_reset_confirm.html")
+
+def password_reset_complete(request):
+    return render(request, "password_reset_complete.html")
+
+
+def password_reset_sent(request):
+    return render(request, 'password_reset_done.html')
+
 
 @login_required
 def instructor_profile_view_or_edit(request, mode=None):

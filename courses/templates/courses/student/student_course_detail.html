@@ -227,7 +227,26 @@
 
   {% if item.type == "assignment" %}
     <div class="card shadow-sm rounded-4 mb-4 p-4 border-info">
-      <h5 class="fw-bold text-info mb-0">📂 {{ item.title }}</h5>
+      <div class="d-flex justify-content-between align-items-center">
+        <h5 class="fw-bold text-info mb-0">
+          📂 {{ item.title }}
+        </h5>
+
+        {% if item.obj %}
+          <a href="{% url 'courses:start_assignment' item.obj.id %}"
+            class="btn btn-sm btn-outline-primary">
+            Start Assignment
+          </a>
+        {% else %}
+          <span class="badge bg-warning text-dark">
+            Assignment not linked
+          </span>
+        {% endif %}
+      </div>
+
+      <p class="text-muted mt-2 mb-0">
+        ⏱ Duration: 30 minutes
+      </p>
     </div>
   {% endif %}
 

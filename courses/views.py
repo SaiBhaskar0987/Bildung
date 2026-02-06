@@ -8,7 +8,7 @@ from django.views.decorators.csrf import csrf_exempt
 from fastapi import requests
 from courses.utils import check_and_send_reminders
 from quizzes.models import Quiz, QuizChoice, QuizQuestion, QuizResult
-from .models import Assignment, Course, CourseBlock, Enrollment, Certificate, Lecture, LectureProgress, Feedback, CourseEvent, Module, LiveClass, LectureQuestion, Notification, QuestionReply, CourseReview, LiveClassAttendance
+from .models import Assignment, Course, CourseBlock, Enrollment, Certificate, Lecture, LectureProgress, Feedback, CourseEvent, Module, LiveClass, LectureQuestion, Notification, QuestionReply, CourseReview, LiveClassAttendance, AssignmentQuestion, StudentAssignment, StudentAnswer
 from users.models import CourseSearch, LoginHistory, User
 from .forms import LectureForm, FeedbackForm, LiveClassForm, CourseReviewForm, CourseEventForm
 from users.decorators import instructor_required
@@ -22,7 +22,15 @@ from django.http import FileResponse, HttpResponseForbidden, JsonResponse
 import json
 from django.db.models import Prefetch
 from courses.services.recommendation_service import get_recommended_courses
-
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth import update_session_auth_hash
+from django.core.mail import send_mail
+from django.conf import settings
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.utils import timezone
+from datetime import timedelta
+import requests
 
 # -------------------------------
 # Common Views
@@ -1089,27 +1097,32 @@ def save_course(request):
     if request.method != "POST":
         return JsonResponse({"error": "POST required"}, status=400)
 
-    data = json.loads(request.body)
+    data = json.loads(request.body or "{}")
     course_id = data.get("course_id")
     structure = data.get("structure", [])
+     # ✅ FIX: handle empty decimal price safely
+    price = data.get("price")
+    if price in ("", None):
+        price = 0
+
     level = data.get("level")
     if level not in ["beginner", "intermediate", "advanced"]:
         return JsonResponse({"error": "Invalid course level"}, status=400)
     if course_id:
         course = get_object_or_404(Course, id=course_id, instructor=request.user)
-        course.title = data["title"]
-        course.description = data["description"]
-        course.price = data["price"]
-        course.category = data["category"]
+        course.title = data.get("title", "")
+        course.description = data.get("description", "")
+        course.price = price
+        course.category = data.get("category", "")
         course.level = level
         course.save()
     else:
         course = Course.objects.create(
             instructor=request.user,
-            title=data["title"],
-            description=data["description"],
-            price=data["price"],
-            category=data["category"],
+            title=data.get("title", ""),
+            description=data.get("description", ""),
+            price=price,
+            category=data.get("category", ""),
             level=level, 
         )
 
@@ -1152,16 +1165,27 @@ def save_course(request):
             item["scope"] = item.get("scope", "all_before")
 
         elif block_type == "Assignment":
-            if item.get("assignment_id"):
-                a = Assignment.objects.get(id=item["assignment_id"])
-                a.title = item.get("title", a.title)
-                a.assignment_order = index
-                a.save()
+            assignment_id = item.get("assignment_id")
+
+            if assignment_id:
+                # ✅ Ensure assignment really exists (do NOT recreate)
+                exists = Assignment.objects.filter(
+                    id=assignment_id,
+                    course=course
+                ).exists()
+
+                if not exists:
+                    # Safety fallback: recreate only if missing
+                    a = Assignment.objects.create(
+                        course=course,
+                        title=item.get("title", "Assignment")
+                    )
+                    item["assignment_id"] = a.id
             else:
+                # ✅ Create ONLY once
                 a = Assignment.objects.create(
                     course=course,
-                    title=item.get("title", "Assignment"),
-                    assignment_order=index
+                    title=item.get("title", "Assignment")
                 )
                 item["assignment_id"] = a.id
 
@@ -1466,7 +1490,7 @@ def edit_course(request, course_id):
 
     return render(request, "courses/instructor/edit_course.html", {
         "course": course,
-        "blocks": blocks,
+        "structure": course.structure_json or [],
     })
 
 @login_required(login_url='/login/')
@@ -1786,3 +1810,412 @@ def student_history(request, course_id, student_id):
 
     return render(request, "courses/instructor/student_history.html", context)
 
+
+@login_required
+def instructor_account_settings(request):
+    if request.method == "POST" and "change_password" in request.POST:
+        form = PasswordChangeForm(user=request.user, data=request.POST)
+
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)
+
+            # ⚠️ DEV ONLY: get new password value
+            new_password = form.cleaned_data.get("new_password1")
+
+            # Send confirmation mail (with password value)
+            if user.email:
+                send_mail(
+                    subject="Password Changed Successfully",
+                    message=(
+                        f"Hi {user.first_name or user.username},\n\n"
+                        "Your password has been changed successfully.\n\n"
+                        f"Updated Password: {new_password}\n\n"
+                        "If you did not make this change, please contact support immediately.\n\n"
+                        "Thanks,\nBildung Team"
+                    ),
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[gangadharam.konangi@gmail.com],
+                    fail_silently=False,
+                )
+
+            messages.success(request, "Password updated successfully! Email sent.")
+            return redirect("instructor:account_settings")
+
+        else:
+            messages.error(
+                request,
+                "Password update failed. Please check the entered details."
+            )
+
+    return render(request, "instructor/account_settings.html")
+
+
+
+@login_required
+@csrf_exempt
+def create_assignment(request):
+    data = json.loads(request.body or "{}")
+
+    course = get_object_or_404(
+        Course,
+        id=data.get("course_id")
+    )
+
+    # 1️⃣ Create Assignment
+    assignment = Assignment.objects.create(
+        course=course,
+        title="Assignment"
+    )
+
+    # 2️⃣ Create CourseBlock LINKED to Assignment (🔥 REQUIRED)
+    CourseBlock.objects.create(
+        course=course,
+        type="Assignment",
+        title=assignment.title,
+        assignment=assignment,   # ⭐ THIS FIXES EVERYTHING
+        sort_order=0
+    )
+
+    return JsonResponse({
+        "assignment_id": assignment.id
+    })
+
+
+
+@login_required
+def edit_assignment(request, course_id, assignment_id):
+    assignment = get_object_or_404(
+        Assignment,
+        id=assignment_id,
+        course_id=course_id
+    )
+
+    # ✅ UPDATED: coding assignment fields
+    questions = AssignmentQuestion.objects.filter(
+        assignment=assignment
+    ).values(
+        "id",
+        "question_text",
+        "expected_solution",
+        "keywords",
+        "allowed_languages",
+        "max_marks"
+    )
+
+    return render(
+        request,
+        "courses/instructor/edit_assignment.html",
+        {
+            "assignment": assignment,
+            "questions": list(questions)
+        }
+    )
+
+
+@login_required
+@csrf_exempt
+def save_assignment(request, assignment_id):
+    assignment = get_object_or_404(Assignment, id=assignment_id)
+
+    assignment.title = request.POST.get("title", "")
+    assignment.description = request.POST.get("description", "")
+    assignment.due_date = request.POST.get("due_date") or None
+    assignment.max_marks = request.POST.get("max_marks") or 0
+
+    if "file" in request.FILES:
+        assignment.file = request.FILES["file"]
+
+    assignment.save()
+
+    return JsonResponse({"status": "success"})
+
+
+@login_required
+@csrf_exempt
+def save_assignment_questions(request, assignment_id):
+    assignment = get_object_or_404(Assignment, id=assignment_id)
+    data = json.loads(request.body or "{}")
+
+    AssignmentQuestion.objects.filter(assignment=assignment).delete()
+
+    for q in data.get("questions", []):
+        AssignmentQuestion.objects.create(
+            assignment=assignment,
+            question_text=q["question_text"],
+            expected_solution=q["expected_solution"],
+            keywords=q["keywords"],
+            allowed_languages=q["allowed_languages"],
+            max_marks=q["max_marks"]
+        )
+
+    return JsonResponse({"status": "success"})
+
+
+
+# =========================
+# START ASSIGNMENT (START TIMER)
+# =========================
+@login_required
+def start_assignment(request, assignment_id):
+    assignment = get_object_or_404(Assignment, id=assignment_id)
+
+    attempt, created = StudentAssignment.objects.get_or_create(
+        student=request.user,
+        assignment=assignment,
+        defaults={
+            "start_time": timezone.now(),
+            "end_time": timezone.now() + timedelta(minutes=30),
+            "status": "IN_PROGRESS"
+        }
+    )
+
+    return redirect("courses:take_assignment", assignment_id=assignment.id)
+
+
+
+# =========================
+# TAKE ASSIGNMENT (QUESTIONS + TIMER)
+# =========================
+@login_required
+def take_assignment(request, assignment_id):
+    assignment = get_object_or_404(Assignment, id=assignment_id)
+
+    attempt = get_object_or_404(
+        StudentAssignment,
+        student=request.user,
+        assignment=assignment
+    )
+
+    if attempt.status == "COMPLETED":
+        return redirect("courses:assignment_result", assignment_id)
+
+    questions = AssignmentQuestion.objects.filter(assignment=assignment)
+
+    # ✅ FIX allowed_languages for template
+    for q in questions:
+        if not isinstance(q.allowed_languages, list):
+            q.allowed_languages = []
+
+        # remove empty strings if any
+        q.allowed_languages = [lang for lang in q.allowed_languages if lang]
+
+        # final fallback (safety)
+        if not q.allowed_languages:
+            q.allowed_languages = ["c", "cpp", "java", "python"]
+
+    return render(
+        request,
+        "courses/student/take_assignment.html",
+        {
+            "assignment": assignment,
+            "questions": questions,
+            "end_time": attempt.end_time.isoformat()
+        }
+    )
+
+
+
+# =========================
+# SUBMIT ASSIGNMENT (AUTO-EVALUATION)
+# =========================
+@login_required
+@login_required
+def submit_assignment(request, assignment_id):
+    assignment = get_object_or_404(Assignment, id=assignment_id)
+
+    attempt = get_object_or_404(
+        StudentAssignment,
+        student=request.user,
+        assignment=assignment
+    )
+
+    if attempt.status == "COMPLETED":
+        return redirect("courses:assignment_result", assignment_id)
+
+    total_score = 0
+    questions = AssignmentQuestion.objects.filter(assignment=assignment)
+
+    for q in questions:
+
+        language = request.POST.get(f"language_{q.id}")
+        code = request.POST.get(f"code_{q.id}")
+
+        if not language or not code:
+            continue
+
+        percentage, feedback = evaluate_code(
+            answer_code=code,
+            expected_solution=q.expected_solution,
+            keywords=q.keywords
+        )
+
+        score = int((percentage / 100) * q.max_marks)
+
+        StudentAnswer.objects.create(
+            student=request.user,
+            assignment=assignment,
+            question=q,
+            programming_language=language,
+            answer_code=code,
+            score=score,
+            feedback=feedback
+        )
+
+        total_score += score
+
+    attempt.score = total_score
+    attempt.status = "COMPLETED"
+    attempt.save()
+
+    return redirect("courses:assignment_result", assignment_id)
+
+
+
+
+# =========================
+# ASSIGNMENT RESULT
+# =========================
+@login_required
+def assignment_result(request, assignment_id):
+    attempt = get_object_or_404(
+        StudentAssignment,
+        student=request.user,
+        assignment_id=assignment_id
+    )
+
+    return render(
+        request,
+        "courses/student/assignment_result.html",
+        {"attempt": attempt}
+    )
+
+
+def evaluate_code(answer_code, expected_solution, keywords):
+    if not answer_code:
+        return 0, "No code submitted."
+
+    code = answer_code.lower()
+    score = 0
+    feedback = []
+
+    # --------------------------------
+    # 1. Keyword Match (20%)
+    # --------------------------------
+    matched = 0
+
+    # Ignore approach-specific keywords
+    ignore_keywords = ["recursion"]
+    usable_keywords = [k for k in keywords if k.lower() not in ignore_keywords]
+
+    for kw in usable_keywords:
+        if kw.lower() in code:
+            matched += 1
+
+    if usable_keywords:
+        keyword_score = (matched / len(usable_keywords)) * 20
+        score += keyword_score
+        feedback.append(
+            f"Matched {matched} out of {len(usable_keywords)} keywords."
+        )
+
+    # --------------------------------
+    # 2. Loop Detection (25%)
+    # --------------------------------
+    if "for" in code or "while" in code:
+        score += 25
+        feedback.append("Loop detected.")
+
+    # --------------------------------
+    # 3. Arithmetic Logic (25%)
+    # --------------------------------
+    if "+" in code:
+        score += 25
+        feedback.append("Addition logic detected.")
+
+    # --------------------------------
+    # 4. Variable Updates (15%)
+    # --------------------------------
+    if "=" in code:
+        score += 15
+        feedback.append("Variable update detected.")
+
+    # --------------------------------
+    # 5. Input / Output (15%)
+    # --------------------------------
+    if "print" in code or "system.out" in code:
+        score += 15
+        feedback.append("Output detected.")
+
+    # --------------------------------
+    # Final Percentage
+    # --------------------------------
+    final_percentage = round(score)
+
+    if final_percentage >= 80:
+        feedback.append("Excellent solution.")
+    elif final_percentage >= 50:
+        feedback.append("Good attempt.")
+    else:
+        feedback.append("Needs improvement. Review logic and try again.")
+
+    return final_percentage, " ".join(feedback)
+
+
+
+
+OLLAMA_URL = "http://localhost:11434/api/generate"
+
+@csrf_exempt
+def rag_generate_answer(request):
+
+    if request.method != "POST":
+        return JsonResponse({"error": "Only POST allowed"}, status=400)
+
+    try:
+        data = json.loads(request.body)
+        question = data.get("question", "").strip()
+
+        if not question:
+            return JsonResponse({"error": "Question missing"}, status=400)
+
+        prompt = f"""
+You are a programming tutor.
+For the following question:
+{question}
+Return ONLY valid JSON.
+No explanation.
+No markdown.
+No extra text.
+Format exactly like this:
+{{
+  "expected_solution": "Explain logic in 3 to 5 simple steps.",
+  "keywords": ["k1","k2","k3","k4","k5"]
+}}
+"""
+
+        payload = {
+            "model": "mistral",
+            "prompt": prompt,
+            "stream": False
+        }
+
+        response = requests.post(OLLAMA_URL, json=payload)
+        result = response.json()
+
+        ai_text = result.get("response", "").strip()
+
+        # ------------------------
+        # Extract JSON safely
+        # ------------------------
+        start = ai_text.find("{")
+        end = ai_text.rfind("}") + 1
+        json_text = ai_text[start:end]
+
+        ai_json = json.loads(json_text)
+
+        return JsonResponse(ai_json)
+
+    except Exception as e:
+        print("OLLAMA ERROR:", str(e))
+        return JsonResponse({"error": str(e)}, status=500)

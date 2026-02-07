@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Assignment Result</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+body {
+    background: #f4f6f9;
+}
+
+.result-card {
+    max-width: 540px;
+    margin: auto;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.score-box {
+    font-size: 48px;
+    font-weight: 800;
+    color: #0d6efd;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container py-5">
+
+    <div class="card result-card border-0 p-4 text-center">
+
+        <!-- ICON -->
+        <div class="mb-3" style="font-size:60px;">
+            🎉
+        </div>
+
+        <!-- TITLE -->
+        <h2 class="fw-bold mb-2">Assignment Completed</h2>
+        <p class="text-muted mb-4">
+            Your submission has been evaluated
+        </p>
+
+        <!-- SCORE -->
+        <div class="mb-4">
+            <div class="score-box">
+                <h4>Score: {{ attempt.score }} %</h4>
+            </div>
+            <div class="text-muted">Total Score</div>
+        </div>
+
+        <!-- STATUS -->
+        <div class="mb-4">
+            {% if attempt.status == "COMPLETED" %}
+                <span class="badge bg-success px-4 py-2">
+                    COMPLETED
+                </span>
+            {% else %}
+                <span class="badge bg-warning px-4 py-2">
+                    IN PROGRESS
+                </span>
+            {% endif %}
+        </div>
+
+        <!-- ACTION -->
+        <a href="{% url 'student:my_courses' %}"
+           class="btn btn-primary btn-lg px-5 rounded-pill shadow-sm">
+            ⬅ Back to My Courses
+        </a>
+
+    </div>
+
+</div>
+
+</body>
+</html>

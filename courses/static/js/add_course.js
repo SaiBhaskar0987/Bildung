@@ -7,6 +7,23 @@ document.addEventListener("DOMContentLoaded", () => {
     enableDragMenu();
 });
 
+
+/* =========================
+   CSRF
+========================= */
+function getCSRFToken() {
+    const name = "csrftoken=";
+    const cookies = document.cookie.split(";");
+
+    for (let c of cookies) {
+        c = c.trim();
+        if (c.startsWith(name)) {
+            return c.substring(name.length);
+        }
+    }
+    return "";
+}
+
 function renderStructure() {
     const row = document.getElementById("topRow");
     if (!row) return;
@@ -46,9 +63,14 @@ function blockHTML(item, index) {
             <div class="card-title">${item.display_title}</div>
 
             <div class="card-actions">
-                ${item.type === "Module" ? `
-                    <button class="open-module-btn" onclick="openModule(${index})">Open</button>
-                ` : ""}
+                ${item.type === "Module"
+                    ? `<button class="open-module-btn" onclick="openModule(${index})">Edit</button>`
+                    : ""
+                }
+                ${item.type === "Assignment"
+                    ? `<button class="open-module-btn" onclick="openAssignment(${index})">Edit</button>`
+                    : ""
+                }
 
                 ${item.type === "Quiz" ? `
                     <button class="open-module-btn" onclick="openQuiz(${index})">Open</button>
@@ -133,7 +155,11 @@ function openModule(index) {
     if (!item.module_id) {
         fetch(`/accounts/instructor/module/create/`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+             headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": getCSRFToken()
+            },
+            credentials: "same-origin",
             body: JSON.stringify({ course_id: courseId })
         })
         .then(r => r.json())
@@ -175,6 +201,47 @@ function openQuiz(index) {
     });
 }
 
+/* =========================
+   ASSIGNMENT
+========================= */
+function openAssignment(index) {
+    const item = structure[index];
+
+    if (!courseId) {
+        alert("Please save the course first!");
+        return;
+    }
+
+    if (!item.assignment_id) {
+        fetch(`/accounts/instructor/assignment/create/`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": getCSRFToken()
+            },
+            credentials: "same-origin",
+            body: JSON.stringify({
+                course_id: courseId,
+                sort_order: index
+            })
+        })
+        .then(r => r.json())
+        .then(data => {
+            structure[index].assignment_id = data.assignment_id;
+
+            saveCourse(() => {
+                window.location.href =
+                    `/accounts/instructor/courses/${courseId}/assignment/${data.assignment_id}/edit/`;
+            });
+        });
+        return;
+    }
+
+    saveCourse(() => {
+        window.location.href =
+            `/accounts/instructor/courses/${courseId}/assignment/${item.assignment_id}/edit/`;
+    });
+}
 
 function saveCourse(callback = null) {
     const level = document.getElementById("courseLevel").value;
@@ -195,16 +262,27 @@ function saveCourse(callback = null) {
 
     fetch(`/accounts/instructor/save/`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCSRFToken()
+        },
+        credentials: "same-origin",
         body: JSON.stringify(payload)
     })
-    .then(r => r.json())
+    .then(res => {
+        if (!res.ok) throw new Error("Save failed");
+        return res.json();
+    })
     .then(data => {
         courseId = data.course_id;
         structure = data.structure;
 
         if (callback) callback();
         else alert("Course Saved!");
+        })
+    .catch(err => {
+        console.error(err);
+        alert("Save failed — check server logs");
     });
 }
 

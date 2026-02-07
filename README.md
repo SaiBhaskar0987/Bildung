@@ -288,25 +288,18 @@ BILDUNG/
 └── README.md                      # Project documentation
 
 
-⚙️ Step-by-Step Setup Guide
+⚙️ Setup guidelines for bildung
 
-
-1️⃣ Clone the Repository
-
-
-git clone https://github.com/SaiBhaskar0987/Bildung.git
-
-cd bildung
-
+1️⃣ Clone the Repository(VS code terminal or git bash or CMD)
+    - git clone https://github.com/SaiBhaskar0987/Bildung.git
+    - cd bildung
 
 2️⃣ Create Virtual Environment
-
-
-Windows
-
-python -m venv .venv
-
-.venv\Scripts\activate
+    Windows(VSCode):
+    Creating Virtual Environment:
+        - python -m venv .venv
+    Activating Virtual Environment:
+        - .venv\Scripts\activate
 
 
 macOS / Linux
@@ -317,69 +310,76 @@ source .venv/bin/activate
 
 
 3️⃣ Install Python Dependencies
-
-
-pip install --upgrade pip
-
-pip install -r requirements.txt
-
+    - pip install -r requirements.txt
 
 4️⃣ Install System Dependencies
 
-
 🔹 FFmpeg (Required for Whisper)
-
-Windows
-
-Download from https://ffmpeg.org/download.html
-
-Extract (e.g. C:\ffmpeg)
-
-Add C:\ffmpeg\bin to System PATH
-
-Verify:
-
-ffmpeg -version
-
-
-macOS
-
-brew install ffmpeg
-
-
-Linux
-
-sudo apt install ffmpeg
-
+    Windows 
+    1. Download from the url: https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip
+    2. Extract the zip folder, copy the bin path
+    3. Add your bin path to environment variables, system variables, path
+    4. New -> paste your path -> ok
+    5. Verify you ffmpeg enabled correctly:
+            - Go to cmd(Command Prompt)
+            - type ffmpeg -version
 
 5️⃣  Environment Variables
+    Create a .env file in the project root:
+    Copy the below text and paste in .env
+        API_KEY = paste your secret key here
+    ⚠️ Note: Never commit .env to GitHub.
 
-Create a .env file in the project root:
+6️⃣ Database Setup (MySQL):
+    1. Go to core/settings.py.
+    2. Go to DATABASES variable, update your database user and password.
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.mysql',
+                'NAME': 'bildung_db',
+                'USER': 'your_user_name',         # change with your MYSQL username
+                'PASSWORD': 'your_mysql_password', # change with your MYSQL password
+                'HOST': 'localhost',
+                'PORT': '3306',
+                'OPTIONS': {
+                    'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+                },
+            }
+        }
 
-OPENAI_API_KEY=your_openai_api_key
-
-⚠️ Never commit .env to GitHub.
-
-
-6️⃣ Database Setup (MySQL)
-
-Django Configuration in settings.py
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'bildung_db',
-        'USER': 'root',         # change with your MYSQL username
-        'PASSWORD': 'your_mysql_password', 
-        'HOST': 'localhost',
-        'PORT': '3306',
-        'OPTIONS': {
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
-        },
-    }
-}
-
-
+7️⃣ ⚙️ Google OAuth Setup:
+    1. Create Google OAuth Credentials
+        - https://console.cloud.google.com/
+    2. Click on select project -> New project (or select an existing one)
+         Enter Project_Name
+         Organisation(Depends on you)
+    3. Go to APIs & Services -> OAuth Consent Screen
+        Get started -> Fill you project details
+            - App Information
+            - Audience: External
+            - Contact Information
+            - Finish -> Create
+    4. Go home -> APIs & Services -> Credientials -> Create Credientials -> Outh client id
+        1. Application type: Web application
+        2. Add belo url in Authoriseed Javascript Origin's
+        ⚠️ Note: This must match exactly or Google login will fail.
+            - http://127.0.0.1:8000/
+        3. Add below urls in Authorised Redirect URL's
+        ⚠️ Note: This must match exactly or Google login will fail.
+            - http://127.0.0.1:8000/complete/google-oauth2/
+            - http://127.0.0.1:8000/login/google-oauth2/
+        4. Press create
+        5. Copy your Client ID and Client Secret
+        **For production**:
+            for production follow the same above steps with your new url's.
+            Ex: https://your-domain.com/complete/google-oauth2/
+    5. Go back to your app(Bildung):
+        Go to core/settings.py,
+            Update you Client ID and Clent Secret at below variables.
+                    SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = 'your_google_client_id'
+                    SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'your_google_client_secret'
+        
+8️⃣ 
 In mysql shell, run
 
 CREATE DATABASE bildung_db;
@@ -392,103 +392,6 @@ python manage.py migrate
 
 python manage.py createsuperuser
 
-
-
-7️⃣ ⚙️ Google OAuth Setup
-
-1️⃣ Create Google OAuth Credentials
-
-1. Go to Google Cloud Console
-   👉 https://console.cloud.google.com/
-
-2. Create a new project (or select an existing one)
-
-3. Configure OAuth Consent Screen
-
-   User Type: External
-
-   Scopes:
-    email
-    profile
-
-   Add test users (for development)
-
-4. Go to APIs & Services → Credentials
-
-5. Click Create Credentials → OAuth Client ID
-
-6. Choose Web Application
-
-
-2️⃣ Configure Authorized Redirect URI
-
-Add this redirect URI in Google Console:
-
-http://127.0.0.1:8000/complete/google-oauth2/
-
-⚠️ This must match exactly or Google login will fail.
-
-For production:
-
-https://your-domain.com/complete/google-oauth2/
-
- 
-3️⃣ Django Configuration 
-
-
-INSTALLED_APPS += [
-    'django.contrib.sites',
-    'social_django',
-]
-
-AUTHENTICATION_BACKENDS = (
-    'social_core.backends.google.GoogleOAuth2',
-    'django.contrib.auth.backends.ModelBackend',
-)
-
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY=your_google_client_id
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET=your_google_client_secret
-SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = ['email', 'profile']
-
-SOCIAL_AUTH_GOOGLE_OAUTH2_AUTH_EXTRA_ARGUMENTS = {
-    'prompt': 'select_account',
-    'access_type': 'offline',
-}
-
-SITE_ID = 1
-
-4️⃣ Authentication Flow
-
-User clicks "Continue with Google"
-   ↓
-Redirected to Google OAuth
-   ↓
-User grants permission
-   ↓
-Google returns profile data
-   ↓
-User is created or authenticated
-   ↓
-Redirected to dashboard
-
-
-Existing users are matched by email
-
-Duplicate accounts are prevented
-
-Instructor login still respects email verification rules
-
-🔒 Security Notes
-
-OAuth tokens are handled server-side only
-
-Secrets must be stored in .env
-
-.env, media/, and rag_cache/ must never be committed
-
-Google login users are mapped to the internal User model
-
-🧪 Testing Google Login (Local)
 
 Start Django:
 

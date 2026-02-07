@@ -367,7 +367,7 @@ source .venv/bin/activate
             - Finish -> Create
     4. Go home -> APIs & Services -> Credientials -> Create Credientials -> Outh client id
         1. Application type: Web application
-        2. Add belo url in Authoriseed Javascript Origin's
+        2. Add below url in Authoriseed Javascript Origin's
         ⚠️ Note: This must match exactly or Google login will fail.
             - http://127.0.0.1:8000/
         3. Add below urls in Authorised Redirect URL's
@@ -385,61 +385,25 @@ source .venv/bin/activate
                     SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = 'your_google_client_id'
                     SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'your_google_client_secret'
         
-8️⃣ 
-In mysql shell, run
+8️⃣ Run the Django Server:
 
-CREATE DATABASE bildung_db;
+    Go to Vscode terminal ans paste the below commands:
+    - python manage.py makemigrations
+    - python manage.py migrate
+    - python manage.py runserver
 
-Then run:
+If you want to check admin status:
 
-python manage.py makemigrations
-
-python manage.py migrate
-
-python manage.py createsuperuser
-
-
-Start Django:
-
-python manage.py runserver
+    - python manage.py createsuperuser
 
 
 Visit:
-
-http://127.0.0.1:8000/login/
-
-
-Click Continue with Google
-
-Select your Google account
+    
+    http://127.0.0.1:8000/
 
 
-8️⃣ Required Directories
+Start Exploring
 
-
-Ensure these directories exist:
-
-mkdir -p media/lectures/videos
-
-mkdir -p media/lectures/files
-
-mkdir rag_cache
-
-
-NOTE - rag_cache/ is auto-generated and must not be committed.
-
-
-
-▶️ Running the Project
-
-
-🔹 Start the Application (Django + FastAPI + AI)
-
-python manage.py runserver
-
-Runs everything on:
-
-http://127.0.0.1:8000/
 
 
 🔹 Available Services

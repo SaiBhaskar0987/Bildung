@@ -291,10 +291,12 @@ BILDUNG/
 ⚙️ Setup guidelines for bildung
 
 1️⃣ Clone the Repository(VS code terminal or git bash or CMD)
+
     - git clone https://github.com/SaiBhaskar0987/Bildung.git
     - cd bildung
 
 2️⃣ Create Virtual Environment
+
     Windows(VSCode):
     Creating Virtual Environment:
         - python -m venv .venv
@@ -310,11 +312,12 @@ source .venv/bin/activate
 
 
 3️⃣ Install Python Dependencies
+
     - pip install -r requirements.txt
 
 4️⃣ Install System Dependencies
 
-🔹 FFmpeg (Required for Whisper)
+    FFmpeg (Required for Whisper)
     Windows 
     1. Download from the url: https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip
     2. Extract the zip folder, copy the bin path
@@ -325,12 +328,14 @@ source .venv/bin/activate
             - type ffmpeg -version
 
 5️⃣  Environment Variables
+
     Create a .env file in the project root:
     Copy the below text and paste in .env
         API_KEY = paste your secret key here
     ⚠️ Note: Never commit .env to GitHub.
 
 6️⃣ Database Setup (MySQL):
+
     1. Go to core/settings.py.
     2. Go to DATABASES variable, update your database user and password.
         DATABASES = {
@@ -348,6 +353,7 @@ source .venv/bin/activate
         }
 
 7️⃣ ⚙️ Google OAuth Setup:
+
     1. Create Google OAuth Credentials
         - https://console.cloud.google.com/
     2. Click on select project -> New project (or select an existing one)

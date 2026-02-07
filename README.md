@@ -11,7 +11,7 @@ The platform supports instructors and students, structured courses, modules, qui
 👨‍🏫 Instructor
 
 
-    Instructor signup with email or Google login
+    - Instructor signup with email or Google login
 
     Email verification for instructors
 

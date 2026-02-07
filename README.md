@@ -523,20 +523,23 @@ NOTE - rag_cache/ is auto-generated and must not be committed.
 ▶️ Running the Project
 
 
-🔹 Start Django Server
+🔹 Start the Application (Django + FastAPI + AI)
 
 python manage.py runserver
 
-Runs at:
+Runs everything on:
+
 http://127.0.0.1:8000/
 
 
-🔹 Start FastAPI (RAG + Whisper)
+🔹 Available Services
 
-uvicorn fastapi_app.config:app --reload --port 8001
-
-Runs at:
-http://127.0.0.1:8001/
+| Service                | URL                                                 |
+| ---------------------- | --------------------------------------------------- |
+| Django Web App         | `http://127.0.0.1:8000/`                            |
+| AI Assistant           | `http://127.0.0.1:8000/api/ai/ask`                  |
+| AI Quiz Generation     | `http://127.0.0.1:8000/api/quiz/{quiz_id}/generate` |
+| FastAPI Docs           | `http://127.0.0.1:8000/api/docs`                    |
 
 
 🧠 RAG Workflow

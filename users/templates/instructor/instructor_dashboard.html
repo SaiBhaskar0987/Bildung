@@ -340,6 +340,13 @@
             document.body.removeChild(tempMsg);
         }, 3000);
     }
+    
+    function getCSRFToken() {
+        return document.cookie
+        .split("; ")
+        .find(row => row.startsWith("csrftoken="))
+        ?.split("=")[1];
+    }
 
     function cleanupExpiredNotes() {
         const saved = localStorage.getItem(NOTEPAD_CONFIG.STORAGE_KEY);
@@ -381,13 +388,17 @@
 
         try {
 
-            const response = await fetch("http://127.0.0.1:8001/ai/ask", {
-                method: 'POST',
+            const response = await fetch("/api/ai/ask", {
+                method: "POST",
                 headers: {
-                    'Content-Type': 'application/json',
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": getCSRFToken()
                 },
-                body: JSON.stringify({ question: input.value }),
-            });
+                body: JSON.stringify({
+                question: input.value
+            }),
+        });
+
 
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);

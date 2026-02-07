@@ -337,6 +337,14 @@ function filterCategory(button) {
 </script>
 
 <script>
+
+    function getCSRFToken() {
+        return document.cookie
+        .split("; ")
+        .find(row => row.startsWith("csrftoken="))
+        ?.split("=")[1];
+    }
+
     function toggleAIChat() {
         const box = document.getElementById("aiChatBox");
         box.style.display = (box.style.display === "flex") ? "none" : "flex";
@@ -364,13 +372,17 @@ function filterCategory(button) {
 
         try {
 
-            const response = await fetch("http://127.0.0.1:8001/ai/ask", {
-                method: 'POST',
+            const response = await fetch("/api/ai/ask", {
+                method: "POST",
                 headers: {
-                    'Content-Type': 'application/json',
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": getCSRFToken()
                 },
-                body: JSON.stringify({ question: input.value }),
+                body: JSON.stringify({
+                    question: input.value
+                }),
             });
+
 
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);

@@ -24,6 +24,13 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
+function getCSRFToken() {
+  return document.cookie
+    .split("; ")
+    .find(row => row.startsWith("csrftoken="))
+    ?.split("=")[1];
+}
+
 function selectQuizMode(mode) {
   QUIZ_MODE = mode;
   applyQuizMode(mode);
@@ -59,31 +66,44 @@ function confirmScopeAndGenerate() {
 function generateAIQuestions() {
   let count = parseInt(questionCount.value) || 5;
 
-  QUESTION_SOURCE = document.getElementById("question_source").value;
+  const QUESTION_SOURCE = document.getElementById("question_source").value;
 
   aiStatus.innerText = "⏳ Generating questions...";
+
   fetch(
-    `http://127.0.0.1:8001/quiz/${QUIZ_ID}/generate` +
+    `/api/quiz/${QUIZ_ID}/generate` +
     `?scope=${QUIZ_SCOPE}&source=${QUESTION_SOURCE}&mode=auto`,
-   {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ num_questions: count })
-   })
-  .then(res => res.json())
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": getCSRFToken(),   
+      },
+      body: JSON.stringify({ num_questions: count })
+    }
+  )
+  .then(res => {
+    if (!res.ok) throw new Error("API error");
+    return res.json();
+  })
   .then(data => {
     if (!Array.isArray(data.questions) || data.questions.length === 0) {
       aiStatus.innerText = "⚠️ No questions generated";
       return;
     }
+
     data.questions.forEach(q => {
       q.source = "ai";
       ALL_QUESTIONS.push(q);
     });
+
     renderAllQuestions();
     aiStatus.innerText = `✅ ${data.questions.length} questions generated`;
   })
-  .catch(() => aiStatus.innerText = "❌ Failed to generate questions");
+  .catch(err => {
+    console.error(err);
+    aiStatus.innerText = "❌ Failed to generate questions";
+  });
 }
 
 

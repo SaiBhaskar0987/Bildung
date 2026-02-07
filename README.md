@@ -117,7 +117,7 @@ Conversational AI powered by retrieved course content
 | -------- | ----------------------------------------- |
 | Backend  | Django 5.2+, FastAPI                      |
 | Database | MySQL                                     |
-| AI       | OpenAI/Ollama, DSPy, RAG, Whisper       |
+| AI       | OpenAI/Ollama, DSPy, RAG, Whisper         |
 | Auth     | Django Auth, Google OAuth (social_django) |
 | Frontend | HTML, CSS, Bootstrap, JavaScript          |
 | Media    | FFmpeg                                    |
@@ -130,8 +130,9 @@ Conversational AI powered by retrieved course content
 
 BILDUNG/
 
-│
-
+|
+|
+|
 ├── .venv/                         # Python virtual environment
 
 │

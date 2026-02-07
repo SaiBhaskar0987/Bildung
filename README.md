@@ -294,7 +294,7 @@ BILDUNG/
 1️⃣ Clone the Repository
 
 
-git clone https://github.com/your-username/bildung.git
+git clone https://github.com/SaiBhaskar0987/Bildung.git
 
 cd bildung
 

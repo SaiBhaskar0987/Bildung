@@ -193,30 +193,28 @@ def confirm_password_change(request, token):
 
 @login_required
 def profile_view_or_edit(request, mode=None):
-    try:
-        profile = request.user.profile
-    except Profile.DoesNotExist:
-        profile = Profile.objects.create(user=request.user)
+    profile, created = Profile.objects.get_or_create(user=request.user)
 
     is_editing = (mode == 'edit')
 
     if request.method == 'POST' and is_editing:
         profile_form = ProfileForm(request.POST, request.FILES, instance=profile)
-        user_form = UserDisplayForm(request.POST, instance=request.user) 
+        user_form = UserDisplayForm(request.POST, instance=request.user)
 
-        if profile_form.is_valid():
+        if profile_form.is_valid() and user_form.is_valid():
+            user_form.save()
             profile_form.save()
             messages.success(request, "Profile updated successfully!")
-            return redirect('profile_view') 
-        
+            return redirect('profile_view')
+
     else:
-        user_form = UserDisplayForm(instance=request.user)
         profile_form = ProfileForm(instance=profile)
+        user_form = UserDisplayForm(instance=request.user)
 
     context = {
         'profile': profile,
-        'user_form': user_form,       
-        'profile_form': profile_form, 
+        'profile_form': profile_form,
+        'user_form': user_form,
         'is_editing': is_editing,
     }
     return render(request, 'student/student_profile.html', context)
@@ -645,35 +643,9 @@ def instructor_account_settings(request):
 
     user = request.user
 
-    profile, created = InstructorProfile.objects.get_or_create(user=user)
-
     if request.method == 'POST':
 
-        if 'update_profile' in request.POST:
-            user.first_name = request.POST.get('first_name', user.first_name)
-            user.last_name = request.POST.get('last_name', user.last_name)
-            user.email = request.POST.get('email', user.email)
-            user.save()
-
-            profile.phone = request.POST.get('phone', profile.phone)
-            profile.about_me = request.POST.get('about_me', profile.about_me)
-            profile.professional_title = request.POST.get('professional_title', profile.professional_title)
-            profile.expertise = request.POST.get('expertise', profile.expertise)
-            exp = request.POST.get('experience')
-            profile.experience = int(exp) if exp.isdigit() else None
-            profile.gender = request.POST.get('gender', profile.gender)
-            profile.date_of_birth = request.POST.get('date_of_birth', profile.date_of_birth)
-            profile.qualification = request.POST.get('qualification', profile.qualification)
-
-            if 'profile_picture' in request.FILES:
-                profile.profile_picture = request.FILES['profile_picture']
-
-            profile.save()
-
-            messages.success(request, "Profile updated successfully!")
-            return redirect('instructor_account_settings')
-
-        elif 'change_password' in request.POST:
+        if 'change_password' in request.POST:
             old_password = request.POST.get('old_password')
             new_password1 = request.POST.get('new_password1')
             new_password2 = request.POST.get('new_password2')
@@ -703,8 +675,8 @@ def instructor_account_settings(request):
 
     return render(request, 'instructor/instructor_account_settings.html', {
         'user': user,
-        'profile': profile,
     })
+
 
 @login_required(login_url="/auth/")
 def admin_dashboard(request):

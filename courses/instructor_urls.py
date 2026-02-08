@@ -25,6 +25,8 @@ urlpatterns = [
     path("question/<int:question_id>/reply/", views.add_reply, name="add_reply"),
     path("reply/<int:reply_id>/edit/", views.edit_reply, name="edit_reply"),
     path("reply/<int:reply_id>/delete/", views.delete_reply, name="delete_reply"),
+    path("instructor/<int:course_id>/qna/", views.instructor_qna, name="instructor_qna"),
+
     path("course/<int:course_id>/overview/", views.course_overview, name="course_overview"),
     path("course/<int:course_id>/student/<int:student_id>/history/",views.student_history, name="student_history"),
 

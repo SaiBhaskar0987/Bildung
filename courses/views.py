@@ -121,7 +121,8 @@ def enroll_course(request, course_id):
     Notification.objects.create(
         user=request.user,
         message=f"You have successfully enrolled in {course.title}.",
-        url=f"/accounts/student/course/{course.id}/"
+        url=f"/accounts/student/my-courses/"
+        
     )
 
     messages.success(request, f"Enrolled in {course.title}")

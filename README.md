@@ -1,139 +1,76 @@
 📚 Bildung – AI-Powered E-Learning Platform
 
-Bildung is a full-stack e-learning platform that combines Django for core application logic and FastAPI for AI-powered features such as quiz generation, an AI learning chatbot using RAG (Retrieval-Augmented Generation).
-
-The platform supports instructors and students, structured courses, modules, quizzes, assessments, video/PDF content, dashboards, and personalized recommendations and conversational AI assistance.
+    Bildung is a full-stack e-learning platform that combines Django for core application logic and FastAPI for AI-powered features such as quiz generation, an AI learning chatbot using RAG (Retrieval-Augmented Generation).
+    
+    The platform supports instructors and students, structured courses, modules, quizzes, assessments, video/PDF content, dashboards, and personalized recommendations and conversational AI assistance.
 
 
 🚀 Features:
 
-
 👨‍🏫 Instructor
 
-
-    - Instructor signup with email or Google login
-
-    Email verification for instructors
-
-Course creation & editing
-
-Course builder:
-
-Modules
-
-Quizzes
-
-Assessments
-
-Live Classes
-
-Upload video \& PDF lectures
-
-Publish courses
-
-Instructor dashboard
+    Instructors can sign up using email or Google, verify their accounts, and create, edit, and publish courses using a structured course builder with modules, quizzes, assessments, live classes, and video/PDF lectures. A dedicated instructor dashboard helps manage courses and track overall teaching activity.
 
 
 👨‍🎓 Student
 
-
-Student signup with email or Google login
-
-Email verification for students
-
-Student dashboard
-
-Course enrollment
-
-Course progress tracking
-
-Personalized course recommendations
-
-AI-generated and manual quizzes
-
-Assessments with AI evaluation
-
-AI chatbot for doubt clarification and learning assistance
-
-Course completion certificates
+    Students can register via email or Google, verify their accounts, enroll in courses, and track their learning progress through a personalized dashboard. The platform offers AI-generated and manual quizzes, assessments, an AI chatbot for learning support, personalized recommendations, and course completion certificates.
 
 
 🔐 Authentication & Google OAuth (Google Login)
 
+    Bildung supports secure authentication using:
 
-Bildung supports secure authentication using:
+    Email & password login
 
-Email & password login
+    Email verification (for instructors and students)
 
-Email verification (for instructors and students)
+    Google OAuth 2.0 login using social_django
 
-Google OAuth 2.0 login using social_django
-
-This allows users to sign up or log in using their Google account.
+    This allows users to sign up or log in using their Google account.
 
 🧩 Authentication Stack
 
-Django Authentication
+    Django Authentication
 
-Custom User Model (users.User)
+    Custom User Model (users.User)
 
-Google OAuth 2.0 via social_django
-
-🔹 Supported Login Methods
-
-Email & password
-
-Google OAuth (Social Login)
-
-Supported roles:
-
-Student
-
-Instructor
+    Google OAuth 2.0 via social_django
 
 
-🤖 AI / RAG / Chatbot
+🤖 AI
 
+    AI Chatbot for interactive learning support
 
-AI Chatbot for interactive learning support
+    Video → text transcription using Whisper
 
-Video → text transcription using Whisper
+    PDF content ingestion
 
-PDF content ingestion
+    Vector store–based retrieval
 
-Vector store–based retrieval
+    Context-aware quiz generation
 
-Context-aware quiz generation
+    Cached embeddings for fast regeneration
 
-Cached embeddings for fast regeneration
-
-Conversational AI powered by retrieved course content
+    Conversational AI powered by retrieved course content
 
 
 🧱 Tech Stack
-
 
 | Layer    | Technology                                |
 | -------- | ----------------------------------------- |
 | Backend  | Django 5.2+, FastAPI                      |
 | Database | MySQL                                     |
-| AI       | OpenAI/Ollama, DSPy, RAG, Whisper         |
+| AI       | OpenAI, Whisper                           |
 | Auth     | Django Auth, Google OAuth (social_django) |
 | Frontend | HTML, CSS, Bootstrap, JavaScript          |
 | Media    | FFmpeg                                    |
 | Language | Python 3.10+ (tested on 3.13)             |
 
 
-
 📁 Project Structure
 
-
 BILDUNG/
-
-|
-|
-|
-├── .venv/                         # Python virtual environment
 
 │
 
@@ -155,25 +92,21 @@ BILDUNG/
 
 │   └── utils/                     # Shared utilities/helpers
 
-│
+├── users/                         # Authentication & user management
 
-├── users/                         # Authentication \& user management
-
-│
-
-├── courses/                       # Course \& learning management
+├── courses/                       # Course & learning management
 
 │   ├── migrations/
 
-│   ├── services/                  # Course business logic \& helpers
+│   ├── services/                  # Course business logic & helpers
 
 │   ├── static/                    # JS/CSS for course builder
 
-│   ├── templates/                 # Course, instructor \& student templates
+│   ├── templates/                 # Course, instructor & student templates
 
 │   ├── models.py                  # domain driven models
 
-│   ├── views.py                   # Course CRUD \& dashboards
+│   ├── views.py                   # Course CRUD & dashboards
 
 │   ├── instructor_urls.py         # Instructor-specific routes
 
@@ -189,23 +122,13 @@ BILDUNG/
 
 │   └── admin.py                   # Admin registrations
 
-│
-
-├── quizzes/                       # Quiz UI \& attempt handling (Django)
-
-│
+├── quizzes/                       # Quiz UI & attempt handling (Django)
 
 ├── chat/                          # AI Chatbot (Django side)
 
-│
-
 ├── forums/                        # Course discussion forums
 
-│
-
-├── home/                          # Public \& landing pages
-
-│
+├── home/                          # Public & landing pages
 
 ├── fastapi_app/                   # AI services (FastAPI)
 
@@ -217,8 +140,6 @@ BILDUNG/
 
 │   ├── dependencies.py            # Dependency injection
 
-│   │
-
 │   ├── routes/                    # API endpoints
 
 │   │   ├── ai_assist.py            # AI chatbot endpoints
@@ -226,8 +147,6 @@ BILDUNG/
 │   │   ├── quiz_rag.py             # AI quiz generation endpoints
 
 │   │   └── quiz.py.py             
-
-│   │
 
 │   ├── rag/                       # RAG implementation
 
@@ -239,21 +158,15 @@ BILDUNG/
 
 │   │   └── chunking.py             # Text chunking logic
 
-│   │
-
 │   ├── services/                    # AI service layer
 
 │   │   ├── quiz_access.py          # quiz accessible lectures
 
 │   │   └── rag_agent.py            # LLM calls & prompts for ai assist
 
-│   │
-
 │   └── models/                    # Request/response schemas
 
-│
-
-├── media/                         # Uploaded \& generated files
+├── media/                         # Uploaded & generated files
 
 │   ├── lectures/
 
@@ -265,27 +178,58 @@ BILDUNG/
 
 │   └── resumes/                   # Uploaded resumes (if enabled)
 
-│
-
 ├── rag_cache/                     # Cached vector stores (auto-generated)
 
-│
-
-├── .env                           # Environment variables (ignored)
-
-├── .gitignore
+├── .env                           # Environment variables
 
 ├── manage.py                      # Django entry point
 
 ├── requirements.txt               # Python dependencies
 
-├── pyproject.toml                 # Tooling \& project metadata
+├── pyproject.toml                 # Tooling & project metadata
 
 ├── urls.py                        # Root URL mapping (project-level)
 
 ├── uv_setup.md                    # Uvicorn / FastAPI setup notes
 
 └── README.md                      # Project documentation
+
+📋 Prerequisites
+
+    To run this project in Visual Studio Code, ensure that Python 3.11 or higher is installed on your system and accessible from the power shell. A package manager (pip) must be available, which is included with standard Python installations.
+
+    The project requires Git to clone the repository and manage source control. For database functionality, a running MySQL server is required with valid credentials.
+
+    verify that Python 3.11 or higher is installed and accessible
+        run the following command in VS code terminal:
+            - python --version
+
+    🔑 Generate an OpenAI API Key
+
+    To enable AI features such as quiz generation and the AI learning chatbot, you must create an OpenAI API key.
+
+    Step 1: Visit OpenAI Platform
+
+        Open the official OpenAI website:
+        👉 https://platform.openai.com/
+
+    Step 2: Sign In or Create an Account
+
+        Log in using your email, Google, or Microsoft account.
+        If you don’t have an account, complete the signup process.
+
+    Step 3: Open the API Keys Page
+
+        After logging in, go directly to the API Keys section:
+        👉 https://platform.openai.com/api-keys
+
+    Step 4: Create a New Secret Key
+
+        Click “Create new secret key”.
+        A new API key will be generated instantly.
+
+    ⚠️ Important: Copy the key immediately and store it securely.
+    You won’t be able to see this key again after closing the dialog.
 
 
 ⚙️ Setup guidelines for bildung
@@ -303,13 +247,11 @@ BILDUNG/
     Activating Virtual Environment:
         - .venv\Scripts\activate
 
-
-macOS / Linux
-
-python3 -m venv .venv
-
-source .venv/bin/activate
-
+    macOS / Linux
+    Creating Virtual Environment:
+        - python3 -m venv .venv
+    Activating Virtual Environment:
+        - source .venv/bin/activate
 
 3️⃣ Install Python Dependencies
 
@@ -325,7 +267,10 @@ source .venv/bin/activate
     4. New -> paste your path -> ok
     5. Verify you ffmpeg enabled correctly:
             - Go to cmd(Command Prompt)
-            - type ffmpeg -version
+            - Type command - 'ffmpeg -version'
+            - Then you will see the content same as in the attached image
+
+            ![ffmpeg](media/ffmpeg_verification.png)
 
 5️⃣  Environment Variables
 
@@ -333,6 +278,7 @@ source .venv/bin/activate
     Copy the below text and paste in .env
         API_KEY = paste your secret key here
     ⚠️ Note: Never commit .env to GitHub.
+
 
 6️⃣ Database Setup (MySQL):
 
@@ -388,23 +334,21 @@ source .venv/bin/activate
 8️⃣ Run the Django Server:
 
     Go to Vscode terminal ans paste the below commands:
+
     - python manage.py makemigrations
     - python manage.py migrate
     - python manage.py runserver
 
-If you want to check admin status:
+    If you want to check admin status:
 
     - python manage.py createsuperuser
 
-
-Visit:
+    Visit:
     
     http://127.0.0.1:8000/
 
 
 Start Exploring
-
-
 
 🔹 Available Services
 
@@ -418,301 +362,253 @@ Start Exploring
 
 🧠 RAG Workflow
 
-
-Video / PDF
-  
-    ↓
-
-Whisper (video → text)
-
-    ↓
-
-Text Chunking
-
-    ↓
-
-Embeddings
-
-    ↓
-
-Vector Store (cached)
-
-    ↓
-
-Context Retrieval
-
-    ↓
-
-AI Response / Quiz
+    Video / PDF
+         ↓
+    Whisper (video → text)
+         ↓
+    Text Chunking
+         ↓
+    Embeddings
+         ↓
+    Vector Store (cached)
+         ↓
+    Context Retrieval
+         ↓
+    AI Response / Quiz
 
 
 📡 Quiz Generation API
 
+    Endpoint: 
+    POST /quiz/{quiz_id}/generate
 
-Endpoint
+    ┌───────┬────────────────────┐
+    │ Param │ Value              │
+    ├───────┼────────────────────┤
+    │ scope │ all_before         │
+    │ source│ video / pdf / both │
+    │ mode  │ auto               │
+    └───────┴────────────────────┘
 
-POST /quiz/{quiz_id}/generate
-
-
-| Param  | Value              |
-
-| ------ | ------------------ |
-
-| scope  | all_before         |
-
-| source | video / pdf / both |
-
-| mode   | auto               |
-
-
-Example
-
-POST /quiz/5/generate?scope=all_before\&source=both\&mode=auto
+    Example:
+    POST /quiz/5/generate?scope=all_before\&source=both\&mode=auto
 
 
 📡 AI Assist API
+    
+    Endpoint: 
+    POST /ai/ask
 
-POST /ai/ask
+    Request
+    {
+    "question": "How do I enroll in a course?"
+    }
 
-Request
-{
-  "question": "How do I enroll in a course?"
-}
-
-Response
-{
-  "answer": "To enroll, open the course page and click Enroll.",
-  "category": "platform",
-  "context_used": true
-}
+    Response
+    {
+    "answer": "To enroll, open the course page and click Enroll.",
+    "category": "platform",
+    "context_used": true
+    }
 
 
 🧠 RAG Cache
 
+    Vector stores cached in rag_cache/
 
-Vector stores cached in rag_cache/
+    Filenames sanitized for Windows compatibility
 
-Filenames sanitized for Windows compatibility
+    Clear cache if lecture content changes:
 
-Clear cache if lecture content changes:
-
-rm -rf rag_cache
+    - rm -rf rag_cache
 
 
 🛠️ Common Issues & Fixes
 
-
-| Issue                        | Fix                           |
-
-| ---------------------------- | ----------------------------- |
-
-| ffmpeg not found             | Add FFmpeg to PATH            |
-
-| Invalid argument `rag_cache` | Filename sanitization enabled |
-
-| Slow AI response             | Whisper running on CPU        |
-
-| Chatbot incorrect answers    | Clear RAG cache               |
+    ┌──────────────────────┬──────────────────────────┐
+    │ Issue                │ Fix                      │
+    ├──────────────────────┼──────────────────────────┤
+    │ ffmpeg not found     │ Add FFmpeg to PATH       │
+    │ Invalid rag_cache    │ Enable filename sanitize │
+    │ Slow AI response     │ Whisper on CPU           │
+    │ Wrong chatbot answer │ Clear RAG cache          │
+    └──────────────────────┴──────────────────────────┘
 
 
 🔐 Email Verification
 
+    User accounts start inactive
 
-User accounts start inactive
+    Verification token sent via email
 
-Verification token sent via email
-
-Account activates after verification
+    Account activates after verification
 
 
 🧪 Development Notes
 
+    Restart the server after .env changes
 
-Run Django and FastAPI in parallel
+    Use browser DevTools for JS debugging
 
-Restart FastAPI after .env changes
-
-Use browser DevTools for JS debugging
-
-Clear rag_cache/ when testing new content
+    Clear rag_cache/ when testing new content
 
 
 🧩 Django Apps Overview
 
+    core: Contains global Django configuration including settings, middleware, and core utilities.
 
-core: Contains global Django configuration including settings, middleware, and core utilities.
+    users: Handles user authentication, authorization, profiles, and role-based access (Admin, Instructor, Student).
 
-users: Handles user authentication, authorization, profiles, and role-based access (Admin, Instructor, Student).
+    courses: Manages course creation, modules, lectures, enrollment, and student progress tracking.
 
-courses: Manages course creation, modules, lectures, enrollment, and student progress tracking.
+    quizzes: Implements quizzes, questions, answers, scoring, and evaluations.
 
-quizzes: Implements quizzes, questions, answers, scoring, and evaluations.
+    forums: Enables discussion boards for student and instructor communication.
 
-forums: Enables discussion boards for student and instructor communication.
+    chat: Provides real-time or internal messaging functionality.
 
-chat: Provides real-time or internal messaging functionality.
-
-home: Manages landing pages, dashboards, and general navigation views.
+    home: Manages landing pages, dashboards, and general navigation views.
 
 
 🚀 Future Improvements
 
+    Docker support
 
-Docker support
+    GPU acceleration
 
-GPU acceleration
+    Payments
 
-Payments
+    Multi-language Whisper
 
-Multi-language Whisper
-
-Streaming transcription
+    Streaming transcription
 
 
 🤝 Contributing
 
+    We welcome contributions to Bildung!
+    Whether it’s a bug fix, new feature, documentation improvement, or AI enhancement — your help is appreciated.
 
-We welcome contributions to Bildung!
-Whether it’s a bug fix, new feature, documentation improvement, or AI enhancement — your help is appreciated.
+    Please follow the guidelines below to ensure smooth collaboration and code quality.
 
+    1️⃣ Fork the Repository
 
-Please follow the guidelines below to ensure smooth collaboration and code quality.
+        Click the Fork button on GitHub to create your own copy of the repository.
 
-1️⃣ Fork the Repository
+        Then clone your fork locally:
 
-Click the Fork button on GitHub to create your own copy of the repository.
+        - git clone https://github.com/SaiBhaskar0987/Bildung.git
+        - cd bildung
 
-Then clone your fork locally:
+    2️⃣ Create a Feature Branch
 
-git clone https://github.com/<your-username>/bildung.git
+       Always create a new branch for your work.
 
-cd bildung
+        Do not work directly on the main branch.
 
+        git checkout -b feature/<short-feature-name>
 
-2️⃣ Create a Feature Branch
+        Examples:
 
-Always create a new branch for your work.
+           feature/ai-chat-improvements
+            bugfix/quiz-generation-error
 
-Do not work directly on the main branch.
+    3️⃣ Set Up the Development Environment
 
-git checkout -b feature/<short-feature-name>
+        Ensure your environment is correctly configured:
 
-Examples:
+        - python -m venv .venv
 
-feature/ai-chat-improvements
+        - source .venv/bin/activate   # macOS/Linux
 
-bugfix/quiz-generation-error
+        - .venv\Scripts\activate      # Windows
 
+        - pip install -r requirements.txt
 
-3️⃣ Set Up the Development Environment
+        Also ensure:
 
-Ensure your environment is correctly configured:
+        FFmpeg is installed and added to PATH
 
-python -m venv .venv
+        .env file is configured (do not commit it)
 
-source .venv/bin/activate   # macOS/Linux
+        Django and FastAPI servers run successfully
 
-.venv\Scripts\activate      # Windows
+    4️⃣ Make Your Changes
 
-pip install -r requirements.txt
+        Follow the existing project structure and conventions:
 
-Also ensure:
+        Django logic → inside respective apps (courses, users, quizzes, etc.)
 
-FFmpeg is installed and added to PATH
+        AI / RAG logic → inside fastapi_app/
 
-.env file is configured (do not commit it)
+        Frontend (JS/CSS/templates) → inside app-specific static/ and templates/
 
-Django and FastAPI servers run successfully
+        Business logic → prefer services/ over views
 
+        Signals & side effects → use signals.py
 
-4️⃣ Make Your Changes
+        ⚠️ Avoid:
 
-Follow the existing project structure and conventions:
+            hardcoding secrets
+            committing .env, media/, or rag_cache/
 
-Django logic → inside respective apps (courses, users, quizzes, etc.)
+    5️⃣ Run Tests & Verify Locally
 
-AI / RAG logic → inside fastapi_app/
+        Before committing, verify:
 
-Frontend (JS/CSS/templates) → inside app-specific static/ and templates/
+            - python manage.py check
 
-Business logic → prefer services/ over views
+            - python manage.py runserver
 
-Signals & side effects → use signals.py
+        If you modify AI features:
 
-⚠️ Avoid:
+            Clear RAG cache:
+            - rm -rf rag_cache
 
-hardcoding secrets
+        Test quiz generation and chatbot responses
 
-committing .env, media/, or rag_cache/
 
+    6️⃣ Commit Your Changes
 
-5️⃣ Run Tests & Verify Locally
+        Write clear, meaningful commit messages:
 
-Before committing, verify:
+        - git add .
 
-python manage.py check
+        - git commit -m "Add AI chatbot context handling for course content"
 
-python manage.py runserver
+        Describe what and why
 
-uvicorn fastapi_app.config:app --reload --port 8001
+    7️⃣ Push to Your Fork
 
+        - git push origin <feature-name>
 
-If you modify AI features:
+    8️⃣ Open a Pull Request (PR)
 
-Clear RAG cache:
+        Go to your fork on GitHub
 
-rm -rf rag_cache
+        Click Compare & Pull Request
 
-Test quiz generation and chatbot responses
+        Select:
 
+            Base branch: main
 
-6️⃣ Commit Your Changes
+            Compare branch: your feature branch
 
-Write clear, meaningful commit messages:
+        Fill in the PR description:
 
-git add .
+            What was changed
+            Why it was changed
+            How it was tested
 
-git commit -m "Add AI chatbot context handling for course content"
+    🔍 Code Review Process
 
-Describe what and why
+        Maintainers will review your PR
 
+        You may be asked to:
 
-7️⃣ Push to Your Fork
+        refactor code
 
-git push origin <feature-name>
+        add comments
 
-8️⃣ Open a Pull Request (PR)
+        fix edge cases
 
-Go to your fork on GitHub
-
-Click Compare & Pull Request
-
-Select:
-
-Base branch: main
-
-Compare branch: your feature branch
-
-Fill in the PR description:
-
-What was changed
-
-Why it was changed
-
-How it was tested
-
-
-🔍 Code Review Process
-
-Maintainers will review your PR
-
-You may be asked to:
-
-refactor code
-
-add comments
-
-fix edge cases
-
-Once approved, your PR will be merged 🎉
-
+    Once approved, your PR will be merged 🎉

@@ -8,7 +8,7 @@ import os
 
 load_dotenv() 
 
-print("OPENAI_API_KEY loaded:", bool(os.getenv("OPENAI_API_KEY")))
+print("API_KEY loaded:", bool(os.getenv("API_KEY")))
 
 
 app = FastAPI(title="Bildung API")

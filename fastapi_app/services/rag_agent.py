@@ -9,7 +9,7 @@ from core import settings
 dspy.settings.configure(
     lm=dspy.LM(
         model="gpt-5-nano",
-        api_key=os.getenv("OPENAI_API_KEY"),
+        api_key=os.getenv("API_KEY"),
         temperature=1.0,
         max_tokens=16000,
         timeout=20,

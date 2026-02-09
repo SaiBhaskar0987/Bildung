@@ -9,48 +9,54 @@ def quiz_list(request, course_id):
     quizzes = course.quizzes.all()
     return render(request, "quizzes/quiz_list.html", {"course": course, "quizzes": quizzes})
 
+
 @login_required
 def take_quiz(request, quiz_id):
     quiz = get_object_or_404(Quiz, id=quiz_id)
-
-    if QuizResult.objects.filter(student=request.user, quiz=quiz).exists():
-        return redirect("student:student_course_detail", quiz.course.id)
-
-    questions = QuizQuestion.objects.filter(
-        quiz=quiz
-    ).prefetch_related("choices")
+    questions = quiz.questions.prefetch_related("choices")
 
     if request.method == "POST":
         score = 0
 
-        for q in questions:
-            choice_id = request.POST.get(f"q_{q.id}")
-            if not choice_id:
+        for question in questions:
+            selected_choice_id = request.POST.get(f"q_{question.id}")
+            if not selected_choice_id:
                 continue
 
-            choice = QuizChoice.objects.get(id=choice_id)
+            choice = get_object_or_404(QuizChoice, id=selected_choice_id)
 
-            StudentAnswer.objects.create(
+            StudentAnswer.objects.update_or_create(
                 student=request.user,
-                question=q,
-                choice=choice
+                question=question,
+                defaults={"choice": choice},
             )
 
             if choice.is_correct:
                 score += 1
 
-        QuizResult.objects.create(
-            student=request.user,
+        QuizResult.objects.update_or_create(
             quiz=quiz,
-            score=score
+            student=request.user,
+            defaults={
+                "score": score,
+                "completed": True,   
+            }
         )
 
-        return redirect("quiz_result", quiz.id)
+        return redirect(
+            "student:student_course_detail",
+            course_id=quiz.course.id
+        )
 
-    return render(request, "quizzes/take_quiz.html", {
-        "quiz": quiz,
-        "questions": questions
-    })
+    return render(
+        request,
+        "quizzes/take_quiz.html",
+        {
+            "quiz": quiz,
+            "questions": questions,
+        }
+    )
+
 
 @login_required
 def quiz_result(request, quiz_id):

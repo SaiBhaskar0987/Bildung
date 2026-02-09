@@ -211,7 +211,7 @@ def student_course_detail(request, course_id):
                 continue
 
             result = quiz_results.get(quiz.id)
-            completed_item = bool(result)  
+            completed_item = bool(result and result.completed)
             unlocked = previous_completed
 
             ordered_items.append({

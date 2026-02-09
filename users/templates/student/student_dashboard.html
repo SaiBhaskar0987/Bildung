@@ -396,12 +396,10 @@ function filterCategory(button) {
             askButton.disabled = false;
             aiInput.disabled = false;
 
-            // Remove "Thinking..." and add the actual response
             messages.innerHTML = messages.innerHTML.replace('<p><b>AI:</b> Thinking...</p>', '');
             messages.innerHTML += `<p><b>AI:</b> ${formattedAnswer}</p>`;
       
         } catch (error) {
-            // Handle errors (e.g., network issues, server errors)
             messages.innerHTML = messages.innerHTML.replace('<p><b>AI:</b> Thinking...</p>', '');
             messages.innerHTML += `<p><b>AI:</b> Sorry, I couldn't process your request. Error: ${error.message}</p>`;
         }

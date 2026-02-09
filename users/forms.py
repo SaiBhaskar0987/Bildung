@@ -39,6 +39,11 @@ class InstructorSignUpForm(UserCreationForm):
 User = get_user_model()
 
 class ProfileForm(forms.ModelForm):
+    profile_picture = forms.ImageField(
+        required=False,
+        widget=forms.FileInput(attrs={'class': 'form-control'}),
+        label="Profile Picture"
+    )
     resume = forms.FileField(
         required=False, 
         help_text="Only PDF files are allowed.", 
@@ -48,7 +53,7 @@ class ProfileForm(forms.ModelForm):
 
     class Meta:
         model = Profile
-        fields = ['about_me', 'phone', 'gender', 'date_of_birth', 'qualification', 'resume']
+        fields = ['profile_picture', 'about_me', 'phone', 'gender', 'date_of_birth', 'qualification', 'resume']
         widgets = {
             'about_me': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'phone': forms.TextInput(attrs={'class': 'form-control'}),
@@ -102,6 +107,12 @@ class InstructorUserReadOnlyForm(forms.ModelForm):
 
 class InstructorProfileForm(forms.ModelForm):
 
+    profile_picture = forms.ImageField(
+        required=False,
+        widget=forms.FileInput(attrs={'class': 'form-control'}),
+        label="Profile Picture"
+    )
+
     resume = forms.FileField(
         required=False,
         help_text="Upload only PDF.",
@@ -111,6 +122,7 @@ class InstructorProfileForm(forms.ModelForm):
     class Meta:
         model = InstructorProfile
         fields = [
+            'profile_picture', 
             'professional_title',
             'expertise',
             'experience',

@@ -208,16 +208,14 @@
      <h5 class="fw-bold text-warning">📝 {{ item.title }}</h5>
 
     {% if item.completed %}
-      <span class="badge bg-success">✔ Completed</span>
-
+     <span class="badge bg-success">✔ Completed</span>
+     
     {% elif item.unlocked %}
-      <a href="{% url 'take_quiz' item.obj.id %}"
-         class="btn btn-primary btn-sm">
-        ▶ Take Quiz
-      </a>
-
+     <a href="{% url 'take_quiz' item.obj.id %}" class="btn btn-primary btn-sm">
+      ▶ Take Quiz
+     </a>
     {% else %}
-      <span class="badge bg-danger">🔒 Locked</span>
+    <span class="badge bg-danger">🔒 Locked</span>
     {% endif %}
 
    </div>

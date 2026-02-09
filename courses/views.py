@@ -121,7 +121,8 @@ def enroll_course(request, course_id):
     Notification.objects.create(
         user=request.user,
         message=f"You have successfully enrolled in {course.title}.",
-        url=f"/accounts/student/course/{course.id}/"
+        url=f"/accounts/student/my-courses/"
+        
     )
 
     messages.success(request, f"Enrolled in {course.title}")
@@ -141,7 +142,6 @@ def my_courses(request):
         "recommended_courses": recommended_courses,
     })
 
-
 @login_required(login_url='accounts/student/login/')
 def student_course_detail(request, course_id):
     enrollment = get_object_or_404(
@@ -150,6 +150,7 @@ def student_course_detail(request, course_id):
     course = enrollment.course
 
     lectures = Lecture.objects.filter(module__course=course)
+
     completed_lectures = set(
         LectureProgress.objects.filter(
             student=request.user,
@@ -157,12 +158,8 @@ def student_course_detail(request, course_id):
             completed=True
         ).values_list("lecture_id", flat=True)
     )
-    progress_map = set(
-        LectureProgress.objects.filter(
-            student=request.user,
-            lecture__in=lectures,
-            completed=True
-        ).values_list("lecture_id", flat=True))
+
+    progress_map = completed_lectures
 
     total = lectures.count()
     completed = len(completed_lectures)
@@ -179,7 +176,8 @@ def student_course_detail(request, course_id):
     ordered_items = []
     structure = course.structure_json or []
 
-    can_unlock_next = True
+    previous_completed = True  
+
     module_count = quiz_count = assignment_count = live_count = 1
 
     for item in structure:
@@ -191,20 +189,20 @@ def student_course_detail(request, course_id):
             if not module:
                 continue
 
-            lectures = module.lectures.all()
-            completed_item = all(l.id in completed_lectures for l in lectures)
+            module_lectures = module.lectures.all()
+            completed_item = all(l.id in completed_lectures for l in module_lectures)
+
+            unlocked = previous_completed
 
             ordered_items.append({
                 "type": "module",
                 "obj": module,
                 "title": title or f"Module {module_count}",
-                "unlocked": can_unlock_next,
+                "unlocked": unlocked,
                 "completed": completed_item,
             })
 
-            if not completed_item:
-                can_unlock_next = False
-
+            previous_completed = completed_item
             module_count += 1
 
         elif item_type == "Quiz":
@@ -214,18 +212,17 @@ def student_course_detail(request, course_id):
 
             result = quiz_results.get(quiz.id)
             completed_item = bool(result and result.completed)
+            unlocked = previous_completed
 
             ordered_items.append({
                 "type": "quiz",
                 "obj": quiz,
                 "title": title or f"Quiz {quiz_count}",
-                "unlocked": can_unlock_next,
+                "unlocked": unlocked,
                 "completed": completed_item,
             })
 
-            if not completed_item:
-                can_unlock_next = False
-
+            previous_completed = completed_item
             quiz_count += 1
 
         elif item_type == "Assignment":
@@ -235,14 +232,16 @@ def student_course_detail(request, course_id):
             if not assignment:
                 continue
 
+            unlocked = previous_completed
+
             ordered_items.append({
                 "type": "assignment",
                 "obj": assignment,
                 "title": title or f"Assignment {assignment_count}",
-                "unlocked": can_unlock_next,
+                "unlocked": unlocked,
             })
 
-            can_unlock_next = False
+            previous_completed = False
             assignment_count += 1
 
         elif item_type == "LiveClass":
@@ -252,14 +251,16 @@ def student_course_detail(request, course_id):
             if not live:
                 continue
 
+            unlocked = previous_completed
+
             ordered_items.append({
                 "type": "live",
                 "obj": live,
                 "title": title or f"Live Class {live_count}",
-                "unlocked": can_unlock_next,
+                "unlocked": unlocked,
             })
 
-            can_unlock_next = False
+            previous_completed = False
             live_count += 1
 
     return render(

@@ -110,6 +110,10 @@
     gap: 14px;
     justify-content: center;
 }
+
+.builder-card:hover {
+            transform: scale(1.03);
+        }
 </style>
 </head>
 
@@ -203,6 +207,10 @@
                     Edit
                 </button>
                 {% endif %}
+                
+                {% if block.type == "Assignment" %}
+                <button class="open-module-btn" onclick="openAssignment({{ forloop.counter0 }})">Edit</button>
+                {% endif %}
 
                 {% if block.type == "Quiz" %}
                 <button class="open-module-btn"
@@ -222,21 +230,12 @@
         <div id="dropZone" class="drop-zone">+</div>
     </div>
 
-    <div class="bottom-area">
-        <div class="drag-row">
-            <div class="draggable-btn module-btn" draggable="true" data-type="Module">Module</div>
-            <div class="draggable-btn quiz-btn" draggable="true" data-type="Quiz">Quiz</div>
-            <div class="draggable-btn assignment-btn" draggable="true" data-type="Assignment">Assignment</div>
-            <div class="draggable-btn liveclass-btn" draggable="true" data-type="Live Class">Live Class</div>
-        </div>
-
-        <div class="actions">
-            <button class="save-main" onclick="saveCourse()">Save Changes</button>
-            <button class="publish-main" onclick="publishCourse()">Publish</button>
-        </div>
-
-        <div class="note">💡 Drag items onto the + box to add them</div>
+    <div class="actions mt-3">
+        <button class="save-main" onclick="saveCourse()">Save Changes</button>
+        <button class="publish-main" onclick="publishCourse()">Publish</button>
     </div>
+
+    <div class="note">💡 Drag items onto the + box to add them</div>
 
 </div>
 

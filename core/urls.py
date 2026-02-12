@@ -23,11 +23,14 @@ urlpatterns = [
     path('social-auth/', include('social_django.urls', namespace='social')),
     path('google-redirect/', google_login_redirect, name='google_redirect'),
 
-    path("accounts/", include("users.urls")), 
+    path("accounts/", include("users.urls")),
+    path("", include("users.urls")), 
 
     path('accounts/logout/', logout_view, name='logout'),
     
-    path('courses/', include(('courses.urls', 'courses'), namespace='courses'))
+    path('courses/', include(('courses.urls', 'courses'), namespace='courses')),
+
+    path("api/", include("courses.urls")),
 
 ]
 

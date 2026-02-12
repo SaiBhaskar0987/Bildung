@@ -177,6 +177,9 @@ SITE_ID = 1
 # Static & Media
 # ---------------------------------------------------------------------
 STATIC_URL = '/static/'
+STATICFILES_DIRS = [
+    BASE_DIR / "courses" / "static",
+]
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 MEDIA_URL = '/media/'
@@ -209,3 +212,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # For Invite Link
 # ---------------------------------------------------------------------
 SITE_URL = 'http://127.0.0.1:8000'
+
+HF_API_KEY = "" # Add your key  here

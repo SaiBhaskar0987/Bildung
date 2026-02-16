@@ -81,3 +81,20 @@ class QuizResult(models.Model):
     def __str__(self):
         return f"{self.student.username} - {self.quiz.title} ({self.score})"
 
+
+
+# AI Assist related models - stores questions asked by users which are not answered by the AI, so that we can review and improve the system over time.
+
+class UnansweredQuestion(models.Model):
+    question = models.TextField()
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    asked_at = models.DateTimeField(auto_now_add=True)
+    answer = models.TextField(blank=True, null=True)
+    is_answered = models.BooleanField(default=False)
+    added_to_knowledge_base = models.BooleanField(default=False)
+    
+    class Meta:
+        ordering = ['-asked_at']
+    
+    def __str__(self):
+        return f"{self.question[:50]}..."

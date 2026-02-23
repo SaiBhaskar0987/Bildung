@@ -25,16 +25,16 @@
     </button>
 
     <ul class="dropdown-menu dropdown-menu-end">
-              <li><a class="dropdown-item" href="{% url 'instructor_profile_view' %}">Profile</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor:add_course' %}">Create New Course</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor:students_list' %}">My Students</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor:calendar_view' %}">My Schedules</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor_notifications' %}">Notifications</a></li>
-                <li><a class="dropdown-item" href="#">Earnings & Payments</a></li>
-                <li><a class="dropdown-item" href="#">Help & Support</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor_account_settings' %}">Account Settings</a></li>
-                <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item text-danger" href="{% url 'logout_view' %}">Logout</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor_profile_view' %}">Profile</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor:add_course' %}">Create New Course</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor:students_list' %}">My Students</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor:calendar_view' %}">My Schedules</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor_notifications' %}">Notifications</a></li>
+      <li><a class="dropdown-item" href="#">Earnings & Payments</a></li>
+      <li><a class="dropdown-item" href="#">Help & Support</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor_account_settings' %}">Account Settings</a></li>
+      <li><hr class="dropdown-divider"></li>
+      <li><a class="dropdown-item text-danger" href="{% url 'logout_view' %}">Logout</a></li>
     </ul>
   </div>
 </div>
@@ -50,25 +50,35 @@
 
   <hr>
 
+  <div id="existingQuestionsBox" class="alert alert-info d-none">
+    <strong>Questions already exist for this quiz.</strong>
+
+    <div class="mt-2 d-flex gap-2">
+      <a href="{% url 'quiz_preview' course_id quiz_id %}"
+         class="btn btn-sm btn-primary">
+         👀 Preview & Manage
+      </a>
+    </div>
+  </div>
+
   <div id="ragSection" class="d-none">
     <h5>AI Generated Questions</h5>
 
     <div class="mb-3">
-  <label for="question_source" class="form-label">
-    <strong>Question Source</strong>
-  </label>
 
-  <select id="question_source" class="form-select">
-    <option value="both">PDFs + Videos</option>
-    <option value="pdf">PDFs only</option>
-    <option value="video">Videos only</option>
-  </select>
-
-    <small class="text-muted">
-      Choose where questions should be generated from.
-    </small>
-  </div>
-
+      <label for="question_source" class="form-label">
+        <strong>Question Source</strong>
+      </label>
+      <select id="question_source" class="form-select">
+        <option value="both">PDFs + Videos</option>
+        <option value="pdf">PDFs only</option>
+        <option value="video">Videos only</option>
+      </select>
+      
+      <small class="text-muted">
+        Choose where questions should be generated from.
+      </small>
+      </div>
 
     <div class="mb-3">
       <label class="form-label fw-bold">Number of Questions</label>
@@ -80,12 +90,11 @@
       🚀 Generate Questions
     </button>
 
-
     <p id="aiStatus" class="text-muted"></p>
   </div>
 
   <div id="questionsSection" class="mt-4 d-none">
-    <h5> Manual Questions</h5>
+    <h5>Manual Questions</h5>
 
     <button class="btn btn-outline-primary mb-3" onclick="addManualQuestion()">
       ➕ Add Question
@@ -97,7 +106,6 @@
   <hr>
 
   <button class="btn btn-primary" onclick="saveQuiz()">Save Quiz</button>
-
   <a class="btn btn-outline-secondary ms-2"
      href="{% url 'quiz_preview' course_id quiz_id %}">
     👀 Preview Quiz
@@ -110,6 +118,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Choose Quiz Creation Mode</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body d-grid gap-3">
         <button class="btn btn-outline-primary" onclick="selectQuizMode('manual')">
@@ -126,12 +135,10 @@
 <div class="modal fade" id="quizScopeModal" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
-
       <div class="modal-header">
         <h5 class="modal-title">Lecture Accessibility</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
-
       <div class="modal-body">
         <select id="quizScope" class="form-select">
           <option value="all_before">All lectures before this quiz</option>
@@ -143,7 +150,6 @@
           Continue
         </button>
       </div>
-
     </div>
   </div>
 </div>
@@ -152,6 +158,7 @@
 const COURSE_ID = "{{ course_id }}";
 const QUIZ_ID = "{{ quiz_id }}";
 const QUIZ_BLOCK = {{ quiz_block|default:"null"|safe }};
+let EXISTING_QUESTIONS = {{ question_count|default:0 }} > 0;
 
 let QUIZ_MODE = QUIZ_BLOCK?.quiz_mode || null;
 let QUIZ_SCOPE = QUIZ_BLOCK?.scope || "all_before";
@@ -166,6 +173,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const sourceSelect = document.getElementById("question_source");
   if (sourceSelect) {
     sourceSelect.value = QUESTION_SOURCE;
+  }
+
+  if (EXISTING_QUESTIONS) {
+    document.getElementById("existingQuestionsBox").classList.remove("d-none");
   }
  
   if (!QUIZ_MODE) {

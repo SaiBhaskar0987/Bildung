@@ -73,7 +73,7 @@
                     Q{{ forloop.counter }}. {{ q.question_text }}
                 </h6>
 
-                {% for c in q.choices.all %}
+                {% for c in q.shuffled_choices %}
                 <div class="form-check mb-2">
                     <input type="radio"
                            class="form-check-input"

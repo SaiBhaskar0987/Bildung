@@ -67,17 +67,23 @@ class StudentAnswer(models.Model):
     def __str__(self):
         return f"{self.student.username} → {self.question.text}"
 
-    
 class QuizResult(models.Model):
     quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
-    student = models.ForeignKey(User, on_delete=models.CASCADE, limit_choices_to={"role": "student"})
-    score = models.IntegerField(default=0)
-    completed = models.BooleanField(default=False)
-    submitted_at = models.DateTimeField(auto_now_add=True)
+    student = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        limit_choices_to={"role": "student"}
+    )
 
+    score = models.IntegerField(default=0)
+
+    attempts = models.IntegerField(default=0)   
+    passed = models.BooleanField(default=False) 
+    completed = models.BooleanField(default=False)
+
+    submitted_at = models.DateTimeField(auto_now=True)
     class Meta:
         unique_together = ("quiz", "student")
-    
+
     def __str__(self):
         return f"{self.student.username} - {self.quiz.title} ({self.score})"
-

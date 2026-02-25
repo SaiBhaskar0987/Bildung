@@ -18,9 +18,13 @@ class User(AbstractUser):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
 
+    def save(self, *args, **kwargs):
+        if self.is_superuser:
+            self.role = 'admin'
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return f"{self.email} ({self.role})"
-
 
 def user_resume_path(instance, filename):
     return f'resumes/user_{instance.user.id}/{filename}'

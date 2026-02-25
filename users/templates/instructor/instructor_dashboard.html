@@ -120,6 +120,29 @@
             </span>
 
             <span class="fw-bold text-success">₹{{ course.price|default:"Free" }}</span>
+
+            <div class="mb-2">
+                {% if course.status == "draft" %}
+                <span class="badge bg-secondary">Draft</span>
+                {% elif course.status == "pending" %}
+                <span class="badge bg-warning text-dark">
+                    ⏳ Pending Admin Approval
+                </span>
+                {% elif course.status == "approved" %}
+                <span class="badge bg-success">
+                    ✔ Published
+                </span>
+                {% elif course.status == "rejected" %}
+                <span class="badge bg-danger">
+                    ❌ Rejected
+                </span>
+                {% if course.rejection_reason %}
+                <div class="small text-danger mt-1">
+                    Reason: {{ course.rejection_reason }}
+                </div>
+                {% endif %}
+                {% endif %}
+            </div>
           </div>
 
           <div class="d-grid gap-2 mt-3">

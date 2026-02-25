@@ -7,6 +7,9 @@ urlpatterns = [
     # =====================
     path("auth/", views.auth_page, name="auth_page"),
 
+    path('admin/login/', views.admin_login, name='login'),
+    path('admin-dashboard/', views.admin_dashboard, name='admin_dashboard'),
+
     #verification
     path("check-email/", views.check_email, name="check_email"),
     path("verify/<str:role>/<uuid:token>/", views.verify_email, name="verify_email"),

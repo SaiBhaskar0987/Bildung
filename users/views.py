@@ -2,7 +2,7 @@ from django.http import HttpResponse, JsonResponse
 from django.urls import reverse
 from django.utils import timezone
 from django.shortcuts import get_object_or_404, render, redirect
-from django.contrib.auth import login, logout
+from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
@@ -13,7 +13,8 @@ from django.contrib.auth.tokens import default_token_generator
 from django.conf import settings
 from courses.utils import check_and_send_reminders
 from django.contrib.auth import update_session_auth_hash
-from django.db.models import Count
+from django.db.models import Q, Count
+from django.contrib.admin.views.decorators import staff_member_required
 
 from quizzes.models import QuizResult
 from .models import EmailVerification
@@ -115,6 +116,10 @@ def student_dashboard(request):
 
     all_courses = (
         Course.objects
+        .filter(
+            Q(status="approved", is_published=True) |
+            Q(id__in=enrolled_course_ids)
+        )
         .annotate(popularity=Count("enrollments"))
         .order_by("-popularity", "-created_at")
     )
@@ -678,13 +683,6 @@ def instructor_account_settings(request):
     })
 
 
-@login_required(login_url="/auth/")
-def admin_dashboard(request):
-    if not hasattr(request.user, 'role') or request.user.role != "admin":
-        messages.error(request, "Access denied. Admin area only.")
-        return redirect("auth_page")
-    return render(request, "admin/dashboard.html")
-
 @login_required
 def post_login_redirect_view(request):
     user = request.user
@@ -700,6 +698,29 @@ def post_login_redirect_view(request):
         return redirect("admin_dashboard")
     else:
         return redirect("auth_page")
+    
+
+def admin_login(request):
+    if request.method == "POST":
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None:
+
+            if user.role == "admin":
+                login(request, user)
+                return redirect("admin_dashboard")
+
+            else:
+                messages.error(request, "Access denied. Admin login only.")
+                return redirect("login")
+
+        else:
+            messages.error(request, "Invalid username or password")
+
+    return render(request, "users/login.html")
 
 def google_oauth_entry(request):
     role = request.GET.get('type', '').strip()
@@ -775,3 +796,18 @@ def verify_email(request, role, token):
         }
     )
 
+@staff_member_required
+def admin_dashboard(request):
+
+    pending_courses = Course.objects.filter(status="pending").order_by('-created_at')
+
+    context = {
+        "pending_courses": pending_courses,
+        "total_courses": Course.objects.count(),
+        "pending_count": pending_courses.count(),
+        "total_instructors": User.objects.filter(role="instructor").count(),
+        "total_students": User.objects.filter(role="student").count(),
+        "notifications": Notification.objects.filter(user=request.user, is_read=False),
+    }
+
+    return render(request, "admin/admin_dashboard.html", context)

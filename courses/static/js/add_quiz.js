@@ -3,7 +3,6 @@ const QUIZ_ID = "{{ quiz_id }}";
 const QUIZ_BLOCK = {{ quiz_block|default:"null"|safe }};
 let EXISTING_QUESTIONS = {{ question_count|default:0 }} > 0;
 
-
 let QUIZ_MODE = QUIZ_BLOCK?.quiz_mode || null;
 let QUIZ_SCOPE = QUIZ_BLOCK?.scope || "all_before";
 let QUESTION_SOURCE = QUIZ_BLOCK?.source || "both";

@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.http import HttpResponse, JsonResponse
 from django.urls import reverse
 from django.utils import timezone
@@ -17,7 +19,7 @@ from django.db.models import Q, Count
 from django.contrib.admin.views.decorators import staff_member_required
 
 from quizzes.models import QuizResult
-from .models import EmailVerification
+from .models import EmailVerification, NotificationSettings
 from .utils import send_verification_email
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth.hashers import make_password 
@@ -136,65 +138,112 @@ def student_dashboard(request):
 @login_required
 def account_settings(request):
     user = request.user
+    step = request.GET.get("step", "form")
 
-    if request.method == "POST" and "change_password" in request.POST:
-        current_password = request.POST.get("current_password")
-        new_password = request.POST.get("new_password")
-        confirm_password = request.POST.get("confirm_password")
+    notification_settings, created = NotificationSettings.objects.get_or_create(user=user)
 
-        if not user.check_password(current_password):
-            messages.error(request, "❌ Current password is incorrect")
+    if request.method == "POST":
+
+        if "change_password" in request.POST:
+
+            current_password = request.POST.get("current_password")
+            new_password = request.POST.get("new_password")
+            confirm_password = request.POST.get("confirm_password")
+
+            if not user.check_password(current_password):
+                messages.error(request, "Current password is incorrect")
+                return redirect("account_settings")
+
+            if new_password != confirm_password:
+                messages.error(request, "New passwords do not match")
+                return redirect("account_settings")
+
+            if len(new_password) < 8:
+                messages.error(request, "Password must be at least 8 characters")
+                return redirect("account_settings")
+
+            PasswordChangeRequest.objects.filter(
+                user=user,
+                is_confirmed=False
+            ).delete()
+
+            password_request = PasswordChangeRequest.objects.create(
+                user=user,
+                new_password=make_password(new_password)
+            )
+
+            confirm_link = request.build_absolute_uri(
+                reverse("confirm_password_change",
+                        args=[str(password_request.token)])
+            )
+
+            send_mail(
+                subject="Confirm Your Password Change - Bildung",
+                message=f"""
+Hello {user.first_name},
+
+Click the link below to confirm your password change:
+
+{confirm_link}
+
+This link will expire in 15 minutes.
+
+If this wasn't you, ignore this email.
+""",
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[user.email],
+                fail_silently=False,
+            )
+
+            return redirect(f"{reverse('account_settings')}?step=email_sent")
+
+        elif "update_notifications" in request.POST:
+
+            notification_settings.email_notifications = bool(
+                request.POST.get("email_notifications")
+            )
+
+            notification_settings.course_updates = bool(
+                request.POST.get("course_updates")
+            )
+
+            notification_settings.enroll_updates = bool(
+                request.POST.get("enroll_updates")
+            )
+
+            notification_settings.save()
+
+            messages.success(request, "Notification preferences updated!")
             return redirect("account_settings")
 
-        if new_password != confirm_password:
-            messages.error(request, "❌ New passwords do not match")
-            return redirect("account_settings")
-
-        password_request = PasswordChangeRequest.objects.create(
-            user=user,
-            new_password=make_password(new_password) 
-        )
-
-        confirm_link = f"http://127.0.0.1:8000/confirm-password/{password_request.token}/"
-
-        print("\n🔐 PASSWORD CONFIRMATION LINK")
-        print(confirm_link)
-        print("⬆️ Click this link to confirm password change\n")
-
-        messages.info(
-            request,
-            "⚠️ Confirmation link generated. Check VS Code terminal."
-        )
-
-        return redirect("account_settings")
-
-    return render(request, "student/account_settings.html")
-
+    return render(request, "student/account_settings.html", {
+        "step": step,
+        "notification_settings": notification_settings
+    })
 
 def confirm_password_change(request, token):
+
     password_request = get_object_or_404(
         PasswordChangeRequest,
         token=token,
         is_confirmed=False
     )
 
-    if request.method == "POST":
-        user = password_request.user
+    if timezone.now() > password_request.created_at + timedelta(minutes=15):
+        password_request.delete()
+        messages.error(request, "Password confirmation link has expired.")
+        return redirect("account_settings")
 
-        user.password = password_request.new_password
-        user.save()
+    user = password_request.user
 
-        update_session_auth_hash(request, user)
+    user.password = password_request.new_password
+    user.save()
+    update_session_auth_hash(request, user)
 
-        password_request.is_confirmed = True
-        password_request.save()
+    password_request.is_confirmed = True
+    password_request.save()
 
-        return HttpResponse(
-            "<h2>✅ Your password changed successfully</h2>"
-        )
-
-    return render(request, "users/confirm_password.html")
-
+    return redirect(f"{reverse('account_settings')}?step=success")
 
 @login_required
 def profile_view_or_edit(request, mode=None):
@@ -644,9 +693,12 @@ def instructor_mark_all_read(request):
 @login_required
 def instructor_account_settings(request):
     if request.user.role != "instructor":
-        return redirect("login")
+        return redirect("auth_page")
 
     user = request.user
+    step = request.GET.get("step", "form")
+
+    notification_settings, created = NotificationSettings.objects.get_or_create(user=user)
 
     if request.method == 'POST':
 
@@ -667,21 +719,90 @@ def instructor_account_settings(request):
                 messages.error(request, "Password must be at least 8 characters long.")
                 return redirect('instructor_account_settings')
 
-            user.set_password(new_password1)
-            user.save()
-            update_session_auth_hash(request, user)
+            PasswordChangeRequest.objects.filter(
+                user=user,
+                is_confirmed=False
+            ).delete()
 
-            messages.success(request, "Password changed successfully!")
-            return redirect('instructor_account_settings')
+            change_request = PasswordChangeRequest.objects.create(
+                user=user,
+                new_password=make_password(new_password1)
+            )
+
+            confirm_link = request.build_absolute_uri(
+                reverse('inst_confirm_password_change',
+                args=[str(change_request.token)])
+            )
+
+            send_mail(
+                subject="Confirm Your Password Change - Bildung",
+                message=f"""
+Hello {user.first_name},
+
+Click the link below to confirm your password change:
+
+{confirm_link}
+
+This link will expire in 15 minutes.
+
+If this wasn't you, ignore this email.
+""",
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[user.email],
+                fail_silently=False,
+            )
+
+            return redirect(f"{reverse('instructor_account_settings')}?step=email_sent")
 
         elif 'update_notifications' in request.POST:
+
+            notification_settings.email_notifications = bool(
+                request.POST.get("email_notifications")
+            )
+
+            notification_settings.course_updates = bool(
+                request.POST.get("course_updates")
+            )
+
+            notification_settings.enroll_updates = bool(
+                request.POST.get("enroll_updates")
+            )
+
+            notification_settings.save()
+
             messages.success(request, "Notification preferences updated!")
             return redirect('instructor_account_settings')
 
     return render(request, 'instructor/instructor_account_settings.html', {
         'user': user,
+        'step': step,
+        'notification_settings': notification_settings
     })
 
+
+def inst_confirm_password_change(request, token):
+
+    change_request = get_object_or_404(
+        PasswordChangeRequest,
+        token=token,
+        is_confirmed=False
+    )
+
+    if timezone.now() > change_request.created_at + timedelta(minutes=15):
+        change_request.delete()
+        messages.error(request, "Password confirmation link has expired.")
+        return redirect('instructor_account_settings')
+
+    user = change_request.user
+
+    user.password = change_request.new_password
+    user.save()
+    update_session_auth_hash(request, user)
+
+    change_request.is_confirmed = True
+    change_request.save()
+    
+    return redirect(f"{reverse('instructor_account_settings')}?step=success")
 
 @login_required
 def post_login_redirect_view(request):

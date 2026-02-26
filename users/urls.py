@@ -23,7 +23,7 @@ urlpatterns = [
     # ACCOUNT SETTINGS (PASSWORD CONFIRM FLOW)
     path("account-settings/", views.account_settings, name="account_settings"),
     path(
-        "confirm-password/<uuid:token>/",
+        "password-change-confirm/<uuid:token>/",
         views.confirm_password_change,
         name="confirm_password_change",
     ),
@@ -98,6 +98,7 @@ urlpatterns = [
     path("mark-read/<int:notif_id>/", views.instructor_mark_read, name="mark_notification_read"),
     path("mark-all-read/", views.instructor_mark_all_read, name="mark_notifications_read"),
     path("settings/", views.instructor_account_settings, name="instructor_account_settings"),
+    path('confirm-password-change/<uuid:token>/', views.inst_confirm_password_change,name='inst_confirm_password_change'),
 
     # Include all instructor dashboard & course URLs
     path("instructor/", include(("courses.instructor_urls", "instructor"), namespace="instructor")),

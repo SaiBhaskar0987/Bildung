@@ -164,3 +164,14 @@ class CourseSearch(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.keyword}"
+
+class NotificationSettings(models.Model):
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="notification_settings"
+    )
+
+    email_notifications = models.BooleanField(default=True)
+    course_updates = models.BooleanField(default=True)
+    enroll_updates = models.BooleanField(default=True)

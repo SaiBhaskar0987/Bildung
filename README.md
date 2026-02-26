@@ -376,30 +376,47 @@ Start Exploring
 
     Before logging in as an admin, you must create a superuser.
 
-    Step 1: Run the Command
-        - python manage.py createsuperuser
-    Step 2: Provide Details
+    Option 1: Create Superuser
+        Step 1: Run the Command
+            - python manage.py createsuperuser
+        Step 2: Provide Details
 
-    You will be prompted to enter:
+            You will be prompted to enter:
 
-    Username
-    Email address
-    Password
+            Username
+            Email address
+            Password
 
-    Example:
+            Example:
 
-    Username: admin
-    Email: admin@example.com
-    Password: ********
+            Username: admin
+            Email: admin@example.com
+            Password: ********
 
-    ⚠️ Password will be hidden while typing.
+            ⚠️ Password will be hidden while typing.
 
+
+    Option 2: Create via Django Shell
+        Run these commands in VS code terminal
+            1. - python manage.py shell
+            2. - from users.models import User
+
+            3. - admin = User.objects.create_user(
+                 username="admin",
+                 email="admin@example.com",
+                 password="admin123",
+                 role="admin"
+                 )
+
+            4. admin.is_staff = True
+            5. admin.is_superuser = True
+            6. admin.save()
 
 🔐 Admin Login
 
     🌐 Login URL
 
-    👉 http://127.0.0.1:8000/accounts/login/
+    👉 http://127.0.0.1:8000/accounts/admin/login/
 
     🪪 Steps
 
@@ -409,19 +426,6 @@ Start Exploring
 
     You will be redirected to the admin dashboard.
 
-🧭 Admin Dashboard Access
-
-    After login, admins can access:
-
-    User management
-
-    Course moderation
-
-    Enrollment control
-
-    Comment moderation
-
-    Content management
 
 🧠 RAG Workflow
 

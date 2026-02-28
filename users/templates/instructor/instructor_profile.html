@@ -8,35 +8,40 @@
  
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" type="text/css" href="{% static 'instructor_profile/style.css' %}">
-
 </head>
  
 <body>
 
-<div class="d-flex justify-content-between align-items-center p-3 bg-white shadow-sm">
-    <a href="{% url 'instructor_dashboard' %}" class="text-decoration-none text-dark">
-        <h3 class="m-0 fw-bold">Bildung</h3>
+<!-- ================= TOPBAR ================= -->
+<div class="custom-topbar d-flex justify-content-between align-items-center p-3 shadow-sm">
+
+    <a href="{% url 'instructor_dashboard' %}" class="text-decoration-none">
+        <h3 class="m-0 fw-bold brand-text">Speshway</h3>
     </a>
- 
+
     <div class="d-flex align-items-center gap-3">
-        <h5 class="m-0">Hello, {{ user.first_name }} {{ user.last_name }}</h5>
- 
+
+        <h5 class="m-0 welcome-text">
+            Hello, {{ user.first_name }} {{ user.last_name }}
+        </h5>
+
         <div class="dropdown">
             <button class="btn p-0 border-0 bg-transparent" data-bs-toggle="dropdown">
+
                 {% if profile.profile_picture %}
                     <img src="{{ profile.profile_picture.url }}"
-                         class="rounded-circle shadow"
-                         style="width:45px;height:45px;object-fit:cover;border:2px solid #4f46e5;">
+                         class="shadow profile-img">
                 {% else %}
-                    <div class="rounded-circle shadow d-flex align-items-center justify-content-center"
-                         style="background:#6b7280;color:white;width:45px;height:45px;">
+                    <div class="profile-circle shadow">
                         {{ request.user.username|first|upper }}
                     </div>
                 {% endif %}
+
             </button>
- 
+
+            <!-- Bootstrap default dropdown (unchanged) -->
             <ul class="dropdown-menu dropdown-menu-end">
-                 <li><a class="dropdown-item" href="{% url 'instructor_profile_view' %}">Profile</a></li>
+                <li><a class="dropdown-item" href="{% url 'instructor_profile_view' %}">Profile</a></li>
                 <li><a class="dropdown-item" href="{% url 'instructor:add_course' %}">Create New Course</a></li>
                 <li><a class="dropdown-item" href="{% url 'instructor:students_list' %}">My Students</a></li>
                 <li><a class="dropdown-item" href="{% url 'instructor:calendar_view' %}">My Schedules</a></li>
@@ -50,9 +55,10 @@
         </div>
     </div>
 </div>
- 
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
+<!-- ================= PROFILE SECTION ================= -->
 <div class="container mt-5">
  
 <h3 class="text-center mb-4">
@@ -78,7 +84,8 @@
         <input type="file" name="profile_picture" hidden>
     </label>
 </div>
- 
+
+<!-- FORM FIELDS -->
 <div class="row">
     <div class="col-md-6 mb-3">
         <label>First Name</label>
@@ -89,59 +96,59 @@
         {{ user_form.last_name }}
     </div>
 </div>
- 
+
 <div class="mb-3">
     <label>Email</label>
     {{ user_form.email }}
 </div>
- 
+
 <div class="mb-3">
     <label>Phone</label>
     {{ profile_form.phone }}
 </div>
- 
+
 <div class="mb-3">
     <label>Professional Title</label>
     {{ profile_form.professional_title }}
 </div>
- 
+
 <div class="mb-3">
     <label>Expertise</label>
     {{ profile_form.expertise }}
 </div>
- 
+
 <div class="mb-3">
     <label>Experience (Years)</label>
     {{ profile_form.experience }}
 </div>
- 
+
 <div class="mb-3">
     <label>Qualification</label>
     {{ profile_form.qualification }}
 </div>
- 
+
 <div class="mb-3">
     <label>About Me</label>
     {{ profile_form.about_me }}
 </div>
- 
+
 <div class="mb-3">
     <label>LinkedIn</label>
     {{ profile_form.linkedin }}
 </div>
- 
+
 <div class="mb-3">
     <label>Website</label>
     {{ profile_form.website }}
 </div>
- 
+
 <div class="mb-3">
     <label>Resume (PDF)</label>
     {{ profile_form.resume }}
 </div>
- 
+
 {% else %}
- 
+
 <div class="text-center mb-4">
     {% if profile.profile_picture %}
         <img src="{{ profile.profile_picture.url }}" class="profile-avatar-view">
@@ -149,62 +156,62 @@
         <img src="https://via.placeholder.com/120?text=Profile" class="profile-avatar-view">
     {% endif %}
 </div>
- 
+
 <p><span class="profile-label">Name:</span>
 <span class="profile-value">{{ profile.user.first_name }} {{ profile.user.last_name }}</span></p>
- 
+
 <p><span class="profile-label">Email:</span>
 <span class="profile-value">{{ profile.user.email }}</span></p>
- 
+
 <p><span class="profile-label">Phone:</span>
 <span class="profile-value">{{ profile.phone|default:"-" }}</span></p>
- 
+
 <p><span class="profile-label">Title:</span>
 <span class="profile-value">{{ profile.professional_title|default:"-" }}</span></p>
- 
+
 <p><span class="profile-label">Expertise:</span>
 <span class="profile-value">{{ profile.expertise|default:"-" }}</span></p>
- 
+
 <p><span class="profile-label">Experience:</span>
-<span class="profile-value">{{ profile.experience|default:"-" }} </span></p>
- 
+<span class="profile-value">{{ profile.experience|default:"-" }}</span></p>
+
 <p><span class="profile-label">About:</span>
 <span class="profile-value">{{ profile.about_me|default:"-" }}</span></p>
- 
+
 {% if profile.linkedin %}
 <p><span class="profile-label">LinkedIn:</span>
 <a href="{{ profile.linkedin }}" target="_blank">View</a></p>
 {% endif %}
- 
+
 {% if profile.website %}
 <p><span class="profile-label">Website:</span>
 <a href="{{ profile.website }}" target="_blank">Visit</a></p>
 {% endif %}
- 
+
 {% if profile.resume %}
 <a href="{{ profile.resume.url }}" target="_blank" class="btn btn-outline-success btn-sm mt-2">
 View Resume
 </a>
 {% endif %}
- 
+
 {% endif %}
- 
+
 <div class="profile-divider"></div>
- 
+
 <div class="d-flex justify-content-between">
 {% if is_editing %}
     <button type="submit" class="btn-save">Save Changes</button>
     <a href="{% url 'instructor_profile_view' %}" class="btn-cancel">Cancel</a>
 {% else %}
-    <a href="{% url 'instructor_profile_edit' 'edit' %}" class="btn btn-primary btn-edit">
+    <a href="{% url 'instructor_profile_edit' 'edit' %}" class="btn btn-edit">
         Edit Profile
     </a>
 {% endif %}
 </div>
- 
+
 </div>
 </form>
 </div>
- 
+
 </body>
 </html>

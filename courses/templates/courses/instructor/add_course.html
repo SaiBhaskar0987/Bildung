@@ -14,118 +14,249 @@
         const PRELOAD = {{ preload|safe }};
     </script>
 
+
+
 <style>
-
-.topbar {
-    background: white;
-    padding: 12px 25px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    
+    *{
+    box-sizing:border-box;
+    font-family: 'Segoe UI', sans-serif;
 }
 
-.topbar-title {
-    font-size: 26px;
-    font-weight: bold;
-    text-decoration: none;
-    color: #222;
+/* PAGE BACKGROUND */
+body{
+    margin:0;
+    background: linear-gradient(135deg,#ffffff,#fff7cc,#ffffff);
+    min-height:100vh;
 }
 
-#topRow {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 18px;
-    margin-top: 30px;
+/* TOP BAR */
+.topbar{
+    background: linear-gradient(135deg,#3a2a1a,#5a3d1f);
+    padding:12px 25px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    box-shadow:0 4px 12px rgba(0,0,0,0.4);
 }
 
-.builder-card {
-    width: 180px;
-    height: 160px;
-    background: #ffffff;
-    border-radius: 18px;
-    border: 3px dashed #dcdcdc;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    position: relative;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
-    transition: 0.25s ease;
-    cursor: grab;
+.topbar-title{
+    font-size:26px;
+    font-weight:bold;
+    text-decoration:none;
+    color:#facc15;
 }
 
-.builder-card:hover {
-    transform: scale(1.05);
+/* PROFILE ICON */
+.topbar .btn.rounded-circle{
+    background: linear-gradient(135deg,#facc15,#fde68a);
+    color:#3a2a1a;
+    border:none;
+    box-shadow:0 4px 10px rgba(250,204,21,0.6);
 }
 
-#dropZone {
-    margin-bottom: 30px;   
+/* MAIN CARD */
+.paper{
+    width:100%;
+    max-width:1200px;
+    margin:40px auto;
+    background:#ffffff;
+    padding:45px;
+    border-radius:22px;
+    box-shadow:0 25px 60px rgba(0,0,0,0.15);
+}
+
+/* TITLES */
+.title{
+    text-align:center;
+    font-size:40px;
+    color:#3a2a1a;
+    margin-bottom:30px;
+}
+
+/* LABELS */
+.label{
+    font-weight:600;
+    color:#3a2a1a;
+}
+
+/* INPUTS */
+.input-box{
+    width:100%;
+    padding:14px 16px;
+    border-radius:12px;
+    border:2px solid #facc15;
+    margin-bottom:18px;
+}
+
+.input-box:focus{
+    outline:none;
+    border-color:#92400e;
+    box-shadow:0 0 0 4px rgba(250,204,21,0.35);
+}
+
+/* DIVIDER */
+.divider{
+    margin:60px 0;
+}
+
+/* MODULE ROW */
+#topRow{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:22px;
+    margin-top:25px;
+}
+
+/* BUILDER CARD */
+.builder-card{
+    width:200px;
+    height:170px;
+    background:linear-gradient(135deg,#fffdf2,#fff7cc);
+    border-radius:20px;
+    border:2px dashed #facc15;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    box-shadow:0 12px 28px rgba(0,0,0,0.18);
+    transition:0.3s;
+    cursor:grab;
+}
+
+.builder-card:hover{
+    transform:scale(1.06);
+}
+
+/* PLUS BOX */
+.drop-zone{
+    width:220px;
+    height:200px;
+    border-radius:22px;
+    border:3px dashed #facc15;
+    background:rgba(250,204,21,0.12);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:60px;
+    font-weight:bold;
+    color:#3a2a1a;
+    transition:0.3s;
+}
+
+.drop-zone:hover{
+    background:rgba(250,204,21,0.25);
+    transform:scale(1.08);
+}
+
+/* DRAG BUTTONS */
+.drag-row{
+    display:flex;
+    justify-content:center;
+    gap:18px;
+    flex-wrap:wrap;
+    margin-top:25px;
+}
+
+.draggable-btn{
+    background:linear-gradient(135deg,#fde047,#facc15);
+    padding:12px 22px;
+    border-radius:14px;
+    font-weight:600;
+    color:#3a2a1a;
+    box-shadow:0 8px 18px rgba(0,0,0,0.2);
+    cursor:grab;
+}
+
+/* ACTION BUTTONS */
+.actions{
+    display:flex;
+    justify-content:center;
+    gap:22px;
+    margin-top:30px;
+}
+
+.save-main,
+.publish-main{
+    background:linear-gradient(135deg,#3a2a1a,#5a3d1f);
+    color:white;
+    border:none;
+    padding:14px 36px;
+    font-size:16px;
+    border-radius:14px;
+    box-shadow:0 10px 28px rgba(0,0,0,0.35);
+    transition:0.3s;
+}
+
+.save-main:hover,
+.publish-main:hover{
+    transform:translateY(-3px);
+}
+
+/* NOTE */
+.note{
+    text-align:center;
+    margin-top:18px;
+    color:#3a2a1a;
+}
+
+/* ======================================
+   PROFILE LOGO BADGE (YELLOW)
+====================================== */
+
+.topbar .btn.rounded-circle{
+    background: linear-gradient(135deg,#fde047,#facc15) !important;
+    color:#3a2a1a !important;
+    font-size:18px;
+    font-weight:700;
+    border:2px solid #ffffff;
+    box-shadow:0 0 0 3px rgba(250,204,21,0.7),
+               0 4px 12px rgba(0,0,0,0.3);
+}
+
+/* ===============================
+   STEP INDICATOR
+================================ */
+
+.stepper {
+    display:flex;
+    justify-content:center;
+    gap:40px;
+    margin-bottom:40px;
+}
+
+.step {
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    font-weight:600;
+    color:#999;
+}
+
+.step-circle {
+    width:42px;
+    height:42px;
+    border-radius:50%;
+    background:#e5e5e5;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin-bottom:6px;
+}
+
+.step.active {
+    color:#3a2a1a;
+}
+
+.step.active .step-circle {
+    background:linear-gradient(135deg,#fde047,#facc15);
+    box-shadow:0 0 15px rgba(250,204,21,0.6);
 }
 
 
-.card-title {
-    font-size: 18px;
-    font-weight: 600;
-    margin-bottom: 8px;
-}
 
-
-.module-card { border-color: #6aa9ff !important; }
-.quiz-card { border-color: #ffcf7d !important; }
-.assignment-card { border-color: #7ee6a0 !important; }
-.liveclass-card { border-color: #ff8fba !important; }
-
-.card-actions {
-    position: absolute;
-    bottom: 12px;
-    display: flex;
-    gap: 10px;
-}
-
-.open-module-btn {
-    background: #4caf50;
-    color: white;
-    border: none;
-    padding: 5px 12px;
-    font-size: 13px;
-    border-radius: 6px;
-}
-
-.delete-module-btn {
-    background: #ff4d4d;
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    font-size: 13px;
-    border-radius: 6px;
-}
-
-.drop-zone {
-    width: 180px;
-    height: 160px;
-    border-radius: 18px;
-    border: 3px dashed #bfc7e6;
-    background: #eef2ff;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 40px;
-    font-weight: bold;
-    color: #5b6cff;
-    cursor: pointer;
-    transition: 0.25s ease;
-}
-
-.drop-zone:hover {
-    transform: scale(1.08);
-    border-color: #5167ff;
-    color: #5167ff;
-}
 
 </style>
-
 </head>
 
 
@@ -133,7 +264,7 @@
 
 
 <div class="topbar">
-    <a href="{% url 'instructor_dashboard' %}" class="topbar-title">Bildung</a>
+    <a href="{% url 'instructor_dashboard' %}" class="topbar-title">Speshway</a>
 
     <div class="dropdown">
         <button class="btn rounded-circle shadow"
@@ -159,6 +290,7 @@
 
 
 <div class="paper">
+
 
     <h1 class="title">CREATE COURSE</h1>
 

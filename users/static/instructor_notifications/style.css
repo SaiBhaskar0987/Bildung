@@ -13,4 +13,92 @@
 /* Changes background color when the notification card is hovered */
 .notif-card:hover {
     background-color: #f6f9ff;
+
+
+    /* ================= THEME COLORS ================= */
+:root{
+  --yellow:#facc15;
+  --yellow-soft:#fff7cc;
+  --brown:#3a2a1a;
+  --brown-dark:#5a3d1f;
+}
+
+/* ================= PAGE BACKGROUND ================= */
+body{
+    background: linear-gradient(135deg,#fffdf2,#fff7cc) !important;
+}
+
+/* ================= HEADER ================= */
+.d-flex.bg-white{
+    box-shadow:0 6px 20px rgba(58,42,26,0.15);
+}
+
+h3.m-0{
+    color:var(--yellow);
+}
+
+/* Profile circle */
+.rounded-circle{
+    background:linear-gradient(135deg,var(--yellow),#fde68a) !important;
+    color:var(--brown) !important;
+    border:none !important;
+}
+
+/* ================= PAGE TITLE ================= */
+.container h3{
+    color:var(--brown);
+}
+
+/* ================= NOTIFICATION CARDS ================= */
+.notif-card{
+    background:#ffffff;
+    border-radius:14px;
+    border-left:4px solid var(--brown);
+    transition:0.3s ease;
+}
+
+.notif-card:hover{
+    transform:translateY(-4px);
+    box-shadow:0 12px 30px rgba(58,42,26,0.2);
+}
+
+/* Unread highlight */
+.notif-unread{
+    background:var(--yellow-soft);
+    border-left:4px solid var(--yellow);
+}
+
+/* ================= BUTTONS ================= */
+
+/* Open button */
+.btn-primary{
+    background:linear-gradient(135deg,var(--brown),var(--brown-dark)) !important;
+    border:none !important;
+}
+
+.btn-primary:hover{
+    background:linear-gradient(135deg,#2b1e12,#4a2f17) !important;
+}
+
+/* Mark all read button */
+.btn-outline-primary{
+    border:2px solid var(--brown) !important;
+    color:var(--brown) !important;
+}
+
+.btn-outline-primary:hover{
+    background:var(--brown) !important;
+    color:white !important;
+}
+
+/* Mark read button */
+.btn-outline-secondary{
+    border:2px solid var(--yellow) !important;
+    color:var(--brown) !important;
+}
+
+.btn-outline-secondary:hover{
+    background:var(--yellow) !important;
+    color:var(--brown-dark) !important;
+}
 }

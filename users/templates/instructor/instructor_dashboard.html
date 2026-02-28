@@ -9,14 +9,91 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 <link rel="stylesheet" type="text/css" href="{% static 'instructor_dashboard/inst_dash.css' %}">
 
+
 <style>
+    :root{
+    --yellow-main: #f4c430;
+    --yellow-light: #fff8dc;
+    --brown-dark: #4b2e05;
+    --brown-medium: #6b3e0f;
+    --brown-light: #8b5a2b;
+}
+
+/* ================= FORCE DARK BROWN TEXT ================= */
+
+/* Default body text */
+body {
+    color: var(--brown-dark) !important;
+}
+
+/* All headings */
+h1, h2, h3, h4, h5, h6 {
+    color: var(--brown-dark) !important;
+}
+
+/* Override Bootstrap black */
+.text-dark {
+    color: var(--brown-dark) !important;
+}
+
+/* Override muted text */
+.text-muted {
+    color: var(--brown-medium) !important;
+}
+
+/* Paragraphs */
+p {
+    color: var(--brown-medium) !important;
+}
+
+/* Speshway brand (keep white because navbar is dark) */
+.topbar h3,
+.navbar h3,
+.d-flex h3.m-0 {
+    color: white !important;
+}
+
+/* Notification bell icon */
+#notifBell {
+    color: white !important;
+}
+
+/* Dropdown items */
+.dropdown-menu .dropdown-item {
+    color: var(--brown-dark) !important;
+}
+
+.dropdown-menu .dropdown-item:hover {
+    background: var(--yellow-light);
+    color: var(--brown-dark) !important;
+}
+
+/* Course card titles */
+.course-card h5 {
+    color: var(--brown-dark) !important;
+}
+
+/* Course card description */
+.course-card p {
+    color: var(--brown-medium) !important;
+}
+
+/* Students text inside cards */
+.course-card span {
+    color: var(--brown-dark);
+}
+
+/* Alert */
+.alert-info {
+    color: var(--brown-dark) !important;
+}
 
 .floating-btn {
     position: fixed;
     right: 25px;
     width: 55px;
     height: 55px;
-    background: #4c6ef5;
+    background: var(--brown-dark);
     color: white;
     display: flex;
     justify-content: center;
@@ -56,7 +133,7 @@
 }
 
 .chatbox .chat-header {
-    background: #4c6ef5;
+    background: linear-gradient(135deg, var(--brown-dark), var(--brown-medium));
     color: white;
     padding: 12px;
     font-weight: 600;
@@ -230,10 +307,11 @@
 
 </style>
 </head>
-<body class="bg-light">
-  <div class="d-flex justify-content-between align-items-center p-3 bg-white shadow-sm">
-    <a href="{% url 'instructor_dashboard' %}" class="text-decoration-none text-dark">
-        <h3 class="m-0 fw-bold">Bildung</h3>
+<body style="background: var(--yellow-light);">
+  <div class="d-flex justify-content-between align-items-center p-3 shadow-sm"
+     style="background: linear-gradient(135deg, var(--brown-dark), var(--brown-medium));">
+    <a href="{% url 'instructor_dashboard' %}" class="text-decoration-none">
+        <h3 class="m-0 fw-bold">Speshway</h3>
     </a>  
     <div class="d-flex align-items-center gap-4">
 
@@ -266,9 +344,16 @@
     </div>
 
         <div class="dropdown">
-            <button class="btn rounded-circle shadow" style="background:gray;color:white;width:45px;height:45px;" type="button" data-bs-toggle="dropdown">
-                {{ request.user.username|first|upper }}
-            </button>
+          <button class="btn rounded-circle shadow"
+        style="background: var(--yellow-main); 
+               color: var(--brown-dark); 
+               width:45px;
+               height:45px;
+               font-weight:600;"
+        type="button"
+        data-bs-toggle="dropdown">
+    {{ request.user.username|first|upper }}
+</button>  
             <ul class="dropdown-menu dropdown-menu-end">
                 <li><a class="dropdown-item" href="{% url 'instructor_profile_view' %}">Profile</a></li>
                 <li><a class="dropdown-item" href="{% url 'instructor:add_course' %}">Create New Course</a></li>

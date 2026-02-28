@@ -12,7 +12,7 @@ body {
 }
 
 .result-card {
-    max-width: 540px;
+    max-width: 720px;
     margin: auto;
     border-radius: 20px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.1);
@@ -23,6 +23,14 @@ body {
     font-weight: 800;
     color: #0d6efd;
 }
+
+.question-box {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 12px;
+    text-align: left;
+}
 </style>
 </head>
 
@@ -30,47 +38,65 @@ body {
 
 <div class="container py-5">
 
-    <div class="card result-card border-0 p-4 text-center">
+<div class="card result-card border-0 p-4 text-center">
 
-        <!-- ICON -->
-        <div class="mb-3" style="font-size:60px;">
-            🎉
-        </div>
+<!-- ICON -->
+<div class="mb-3" style="font-size:60px;">🎉</div>
 
-        <!-- TITLE -->
-        <h2 class="fw-bold mb-2">Assignment Completed</h2>
-        <p class="text-muted mb-4">
-            Your submission has been evaluated
-        </p>
+<!-- TITLE -->
+<h2 class="fw-bold mb-2">Assignment Completed</h2>
+<p class="text-muted mb-4">Your submission has been evaluated</p>
 
-        <!-- SCORE -->
-        <div class="mb-4">
-            <div class="score-box">
-                <h4>Score: {{ attempt.score }} %</h4>
-            </div>
-            <div class="text-muted">Total Score</div>
-        </div>
-
-        <!-- STATUS -->
-        <div class="mb-4">
-            {% if attempt.status == "COMPLETED" %}
-                <span class="badge bg-success px-4 py-2">
-                    COMPLETED
-                </span>
-            {% else %}
-                <span class="badge bg-warning px-4 py-2">
-                    IN PROGRESS
-                </span>
-            {% endif %}
-        </div>
-
-        <!-- ACTION -->
-        <a href="{% url 'student:my_courses' %}"
-           class="btn btn-primary btn-lg px-5 rounded-pill shadow-sm">
-            ⬅ Back to My Courses
-        </a>
-
+<!-- SCORE -->
+<div class="mb-4">
+    <div class="score-box">
+        {{ attempt.score }} %
     </div>
+    <div class="text-muted">Total Score</div>
+</div>
+
+<!-- STATUS -->
+<div class="mb-4">
+{% if attempt.status == "COMPLETED" %}
+    <span class="badge bg-success px-4 py-2">COMPLETED</span>
+{% else %}
+    <span class="badge bg-warning px-4 py-2">IN PROGRESS</span>
+{% endif %}
+</div>
+
+<!-- ============================== -->
+<!-- QUESTION WISE RESULT (NEW) -->
+<!-- ============================== -->
+
+<div class="mb-4">
+
+<h4 class="fw-bold mb-3">Question Wise Evaluation</h4>
+
+{% for ans in attempt.studentanswer_set.all %}
+<div class="question-box">
+
+    <p><strong>Question:</strong><br>
+       {{ ans.question.question_text }}</p>
+
+    <p><strong>Score:</strong> {{ ans.score }}</p>
+
+    <p><strong>Feedback:</strong><br>
+       {{ ans.feedback }}</p>
+
+</div>
+{% empty %}
+<p>No answers found.</p>
+{% endfor %}
+
+</div>
+
+<!-- ACTION -->
+<a href="{% url 'student:my_courses' %}"
+   class="btn btn-primary btn-lg px-5 rounded-pill shadow-sm">
+⬅ Back to My Courses
+</a>
+
+</div>
 
 </div>
 

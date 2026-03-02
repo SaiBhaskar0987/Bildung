@@ -39,7 +39,6 @@
 <body>
 
 <div class="d-flex justify-content-between align-items-center p-3 bg-white shadow-sm sticky-top">
-
     <a href="{% url 'student_dashboard' %}" class="text-decoration-none text-dark">
         <h3 class="m-0 fw-bold">Bildung</h3>
     </a>
@@ -60,11 +59,9 @@
                 <li><a class="dropdown-item" href="{% url 'profile_view' %}">Profile</a></li>
                 <li><a class="dropdown-item" href="{% url 'student:my_courses' %}">My Courses</a></li>
                 <li><a class="dropdown-item" href="{% url 'student_my_activity' %}">My activity</a></li>
-                <li><a class="dropdown-item" href="{% url 'student:student_upcoming_classes' %}">My_schedules</a></li>
+                <li><a class="dropdown-item" href="{% url 'student:student_upcoming_classes' %}">My schedules</a></li>
                 <li><a class="dropdown-item" href="{% url 'student:my_certificates' %}">My Certificates</a></li>
                 <li><a class="dropdown-item" href="{% url 'student_notifications' %}">Notifications</a></li>
-                <li><a class="dropdown-item" href="#">Payments</a></li>
-                <li><a class="dropdown-item" href="#">Help and Support</a></li>
                 <li><a class="dropdown-item" href="{% url 'account_settings' %}">Account Settings</a></li>
                 <li><hr class="dropdown-divider"></li>
                 <li><a class="dropdown-item text-danger" href="{% url 'logout_view' %}">Logout</a></li>
@@ -82,20 +79,40 @@
                 <p class="text-muted mb-0">Quiz Result Summary</p>
             </div>
 
-            <span class="score-badge 
-                {% if result.score >= answers|length|divisibleby:2 %}
+            <span class="score-badge
+                {% if passed %}
                     bg-success text-white
                 {% else %}
-                    bg-warning text-dark
+                    bg-danger text-white
                 {% endif %}
             ">
-                Score: {{ result.score }} / {{ answers|length }}
+                {{ percent }}%
             </span>
+        </div>
+
+        <div class="px-4 pb-4">
+            <p class="mb-1"><strong>Score:</strong> {{ result.score }} / {{ total_questions }}</p>
+            <p class="mb-1"><strong>Attempts Used:</strong> {{ attempts }} / 3</p>
+            <p class="mb-1"><strong>Passing Score:</strong> {{ pass_percent }}%</p>
+
+            {% if passed %}
+                <div class="alert alert-success mt-3 mb-0">
+                    ✅ Congratulations! You passed the quiz.
+                </div>
+            {% else %}
+                <div class="alert alert-danger mt-3 mb-0">
+                    ❌ You did not pass. Try again to unlock the next module.
+                </div>
+            {% endif %}
         </div>
     </div>
 
     {% for a in answers %}
-    <div class="card shadow-sm mb-3 question-card {% if a.choice.is_correct %}correct{% else %}wrong{% endif %}">
+    <div class="card shadow-sm mb-3 question-card
+        {% if passed and a.choice.is_correct %}correct
+        {% elif passed and not a.choice.is_correct %}wrong
+        {% endif %}
+    ">
         <div class="card-body">
             <h6 class="fw-bold mb-2">
                 Q{{ forloop.counter }}. {{ a.question.question_text }}
@@ -103,10 +120,17 @@
 
             <p class="mb-0">
                 <strong>Your Answer:</strong> {{ a.choice.text }}
-                {% if a.choice.is_correct %}
-                    <span class="ms-2 text-success fw-bold">✔ Correct</span>
-                {% else %}
-                    <span class="ms-2 text-danger fw-bold">✖ Incorrect</span>
+
+                {% if passed %}
+                    {% if a.choice.is_correct %}
+                        <span class="ms-2 text-success fw-bold">✔ Correct</span>
+                    {% else %}
+                        <span class="ms-2 text-danger fw-bold">✖ Incorrect</span>
+                        <br>
+                        <small class="text-success">
+                            Correct Answer: {{ a.correct_choice.text }}
+                        </small>
+                    {% endif %}
                 {% endif %}
             </p>
         </div>
@@ -114,11 +138,17 @@
     {% endfor %}
 
     <div class="d-flex justify-content-between align-items-center mt-4">
-        <a href="{% url 'student:student_course_detail' course_id %}" class="btn btn-outline-secondary">
+        <a href="{% url 'student:student_course_detail' course_id %}"
+           class="btn btn-outline-secondary">
             ← Back to Course
         </a>
+    </div>
 
 </div>
+
+<footer class="text-center mt-5 mb-4">
+    <p class="text-muted small">&copy; 2025 Bildung. All rights reserved.</p>
+</footer>
 
 </body>
 </html>

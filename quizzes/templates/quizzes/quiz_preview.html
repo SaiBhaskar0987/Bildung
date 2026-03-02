@@ -1,105 +1,204 @@
-<h2 class="mb-4">{{ quiz.title }} <small class="text-muted">(Preview)</small></h2>
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz Preview</title>
 
-<form method="post" id="quizForm">
-  {% csrf_token %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-  {% for q in questions %}
-  <div class="card mb-4 shadow-sm">
-    <div class="card-body">
+<style>
+body{
+    background:#f4f6f9;
+}
 
-      <div class="mb-3">
-        <strong class="fs-5">Q{{ forloop.counter }}.</strong>
-        <span class="view-mode ms-2">
-          {{ q.question_text }}
+.preview-header{
+    border-radius:14px;
+}
+
+.question-card{
+    border-left:5px solid #0d6efd;
+    transition:.2s ease;
+}
+
+.question-card:hover{
+    background:#f8fbff;
+}
+
+.correct-option{
+    background:#e9f9ee;
+    border-color:#28a745;
+}
+
+.preview-badge{
+    font-size:.85rem;
+}
+
+.edit-mode textarea,
+.edit-mode input{
+    border-radius:8px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="d-flex justify-content-between align-items-center p-3 bg-white shadow-sm sticky-top">
+
+  <a href="{% url 'instructor_dashboard' %}" class="text-decoration-none text-dark">
+    <h3 class="m-0 fw-bold">Bildung</h3>
+  </a>
+
+  <div class="dropdown">
+    <button class="btn rounded-circle shadow-sm"
+            style="background:#6c757d;color:white;width:45px;height:45px;"
+            data-bs-toggle="dropdown">
+      {{ request.user.username|first|upper }}
+    </button>
+
+    <ul class="dropdown-menu dropdown-menu-end">
+           <li><a class="dropdown-item" href="{% url 'profile_view' %}">Profile</a></li>
+            <li><a class="dropdown-item" href="{% url 'student:my_courses' %}">My Courses</a></li>
+            <li><a class="dropdown-item" href="{% url 'student_my_activity' %}">My activity</a></li>
+            <li><a class="dropdown-item" href="{% url 'student:student_upcoming_classes' %}">My_schedules</a></li>
+            <li><a class="dropdown-item" href="{% url 'student:my_certificates' %}">My Certificates</a></li>
+            <li><a class="dropdown-item" href="{% url 'student_notifications' %}">Notifications</a></li>
+            <li><a class="dropdown-item" href="#">Payments</a></li>
+            <li><a class="dropdown-item" href="#">Help and Support</a></li>
+            <li><a class="dropdown-item" href="{% url 'account_settings' %}">Account Settings</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item text-danger" href="{% url 'logout_view' %}">Logout</a></li>
+    </ul>
+  </div>
+</div>
+
+<div class="container mt-5 mb-5">
+
+  <div class="card shadow-sm preview-header mb-4">
+    <div class="card-body d-flex justify-content-between align-items-center">
+      <div>
+        <h3 class="fw-bold mb-1">{{ quiz.title }}</h3>
+        <span class="badge bg-info text-dark preview-badge">
+          Preview Mode
         </span>
-
-        <textarea
-          class="edit-mode form-control mt-2"
-          name="question_{{ q.id }}"
-          style="display:none;"
-        >{{ q.question_text }}</textarea>
       </div>
-
-      <ul class="list-group list-group-flush">
-        {% for c in q.choices.all %}
-        <li class="list-group-item rounded mb-2
-            {% if c.is_correct %}bg-success bg-opacity-10 border-success{% endif %}
-        ">
-
-          <div class="view-mode d-flex align-items-center">
-            <span class="{% if c.is_correct %}fw-bold text-success{% endif %}">
-              {{ c.text }}
-            </span>
-
-            {% if c.is_correct %}
-              <span class="badge bg-success ms-2">Correct</span>
-            {% endif %}
-          </div>
-
-          <div class="edit-mode" style="display:none;">
-            <div class="input-group">
-              <div class="input-group-text">
-                <input
-                  type="radio"
-                  name="correct_{{ q.id }}"
-                  value="{{ c.id }}"
-                  {% if c.is_correct %}checked{% endif %}
-                >
-              </div>
-              <input
-                type="text"
-                name="choice_{{ c.id }}"
-                value="{{ c.text }}"
-                class="form-control"
-              >
-            </div>
-          </div>
-
-        </li>
-        {% endfor %}
-      </ul>
-
+      <span class="text-muted small">
+        {{ questions|length }} Questions
+      </span>
     </div>
   </div>
-  {% endfor %}
 
-  <div class="mt-4">
-    <button type="button" class="btn btn-primary" id="editBtn">
-      Edit
-    </button>
+  <form method="post" id="quizForm">
+    {% csrf_token %}
 
-    <button type="submit" class="btn btn-success" id="saveBtn" style="display:none;">
-      Save Changes
-    </button>
+    {% for q in questions %}
+    <div class="card mb-4 shadow-sm question-card">
+      <div class="card-body">
 
-    <button type="button" class="btn btn-secondary" id="cancelBtn" style="display:none;">
-      Cancel
-    </button>
+        <div class="mb-3">
+          <strong class="fs-5">Q{{ forloop.counter }}.</strong>
 
-    <a href="javascript:history.back()" class="btn btn-link">
-      Back
-    </a>
-  </div>
-</form>
+          <span class="view-mode ms-2">
+            {{ q.question_text }}
+          </span>
+
+          <textarea
+            class="edit-mode form-control mt-2"
+            name="question_{{ q.id }}"
+            style="display:none;"
+          >{{ q.question_text }}</textarea>
+        </div>
+
+        <ul class="list-group list-group-flush">
+          {% for c in q.choices.all %}
+          <li class="list-group-item rounded mb-2
+              {% if c.is_correct %}correct-option border border-success{% endif %}
+          ">
+
+            <div class="view-mode d-flex align-items-center">
+              <span class="{% if c.is_correct %}fw-bold text-success{% endif %}">
+                {{ c.text }}
+              </span>
+
+              {% if c.is_correct %}
+                <span class="badge bg-success ms-2"></span>
+              {% endif %}
+            </div>
+
+            <div class="edit-mode" style="display:none;">
+              <div class="input-group">
+                <div class="input-group-text">
+                  <input
+                    type="radio"
+                    name="correct_{{ q.id }}"
+                    value="{{ c.id }}"
+                    {% if c.is_correct %}checked{% endif %}
+                  >
+                </div>
+                <input
+                  type="text"
+                  name="choice_{{ c.id }}"
+                  value="{{ c.text }}"
+                  class="form-control"
+                >
+              </div>
+            </div>
+
+          </li>
+          {% endfor %}
+        </ul>
+
+      </div>
+    </div>
+    {% endfor %}
+
+    <div class="mt-4 d-flex flex-wrap gap-2">
+
+      <button type="button" class="btn btn-primary px-4" id="editBtn">
+        ✏ Edit
+      </button>
+
+      <button type="submit" class="btn btn-success px-4" id="saveBtn" style="display:none;">
+        ✔ Save Changes
+      </button>
+
+      <button type="button" class="btn btn-outline-secondary px-4" id="cancelBtn" style="display:none;">
+        Cancel
+      </button>
+
+      <a href="javascript:history.back()" class="btn btn-light px-4">
+        ← Back
+      </a>
+
+    </div>
+  </form>
+
+</div>
 
 <script>
-  const editBtn = document.getElementById("editBtn");
-  const saveBtn = document.getElementById("saveBtn");
-  const cancelBtn = document.getElementById("cancelBtn");
+const editBtn = document.getElementById("editBtn");
+const saveBtn = document.getElementById("saveBtn");
+const cancelBtn = document.getElementById("cancelBtn");
 
-  const viewEls = document.querySelectorAll(".view-mode");
-  const editEls = document.querySelectorAll(".edit-mode");
+const viewEls = document.querySelectorAll(".view-mode");
+const editEls = document.querySelectorAll(".edit-mode");
 
-  editBtn.onclick = () => {
-    viewEls.forEach(el => el.style.display = "none");
-    editEls.forEach(el => el.style.display = "block");
+editBtn.onclick = () => {
+  viewEls.forEach(el => el.style.display = "none");
+  editEls.forEach(el => el.style.display = "block");
 
-    editBtn.style.display = "none";
-    saveBtn.style.display = "inline-block";
-    cancelBtn.style.display = "inline-block";
-  };
+  editBtn.style.display = "none";
+  saveBtn.style.display = "inline-block";
+  cancelBtn.style.display = "inline-block";
+};
 
-  cancelBtn.onclick = () => {
-    location.reload();
-  };
+cancelBtn.onclick = () => {
+  location.reload();
+};
 </script>
+
+</body>
+</html>

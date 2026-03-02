@@ -7,7 +7,7 @@ from django.utils.dateparse import parse_datetime, parse_date, parse_time
 from django.views.decorators.csrf import csrf_exempt
 from fastapi import requests
 from courses.utils import check_and_send_reminders
-from quizzes.models import Quiz, QuizChoice, QuizQuestion, QuizResult
+from quizzes.models import Quiz, QuizChoice, QuizQuestion, QuizResult, StudentAnswer
 from .models import Assignment, Course, CourseBlock, Enrollment, Certificate, Lecture, LectureProgress, Feedback, CourseEvent, Module, LiveClass, LectureQuestion, Notification, QuestionReply, CourseReview, LiveClassAttendance
 from users.models import CourseSearch, LoginHistory, User
 from .forms import LectureForm, FeedbackForm, LiveClassForm, CourseReviewForm, CourseEventForm
@@ -149,6 +149,35 @@ def student_course_detail(request, course_id):
     )
     course = enrollment.course
 
+    failed_quizzes = QuizResult.objects.filter(
+        student=request.user,
+        quiz__course=course,
+        attempts__gte=3,
+        passed=False
+    )
+
+    if failed_quizzes.exists():
+        LectureProgress.objects.filter(
+            student=request.user,
+            lecture__module__course=course
+        ).delete()
+
+        QuizResult.objects.filter(
+            student=request.user,
+            quiz__course=course
+        ).delete()
+
+        StudentAnswer.objects.filter(
+            student=request.user,
+            question__quiz__course=course
+        ).delete()
+
+        from django.contrib import messages
+        messages.error(
+            request,
+            "You failed a quiz 3 times. Course restarted from Module 1."
+        )
+
     lectures = Lecture.objects.filter(module__course=course)
 
     completed_lectures = set(
@@ -176,7 +205,7 @@ def student_course_detail(request, course_id):
     ordered_items = []
     structure = course.structure_json or []
 
-    previous_completed = True  
+    previous_completed = True
 
     module_count = quiz_count = assignment_count = live_count = 1
 
@@ -197,7 +226,7 @@ def student_course_detail(request, course_id):
             ordered_items.append({
                 "type": "module",
                 "obj": module,
-                "title": title or f"Module {module_count}",
+                "title": title or module.title or f"Module {module_count}",
                 "unlocked": unlocked,
                 "completed": completed_item,
             })
@@ -211,15 +240,26 @@ def student_course_detail(request, course_id):
                 continue
 
             result = quiz_results.get(quiz.id)
-            completed_item = bool(result and result.completed)
+
+            passed = bool(result and result.passed)
+            attempts = result.attempts if result else 0
+            attempts_left = max(0, 3 - attempts)
+
+            attempts_exhausted = attempts >= 3 and not passed
+
+            completed_item = passed
             unlocked = previous_completed
 
             ordered_items.append({
                 "type": "quiz",
                 "obj": quiz,
-                "title": title or f"Quiz {quiz_count}",
+                "title": title or quiz.title or f"Quiz {quiz_count}",
                 "unlocked": unlocked,
                 "completed": completed_item,
+                "passed": passed,
+                "attempts": attempts,
+                "attempts_left": attempts_left,
+                "attempts_exhausted": attempts_exhausted,
             })
 
             previous_completed = completed_item
@@ -237,7 +277,7 @@ def student_course_detail(request, course_id):
             ordered_items.append({
                 "type": "assignment",
                 "obj": assignment,
-                "title": title or f"Assignment {assignment_count}",
+                "title": title if title else assignment.title,
                 "unlocked": unlocked,
             })
 
@@ -256,7 +296,7 @@ def student_course_detail(request, course_id):
             ordered_items.append({
                 "type": "live",
                 "obj": live,
-                "title": title or f"Live Class {live_count}",
+                "title": title if title else live.title,
                 "unlocked": unlocked,
             })
 
@@ -1050,6 +1090,15 @@ def save_module(request, module_id):
     module.description = description
     module.save()
 
+    structure = course.structure_json or []
+    for item in structure:
+        if item.get("module_id") == module.id:
+            item["display_title"] = module.title
+            break
+
+    course.structure_json = structure
+    course.save(update_fields=["structure_json"])
+
     lecture_count = int(request.POST.get("lecture_count", 0))
 
     existing_lectures = list(
@@ -1094,8 +1143,10 @@ def save_course(request):
     course_id = data.get("course_id")
     structure = data.get("structure", [])
     level = data.get("level")
+
     if level not in ["beginner", "intermediate", "advanced"]:
         return JsonResponse({"error": "Invalid course level"}, status=400)
+
     if course_id:
         course = get_object_or_404(Course, id=course_id, instructor=request.user)
         course.title = data["title"]
@@ -1111,7 +1162,7 @@ def save_course(request):
             description=data["description"],
             price=data["price"],
             category=data["category"],
-            level=level, 
+            level=level,
         )
 
     updated_structure = []
@@ -1119,79 +1170,92 @@ def save_course(request):
     for index, item in enumerate(structure):
 
         block_type = item.get("type")
+        title = (item.get("title") or "").strip()
 
         if block_type == "Module":
+
             if item.get("module_id"):
                 module = Module.objects.get(id=item["module_id"])
-                module.title = item.get("title", module.title)
-                module.description = item.get("description", module.description)
-                module.module_order = index
-                module.save()
             else:
-                module = Module.objects.create(
-                    course=course,
-                    title=item.get("title", "Module"),
-                    description=item.get("description", ""),
-                    module_order=index
-                )
-                item["module_id"] = module.id
+                module = Module(course=course)
+
+            if not title:
+                title = f"Module {index + 1}"
+
+            module.title = title
+            module.description = item.get("description", "")
+            module.module_order = index
+            module.course = course
+            module.save()
+
+            item["module_id"] = module.id
+            item["display_title"] = title   
 
         elif block_type == "Quiz":
+
             if item.get("quiz_id"):
                 quiz = Quiz.objects.get(id=item["quiz_id"], course=course)
-                quiz.title = item.get("title", quiz.title)
-                quiz.quiz_order = index
-                quiz.save()
             else:
-                quiz = Quiz.objects.create(
-                    course=course,
-                    title=item.get("title", "Quiz"),
-                    quiz_order=index
-                )
-                item["quiz_id"] = quiz.id
+                quiz = Quiz(course=course)
 
+            if not title:
+                title = f"Quiz {index + 1}"
+
+            quiz.title = title
+            quiz.quiz_order = index
+            quiz.course = course
+            quiz.save()
+
+            item["quiz_id"] = quiz.id
+            item["display_title"] = title   
             item["scope"] = item.get("scope", "all_before")
 
         elif block_type == "Assignment":
+
             if item.get("assignment_id"):
                 a = Assignment.objects.get(id=item["assignment_id"])
-                a.title = item.get("title", a.title)
-                a.assignment_order = index
-                a.save()
             else:
-                a = Assignment.objects.create(
-                    course=course,
-                    title=item.get("title", "Assignment"),
-                    assignment_order=index
-                )
-                item["assignment_id"] = a.id
+                a = Assignment(course=course)
+
+            if not title:
+                title = f"Assignment {index + 1}"
+
+            a.title = title
+            a.assignment_order = index
+            a.course = course
+            a.save()
+
+            item["assignment_id"] = a.id
+            item["display_title"] = title
 
         elif block_type == "LiveClass":
+
             if item.get("liveclass_id"):
                 lc = LiveClass.objects.get(id=item["liveclass_id"])
-                lc.topic = item.get("title", lc.topic)
-                lc.live_class_order = index
-                lc.save()
             else:
-                lc = LiveClass.objects.create(
-                    course=course,
-                    instructor=request.user,
-                    topic=item.get("title", "Live Class"),
-                    live_class_order=index
-                )
-                item["liveclass_id"] = lc.id
+                lc = LiveClass(course=course, instructor=request.user)
+
+            if not title:
+                title = f"Live Class {index + 1}"
+
+            lc.topic = title
+            lc.live_class_order = index
+            lc.course = course
+            lc.save()
+
+            item["liveclass_id"] = lc.id
+            item["display_title"] = title
 
         updated_structure.append(item)
 
     course.structure_json = updated_structure
-    course.save()
+    course.save(update_fields=["structure_json"])
 
     return JsonResponse({
         "status": "success",
         "course_id": course.id,
         "structure": updated_structure
     })
-
 
 @csrf_exempt
 @login_required
@@ -1283,6 +1347,9 @@ def add_quiz(request, course_id, quiz_id):
             quiz_block = item
             break
 
+    question_count = quiz.questions.count()
+    existing_questions = question_count > 0
+
     return render(
         request,
         "courses/instructor/add_quiz.html",
@@ -1291,8 +1358,10 @@ def add_quiz(request, course_id, quiz_id):
             "quiz_id": quiz.id,
             "course": course,
             "structure": structure,
-            "quiz": quiz,    
+            "quiz": quiz,
             "quiz_block": quiz_block,
+            "existing_questions": existing_questions,
+            "question_count": question_count,
         }
     )
 
@@ -1352,6 +1421,9 @@ def edit_quiz(request, course_id, quiz_id):
             quiz_block = item
             break
 
+    question_count = quiz.questions.count()
+    existing_questions = question_count > 0
+
     return render(
         request,
         "courses/instructor/add_quiz.html",
@@ -1359,7 +1431,10 @@ def edit_quiz(request, course_id, quiz_id):
             "course": course,
             "course_id": course.id,
             "quiz_id": quiz.id,
-            "quiz_block": quiz_block
+            "quiz": quiz, 
+            "quiz_block": quiz_block,
+            "existing_questions": existing_questions,
+            "question_count": question_count,
         }
     )
 
@@ -1378,6 +1453,16 @@ def save_quiz(request, course_id, quiz_id):
 
     quiz.title = data.get("title", quiz.title)
     quiz.save(update_fields=["title"])
+
+    structure = course.structure_json or []
+
+    for item in structure:
+        if item.get("type") == "Quiz" and str(item.get("quiz_id")) == str(quiz_id):
+            item["display_title"] = quiz.title
+            break
+
+    course.structure_json = structure
+    course.save(update_fields=["structure_json"])
 
     question_source = data.get("question_source")  
 

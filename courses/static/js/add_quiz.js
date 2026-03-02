@@ -1,6 +1,7 @@
 const COURSE_ID = "{{ course_id }}";
 const QUIZ_ID = "{{ quiz_id }}";
 const QUIZ_BLOCK = {{ quiz_block|default:"null"|safe }};
+let EXISTING_QUESTIONS = {{ question_count|default:0 }} > 0;
 
 let QUIZ_MODE = QUIZ_BLOCK?.quiz_mode || null;
 let QUIZ_SCOPE = QUIZ_BLOCK?.scope || "all_before";
@@ -16,6 +17,10 @@ document.addEventListener("DOMContentLoaded", () => {
   if (sourceSelect) {
     sourceSelect.value = QUESTION_SOURCE;
   }
+
+  if (EXISTING_QUESTIONS) {
+    document.getElementById("existingQuestionsBox").classList.remove("d-none");
+  }
  
   if (!QUIZ_MODE) {
     new bootstrap.Modal(quizModeModal, { backdrop: "static" }).show();
@@ -23,13 +28,6 @@ document.addEventListener("DOMContentLoaded", () => {
     applyQuizMode(QUIZ_MODE);
   }
 });
-
-function getCSRFToken() {
-  return document.cookie
-    .split("; ")
-    .find(row => row.startsWith("csrftoken="))
-    ?.split("=")[1];
-}
 
 function selectQuizMode(mode) {
   QUIZ_MODE = mode;
@@ -50,6 +48,13 @@ function addManualQuestion() {
     source: "manual"
   });
   renderAllQuestions();
+}
+
+function getCSRFToken() {
+  return document.cookie
+    .split("; ")
+    .find(row => row.startsWith("csrftoken="))
+    ?.split("=")[1];
 }
 
 
@@ -77,7 +82,7 @@ function generateAIQuestions() {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-CSRFToken": getCSRFToken(),   
+        "X-CSRFToken": getCSRFToken(),  
       },
       body: JSON.stringify({ num_questions: count })
     }

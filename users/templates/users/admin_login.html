@@ -41,12 +41,6 @@
 <div class="login-card">
   <h2>Welcome Back</h2>
 
-  {% if messages %}
-    {% for message in messages %}
-      <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-    {% endfor %}
-  {% endif %}
-
   {% if form.errors %}
     <div class="alert alert-danger">
       Please check your username and password.

@@ -1952,7 +1952,6 @@ def mark_all_admin_notifications_read(request):
 
     return redirect("admin_notifications")
 
-
 @staff_member_required
 def admin_course_detail(request, course_id):
     course = get_object_or_404(Course, id=course_id)
@@ -1960,59 +1959,80 @@ def admin_course_detail(request, course_id):
     ordered_items = []
     structure = course.structure_json or []
 
-    modules = {
-        m.id: m for m in Module.objects.filter(course=course)
-        .prefetch_related('lectures')
-    }
-    quizzes = {q.id: q for q in Quiz.objects.filter(course=course)}
-    assignments = {a.id: a for a in Assignment.objects.filter(course=course)}
-    lives = {l.id: l for l in LiveClass.objects.filter(course=course)}
+    module_count = quiz_count = assignment_count = live_count = 1
 
-    for block in structure:
-        block_type = block.get("type")
+    for item in structure:
+        item_type = item.get("type")
 
-        if block_type == "Module":
-            module = modules.get(block.get("module_id"))
+        if item_type == "Module":
+            module = course.modules.filter(
+                id=item.get("module_id")
+            ).prefetch_related("lectures").first()
+
             if module:
                 ordered_items.append({
                     "type": "module",
-                    "title": block.get("display_title", module.title),
                     "obj": module,
+                    "title": item.get("title") or f"Module {module_count}"
                 })
+                module_count += 1
 
-        elif block_type == "Quiz":
-            quiz = quizzes.get(block.get("quiz_id"))
+        elif item_type == "Quiz":
+            quiz_id = item.get("quiz_id")
+            quiz = course.quizzes.filter(id=quiz_id).first()
+
             if quiz:
+                title = item.get("title") or quiz.title or f"Quiz {quiz_count}"
+
                 ordered_items.append({
                     "type": "quiz",
-                    "title": quiz.title,
-                    "display_label": block.get("display_title", "Quiz"),
                     "obj": quiz,
+                    "title": title,
+                    "quiz_id": quiz.id,
+                    "display_label": f"Quiz {quiz_count}"
                 })
+                quiz_count += 1
 
-        elif block_type == "Assignment":
-            assignment = assignments.get(block.get("assignment_id"))
+        elif item_type == "Assignment":
+            assignment = course.assignments.filter(
+                id=item.get("assignment_id")
+            ).first()
+
             if assignment:
                 ordered_items.append({
                     "type": "assignment",
-                    "title": block.get("display_title", assignment.title),
                     "obj": assignment,
+                    "title": item.get("title") or f"Assignment {assignment_count}"
                 })
+                assignment_count += 1
 
-        elif block_type == "LiveClass":
-            live = lives.get(block.get("liveclass_id"))
+        elif item_type == "LiveClass":
+            live = course.live_classes.filter(
+                id=item.get("liveclass_id")
+            ).first()
+
             if live:
                 ordered_items.append({
                     "type": "live",
-                    "title": block.get("display_title", live.topic),
                     "obj": live,
+                    "title": item.get("title") or f"Live Class {live_count}"
                 })
+                live_count += 1
 
-    return render(request, "courses/admin/admin_course_detail.html", {
-        "course": course,
-        "ordered_items": ordered_items,
-    })
+    course_comments = AdminComment.objects.filter(
+        course=course,
+        target_type="course"
+    ).order_by("-created_at")
 
+    return render(
+        request,
+        "courses/admin/admin_course_detail.html",
+        {
+            "course": course,
+            "ordered_items": ordered_items,
+            "course_comments": course_comments,
+        },
+    )
 
 @staff_member_required
 def admin_courses(request):

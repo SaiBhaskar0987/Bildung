@@ -130,7 +130,7 @@ body{
 
 <div class="sidebar">
     <h3>Speshway</h3>
-    <a href="{% url 'admin_dashboard' %}">
+    <a href="{% url 'courses:admin_courses' %}">
         <i class="fa-solid fa-book me-2"></i>Courses
     </a>
     <a href="{% url 'courses:admin_instructors' %}">
@@ -148,7 +148,9 @@ body{
 
     <div class="topbar">
         <h5 class="mb-0 fw-bold">Admin Dashboard</h5>
-        <a href="{% url 'logout_view' %}" class="logout-btn">Logout</a>
+        <a href="{% url 'logout_view' %}" class="btn btn-sm btn-danger rounded-pill px-3">
+        Logout
+        </a>
     </div>
 
     <div class="row mb-4 g-3">

@@ -24,7 +24,6 @@ urlpatterns = [
     path('admin/notifications/read-all/', views.mark_all_admin_notifications_read, name='mark_all_admin_notifications_read'),
     path("admin/course/<int:course_id>/", views.admin_course_detail, name="admin_course_detail"),
     path('admin/courses/', views.admin_courses, name='admin_courses'),
-    path("admin/courses/", views.admin_courses, name="admin_courses"),
     path("admin/course/<int:course_id>/", views.admin_course_detail, name="admin_course_detail"),
 
     path("admin/instructors/", views.admin_instructors, name="admin_instructors"),

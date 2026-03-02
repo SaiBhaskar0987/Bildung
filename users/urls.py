@@ -6,8 +6,10 @@ urlpatterns = [
     # LANDING / AUTH
     # =====================
     path("auth/", views.auth_page, name="auth_page"),
+    path("signup/", views.signup_page, name="signup_page"),
 
-    path('admin/login/', views.admin_login, name='login'),
+    path('admin/login/', views.admin_login, name='admin_login'),
+    path("logout/", views.logout_view, name="logout_view"),
     path('admin-dashboard/', views.admin_dashboard, name='admin_dashboard'),
 
     #verification

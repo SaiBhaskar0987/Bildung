@@ -28,28 +28,30 @@ from courses.services.recommendation_service import get_recommended_courses
 
 from .models import User, Profile, LoginHistory, InstructorProfile
 from .forms import StudentSignUpForm, InstructorSignUpForm, ProfileForm, UserDisplayForm, InstructorUserReadOnlyForm, InstructorUserForm, InstructorProfileForm
-from courses.models import Course, Enrollment, Lecture, LectureProgress, LectureQuestion, LiveClass, LiveClassAttendance, Notification
+from courses.models import Certificate, Course, Enrollment, Lecture, LectureProgress, LectureQuestion, LiveClass, LiveClassAttendance, Notification
 
 def auth_page(request):
-    return render(request, "users/auth_page.html")
+    return render(request, "users/login_page.html")
+
+def signup_page(request):
+    return render(request, "users/signup_page.html", {
+        "student_form": StudentSignUpForm(),
+        "instructor_form": InstructorSignUpForm(),
+    })
 
 
 def student_signup(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         form = StudentSignUpForm(request.POST)
 
         if form.is_valid():
             user = form.save(commit=False)
-            user.role = "student"
             user.is_active = False
-            user.set_password(form.cleaned_data["password1"])
             user.save()
 
             Profile.objects.create(user=user)
 
-            verification, created = EmailVerification.objects.get_or_create(
-                user=user
-            )
+            verification, _ = EmailVerification.objects.get_or_create(user=user)
 
             send_verification_email(
                 request,
@@ -68,11 +70,12 @@ def student_signup(request):
         else:
             messages.error(request, "Please correct the errors below.")
 
-    else:
-        form = StudentSignUpForm()
+            return render(request, "users/signup_page.html", {
+                "student_form": form,
+                "instructor_form": InstructorSignUpForm(),
+            })
 
-    return render(request, "student/student_signup.html", {"form": form})
-
+    return redirect("signup_page")
 
 def student_login(request):
     if request.method == "POST":
@@ -89,33 +92,74 @@ def student_login(request):
             messages.error(request, "Invalid username or password. Please try again.")
     else:
         form = AuthenticationForm()
+
+    form.fields["username"].widget.attrs.update({
+        "class": "form-control",
+        "placeholder": "Enter your email"
+    })
+    form.fields["password"].widget.attrs.update({
+        "class": "form-control",
+        "placeholder": "Enter your password",
+        "id": "id_password"
+    })
     return render(request, "student/student_login.html", {"form": form})
 
+from django.db.models import Count, Q, Avg
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect
+from django.contrib import messages
 
 @login_required
 def student_dashboard(request):
-    if request.user.role != "student":
+    user = request.user
+
+    if user.role != "student":
         messages.error(request, "Access denied.")
         return redirect("login")
 
-    check_and_send_reminders(request.user)
+    # ================= ENROLLMENTS =================
+    enrollments = Enrollment.objects.filter(
+        student=user
+    ).select_related("course")
 
-    enrolled_course_ids = Enrollment.objects.filter(
-        student=request.user
-    ).values_list("course_id", flat=True)
+    enrolled_course_ids = enrollments.values_list("course_id", flat=True)
+    enrolled_courses_count = enrollments.count()
 
-    unread_count = Notification.objects.filter(
-        user=request.user,
-        is_read=False
+    # ================= CERTIFICATES =================
+    certificates_count = Certificate.objects.filter(
+        student=user
     ).count()
 
+    # ================= COURSE PROGRESS =================
+    # Calculate overall progress based on completed lectures
+
+    total_lectures = Lecture.objects.filter(
+        module__course_id__in=enrolled_course_ids
+    ).count()
+
+    completed_lectures = LectureProgress.objects.filter(
+        student=user,
+        completed=True,
+        lecture__module__course_id__in=enrolled_course_ids
+    ).count()
+
+    if total_lectures > 0:
+        average_progress = round((completed_lectures / total_lectures) * 100)
+    else:
+        average_progress = 0
+
+    # ================= NOTIFICATIONS =================
     unread_notifications = Notification.objects.filter(
-        user=request.user,
+        user=user,
         is_read=False
     ).order_by("-created_at")[:5]
 
-    recommended_courses = get_recommended_courses(request.user)
+    unread_count = unread_notifications.count()
 
+    # ================= RECOMMENDATIONS =================
+    recommended_courses = get_recommended_courses(user)
+
+    # ================= COURSES =================
     all_courses = (
         Course.objects
         .filter(
@@ -123,16 +167,49 @@ def student_dashboard(request):
             Q(id__in=enrolled_course_ids)
         )
         .annotate(popularity=Count("enrollments"))
+        .select_related("instructor")
         .order_by("-popularity", "-created_at")
     )
 
-    return render(request, "student/student_dashboard.html", {
+    # ================= POPULAR CATEGORIES =================
+    popular_categories = (
+        Course.objects
+        .filter(status="approved", is_published=True)
+        .values("category")
+        .annotate(total=Count("id"))
+        .order_by("-total")[:6]
+    )
+
+    # ================= DASHBOARD STATS =================
+    dashboard_stats = [
+        {
+            "icon": "fas fa-book-open",
+            "value": enrolled_courses_count,
+            "label": "Enrolled Courses",
+        },
+        {
+            "icon": "fas fa-certificate",
+            "value": certificates_count,
+            "label": "Certificates Earned",
+        },
+        {
+            "icon": "fas fa-chart-line",
+            "value": f"{average_progress}%",
+            "label": "Learning Progress",
+        },
+    ]
+
+    context = {
         "all_courses": all_courses,
         "recommended_courses": recommended_courses,
         "enrolled_course_ids": enrolled_course_ids,
         "unread_count": unread_count,
         "unread_notifications": unread_notifications,
-    })
+        "popular_categories": popular_categories,
+        "dashboard_stats": dashboard_stats,
+    }
+
+    return render(request, "student/student_dashboard.html", context)
 
 
 @login_required
@@ -418,26 +495,19 @@ def mark_notification(request, notif_id):
 # --- Instructor --- #
 
 def instructor_signup(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         form = InstructorSignUpForm(request.POST)
 
         if form.is_valid():
             user = form.save(commit=False)
-            user.role = 'instructor'
             user.is_active = False
-
-            raw_password = form.cleaned_data.get("password1") or form.cleaned_data.get("password")
-            if raw_password:
-                user.set_password(raw_password)
-
             user.save()
 
-            InstructorProfile.objects.create(user=user)
-
-            verification, created = EmailVerification.objects.get_or_create(
-                user=user
+            InstructorProfile.objects.create(
+                user=user,
             )
-            
+
+            verification, _ = EmailVerification.objects.get_or_create(user=user)
 
             send_verification_email(
                 request,
@@ -456,26 +526,40 @@ def instructor_signup(request):
         else:
             messages.error(request, "Please correct the errors below.")
 
-    else:
-        form = InstructorSignUpForm()
+            return render(request, "users/signup_page.html", {
+                "student_form": StudentSignUpForm(),
+                "instructor_form": form,
+            })
 
-    return render(request, 'instructor/instructor_signup.html', {'form': form})
+    return redirect("signup_page")
 
 
 def instructor_login(request):
     if request.method == "POST":
         form = AuthenticationForm(request, data=request.POST)
+
         if form.is_valid():
             user = form.get_user()
-            if hasattr(user, 'role') and user.role == "instructor":
+            if user.role == "instructor":
                 login(request, user)
                 return redirect("instructor_dashboard")
             else:
                 messages.error(request, "This login is only for instructors.")
     else:
         form = AuthenticationForm()
-    return render(request, "instructor/instructor_login.html", {"form": form})
 
+    form.fields["username"].widget.attrs.update({
+        "class": "form-control",
+        "placeholder": "Enter your email"
+    })
+
+    form.fields["password"].widget.attrs.update({
+        "class": "form-control",
+        "placeholder": "Enter your password",
+        "id": "id_password"
+    })
+
+    return render(request, "instructor/instructor_login.html", {"form": form})
 
 @login_required
 def instructor_dashboard(request):
@@ -501,6 +585,10 @@ def logout_view(request):
     messages.success(request, "You have been successfully logged out.")
     return redirect("auth_page")
 
+def admin_logout(request):
+    logout(request)
+    messages.success(request, "You have been successfully logged out.")
+    return redirect("admin_login")
 
 def custom_password_reset(request):
     """
@@ -841,7 +929,7 @@ def admin_login(request):
         else:
             messages.error(request, "Invalid username or password")
 
-    return render(request, "users/login.html")
+    return render(request, "users/admin_login.html")
 
 def google_oauth_entry(request):
     role = request.GET.get('type', '').strip()

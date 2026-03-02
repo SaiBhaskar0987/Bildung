@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Speshway - Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap");
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+
+body {
+  height: 100vh;
+  background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
+}
+
+.auth-wrapper {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.main-container {
+  width: 100%;
+  max-width: 1100px;
+  height: 90vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-radius: 24px;
+  overflow: hidden;
+  background: rgba(255,255,255,0.9);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 30px 80px rgba(0,0,0,0.1);
+}
+
+.info-section {
+  padding: 60px 55px;
+  background: linear-gradient(135deg, #2563eb, #1e40af);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.info-section h1 {
+  font-size: 36px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  letter-spacing: -0.5px;
+}
+
+.info-section p {
+  font-size: 15px;
+  line-height: 1.8;
+  margin-bottom: 35px;
+  opacity: 0.95;
+}
+
+.features div {
+  margin-bottom: 14px;
+  font-size: 14px;
+  opacity: 0.95;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.login-card {
+  padding: 60px 55px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+}
+
+.login-card h2 {
+  font-size: 28px;
+  color: #1e293b;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: #64748b;
+  margin-bottom: 35px;
+}
+
+.btn-custom {
+  text-decoration: none;
+  padding: 14px;
+  margin-bottom: 18px;
+  border-radius: 12px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  display: block;
+}
+
+.student-btn {
+  background: linear-gradient(135deg, #2563eb, #1e40af);
+  color: white;
+  box-shadow: 0 10px 20px rgba(37,99,235,0.3);
+}
+
+.student-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 30px rgba(37,99,235,0.4);
+}
+
+.instructor-btn {
+  background: #f1f5f9;
+  color: #1e293b;
+  border: 1px solid #e2e8f0;
+}
+
+.instructor-btn:hover {
+  background: #e2e8f0;
+  transform: translateY(-3px);
+}
+
+.divider {
+  margin: 25px 0;
+  font-size: 13px;
+  color: #94a3b8;
+  position: relative;
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 35%;
+  height: 1px;
+  background: #e2e8f0;
+}
+
+.divider::before { left: 0; }
+.divider::after { right: 0; }
+
+.register-link {
+  font-size: 14px;
+  color: #2563eb;
+  text-decoration: none;
+  margin-bottom: 15px;
+}
+
+.register-link:hover {
+  text-decoration: underline;
+}
+
+.home-btn {
+  margin-top: 10px;
+  background: transparent;
+  border: 1px solid #2563eb;
+  color: #2563eb;
+}
+
+.home-btn:hover {
+  background: #2563eb;
+  color: white;
+}
+
+@media (max-width: 900px) {
+  .main-container {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+
+  .info-section {
+    text-align: center;
+    padding: 40px;
+  }
+
+  .login-card {
+    padding: 40px;
+  }
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="auth-wrapper">
+  <div class="main-container">
+
+    <div class="info-section">
+      <h1>Welcome to Speshway</h1>
+      <p>
+        A smart digital learning platform designed to help students grow 
+        and instructors teach with impact. Access structured courses, 
+        interactive tools, and real-time learning experiences.
+      </p>
+
+      <div class="features">
+        <div>✔ Structured Learning Paths</div>
+        <div>✔ Live & Interactive Classes</div>
+        <div>✔ Progress Tracking</div>
+        <div>✔ Certification Programs</div>
+      </div>
+    </div>
+
+    <div class="login-card">
+      <h2>Login As</h2>
+      <p class="subtitle">Select your role to continue</p>
+
+      <a href="{% url 'student_login' %}" class="btn-custom student-btn">
+        Student
+      </a>
+
+      <a href="{% url 'instructor_login' %}" class="btn-custom instructor-btn">
+        Instructor
+      </a>
+
+      <div class="divider">OR</div>
+
+      <p class="register-text">
+          New User?
+          <a href="{% url 'signup_page' %}" class="register-link">
+              Register
+          </a>
+      </p>
+
+      <a href="/" class="btn-custom home-btn">
+        ← Back to Home
+      </a>
+
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>

@@ -352,12 +352,79 @@ Start Exploring
 
 🔹 Available Services
 
-| Service                | URL                                                 |
-| ---------------------- | --------------------------------------------------- |
-| Django Web App         | `http://127.0.0.1:8000/`                            |
-| AI Assistant           | `http://127.0.0.1:8000/api/ai/ask`                  |
-| AI Quiz Generation     | `http://127.0.0.1:8000/api/quiz/{quiz_id}/generate` |
-| FastAPI Docs           | `http://127.0.0.1:8000/api/docs`                    |
+| Service                      | URL                                                 | Description                          |
+| ---------------------------- | --------------------------------------------------- | ------------------------------------ |
+| **Django Web App**           | `http://127.0.0.1:8000/`                            | Main platform interface              |
+| **Admin Login**              | `http://127.0.0.1:8000/accounts/admin/login/`       | Platform administrator login         |
+| **Django Admin Panel**       | `http://127.0.0.1:8000/admin/`                      | Advanced database & model management |
+| **AI Assistant API**         | `http://127.0.0.1:8000/api/ai/ask`                  | AI chatbot endpoint                  |
+| **AI Quiz Generation API**   | `http://127.0.0.1:8000/api/quiz/{quiz_id}/generate` | Generate AI quizzes                  |
+| **FastAPI Interactive Docs** | `http://127.0.0.1:8000/api/docs`                    | Explore & test AI endpoints          |
+
+
+🔐 Admin Setup & Management
+
+    Bildung includes a role-based administration system that allows platform administrators to manage users, courses, content, and platform operations.
+
+    Unlike the default Django admin panel, Bildung provides an app-level admin interface accessible via:
+
+    👉 http://127.0.0.1:8000/accounts/admin/login/
+
+    Admins log in through the standard authentication system and are granted elevated privileges.
+
+👤 Creating an Admin Account
+
+    Before logging in as an admin, you must create a superuser.
+
+    Option 1: Create Superuser
+        Step 1: Run the Command
+            - python manage.py createsuperuser
+        Step 2: Provide Details
+
+            You will be prompted to enter:
+
+            Username
+            Email address
+            Password
+
+            Example:
+
+            Username: admin
+            Email: admin@example.com
+            Password: ********
+
+            ⚠️ Password will be hidden while typing.
+
+
+    Option 2: Create via Django Shell
+        Run these commands in VS code terminal
+            1. - python manage.py shell
+            2. - from users.models import User
+
+            3. - admin = User.objects.create_user(
+                 username="admin",
+                 email="admin@example.com",
+                 password="admin123",
+                 role="admin"
+                 )
+
+            4. admin.is_staff = True
+            5. admin.is_superuser = True
+            6. admin.save()
+
+🔐 Admin Login
+
+    🌐 Login URL
+
+    👉 http://127.0.0.1:8000/accounts/admin/login/
+
+    🪪 Steps
+
+    1. Open the login page.
+    2. Enter admin email/username & password.
+    3. Click Login.
+
+    You will be redirected to the admin dashboard.
 
 
 🧠 RAG Workflow

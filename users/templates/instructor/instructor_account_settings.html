@@ -102,55 +102,145 @@
             <div class="col-md-9">
                 <div class="tab-content">
 
-                    <div class="tab-pane fade show active" id="security">
-                        <div class="settings-card">
-                            <div class="settings-section">
-                                <h4>Change Password</h4>
+            <div class="tab-pane fade show active" id="security">
+                <div class="settings-card">
+                    <div class="settings-section">
 
-                                <form method="post">
-                                    {% csrf_token %}
-                                    <label>Old Password</label>
-                                    <input type="password" name="old_password" class="form-control mb-3">
+                        <h4 class="mb-4">Change Password</h4>
+                                {% if messages %}
+                                    {% for message in messages %}
+                                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                                            {{ message }}
+                                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                        </div>
+                                    {% endfor %}
+                                {% endif %}
 
-                                    <label>New Password</label>
-                                    <input type="password" name="new_password1" class="form-control mb-3">
+                        {% if step == "form" %}
 
-                                    <label>Confirm Password</label>
-                                    <input type="password" name="new_password2" class="form-control mb-3">
+                        <form method="post">
+                            {% csrf_token %}
 
-                                    <button type="submit" name="change_password" class="btn btn-primary">
-                                        Update Password
-                                    </button>
-                                </form>
+                            <div class="mb-3">
+                                <label class="form-label">Old Password</label>
+                                <input type="password" name="old_password" class="form-control" required>
                             </div>
-                        </div>
-                    </div>
 
-                    <div class="tab-pane fade" id="notifications">
-                        <div class="settings-card">
-                            <div class="settings-section">
-                                <h4>Notification Preferences</h4>
-
-                                <form method="post">
-                                    {% csrf_token %}
-
-                                    <div class="form-check form-switch mb-3">
-                                        <input class="form-check-input" type="checkbox" checked>
-                                        <label>Email Notifications</label>
-                                    </div>
-
-                                    <div class="form-check form-switch mb-3">
-                                        <input class="form-check-input" type="checkbox" checked>
-                                        <label>Course Updates</label>
-                                    </div>
-
-                                    <button type="submit" name="update_notifications" class="btn btn-primary">
-                                        Save Preferences
-                                    </button>
-                                </form>
+                            <div class="mb-3">
+                                <label class="form-label">New Password</label>
+                                <input type="password" name="new_password1" class="form-control" required>
                             </div>
+
+                            <div class="mb-4">
+                                <label class="form-label">Confirm Password</label>
+                                <input type="password" name="new_password2" class="form-control" required>
+                            </div>
+
+                            <button type="submit" name="change_password" class="btn btn-primary">
+                                Update Password
+                            </button>
+                        </form>
+
+                        {% elif step == "email_sent" %}
+
+                        <div class="text-center py-4">
+
+                            <i class="fas fa-envelope-open-text fa-3x text-primary mb-3"></i>
+
+                            <h5>Check Your Email</h5>
+
+                            <p class="mt-3">
+                                A confirmation link has been sent to:
+                            </p>
+
+                            <p class="fw-bold text-primary">
+                                {{ request.user.email }}
+                            </p>
+
+                            <p>
+                                Please click the link in your email to complete the password update.
+                            </p>
+
+                            <a href="{% url 'instructor_account_settings' %}"
+                            class="btn btn-outline-primary mt-3">
+                                Back
+                            </a>
                         </div>
+
+                        {% elif step == "success" %}
+
+                        <div class="text-center py-4">
+
+                            <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+
+                            <h5>Password Updated Successfully</h5>
+
+                            <p class="mt-3">
+                                Your password has been securely changed.
+                            </p>
+
+                            <a href="{% url 'instructor_dashboard' %}"
+                            class="btn btn-success mt-3">
+                                Go to Dashboard
+                            </a>
+                        </div>
+
+                        {% endif %}
+
                     </div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="notifications">
+                <div class="settings-card">
+                    <div class="settings-section">
+                        <h4>Notification Preferences</h4>
+
+                        <form method="post">
+                            {% csrf_token %}
+
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input"
+                                    type="checkbox"
+                                    name="email_notifications"
+                                    id="email_notifications"
+                                    {% if notification_settings.email_notifications %}checked{% endif %}>
+                                <label class="form-check-label" for="email_notifications">
+                                    Email Notifications
+                                </label>
+                            </div>
+
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input"
+                                    type="checkbox"
+                                    name="course_updates"
+                                    id="course_updates"
+                                    {% if notification_settings.course_updates %}checked{% endif %}>
+                                <label class="form-check-label" for="course_updates">
+                                    Course Updates
+                                </label>
+                            </div>
+
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input"
+                                    type="checkbox"
+                                    name="enroll_updates"
+                                    id="enroll_updates"
+                                    {% if notification_settings.enroll_updates %}checked{% endif %}>
+                                <label class="form-check-label" for="enroll_updates">
+                                    Enrollment Updates
+                                </label>
+                            </div>
+
+                            <button type="submit"
+                                    name="update_notifications"
+                                    class="btn btn-primary">
+                                Save Preferences
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
 
                     <div class="tab-pane fade" id="privacy">
                         <div class="settings-card">

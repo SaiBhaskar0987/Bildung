@@ -8,263 +8,97 @@
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-  <style>
-    body { font-family: 'Poppins', sans-serif; }
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 
-    .hero {
-      background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),
+body {
+  font-family: 'Poppins', sans-serif;
+  background: #f5f7fb;
+  scroll-behavior: smooth;
+}
+
+.hero {
+  position: relative;
+        background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),
                   url("https://images.unsplash.com/photo-1522202176988-66273c2fd55f");
-      background-size: cover;
-      background-position: center;
-      color: white;
-      padding: 80px 20px;
-      text-align: center;
-    }
+  background-size: cover;
+  background-position: center;
+  color: white;
+  padding: 120px 20px;
+  text-align: center;
+}
 
-    .hero h1 {
-      font-size: 3rem;
-      font-weight: bold;
-    }
+.hero h1 {
+  font-size: 3.2rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
 
-    .search-bar input {
-      width: 60%;
-      max-width: 500px;
-    }
+.hero p {
+  font-size: 1.1rem;
+  opacity: 0.9;
+}
 
-    section.container {
-      margin-top: 2rem !important;
-      margin-bottom: 2rem !important;
-    }
+.search-bar input {
+  width: 60%;
+  max-width: 520px;
+  border-radius: 50px;
+  padding: 12px 20px;
+}
 
-    h2 {
-      margin-bottom: 1.25rem;
-    }
+.search-bar .btn {
+  border-radius: 50px;
+  padding: 12px 25px;
+}
 
-    .course-card {
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
+section.container {
+  margin-top: 3rem !important;
+  margin-bottom: 3rem !important;
+}
 
-    .course-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    }
+h2 {
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  color: #1e293b;
+}
 
-    footer {
-      background: #f8f9fa;
-      padding: 20px 0;
-      text-align: center;
-      margin-top: 50px;
-    }
+.course-card {
+  border-radius: 16px;
+  transition: all 0.3s ease;
+  border: none;
+}
 
-    .popular-section {
-      background: #f9fafc;
-      padding: 30px 20px;
-    }
+.course-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+}
 
-    .category-btn.active {
-      background-color: #0d6efd;
-      color: #fff;
-      border-color: #0d6efd;
-    }
+.card-img-top {
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+}
 
-    .popular-section h2 {
-      font-weight: bold;
-      margin-bottom: 30px;
-      color: #333;
-    }
- 
-    .popular-course {
-      background: white;
-      border-radius: 10px;
-      padding: 20px;
-      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
-      transition: transform 0.2s;
-    }
- 
-    .popular-course:hover { transform: translateY(-5px); }
- 
-    .floating-btn {
-        position: fixed;
-        right: 25px;
-        width: 55px;
-        height: 55px;
-        background: #4c6ef5;
-        color: white;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        border-radius: 50%;
-        cursor: pointer;
-        z-index: 9999;
-        font-size: 26px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    }
- 
-    #aiChatBtn { bottom: 25px; }
- 
-    #noteBtn { bottom: 95px; }
- 
-    .chatbox {
-        position: fixed;
-        right: 90px;
-        width: 320px;
-        background: white;
-        border-radius: 12px;
-        display: none;
-        flex-direction: column;
-        box-shadow: 0 4px 16px rgba(0,0,0,0.25);
-        z-index: 9998;
-        overflow: hidden;    
-    }
- 
-    #aiChatBox {
-        bottom: 90px;
-        height: 400px;
-    }
- 
-    #noteBox {
-        bottom: 160px;
-        height: 360px;
-    }
- 
-    .chatbox .chat-header {
-        background: #4c6ef5;
-        color: white;
-        padding: 12px;
-        font-weight: 600;
-        font-size: 16px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
- 
-    .chatbox .close-btn {
-        background: transparent;
-        border: none;
-        color: white;
-        font-size: 18px;
-        cursor: pointer;
-        padding: 0;
-    }
- 
-    .chatbox .chat-body {
-        padding: 10px;
-        height: 270px;
-        overflow-y: auto;
-        font-size: 14px;
-    }
- 
-    .chatbox .chat-footer {
-        display: flex;
-        padding: 10px;
-        gap: 5px;
-        border-top: 1px solid #ddd;
-    }
- 
-    .chatbox .chat-footer input {
-        flex: 1;
-        padding: 8px;
-        border-radius: 6px;
-        border: 1px solid #ccc;
-        outline: none;
-    }
- 
-    .chatbox .chat-footer button {
-        background: #4c6ef5;
-        color: white;
-        padding: 7px 16px;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-    }
+.category-btn {
+  border-radius: 30px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
 
-    /* Styling for the Formatted Content */
-    .ai-message code {
-        background-color: #f1f3f5;
-        padding: 2px 6px;
-        border-radius: 4px;
-        font-family: monospace;
-        color: #d63384; /* Pinkish red for inline code */
-    }
+.category-btn:hover {
+  transform: translateY(-3px);
+}
 
-    .ai-message pre {
-        background-color: #212529;
-        color: #f8f9fa;
-        padding: 10px;
-        border-radius: 6px;
-        overflow-x: auto;
-        margin-top: 10px;
-        margin-bottom: 10px;
-    }
-
-    .ai-message pre code {
-        background-color: transparent;
-        color: inherit;
-        padding: 0;
-    }
-
-    #askButton:disabled {
-    background-color: #ccc !important;
-    cursor: not-allowed;
-    opacity: 0.7;
-    }
- 
-    #noteBox .note-info {
-        padding: 8px 12px;
-        background: #f8f9fa;
-        border-bottom: 1px solid #dee2e6;
-        font-size: 12px;
-        color: #6c757d;
-        display: flex;
-        justify-content: space-between;
-    }
- 
-    #noteBox .note-area {
-        width: 100%;
-        height: 220px;
-        padding: 10px;
-        border-radius: 10px;
-        border: 1px solid #bbb;
-        resize: none;
-        outline: none;
-    }
- 
-    #noteBox .note-footer {
-        text-align: right;
-        padding: 8px 0;
-    }
- 
-    #noteBox .save-note-btn {
-        background: #4c6ef5;
-        color: white;
-        padding: 7px 14px;
-        border-radius: 6px;
-        border: none;
-        cursor: pointer;
-    }
- 
-  .bullet-btn {
-    margin: 5px 10px;
-    background: #198754;
-    color: white;
-    border-radius: 6px;
-    padding: 5px 14px;
-    }
-
-    #noteBox .storage-warning {
-        color: #dc3545;
-        font-size: 11px;
-        margin-top: 5px;
-        display: none;
-        padding: 0 10px;
-    }
+.category-btn.active {
+  background-color: #2563eb;
+  color: #fff;
+  border-color: #2563eb;
+}
 
 .featured-scroll {
   display: flex;
-  gap: 16px;
+  gap: 20px;
   overflow-x: auto;
-  overflow-y: hidden;
-  padding-bottom: 10px;
+  padding-bottom: 15px;
   scroll-behavior: smooth;
 }
 
@@ -273,7 +107,7 @@
 }
 
 .featured-scroll::-webkit-scrollbar-thumb {
-  background: #ccc;
+  background: #cbd5e1;
   border-radius: 4px;
 }
 
@@ -283,34 +117,175 @@
   flex-shrink: 0;
 }
 
-  </style>
+footer {
+  background: #111827;
+  color: #d1d5db;
+  padding: 30px 0;
+  text-align: center;
+  margin-top: 60px;
+}
+
+footer p {
+  margin: 0;
+  font-size: 14px;
+}
+
+.floating-btn {
+  position: fixed;
+  right: 25px;
+  width: 58px;
+  height: 58px;
+  background: linear-gradient(135deg, #4c6ef5, #2563eb);
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 9999;
+  font-size: 24px;
+  box-shadow: 0 10px 25px rgba(37,99,235,0.4);
+  transition: 0.3s ease;
+}
+
+.floating-btn:hover {
+  transform: scale(1.08);
+}
+
+#aiChatBtn { bottom: 25px; }
+#noteBtn { bottom: 100px; }
+
+.chatbox {
+  position: fixed;
+  right: 95px;
+  width: 340px;
+  background: white;
+  border-radius: 16px;
+  display: none;
+  flex-direction: column;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.2);
+  z-index: 9998;
+  overflow: hidden;
+}
+
+#aiChatBox { bottom: 90px; height: 420px; }
+#noteBox { bottom: 170px; height: 380px; }
+
+.chatbox .chat-header {
+  background: linear-gradient(135deg, #4c6ef5, #2563eb);
+  color: white;
+  padding: 14px;
+  font-weight: 600;
+  font-size: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.chatbox .chat-body {
+  padding: 12px;
+  height: 280px;
+  overflow-y: auto;
+  font-size: 14px;
+}
+
+.chatbox .chat-footer {
+  display: flex;
+  padding: 12px;
+  gap: 8px;
+  border-top: 1px solid #eee;
+}
+
+.chatbox .chat-footer input {
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  outline: none;
+}
+
+.chatbox .chat-footer button {
+  background: #2563eb;
+  color: white;
+  padding: 7px 18px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+#noteBox .note-info {
+  padding: 8px 12px;
+  background: #f9fafb;
+  border-bottom: 1px solid #eee;
+  font-size: 12px;
+  color: #6b7280;
+  display: flex;
+  justify-content: space-between;
+}
+
+#noteBox .note-area {
+  width: 100%;
+  height: 220px;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  resize: none;
+  outline: none;
+}
+
+#noteBox .save-note-btn {
+  background: #2563eb;
+  color: white;
+  padding: 8px 18px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+}
+
+.bullet-btn {
+  margin: 5px 10px;
+  background: #198754;
+  color: white;
+  border-radius: 8px;
+  padding: 6px 16px;
+}
+
+#noteBox .storage-warning {
+  color: #dc2626;
+  font-size: 11px;
+  margin-top: 5px;
+  display: none;
+  padding: 0 10px;
+}
+</style>
 </head>
 
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-light bg-light px-4">
-  
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top px-4 py-3">
+  <div class="container-fluid">
 
-  <a href="{% url 'smart_home' %}" class="text-decoration-none text-dark">
-        <h3 class="m-0 fw-bold"><i class="fas fa-graduation-cap"></i> Bildung</h3>
+    <a href="{% url 'smart_home' %}" class="text-decoration-none">
+      <h4 class="m-0 fw-bold brand-logo">
+        <i class="fas fa-graduation-cap me-2 text-primary"></i>Speshway
+      </h4>
     </a>
-  
 
-  <div class="ms-auto">
-    {% if user.is_authenticated %}
-      {% if user.role == "student" %}
-        <a href="{% url 'student_dashboard' %}" class="btn btn-outline-success me-2">Dashboard</a>
-      {% elif user.role == "instructor" %}
-        <a href="{% url 'instructor_dashboard' %}" class="btn btn-outline-success me-2">Dashboard</a>
-      {% elif user.role == "admin" %}
-        <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-success me-2">Admin</a>
+    <div class="ms-auto d-flex align-items-center gap-2">
+      {% if user.is_authenticated %}
+        {% if user.role == "student" %}
+          <a href="{% url 'student_dashboard' %}" class="btn btn-outline-primary btn-sm">Dashboard</a>
+        {% elif user.role == "instructor" %}
+          <a href="{% url 'instructor_dashboard' %}" class="btn btn-outline-primary btn-sm">Dashboard</a>
+        {% elif user.role == "admin" %}
+          <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-primary btn-sm">Admin</a>
+        {% endif %}
+        <a href="{% url 'logout' %}" class="btn btn-danger btn-sm">Logout</a>
+      {% else %}
+        <a href="{% url 'auth_page' %}" class="btn btn-primary btn-sm px-3">Explore</a>
+        <a href="{% url 'signup_page' %}" class="btn btn-outline-secondary btn-sm px-3">Get Started</a>
       {% endif %}
-      <a href="{% url 'logout' %}" class="btn btn-danger">Logout</a>
-    {% else %}
-      <a href="{% url 'student_login' %}" class="btn btn-outline-primary me-2">Student Login</a>
-      <a href="{% url 'instructor_login' %}" class="btn btn-outline-secondary me-2">Instructor Login</a>
-      <a href="{% url 'auth_page' %}" class="btn btn-primary">Sign Up</a>
-    {% endif %}
+    </div>
   </div>
 </nav>
 
@@ -365,7 +340,6 @@
 
         <div class="card-body d-flex flex-column">
           <h4 class="mb-2">{{ course.title }}</h4>
-          <p class="text-muted">{{ course.description|truncatewords:8 }}</p>
           <p class="small mb-2">
             <strong>Category:</strong> {{ course.category|title }}
           </p>
@@ -400,7 +374,6 @@
 
         <div class="card-body d-flex flex-column">
           <h4 class="mb-2">{{ course.title }}</h4>
-          <p class="text-muted">{{ course.description|truncatewords:8 }}</p>
           <p class="small mb-2">
             <strong>Category:</strong> {{ course.category|title }}
           </p>
@@ -420,7 +393,7 @@
 </section>
 <footer class="bg-light py-4 mt-5">
     <div class="container text-center">
-        <p class="mb-0">&copy; 2025 Bildung. All rights reserved.</p>
+        <p class="mb-0">&copy; 2025 Speshway. All rights reserved.</p>
     </div>
 </footer>
 

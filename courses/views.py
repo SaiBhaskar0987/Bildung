@@ -8,7 +8,8 @@ from django.views.decorators.csrf import csrf_exempt
 from fastapi import requests
 from courses.utils import check_and_send_reminders
 from quizzes.models import Quiz, QuizChoice, QuizQuestion, QuizResult, StudentAnswer
-from .models import Assignment, Course, CourseBlock, Enrollment, Certificate, Lecture, LectureProgress, Feedback, CourseEvent, Module, LiveClass, LectureQuestion, Notification, QuestionReply, CourseReview, LiveClassAttendance
+from users.utils import admin_required
+from .models import AdminComment, Assignment, Course, CourseBlock, Enrollment, Certificate, Lecture, LectureProgress, Feedback, CourseEvent, Module, LiveClass, LectureQuestion, Notification, QuestionReply, CourseReview, LiveClassAttendance
 from users.models import CourseSearch, LoginHistory, User
 from .forms import LectureForm, FeedbackForm, LiveClassForm, CourseReviewForm, CourseEventForm
 from users.decorators import instructor_required
@@ -22,7 +23,7 @@ from django.http import FileResponse, HttpResponseForbidden, JsonResponse
 import json
 from django.db.models import Prefetch
 from courses.services.recommendation_service import get_recommended_courses
-
+from django.contrib.admin.views.decorators import staff_member_required
 
 # -------------------------------
 # Common Views
@@ -42,8 +43,10 @@ def get_instructor_average_rating(instructor):
 def course_list(request):
     query = request.GET.get("q")
     category = request.GET.get("category")
-
-    courses = Course.objects.all()
+    courses = Course.objects.filter(
+    status="approved",
+    is_published=True
+)
 
     if query and request.user.is_authenticated and request.user.role == "student":
         CourseSearch.objects.create(
@@ -113,19 +116,32 @@ def browse_courses(request):
 
 @login_required(login_url='/login/')
 def enroll_course(request, course_id):
+
     if getattr(request.user, 'role', None) != 'student':
         return redirect('student_login')
+
     course = get_object_or_404(Course, id=course_id)
-    Enrollment.objects.get_or_create(student=request.user, course=course)
-    
+
+    if course.status != "approved":
+        messages.warning(
+            request,
+            "This course is currently being updated and enrollment is temporarily unavailable."
+        )
+        return redirect('course_detail', course_id=course.id)
+
+    Enrollment.objects.get_or_create(
+        student=request.user,
+        course=course
+    )
+
     Notification.objects.create(
         user=request.user,
         message=f"You have successfully enrolled in {course.title}.",
-        url=f"/accounts/student/my-courses/"
-        
+        url="/accounts/student/my-courses/"
     )
 
     messages.success(request, f"Enrolled in {course.title}")
+
     return redirect('student:my_courses')
 
 @login_required
@@ -913,7 +929,11 @@ def student_course_list(request):
     if getattr(request.user, 'role', None) != 'student':
         return redirect('login')
 
-    courses = Course.objects.all()
+    courses = Course.objects.filter(
+        status="approved",
+        is_published=True
+    )
+    
     enrolled_ids = Enrollment.objects.filter(student=request.user).values_list('course_id', flat=True)
 
     for course in courses:
@@ -1133,6 +1153,7 @@ def save_module(request, module_id):
 
     return JsonResponse({"status": "success"})
 
+
 @csrf_exempt
 @login_required
 def save_course(request):
@@ -1143,10 +1164,8 @@ def save_course(request):
     course_id = data.get("course_id")
     structure = data.get("structure", [])
     level = data.get("level")
-
     if level not in ["beginner", "intermediate", "advanced"]:
         return JsonResponse({"error": "Invalid course level"}, status=400)
-
     if course_id:
         course = get_object_or_404(Course, id=course_id, instructor=request.user)
         course.title = data["title"]
@@ -1162,7 +1181,7 @@ def save_course(request):
             description=data["description"],
             price=data["price"],
             category=data["category"],
-            level=level,
+            level=level, 
         )
 
     updated_structure = []
@@ -1170,92 +1189,79 @@ def save_course(request):
     for index, item in enumerate(structure):
 
         block_type = item.get("type")
-        title = (item.get("title") or "").strip()
 
         if block_type == "Module":
-
             if item.get("module_id"):
                 module = Module.objects.get(id=item["module_id"])
+                module.title = item.get("title", module.title)
+                module.description = item.get("description", module.description)
+                module.module_order = index
+                module.save()
             else:
-                module = Module(course=course)
-
-            if not title:
-                title = f"Module {index + 1}"
-
-            module.title = title
-            module.description = item.get("description", "")
-            module.module_order = index
-            module.course = course
-            module.save()
-
-            item["module_id"] = module.id
-            item["display_title"] = title   
+                module = Module.objects.create(
+                    course=course,
+                    title=item.get("title", "Module"),
+                    description=item.get("description", ""),
+                    module_order=index
+                )
+                item["module_id"] = module.id
 
         elif block_type == "Quiz":
-
             if item.get("quiz_id"):
                 quiz = Quiz.objects.get(id=item["quiz_id"], course=course)
+                quiz.title = item.get("title", quiz.title)
+                quiz.quiz_order = index
+                quiz.save()
             else:
-                quiz = Quiz(course=course)
+                quiz = Quiz.objects.create(
+                    course=course,
+                    title=item.get("title", "Quiz"),
+                    quiz_order=index
+                )
+                item["quiz_id"] = quiz.id
 
-            if not title:
-                title = f"Quiz {index + 1}"
-
-            quiz.title = title
-            quiz.quiz_order = index
-            quiz.course = course
-            quiz.save()
-
-            item["quiz_id"] = quiz.id
-            item["display_title"] = title   
             item["scope"] = item.get("scope", "all_before")
 
         elif block_type == "Assignment":
-
             if item.get("assignment_id"):
                 a = Assignment.objects.get(id=item["assignment_id"])
+                a.title = item.get("title", a.title)
+                a.assignment_order = index
+                a.save()
             else:
-                a = Assignment(course=course)
-
-            if not title:
-                title = f"Assignment {index + 1}"
-
-            a.title = title
-            a.assignment_order = index
-            a.course = course
-            a.save()
-
-            item["assignment_id"] = a.id
-            item["display_title"] = title
+                a = Assignment.objects.create(
+                    course=course,
+                    title=item.get("title", "Assignment"),
+                    assignment_order=index
+                )
+                item["assignment_id"] = a.id
 
         elif block_type == "LiveClass":
-
             if item.get("liveclass_id"):
                 lc = LiveClass.objects.get(id=item["liveclass_id"])
+                lc.topic = item.get("title", lc.topic)
+                lc.live_class_order = index
+                lc.save()
             else:
-                lc = LiveClass(course=course, instructor=request.user)
-
-            if not title:
-                title = f"Live Class {index + 1}"
-
-            lc.topic = title
-            lc.live_class_order = index
-            lc.course = course
-            lc.save()
-
-            item["liveclass_id"] = lc.id
-            item["display_title"] = title
+                lc = LiveClass.objects.create(
+                    course=course,
+                    instructor=request.user,
+                    topic=item.get("title", "Live Class"),
+                    live_class_order=index
+                )
+                item["liveclass_id"] = lc.id
 
         updated_structure.append(item)
 
     course.structure_json = updated_structure
-    course.save(update_fields=["structure_json"])
+    course.save()
 
     return JsonResponse({
         "status": "success",
         "course_id": course.id,
         "structure": updated_structure
     })
+
 
 @csrf_exempt
 @login_required
@@ -1400,7 +1406,6 @@ def add_quiz_question(request, quiz_id):
         "id": q.id
     })
 
-
 @login_required
 def edit_quiz(request, course_id, quiz_id):
     course = get_object_or_404(
@@ -1454,16 +1459,6 @@ def save_quiz(request, course_id, quiz_id):
     quiz.title = data.get("title", quiz.title)
     quiz.save(update_fields=["title"])
 
-    structure = course.structure_json or []
-
-    for item in structure:
-        if item.get("type") == "Quiz" and str(item.get("quiz_id")) == str(quiz_id):
-            item["display_title"] = quiz.title
-            break
-
-    course.structure_json = structure
-    course.save(update_fields=["structure_json"])
-
     question_source = data.get("question_source")  
 
     if question_source:
@@ -1507,6 +1502,7 @@ def save_quiz(request, course_id, quiz_id):
         "message": "Quiz, questions, and source preference saved"
     })
 
+
 @login_required
 def add_lecture(request, module_id):
     module = get_object_or_404(Module, id=module_id)
@@ -1538,13 +1534,26 @@ def delete_lecture(request, lecture_id):
 
 @login_required
 def publish_course(request, course_id):
+    course = get_object_or_404(
+        Course,
+        id=course_id,
+        instructor=request.user
+    )
 
-    course = get_object_or_404(Course, id=course_id, instructor=request.user)
+    course.status = "pending"
+    course.save()
 
-    messages.success(request, f"Course '{course.title}' published successfully!")
+    admins = User.objects.filter(is_staff=True)
+
+    for admin in admins:
+        Notification.objects.create(
+            user=admin,
+            message=f"📚 New course '{course.title}' submitted for approval."
+        )
+
+    messages.success(request, "Course submitted for admin approval.")
 
     return redirect("instructor_dashboard")
-
 
 def edit_course(request, course_id):
     course = get_object_or_404(Course, id=course_id)
@@ -1872,3 +1881,266 @@ def student_history(request, course_id, student_id):
 
     return render(request, "courses/instructor/student_history.html", context)
 
+#-----------------ADMIN-------------------
+
+@staff_member_required
+def admin_approve_course(request, course_id):
+    course = get_object_or_404(Course, id=course_id)
+
+    course.status = "approved"
+    course.is_published = True
+    course.save()
+
+    Notification.objects.create(
+        user=course.instructor,
+        message=f"🎉 Your course '{course.title}' has been approved!"
+    )
+
+    return redirect("admin_dashboard")
+
+
+@staff_member_required
+def admin_reject_course(request, course_id):
+    course = get_object_or_404(Course, id=course_id)
+
+    reason = request.POST.get("reason")
+
+    course.status = "rejected"
+    course.rejection_reason = reason
+    course.is_published = False
+    course.save()
+
+    Notification.objects.create(
+        user=course.instructor,
+        message=f"❌ Your course '{course.title}' was rejected."
+    )
+
+    return redirect("admin_dashboard")
+
+@staff_member_required
+def admin_notifications(request):
+    notifications = Notification.objects.filter(
+        user=request.user
+    ).order_by('-created_at')
+
+    unread_count = notifications.filter(is_read=False).count()
+
+    return render(request, "admin/admin_notifications.html", {
+        "notifications": notifications,
+        "unread_count": unread_count
+    })
+
+@staff_member_required
+def mark_admin_notification_read(request, notif_id):
+    note = Notification.objects.filter(
+        id=notif_id,
+        user=request.user
+    ).first()
+
+    if note:
+        note.is_read = True
+        note.save()
+
+    return JsonResponse({"success": True})
+
+@staff_member_required
+def mark_all_admin_notifications_read(request):
+    Notification.objects.filter(
+        user=request.user,
+        is_read=False
+    ).update(is_read=True)
+
+    return redirect("admin_notifications")
+
+
+@staff_member_required
+def admin_course_detail(request, course_id):
+    course = get_object_or_404(Course, id=course_id)
+
+    ordered_items = []
+    structure = course.structure_json or []
+
+    modules = {
+        m.id: m for m in Module.objects.filter(course=course)
+        .prefetch_related('lectures')
+    }
+    quizzes = {q.id: q for q in Quiz.objects.filter(course=course)}
+    assignments = {a.id: a for a in Assignment.objects.filter(course=course)}
+    lives = {l.id: l for l in LiveClass.objects.filter(course=course)}
+
+    for block in structure:
+        block_type = block.get("type")
+
+        if block_type == "Module":
+            module = modules.get(block.get("module_id"))
+            if module:
+                ordered_items.append({
+                    "type": "module",
+                    "title": block.get("display_title", module.title),
+                    "obj": module,
+                })
+
+        elif block_type == "Quiz":
+            quiz = quizzes.get(block.get("quiz_id"))
+            if quiz:
+                ordered_items.append({
+                    "type": "quiz",
+                    "title": quiz.title,
+                    "display_label": block.get("display_title", "Quiz"),
+                    "obj": quiz,
+                })
+
+        elif block_type == "Assignment":
+            assignment = assignments.get(block.get("assignment_id"))
+            if assignment:
+                ordered_items.append({
+                    "type": "assignment",
+                    "title": block.get("display_title", assignment.title),
+                    "obj": assignment,
+                })
+
+        elif block_type == "LiveClass":
+            live = lives.get(block.get("liveclass_id"))
+            if live:
+                ordered_items.append({
+                    "type": "live",
+                    "title": block.get("display_title", live.topic),
+                    "obj": live,
+                })
+
+    return render(request, "courses/admin/admin_course_detail.html", {
+        "course": course,
+        "ordered_items": ordered_items,
+    })
+
+
+@staff_member_required
+def admin_courses(request):
+    courses = Course.objects.select_related("instructor").prefetch_related("enrollments")
+
+    q = request.GET.get("q")
+    status = request.GET.get("status")
+
+    if q:
+        courses = courses.filter(title__icontains=q)
+
+    if status:
+        courses = courses.filter(status=status)
+
+    return render(request, "courses/admin/admin_courses.html", {
+        "courses": courses
+    })
+
+
+@staff_member_required
+def admin_delete_course(request, course_id):
+    course = get_object_or_404(Course, id=course_id)
+    course.delete()
+    messages.success(request, "Course deleted.")
+    return redirect("courses:admin_courses")
+
+@login_required
+def admin_quiz_preview(request, quiz_id):
+    quiz = get_object_or_404(Quiz, id=quiz_id)
+
+    questions = quiz.questions.all()
+
+    return render(request,
+        "courses/admin/quiz_preview.html",
+        {
+            "quiz": quiz,
+            "questions": questions
+        }
+    )
+
+@staff_member_required
+def admin_instructors(request):
+    instructors = User.objects.filter(role="instructor")
+    return render(request, "courses/admin/admin_instructors.html", {
+        "instructors": instructors
+    })
+
+@staff_member_required
+def admin_students(request):
+    students = User.objects.filter(role="student")
+    return render(request, "courses/admin/admin_students.html", {
+        "students": students
+    })
+
+@staff_member_required
+def delete_user_admin(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+
+    if user.is_staff:
+        messages.error(request, "Cannot delete admin.")
+        return redirect("admin_dashboard")
+
+    user.delete()
+    messages.success(request, "User removed.")
+    return redirect(request.META.get('HTTP_REFERER', 'admin_dashboard'))
+
+
+@staff_member_required
+def admin_instructor_courses(request, instructor_id):
+    instructor = get_object_or_404(User, id=instructor_id)
+
+    courses = Course.objects.filter(instructor=instructor)
+
+    return render(request, "courses/admin/instructor_courses.html", {
+        "instructor": instructor,
+        "courses": courses
+    })
+
+@staff_member_required
+def admin_student_courses(request, student_id):
+    student = get_object_or_404(User, id=student_id)
+
+    enrollments = Enrollment.objects.filter(student=student).select_related("course")
+
+    return render(request, "courses/admin/student_courses.html", {
+        "student": student,
+        "enrollments": enrollments
+    })
+
+
+@staff_member_required
+def admin_remove_enrollment(request, enrollment_id):
+    enrollment = get_object_or_404(Enrollment, id=enrollment_id)
+
+    enrollment.delete()
+
+    return redirect("courses:admin_students")
+
+
+@staff_member_required
+def admin_add_comment(request, course_id, target, object_id=None):
+
+    course = get_object_or_404(Course, id=course_id)
+
+    module = lecture = None
+
+    if target == "module":
+        module = get_object_or_404(Module, id=object_id)
+
+    elif target == "lecture":
+        lecture = get_object_or_404(Lecture, id=object_id)
+
+    if request.method == "POST":
+        comment_text = request.POST.get("comment")
+
+        AdminComment.objects.create(
+            admin=request.user,
+            course=course,
+            module=module,
+            lecture=lecture,
+            target_type=target,
+            comment=comment_text
+        )
+
+        Notification.objects.create(
+            user=course.instructor,
+            message=f"Admin commented on your course '{course.title}'",
+            url=reverse("instructor:course_detail", args=[course.id])
+        )
+
+    return redirect("courses:admin_course_detail", course_id=course.id)

@@ -2,6 +2,9 @@ from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
 from django.conf import settings
 
+from django.shortcuts import redirect
+from django.contrib import messages
+
 
 def send_verification_email(request, user, role, token):
     verify_url = request.build_absolute_uri(
@@ -33,3 +36,12 @@ def send_verification_email(request, user, role, token):
 
     email.content_subtype = "html"
     email.send()
+    
+
+def admin_required(view_func):
+    def wrapper(request, *args, **kwargs):
+        if not request.user.is_authenticated or request.user.role != "admin":
+            messages.error(request, "Admin access required.")
+            return redirect("login")
+        return view_func(request, *args, **kwargs)
+    return wrapper

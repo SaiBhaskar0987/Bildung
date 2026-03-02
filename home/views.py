@@ -2,7 +2,11 @@ from django.shortcuts import redirect, render
 from django.db.models import Count
 from courses.models import Course
 
+from django.db.models import Count
+from django.shortcuts import redirect, render
+
 def smart_home(request):
+
     if request.user.is_authenticated:
         role_redirects = {
             "student": "student_dashboard",
@@ -15,20 +19,25 @@ def smart_home(request):
 
     selected_category = request.GET.get("category")
 
+    approved_courses = Course.objects.filter(
+        status="approved",
+        is_published=True
+    )
+
     popular_categories = (
-        Course.objects
+        approved_courses
         .values("category")
         .annotate(total=Count("id"))
         .order_by("-total")
     )
 
     popular_courses = (
-        Course.objects
-        .annotate(popularity=Count("enrollments"))  
+        approved_courses
+        .annotate(popularity=Count("enrollments"))
         .order_by("-popularity", "-created_at")[:4]
     )
 
-    courses = Course.objects.order_by("-created_at")
+    courses = approved_courses.order_by("-created_at")
 
     if selected_category:
         courses = courses.filter(category=selected_category)

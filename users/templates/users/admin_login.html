@@ -53,7 +53,7 @@
     </div>
   {% endif %}
 
-  <form method="post" action="{% url 'login' %}">
+  <form method="post" action="{% url 'admin_login' %}">
     {% csrf_token %}
     <div class="mb-3">
       <label for="id_username" class="form-label">Username</label>
@@ -66,7 +66,6 @@
     <button type="submit" class="btn btn-primary w-100">Login</button>
   </form>
 
-  <span class="switch-link">Don’t have an account? <a href="{% url 'signup_page' %}">Sign up</a></span>
 </div>
 
 </body>

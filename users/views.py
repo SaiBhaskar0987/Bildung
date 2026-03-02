@@ -15,7 +15,7 @@ from django.contrib.auth.tokens import default_token_generator
 from django.conf import settings
 from courses.utils import check_and_send_reminders
 from django.contrib.auth import update_session_auth_hash
-from django.db.models import Q, Count
+from django.db.models import Q, Avg, Count, Sum
 from django.contrib.admin.views.decorators import staff_member_required
 
 from quizzes.models import QuizResult
@@ -28,7 +28,7 @@ from courses.services.recommendation_service import get_recommended_courses
 
 from .models import User, Profile, LoginHistory, InstructorProfile
 from .forms import StudentSignUpForm, InstructorSignUpForm, ProfileForm, UserDisplayForm, InstructorUserReadOnlyForm, InstructorUserForm, InstructorProfileForm
-from courses.models import Certificate, Course, Enrollment, Lecture, LectureProgress, LectureQuestion, LiveClass, LiveClassAttendance, Notification
+from courses.models import Certificate, Course, CourseReview, Enrollment, Lecture, LectureProgress, LectureQuestion, LiveClass, LiveClassAttendance, Notification
 
 def auth_page(request):
     return render(request, "users/login_page.html")
@@ -104,11 +104,6 @@ def student_login(request):
     })
     return render(request, "student/student_login.html", {"form": form})
 
-from django.db.models import Count, Q, Avg
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
-from django.contrib import messages
-
 @login_required
 def student_dashboard(request):
     user = request.user
@@ -117,7 +112,6 @@ def student_dashboard(request):
         messages.error(request, "Access denied.")
         return redirect("login")
 
-    # ================= ENROLLMENTS =================
     enrollments = Enrollment.objects.filter(
         student=user
     ).select_related("course")
@@ -125,13 +119,9 @@ def student_dashboard(request):
     enrolled_course_ids = enrollments.values_list("course_id", flat=True)
     enrolled_courses_count = enrollments.count()
 
-    # ================= CERTIFICATES =================
     certificates_count = Certificate.objects.filter(
         student=user
     ).count()
-
-    # ================= COURSE PROGRESS =================
-    # Calculate overall progress based on completed lectures
 
     total_lectures = Lecture.objects.filter(
         module__course_id__in=enrolled_course_ids
@@ -148,7 +138,6 @@ def student_dashboard(request):
     else:
         average_progress = 0
 
-    # ================= NOTIFICATIONS =================
     unread_notifications = Notification.objects.filter(
         user=user,
         is_read=False
@@ -156,10 +145,8 @@ def student_dashboard(request):
 
     unread_count = unread_notifications.count()
 
-    # ================= RECOMMENDATIONS =================
     recommended_courses = get_recommended_courses(user)
 
-    # ================= COURSES =================
     all_courses = (
         Course.objects
         .filter(
@@ -171,7 +158,6 @@ def student_dashboard(request):
         .order_by("-popularity", "-created_at")
     )
 
-    # ================= POPULAR CATEGORIES =================
     popular_categories = (
         Course.objects
         .filter(status="approved", is_published=True)
@@ -180,7 +166,6 @@ def student_dashboard(request):
         .order_by("-total")[:6]
     )
 
-    # ================= DASHBOARD STATS =================
     dashboard_stats = [
         {
             "icon": "fas fa-book-open",
@@ -1020,3 +1005,85 @@ def admin_dashboard(request):
     }
 
     return render(request, "admin/admin_dashboard.html", context)
+
+
+@staff_member_required
+def admin_view_instructor(request, user_id):
+    instructor = get_object_or_404(User, id=user_id, role="instructor")
+
+    profile = InstructorProfile.objects.filter(user=instructor).first()
+    courses = Course.objects.filter(instructor=instructor)
+
+    total_revenue = Enrollment.objects.filter(
+        course__instructor=instructor
+    ).aggregate(total=Sum("course__price"))["total"] or 0
+
+    try:
+
+        avg_rating = CourseReview.objects.filter(
+            course__instructor=instructor
+        ).aggregate(avg=Avg("rating"))["avg"] or 0
+    except:
+        avg_rating = 0
+
+    context = {
+        "user_obj": instructor,
+        "profile": profile,
+        "courses": courses,
+        "total_revenue": total_revenue,
+        "avg_rating": round(avg_rating, 1),
+    }
+
+    return render(request, "admin/view_instructor.html", context)
+
+@staff_member_required
+def admin_view_student(request, user_id):
+    student = get_object_or_404(User, id=user_id, role="student")
+
+    profile = Profile.objects.filter(user=student).first()
+    enrollments = Enrollment.objects.filter(student=student)
+
+    completed_courses = 0
+    total_progress = 0
+    course_count = enrollments.count()
+
+    for enrollment in enrollments:
+        course = enrollment.course
+
+        total_lectures = Lecture.objects.filter(
+            module__course=course
+        ).count()
+
+        completed_lectures = LectureProgress.objects.filter(
+            student=student,
+            lecture__module__course=course,
+            completed=True
+        ).count()
+
+        if total_lectures > 0:
+            progress_percent = (completed_lectures / total_lectures) * 100
+            total_progress += progress_percent
+
+            if progress_percent == 100:
+                completed_courses += 1
+
+    avg_progress = round(total_progress / course_count, 1) if course_count > 0 else 0
+
+    context = {
+        "user_obj": student,
+        "profile": profile,
+        "enrollments": enrollments,
+        "completed_courses": completed_courses,
+        "avg_progress": avg_progress,
+    }
+
+    return render(request, "admin/view_student.html", context)
+
+@staff_member_required
+def toggle_suspend_user(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+
+    user.is_suspended = not user.is_suspended
+    user.save()
+
+    return redirect(request.META.get("HTTP_REFERER"))

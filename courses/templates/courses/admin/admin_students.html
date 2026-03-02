@@ -2,59 +2,160 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Student Details</title>
+<title>Student Management</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
 <style>
-.course-cell{
-    vertical-align: top;
+body{
+    background:#f4f6fb;
+    font-family:'Segoe UI', sans-serif;
 }
 
-.course-badges span {
-    padding:6px 8px;
-    font-size:12px;
+.topbar{
+    background:white;
+    padding:18px 30px;
+    box-shadow:0 4px 12px rgba(0,0,0,0.04);
+}
+
+.page-title{
+    font-weight:700;
+    font-size:26px;
+}
+
+.main-card{
+    background:white;
+    border-radius:16px;
+    box-shadow:0 8px 25px rgba(0,0,0,0.05);
+    overflow:hidden;
+}
+
+.table{
+    margin-bottom:0;
+}
+
+.table thead{
+    background:#f8f9fc;
+}
+
+.table th{
+    font-weight:600;
+    font-size:14px;
+    color:#6b7280;
+    border:none;
+    padding:16px;
+}
+
+.table td{
+    padding:18px 16px;
+    vertical-align:middle;
+    border-top:1px solid #f1f3f7;
+}
+
+.student-name{
+    font-weight:600;
+    font-size:15px;
 }
 
 .course-badges{
     display:flex;
     flex-wrap:wrap;
-    gap:6px;
+    gap:8px;
     max-width:420px;
 }
 
-.course-badges.scrollable{
-    max-height:60px;
-    overflow-y:auto;
+.course-badge{
+    background:#ecfdf5;
+    color:#059669;
+    padding:6px 12px;
+    font-size:12px;
+    border-radius:30px;
+    font-weight:500;
+    display:flex;
+    align-items:center;
+    gap:6px;
 }
 
-.badge{
+.course-remove{
+    color:#dc2626;
     font-size:12px;
-    padding:6px 8px;
+    text-decoration:none;
+    font-weight:600;
+}
+
+.course-remove:hover{
+    text-decoration:underline;
+}
+
+.action-btn{
+    border-radius:30px;
+    padding:6px 14px;
+    font-size:12px;
+    font-weight:600;
+}
+
+.btn-view{
+    background:#e0e7ff;
+    color:#4338ca;
+    border:none;
+}
+
+.btn-view:hover{
+    background:#c7d2fe;
+}
+
+.btn-delete{
+    background:#fee2e2;
+    color:#dc2626;
+    border:none;
+}
+
+.btn-delete:hover{
+    background:#fecaca;
+}
+
+.table tbody tr:hover{
+    background:#fafbff;
+}
+
+@media(max-width:768px){
+    .course-badges{
+        max-width:100%;
+    }
 }
 </style>
 </head>
-<div class="d-flex justify-content-between align-items-center p-3 bg-white shadow-sm">
+
+<body>
+
+<div class="topbar d-flex justify-content-between align-items-center">
     <a href="{% url 'admin_dashboard' %}" class="text-decoration-none text-dark">
         <h4 class="fw-bold m-0">Speshway</h4>
     </a>
-    <div>
-        <a href="{% url 'logout_view' %}" class="btn btn-sm btn-danger">Logout</a>
-    </div>
+
+    <a href="{% url 'logout_view' %}" class="btn btn-sm btn-danger rounded-pill px-3">
+        Logout
+    </a>
 </div>
-<body class="bg-light">
 
-<div class="container py-4">
+<div class="container py-5">
 
-    <h2 class="fw-bold mb-4">🎓 Students</h2>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="page-title">🎓 Student Management</h2>
+        <span class="text-muted small">
+            Total Students: {{ students.count }}
+        </span>
+    </div>
 
-    <div class="card shadow-sm border-0">
-        <table class="table table-hover align-middle mb-0">
-            <thead class="table-light">
+    <div class="main-card">
+
+        <table class="table align-middle">
+
+            <thead>
                 <tr>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Enrolled Courses</th>
-                    <th width="120">Action</th>
+                    <th style="width:25%;">Student</th>
+                    <th style="width:25%;">Email</th>
+                    <th style="width:35%;">Enrolled Courses</th>
+                    <th style="width:15%;" class="text-end">Actions</th>
                 </tr>
             </thead>
 
@@ -62,43 +163,57 @@
                 {% for student in students %}
                 <tr>
 
-                    <td class="fw-semibold">
-                        {{ student.get_full_name|default:student.username }}
+                    <td>
+                        <div class="student-name">
+                            {{ student.get_full_name|default:student.username }}
+                        </div>
                     </td>
 
-                    <td>{{ student.email }}</td>
+                    <td class="text-muted">
+                        {{ student.email }}
+                    </td>
 
-                    <td class="course-cell">
-                        <div class="course-badges scrollable">
+                    <td>
+                        <div class="course-badges">
                             {% for enroll in student.enrollment_set.all %}
-                             <span class="badge bg-light text-dark border d-flex align-items-center">
-                                {{ enroll.course.title }}
-                                <a href="{% url 'courses:admin_remove_enrollment' enroll.id %}"
-                                 class="ms-2 text-danger text-decoration-none"
-                                 onclick="return confirm('Remove this course enrollment?')">
-                                    ✖
-                                </a>
-                             </span>
+                                <span class="course-badge">
+                                    {{ enroll.course.title }}
+                                    <a href="{% url 'courses:admin_remove_enrollment' enroll.id %}"
+                                       class="course-remove"
+                                       onclick="return confirm('Remove this course enrollment?')">
+                                        ✖
+                                    </a>
+                                </span>
                             {% empty %}
-                              <span class="text-muted">Not enrolled yet</span>
+                                <span class="text-muted small">Not enrolled yet</span>
                             {% endfor %}
                         </div>
                     </td>
 
-                    <td>
-                        <a href="{% url 'courses:delete_user_admin' student.id %}"
-                           class="btn btn-sm btn-outline-danger"
-                           onclick="return confirm('Delete student account?')">
-                           Delete
+                    <td class="text-end">
+
+                        <a href="{% url 'admin_view_student' student.id %}"
+                           class="btn action-btn btn-view me-2">
+                            View
                         </a>
+
+                        <a href="{% url 'courses:delete_user_admin' student.id %}"
+                           class="btn action-btn btn-delete"
+                           onclick="return confirm('Delete student account?')">
+                            Delete
+                        </a>
+
                     </td>
 
                 </tr>
                 {% endfor %}
             </tbody>
+
         </table>
+
     </div>
 
 </div>
+
 </body>
 </html>

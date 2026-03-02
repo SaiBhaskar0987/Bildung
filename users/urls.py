@@ -11,6 +11,9 @@ urlpatterns = [
     path('admin/login/', views.admin_login, name='admin_login'),
     path("logout/", views.logout_view, name="logout_view"),
     path('admin-dashboard/', views.admin_dashboard, name='admin_dashboard'),
+    path("admin/instructor/<int:user_id>/", views.admin_view_instructor, name="admin_view_instructor"),
+    path("admin/student/<int:user_id>/", views.admin_view_student, name="admin_view_student"),
+    path("admin/user/<int:user_id>/toggle-suspend/", views.toggle_suspend_user, name="toggle_suspend_user"),
 
     #verification
     path("check-email/", views.check_email, name="check_email"),

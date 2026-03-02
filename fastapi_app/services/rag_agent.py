@@ -1,10 +1,14 @@
+
 from typing_extensions import Literal
 import os
-import dspy
+import faiss
+import numpy as np
 import pandas as pd
-from sentence_transformers import SentenceTransformer, util
+import dspy
 from functools import lru_cache
-from core import settings
+from sentence_transformers import SentenceTransformer
+from rank_bm25 import BM25Okapi
+
 
 dspy.settings.configure(
     lm=dspy.LM(
@@ -18,120 +22,173 @@ dspy.settings.configure(
 
 print("✅ OpenAI LLM configured: gpt-5-nano")
 
+DATASET_PATH = "media/Q_A/E-learning_Dataset.xlsx"
+EMBEDDING_MODEL = "all-MiniLM-L6-v2"
 
-class ClassifierSignature(dspy.Signature):
-    """
-    Decide if a question is about course-related content or general platform usage.
-    """
-    question = dspy.InputField()
-    category: Literal["course", "general"] = dspy.OutputField()
-
+TOP_K = 5
+SIM_THRESHOLD = 0.40
 
 class AnswerSignature(dspy.Signature):
-    """
-    Generate a helpful response based on provided context.
-    """
     context = dspy.InputField()
     question = dspy.InputField()
-    answer = dspy.OutputField(desc="Clear, concise response")
-
-
-DATASET_PATH = "media/Q_A/Bildung_QA.xlsx"
-EMBEDDING_MODEL_PATH = 'all-MiniLM-L6-v2'
+    answer = dspy.OutputField()
 
 class CourseAgent(dspy.Module):
+
     def __init__(self):
         super().__init__()
-        self.prog = dspy.ChainOfThought(AnswerSignature)
         self._load_knowledge_base()
 
-    def forward(self, question: str):
-        context = self._search_dataset(question)
-
-        if not context:
-            context = """
-You are an AI assistant for an online learning platform.
-Explain clearly using bullet points if helpful.
-"""
-
-        result = self.prog(context=context, question=question)
-        return result.answer, bool(context)
-
     def _load_knowledge_base(self):
+
         print(f"📄 Loading KB: {DATASET_PATH}")
 
         if not os.path.exists(DATASET_PATH):
-            print("⚠️ KB not found – running without RAG")
+            print("⚠️ KB not found")
             self.df = pd.DataFrame()
-            self.embeddings = None
             return
 
         self.df = pd.read_excel(DATASET_PATH)
-        self.encoder = SentenceTransformer(EMBEDDING_MODEL_PATH)
+        self.df = self.df.dropna(subset=["Question", "Answer"])
 
-        self.embeddings = self.encoder.encode(
-            self.df["Question"].tolist(),
-            convert_to_tensor=True
+        self.df["Question"] = self.df["Question"].astype(str)
+        self.df["Answer"] = self.df["Answer"].astype(str)
+
+        self.df["combined"] = (
+            self.df["Question"] + " " + self.df["Answer"]
         )
 
-        print("✅ Knowledge Base loaded")
+        self.encoder = SentenceTransformer(EMBEDDING_MODEL)
+
+        embeddings = self.encoder.encode(
+            self.df["combined"].tolist(),
+            convert_to_numpy=True,
+            show_progress_bar=True
+        )
+
+        faiss.normalize_L2(embeddings)
+
+        dim = embeddings.shape[1]
+        self.index = faiss.IndexFlatIP(dim)
+        self.index.add(embeddings)
+
+        self.embeddings = embeddings
+
+        tokenized_corpus = [
+            doc.lower().split()
+            for doc in self.df["combined"]
+        ]
+        self.bm25 = BM25Okapi(tokenized_corpus)
+
 
     @lru_cache(maxsize=256)
-    def _search_dataset(self, query: str, threshold: float = 0.4):
-        if self.df.empty or self.embeddings is None:
+    def _search_dataset(self, query: str):
+
+        if self.df.empty:
             return None
 
-        query_vec = self.encoder.encode(query, convert_to_tensor=True)
-        hits = util.semantic_search(query_vec, self.embeddings, top_k=1)
+        query_clean = query.strip().lower()
 
-        if hits and hits[0][0]["score"] >= threshold:
-            return self.df.iloc[hits[0][0]["corpus_id"]]["Answer"]
+        exact = self.df[
+            self.df["Question"].str.lower().str.strip() == query_clean
+        ]
+        if not exact.empty:
+            return exact.iloc[0]["Answer"]
+
+        query_vec = self.encoder.encode(
+            [query],
+            convert_to_numpy=True
+        )
+
+        faiss.normalize_L2(query_vec)
+
+        similarities, indices = self.index.search(query_vec, TOP_K)
+
+        semantic_scores = similarities[0]
+        semantic_indices = indices[0]
+
+        tokenized_query = query.lower().split()
+        bm25_scores = self.bm25.get_scores(tokenized_query)
+
+        keyword_indices = np.argsort(bm25_scores)[::-1][:TOP_K]
+
+        candidate_indices = list(set(semantic_indices) | set(keyword_indices))
+
+        ranked = []
+        max_bm25 = max(bm25_scores) + 1e-6
+
+        for idx in candidate_indices:
+
+            sem_score = 0
+            if idx in semantic_indices:
+                sem_score = semantic_scores[
+                    list(semantic_indices).index(idx)
+                ]
+
+            bm_score = bm25_scores[idx] / max_bm25
+
+            final_score = (0.7 * sem_score) + (0.3 * bm_score)
+
+            ranked.append((idx, final_score))
+
+        ranked.sort(key=lambda x: x[1], reverse=True)
+
+        if not ranked:
+            return None
+
+        best_idx, best_score = ranked[0]
+
+        if best_score >= SIM_THRESHOLD:
+            return self.df.iloc[best_idx]["Answer"]
 
         return None
 
 
+    def forward(self, question: str):
+
+        context = self._search_dataset(question)
+
+        if context:
+            return context, True
+
+        return None, False
+
+
 class GeneralAgent(dspy.Module):
+
     def __init__(self):
         super().__init__()
         self.prog = dspy.Predict(AnswerSignature)
 
     def forward(self, question: str):
+
         context = """
 You are a helpful assistant for an e-learning platform.
-
-You can answer questions about:
-- Instructor payments
-- Platform policies
-- Account & dashboard usage
-- Certificates & verification
-- General help
-
+Provide clear and helpful explanations.
 Use bullet points when useful.
+Provide only 4-5 steps which are important.
 """
-        result = self.prog(context=context, question=question)
+
+        result = self.prog(
+            context=context,
+            question=question
+        )
         return result.answer
 
 
 class ClassifierAgent(dspy.Module):
+
     def __init__(self):
         super().__init__()
         self.course_agent = CourseAgent()
         self.general_agent = GeneralAgent()
 
-    def _fast_classify(self, question: str) -> str:
-        keywords = [
-            "course", "certificate", "module", "lecture",
-            "quiz", "assignment", "enroll", "progress"
-        ]
-        q = question.lower()
-        return "course" if any(k in q for k in keywords) else "general"
-
     def forward(self, question: str):
-        category = self._fast_classify(question)
 
-        if category == "course":
-            answer, used_context = self.course_agent(question)
-            return answer, "Course", used_context
+        dataset_answer, found = self.course_agent(question)
 
-        answer = self.general_agent(question)
-        return answer, "General", False
+        if found:
+            return dataset_answer, "Dataset", True
+
+        general_answer = self.general_agent(question)
+        return general_answer, "General", False

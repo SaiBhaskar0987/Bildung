@@ -3,11 +3,11 @@ from courses.models import Course
 from users.models import CourseSearch
 from courses.models import Enrollment
 
-
 def get_recommended_courses(user):
     """
-    Return ALL relevant courses based on user preferences
+    Return relevant courses based on user preferences
     (search + enrolled categories), ordered by popularity.
+    ONLY approved & published courses are returned.
     """
 
     enrolled_course_ids = Enrollment.objects.filter(
@@ -27,7 +27,10 @@ def get_recommended_courses(user):
     category_intent = set()
 
     all_categories = set(
-        Course.objects.values_list("category", flat=True)
+        Course.objects.filter(
+            status="approved",
+            is_published=True
+        ).values_list("category", flat=True)
     )
 
     for keyword in set(recent_searches):
@@ -45,7 +48,12 @@ def get_recommended_courses(user):
         preference_q |= Q(category__in=preferred_categories)
 
     return (
-        Course.objects.filter(preference_q)
+        Course.objects
+        .filter(
+            preference_q,
+            status="approved",     
+            is_published=True       
+        )
         .exclude(id__in=enrolled_course_ids)
         .annotate(enroll_count=Count("enrollments"))
         .order_by("-enroll_count", "-created_at")

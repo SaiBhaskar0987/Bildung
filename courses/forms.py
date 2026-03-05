@@ -2,7 +2,7 @@ from django import forms
 from django.utils.text import slugify
 from .models import Course, Lecture, Feedback, Enrollment, Module, LiveClass, CourseEvent, CourseReview
 from django.forms import inlineformset_factory
-
+from .models import AdminComment
 
 # --------------------------
 # Course Form (with category)
@@ -10,7 +10,7 @@ from django.forms import inlineformset_factory
 class CourseForm(forms.ModelForm):
     class Meta:
         model = Course
-        fields = ['title', 'description', 'price', 'category']  # Added 'category'
+        fields = ['title', 'description', 'price', 'category']  
         widgets = {'description': forms.Textarea(attrs={'rows': 4})}
 
 
@@ -137,3 +137,4 @@ class CourseReviewForm(forms.ModelForm):
     class Meta:
         model = CourseReview
         fields = ["rating", "comment"]
+

@@ -1,0 +1,22 @@
+<div class="card card-body bg-light border mt-3">
+
+    {% for q in questions %}
+        <div class="mb-3">
+            <strong>{{ forloop.counter }}. {{ q.question_text }}</strong>
+
+            <ul class="mt-2">
+                {% for choice in q.choices.all %}
+                    <li>
+                        {{ choice.text }}
+                        {% if choice.is_correct %}
+                            <span class="text-success">✔</span>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% empty %}
+        <p class="text-muted">No questions added.</p>
+    {% endfor %}
+
+</div>

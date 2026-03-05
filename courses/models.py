@@ -16,6 +16,19 @@ class Course(models.Model):
         ('others', 'Others'),
     ]
 
+    STATUS_CHOICES = [
+        ('draft', 'Draft'),
+        ('pending', 'Pending Approval'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+    ]
+
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='draft'
+    )
+
     instructor = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="courses"
     )
@@ -32,6 +45,7 @@ class Course(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
     structure_json = models.JSONField(default=dict)
+    is_published = models.BooleanField(default=False)
 
     students = models.ManyToManyField(
         settings.AUTH_USER_MODEL, related_name="enrolled_courses", blank=True
@@ -372,3 +386,35 @@ class StudentAnswer(models.Model):
     null=True,
     blank=True
 )
+
+User = settings.AUTH_USER_MODEL
+
+class AdminComment(models.Model):
+    COMMENT_TARGETS = (
+        ("course", "Course"),
+        ("module", "Module"),
+        ("lecture", "Lecture"),
+        ("quiz", "Quiz"),
+    )
+
+    admin = models.ForeignKey(User, on_delete=models.CASCADE)
+    course = models.ForeignKey("Course", on_delete=models.CASCADE)
+
+    module = models.ForeignKey(
+        "Module", on_delete=models.CASCADE,
+        null=True, blank=True
+    )
+    lecture = models.ForeignKey(
+        "Lecture", on_delete=models.CASCADE,
+        null=True, blank=True
+    )
+    quiz = models.ForeignKey("quizzes.Quiz", null=True, blank=True, on_delete=models.CASCADE)
+
+    target_type = models.CharField(max_length=20, choices=COMMENT_TARGETS)
+    comment = models.TextField()
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_resolved = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.admin} → {self.target_type}"

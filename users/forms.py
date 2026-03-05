@@ -3,17 +3,54 @@ from django.contrib.auth.forms import UserCreationForm
 from .models import User, Profile, InstructorProfile
 from django.contrib.auth import get_user_model
 
+from django.contrib.auth.forms import UserCreationForm
+from .models import User
+
+from django import forms
+from django.contrib.auth.forms import UserCreationForm
+from .models import User
+
+
 class StudentSignUpForm(UserCreationForm):
     class Meta:
         model = User
-        fields = ["first_name","last_name", "email", "password1", "password2"]
+        fields = ["first_name", "last_name", "email", "password1", "password2"]
+
+        widgets = {
+            "first_name": forms.TextInput(attrs={
+                "placeholder": "First Name",
+                "class": "form-control"
+            }),
+            "last_name": forms.TextInput(attrs={
+                "placeholder": "Last Name",
+                "class": "form-control"
+            }),
+            "email": forms.EmailInput(attrs={
+                "placeholder": "Email Address",
+                "class": "form-control"
+            }),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields["password1"].widget.attrs.update({
+            "placeholder": "Password",
+            "class": "form-control"
+        })
+
+        self.fields["password2"].widget.attrs.update({
+            "placeholder": "Confirm Password",
+            "class": "form-control"
+        })
 
     def save(self, commit=True):
         user = super().save(commit=False)
-        user.username = self.cleaned_data["email"]  
+        user.username = self.cleaned_data["email"]
+        user.role = "student"
         if commit:
             user.save()
-        return user 
+        return user
 
 class InstructorSignUpForm(UserCreationForm):
 
@@ -27,18 +64,58 @@ class InstructorSignUpForm(UserCreationForm):
             "password2",
         ]
 
+        widgets = {
+            "first_name": forms.TextInput(attrs={
+                "placeholder": "First Name",
+                "class": "form-control"
+            }),
+            "last_name": forms.TextInput(attrs={
+                "placeholder": "Last Name",
+                "class": "form-control"
+            }),
+            "email": forms.EmailInput(attrs={
+                "placeholder": "Email Address",
+                "class": "form-control"
+            }),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields["password1"].widget.attrs.update({
+            "placeholder": "Password",
+            "class": "form-control"
+        })
+
+        self.fields["password2"].widget.attrs.update({
+            "placeholder": "Confirm Password",
+            "class": "form-control"
+        })
+    
+    def clean_email(self):
+        email = self.cleaned_data.get("email")
+
+        if User.objects.filter(username=email).exists():
+            raise forms.ValidationError("An account with this email already exists.")
+
+        return email
+
     def save(self, commit=True):
         user = super().save(commit=False)
+        user.username = self.cleaned_data["email"]
         user.role = "instructor"
-        user.username = self.cleaned_data["email"]  
         if commit:
             user.save()
-        return user 
-
+        return user
 
 User = get_user_model()
 
 class ProfileForm(forms.ModelForm):
+    profile_picture = forms.ImageField(
+        required=False,
+        widget=forms.FileInput(attrs={'class': 'form-control'}),
+        label="Profile Picture"
+    )
     resume = forms.FileField(
         required=False, 
         help_text="Only PDF files are allowed.", 
@@ -48,7 +125,7 @@ class ProfileForm(forms.ModelForm):
 
     class Meta:
         model = Profile
-        fields = ['about_me', 'phone', 'gender', 'date_of_birth', 'qualification', 'resume']
+        fields = ['profile_picture', 'about_me', 'phone', 'gender', 'date_of_birth', 'qualification', 'resume']
         widgets = {
             'about_me': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'phone': forms.TextInput(attrs={'class': 'form-control'}),
@@ -102,6 +179,12 @@ class InstructorUserReadOnlyForm(forms.ModelForm):
 
 class InstructorProfileForm(forms.ModelForm):
 
+    profile_picture = forms.ImageField(
+        required=False,
+        widget=forms.FileInput(attrs={'class': 'form-control'}),
+        label="Profile Picture"
+    )
+
     resume = forms.FileField(
         required=False,
         help_text="Upload only PDF.",
@@ -111,6 +194,7 @@ class InstructorProfileForm(forms.ModelForm):
     class Meta:
         model = InstructorProfile
         fields = [
+            'profile_picture', 
             'professional_title',
             'expertise',
             'experience',

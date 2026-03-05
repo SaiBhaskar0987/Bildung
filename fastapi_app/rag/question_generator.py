@@ -65,6 +65,7 @@ def _extract_json(text: str):
     except Exception:
         return None
 
+
 def generate_questions(vector_store, num_questions=5):
 
     retriever = vector_store.as_retriever(
@@ -99,9 +100,9 @@ def generate_questions(vector_store, num_questions=5):
     ]
 
     llm = ChatOpenAI(
-        model="gpt-4o-mini",
+        model="gpt-5-nano",
         temperature=0,
-        request_timeout=20
+        request_timeout=25
     )
     
     prompt = PromptTemplate.from_template("""

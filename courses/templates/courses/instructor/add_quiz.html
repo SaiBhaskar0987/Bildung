@@ -159,6 +159,17 @@ h5{
   <input id="quizTitle" class="form-control mb-3">
 
   <hr>
+  
+  <div id="existingQuestionsBox" class="alert alert-info d-none">
+    <strong>Questions already exist for this quiz.</strong>
+
+    <div class="mt-2 d-flex gap-2">
+      <a href="{% url 'quiz_preview' course_id quiz_id %}"
+         class="btn btn-sm btn-primary">
+         👀 Preview & Manage
+      </a>
+    </div>
+  </div>
 
   <div id="ragSection" class="d-none">
     <h5>AI Generated Questions</h5>
@@ -220,6 +231,7 @@ h5{
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Choose Quiz Creation Mode</h5>
+         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body d-grid gap-3">
         <button class="btn btn-outline-primary" onclick="selectQuizMode('manual')">
@@ -262,6 +274,7 @@ h5{
 const COURSE_ID = "{{ course_id }}";
 const QUIZ_ID = "{{ quiz_id }}";
 const QUIZ_BLOCK = {{ quiz_block|default:"null"|safe }};
+let EXISTING_QUESTIONS = {{ question_count|default:0 }} > 0;
 
 let QUIZ_MODE = QUIZ_BLOCK?.quiz_mode || null;
 let QUIZ_SCOPE = QUIZ_BLOCK?.scope || "all_before";
@@ -277,7 +290,11 @@ document.addEventListener("DOMContentLoaded", () => {
   if (sourceSelect) {
     sourceSelect.value = QUESTION_SOURCE;
   }
- 
+  
+  if (EXISTING_QUESTIONS) {
+    document.getElementById("existingQuestionsBox").classList.remove("d-none");
+  }
+  
   if (!QUIZ_MODE) {
     new bootstrap.Modal(quizModeModal, { backdrop: "static" }).show();
   } else {
@@ -306,6 +323,13 @@ function addManualQuestion() {
   renderAllQuestions();
 }
 
+function getCSRFToken() {
+  return document.cookie
+    .split("; ")
+    .find(row => row.startsWith("csrftoken="))
+    ?.split("=")[1];
+}
+
 
 function openScopeModal() {
   new bootstrap.Modal(quizScopeModal).show();
@@ -320,31 +344,44 @@ function confirmScopeAndGenerate() {
 function generateAIQuestions() {
   let count = parseInt(questionCount.value) || 5;
 
-  QUESTION_SOURCE = document.getElementById("question_source").value;
+  const QUESTION_SOURCE = document.getElementById("question_source").value;
 
   aiStatus.innerText = "⏳ Generating questions...";
+
   fetch(
-    `http://127.0.0.1:8001/quiz/${QUIZ_ID}/generate` +
+    `/api/quiz/${QUIZ_ID}/generate` +
     `?scope=${QUIZ_SCOPE}&source=${QUESTION_SOURCE}&mode=auto`,
-   {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ num_questions: count })
-   })
-  .then(res => res.json())
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": getCSRFToken(),  
+      },
+      body: JSON.stringify({ num_questions: count })
+    }
+  )
+  .then(res => {
+    if (!res.ok) throw new Error("API error");
+    return res.json();
+  })
   .then(data => {
     if (!Array.isArray(data.questions) || data.questions.length === 0) {
       aiStatus.innerText = "⚠️ No questions generated";
       return;
     }
+
     data.questions.forEach(q => {
       q.source = "ai";
       ALL_QUESTIONS.push(q);
     });
+
     renderAllQuestions();
     aiStatus.innerText = `✅ ${data.questions.length} questions generated`;
   })
-  .catch(() => aiStatus.innerText = "❌ Failed to generate questions");
+  .catch(err => {
+    console.error(err);
+    aiStatus.innerText = "❌ Failed to generate questions";
+  });
 }
 
 

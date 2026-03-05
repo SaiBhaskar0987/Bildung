@@ -18,9 +18,13 @@ class User(AbstractUser):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
 
+    def save(self, *args, **kwargs):
+        if self.is_superuser:
+            self.role = 'admin'
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return f"{self.email} ({self.role})"
-
 
 def user_resume_path(instance, filename):
     return f'resumes/user_{instance.user.id}/{filename}'
@@ -160,3 +164,14 @@ class CourseSearch(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.keyword}"
+
+class NotificationSettings(models.Model):
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="notification_settings"
+    )
+
+    email_notifications = models.BooleanField(default=True)
+    course_updates = models.BooleanField(default=True)
+    enroll_updates = models.BooleanField(default=True)

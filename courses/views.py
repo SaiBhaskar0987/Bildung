@@ -9,6 +9,9 @@ from fastapi import requests
 from courses.utils import check_and_send_reminders
 from quizzes.models import Quiz, QuizChoice, QuizQuestion, QuizResult
 from .models import Assignment, Course, CourseBlock, Enrollment, Certificate, Lecture, LectureProgress, Feedback, CourseEvent, Module, LiveClass, LectureQuestion, Notification, QuestionReply, CourseReview, LiveClassAttendance, AssignmentQuestion, StudentAssignment, StudentAnswer
+from quizzes.models import Quiz, QuizChoice, QuizQuestion, QuizResult, StudentAnswer
+from users.utils import admin_required
+from .models import AdminComment, Assignment, Course, CourseBlock, Enrollment, Certificate, Lecture, LectureProgress, Feedback, CourseEvent, Module, LiveClass, LectureQuestion, Notification, QuestionReply, CourseReview, LiveClassAttendance
 from users.models import CourseSearch, LoginHistory, User
 from .forms import LectureForm, FeedbackForm, LiveClassForm, CourseReviewForm, CourseEventForm
 from users.decorators import instructor_required
@@ -31,6 +34,7 @@ from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from datetime import timedelta
 import requests
+from django.contrib.admin.views.decorators import staff_member_required
 
 # -------------------------------
 # Common Views
@@ -50,8 +54,10 @@ def get_instructor_average_rating(instructor):
 def course_list(request):
     query = request.GET.get("q")
     category = request.GET.get("category")
-
-    courses = Course.objects.all()
+    courses = Course.objects.filter(
+    status="approved",
+    is_published=True
+)
 
     if query and request.user.is_authenticated and request.user.role == "student":
         CourseSearch.objects.create(
@@ -121,18 +127,32 @@ def browse_courses(request):
 
 @login_required(login_url='/login/')
 def enroll_course(request, course_id):
+
     if getattr(request.user, 'role', None) != 'student':
         return redirect('student_login')
+
     course = get_object_or_404(Course, id=course_id)
-    Enrollment.objects.get_or_create(student=request.user, course=course)
-    
+
+    if course.status != "approved":
+        messages.warning(
+            request,
+            "This course is currently being updated and enrollment is temporarily unavailable."
+        )
+        return redirect('course_detail', course_id=course.id)
+
+    Enrollment.objects.get_or_create(
+        student=request.user,
+        course=course
+    )
+
     Notification.objects.create(
         user=request.user,
         message=f"You have successfully enrolled in {course.title}.",
-        url=f"/accounts/student/course/{course.id}/"
+        url="/accounts/student/my-courses/"
     )
 
     messages.success(request, f"Enrolled in {course.title}")
+
     return redirect('student:my_courses')
 
 @login_required
@@ -149,7 +169,6 @@ def my_courses(request):
         "recommended_courses": recommended_courses,
     })
 
-
 @login_required(login_url='accounts/student/login/')
 def student_course_detail(request, course_id):
     enrollment = get_object_or_404(
@@ -157,7 +176,37 @@ def student_course_detail(request, course_id):
     )
     course = enrollment.course
 
+    failed_quizzes = QuizResult.objects.filter(
+        student=request.user,
+        quiz__course=course,
+        attempts__gte=3,
+        passed=False
+    )
+
+    if failed_quizzes.exists():
+        LectureProgress.objects.filter(
+            student=request.user,
+            lecture__module__course=course
+        ).delete()
+
+        QuizResult.objects.filter(
+            student=request.user,
+            quiz__course=course
+        ).delete()
+
+        StudentAnswer.objects.filter(
+            student=request.user,
+            question__quiz__course=course
+        ).delete()
+
+        from django.contrib import messages
+        messages.error(
+            request,
+            "You failed a quiz 3 times. Course restarted from Module 1."
+        )
+
     lectures = Lecture.objects.filter(module__course=course)
+
     completed_lectures = set(
         LectureProgress.objects.filter(
             student=request.user,
@@ -165,12 +214,8 @@ def student_course_detail(request, course_id):
             completed=True
         ).values_list("lecture_id", flat=True)
     )
-    progress_map = set(
-        LectureProgress.objects.filter(
-            student=request.user,
-            lecture__in=lectures,
-            completed=True
-        ).values_list("lecture_id", flat=True))
+
+    progress_map = completed_lectures
 
     total = lectures.count()
     completed = len(completed_lectures)
@@ -187,7 +232,8 @@ def student_course_detail(request, course_id):
     ordered_items = []
     structure = course.structure_json or []
 
-    can_unlock_next = True
+    previous_completed = True
+
     module_count = quiz_count = assignment_count = live_count = 1
 
     for item in structure:
@@ -199,20 +245,20 @@ def student_course_detail(request, course_id):
             if not module:
                 continue
 
-            lectures = module.lectures.all()
-            completed_item = all(l.id in completed_lectures for l in lectures)
+            module_lectures = module.lectures.all()
+            completed_item = all(l.id in completed_lectures for l in module_lectures)
+
+            unlocked = previous_completed
 
             ordered_items.append({
                 "type": "module",
                 "obj": module,
-                "title": title or f"Module {module_count}",
-                "unlocked": can_unlock_next,
+                "title": title or module.title or f"Module {module_count}",
+                "unlocked": unlocked,
                 "completed": completed_item,
             })
 
-            if not completed_item:
-                can_unlock_next = False
-
+            previous_completed = completed_item
             module_count += 1
 
         elif item_type == "Quiz":
@@ -221,19 +267,29 @@ def student_course_detail(request, course_id):
                 continue
 
             result = quiz_results.get(quiz.id)
-            completed_item = bool(result and result.completed)
+
+            passed = bool(result and result.passed)
+            attempts = result.attempts if result else 0
+            attempts_left = max(0, 3 - attempts)
+
+            attempts_exhausted = attempts >= 3 and not passed
+
+            completed_item = passed
+            unlocked = previous_completed
 
             ordered_items.append({
                 "type": "quiz",
                 "obj": quiz,
-                "title": title or f"Quiz {quiz_count}",
-                "unlocked": can_unlock_next,
+                "title": title or quiz.title or f"Quiz {quiz_count}",
+                "unlocked": unlocked,
                 "completed": completed_item,
+                "passed": passed,
+                "attempts": attempts,
+                "attempts_left": attempts_left,
+                "attempts_exhausted": attempts_exhausted,
             })
 
-            if not completed_item:
-                can_unlock_next = False
-
+            previous_completed = completed_item
             quiz_count += 1
 
         elif item_type == "Assignment":
@@ -243,14 +299,16 @@ def student_course_detail(request, course_id):
             if not assignment:
                 continue
 
+            unlocked = previous_completed
+
             ordered_items.append({
                 "type": "assignment",
                 "obj": assignment,
-                "title": title or f"Assignment {assignment_count}",
-                "unlocked": can_unlock_next,
+                "title": title if title else assignment.title,
+                "unlocked": unlocked,
             })
 
-            can_unlock_next = False
+            previous_completed = False
             assignment_count += 1
 
         elif item_type == "LiveClass":
@@ -260,14 +318,16 @@ def student_course_detail(request, course_id):
             if not live:
                 continue
 
+            unlocked = previous_completed
+
             ordered_items.append({
                 "type": "live",
                 "obj": live,
-                "title": title or f"Live Class {live_count}",
-                "unlocked": can_unlock_next,
+                "title": title if title else live.title,
+                "unlocked": unlocked,
             })
 
-            can_unlock_next = False
+            previous_completed = False
             live_count += 1
 
     return render(
@@ -880,7 +940,11 @@ def student_course_list(request):
     if getattr(request.user, 'role', None) != 'student':
         return redirect('login')
 
-    courses = Course.objects.all()
+    courses = Course.objects.filter(
+        status="approved",
+        is_published=True
+    )
+    
     enrolled_ids = Enrollment.objects.filter(student=request.user).values_list('course_id', flat=True)
 
     for course in courses:
@@ -1057,6 +1121,15 @@ def save_module(request, module_id):
     module.description = description
     module.save()
 
+    structure = course.structure_json or []
+    for item in structure:
+        if item.get("module_id") == module.id:
+            item["display_title"] = module.title
+            break
+
+    course.structure_json = structure
+    course.save(update_fields=["structure_json"])
+
     lecture_count = int(request.POST.get("lecture_count", 0))
 
     existing_lectures = list(
@@ -1090,6 +1163,7 @@ def save_module(request, module_id):
             lecture.delete()
 
     return JsonResponse({"status": "success"})
+
 
 @csrf_exempt
 @login_required
@@ -1306,6 +1380,9 @@ def add_quiz(request, course_id, quiz_id):
             quiz_block = item
             break
 
+    question_count = quiz.questions.count()
+    existing_questions = question_count > 0
+
     return render(
         request,
         "courses/instructor/add_quiz.html",
@@ -1314,8 +1391,10 @@ def add_quiz(request, course_id, quiz_id):
             "quiz_id": quiz.id,
             "course": course,
             "structure": structure,
-            "quiz": quiz,    
+            "quiz": quiz,
             "quiz_block": quiz_block,
+            "existing_questions": existing_questions,
+            "question_count": question_count,
         }
     )
 
@@ -1354,7 +1433,6 @@ def add_quiz_question(request, quiz_id):
         "id": q.id
     })
 
-
 @login_required
 def edit_quiz(request, course_id, quiz_id):
     course = get_object_or_404(
@@ -1375,6 +1453,9 @@ def edit_quiz(request, course_id, quiz_id):
             quiz_block = item
             break
 
+    question_count = quiz.questions.count()
+    existing_questions = question_count > 0
+
     return render(
         request,
         "courses/instructor/add_quiz.html",
@@ -1382,7 +1463,10 @@ def edit_quiz(request, course_id, quiz_id):
             "course": course,
             "course_id": course.id,
             "quiz_id": quiz.id,
-            "quiz_block": quiz_block
+            "quiz": quiz, 
+            "quiz_block": quiz_block,
+            "existing_questions": existing_questions,
+            "question_count": question_count,
         }
     )
 
@@ -1445,6 +1529,7 @@ def save_quiz(request, course_id, quiz_id):
         "message": "Quiz, questions, and source preference saved"
     })
 
+
 @login_required
 def add_lecture(request, module_id):
     module = get_object_or_404(Module, id=module_id)
@@ -1476,13 +1561,26 @@ def delete_lecture(request, lecture_id):
 
 @login_required
 def publish_course(request, course_id):
+    course = get_object_or_404(
+        Course,
+        id=course_id,
+        instructor=request.user
+    )
 
-    course = get_object_or_404(Course, id=course_id, instructor=request.user)
+    course.status = "pending"
+    course.save()
 
-    messages.success(request, f"Course '{course.title}' published successfully!")
+    admins = User.objects.filter(is_staff=True)
+
+    for admin in admins:
+        Notification.objects.create(
+            user=admin,
+            message=f"📚 New course '{course.title}' submitted for approval."
+        )
+
+    messages.success(request, "Course submitted for admin approval.")
 
     return redirect("instructor_dashboard")
-
 
 def edit_course(request, course_id):
     course = get_object_or_404(Course, id=course_id)
@@ -2219,3 +2317,266 @@ Format exactly like this:
     except Exception as e:
         print("OLLAMA ERROR:", str(e))
         return JsonResponse({"error": str(e)}, status=500)
+#-----------------ADMIN-------------------
+
+@staff_member_required
+def admin_approve_course(request, course_id):
+    course = get_object_or_404(Course, id=course_id)
+
+    course.status = "approved"
+    course.is_published = True
+    course.save()
+
+    Notification.objects.create(
+        user=course.instructor,
+        message=f"🎉 Your course '{course.title}' has been approved!"
+    )
+
+    return redirect("admin_dashboard")
+
+
+@staff_member_required
+def admin_reject_course(request, course_id):
+    course = get_object_or_404(Course, id=course_id)
+
+    reason = request.POST.get("reason")
+
+    course.status = "rejected"
+    course.rejection_reason = reason
+    course.is_published = False
+    course.save()
+
+    Notification.objects.create(
+        user=course.instructor,
+        message=f"❌ Your course '{course.title}' was rejected."
+    )
+
+    return redirect("admin_dashboard")
+
+@staff_member_required
+def admin_notifications(request):
+    notifications = Notification.objects.filter(
+        user=request.user
+    ).order_by('-created_at')
+
+    unread_count = notifications.filter(is_read=False).count()
+
+    return render(request, "admin/admin_notifications.html", {
+        "notifications": notifications,
+        "unread_count": unread_count
+    })
+
+@staff_member_required
+def mark_admin_notification_read(request, notif_id):
+    note = Notification.objects.filter(
+        id=notif_id,
+        user=request.user
+    ).first()
+
+    if note:
+        note.is_read = True
+        note.save()
+
+    return JsonResponse({"success": True})
+
+@staff_member_required
+def mark_all_admin_notifications_read(request):
+    Notification.objects.filter(
+        user=request.user,
+        is_read=False
+    ).update(is_read=True)
+
+    return redirect("admin_notifications")
+
+
+@staff_member_required
+def admin_course_detail(request, course_id):
+    course = get_object_or_404(Course, id=course_id)
+
+    ordered_items = []
+    structure = course.structure_json or []
+
+    modules = {
+        m.id: m for m in Module.objects.filter(course=course)
+        .prefetch_related('lectures')
+    }
+    quizzes = {q.id: q for q in Quiz.objects.filter(course=course)}
+    assignments = {a.id: a for a in Assignment.objects.filter(course=course)}
+    lives = {l.id: l for l in LiveClass.objects.filter(course=course)}
+
+    for block in structure:
+        block_type = block.get("type")
+
+        if block_type == "Module":
+            module = modules.get(block.get("module_id"))
+            if module:
+                ordered_items.append({
+                    "type": "module",
+                    "title": block.get("display_title", module.title),
+                    "obj": module,
+                })
+
+        elif block_type == "Quiz":
+            quiz = quizzes.get(block.get("quiz_id"))
+            if quiz:
+                ordered_items.append({
+                    "type": "quiz",
+                    "title": quiz.title,
+                    "display_label": block.get("display_title", "Quiz"),
+                    "obj": quiz,
+                })
+
+        elif block_type == "Assignment":
+            assignment = assignments.get(block.get("assignment_id"))
+            if assignment:
+                ordered_items.append({
+                    "type": "assignment",
+                    "title": block.get("display_title", assignment.title),
+                    "obj": assignment,
+                })
+
+        elif block_type == "LiveClass":
+            live = lives.get(block.get("liveclass_id"))
+            if live:
+                ordered_items.append({
+                    "type": "live",
+                    "title": block.get("display_title", live.topic),
+                    "obj": live,
+                })
+
+    return render(request, "courses/admin/admin_course_detail.html", {
+        "course": course,
+        "ordered_items": ordered_items,
+    })
+
+
+@staff_member_required
+def admin_courses(request):
+    courses = Course.objects.select_related("instructor").prefetch_related("enrollments")
+
+    q = request.GET.get("q")
+    status = request.GET.get("status")
+
+    if q:
+        courses = courses.filter(title__icontains=q)
+
+    if status:
+        courses = courses.filter(status=status)
+
+    return render(request, "courses/admin/admin_courses.html", {
+        "courses": courses
+    })
+
+
+@staff_member_required
+def admin_delete_course(request, course_id):
+    course = get_object_or_404(Course, id=course_id)
+    course.delete()
+    messages.success(request, "Course deleted.")
+    return redirect("courses:admin_courses")
+
+@login_required
+def admin_quiz_preview(request, quiz_id):
+    quiz = get_object_or_404(Quiz, id=quiz_id)
+
+    questions = quiz.questions.all()
+
+    return render(request,
+        "courses/admin/quiz_preview.html",
+        {
+            "quiz": quiz,
+            "questions": questions
+        }
+    )
+
+@staff_member_required
+def admin_instructors(request):
+    instructors = User.objects.filter(role="instructor")
+    return render(request, "courses/admin/admin_instructors.html", {
+        "instructors": instructors
+    })
+
+@staff_member_required
+def admin_students(request):
+    students = User.objects.filter(role="student")
+    return render(request, "courses/admin/admin_students.html", {
+        "students": students
+    })
+
+@staff_member_required
+def delete_user_admin(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+
+    if user.is_staff:
+        messages.error(request, "Cannot delete admin.")
+        return redirect("admin_dashboard")
+
+    user.delete()
+    messages.success(request, "User removed.")
+    return redirect(request.META.get('HTTP_REFERER', 'admin_dashboard'))
+
+
+@staff_member_required
+def admin_instructor_courses(request, instructor_id):
+    instructor = get_object_or_404(User, id=instructor_id)
+
+    courses = Course.objects.filter(instructor=instructor)
+
+    return render(request, "courses/admin/instructor_courses.html", {
+        "instructor": instructor,
+        "courses": courses
+    })
+
+@staff_member_required
+def admin_student_courses(request, student_id):
+    student = get_object_or_404(User, id=student_id)
+
+    enrollments = Enrollment.objects.filter(student=student).select_related("course")
+
+    return render(request, "courses/admin/student_courses.html", {
+        "student": student,
+        "enrollments": enrollments
+    })
+
+
+@staff_member_required
+def admin_remove_enrollment(request, enrollment_id):
+    enrollment = get_object_or_404(Enrollment, id=enrollment_id)
+
+    enrollment.delete()
+
+    return redirect("courses:admin_students")
+
+
+@staff_member_required
+def admin_add_comment(request, course_id, target, object_id=None):
+
+    course = get_object_or_404(Course, id=course_id)
+
+    module = lecture = None
+
+    if target == "module":
+        module = get_object_or_404(Module, id=object_id)
+
+    elif target == "lecture":
+        lecture = get_object_or_404(Lecture, id=object_id)
+
+    if request.method == "POST":
+        comment_text = request.POST.get("comment")
+
+        AdminComment.objects.create(
+            admin=request.user,
+            course=course,
+            module=module,
+            lecture=lecture,
+            target_type=target,
+            comment=comment_text
+        )
+
+        Notification.objects.create(
+            user=course.instructor,
+            message=f"Admin commented on your course '{course.title}'",
+            url=reverse("instructor:course_detail", args=[course.id])
+        )
+
+    return redirect("courses:admin_course_detail", course_id=course.id)

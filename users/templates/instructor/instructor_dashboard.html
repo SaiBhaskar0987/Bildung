@@ -311,6 +311,10 @@ p {
   <div class="d-flex justify-content-between align-items-center p-3 shadow-sm"
      style="background: linear-gradient(135deg, var(--brown-dark), var(--brown-medium));">
     <a href="{% url 'instructor_dashboard' %}" class="text-decoration-none">
+</head>
+<body class="bg-light">
+  <div class="d-flex justify-content-between align-items-center p-3 bg-white shadow-sm">
+    <a href="{% url 'instructor_dashboard' %}" class="text-decoration-none text-dark">
         <h3 class="m-0 fw-bold">Speshway</h3>
     </a>  
     <div class="d-flex align-items-center gap-4">
@@ -425,6 +429,29 @@ p {
             </span>
 
             <span class="fw-bold text-success">₹{{ course.price|default:"Free" }}</span>
+
+            <div class="mb-2">
+                {% if course.status == "draft" %}
+                <span class="badge bg-secondary">Draft</span>
+                {% elif course.status == "pending" %}
+                <span class="badge bg-warning text-dark">
+                    ⏳ Pending Admin Approval
+                </span>
+                {% elif course.status == "approved" %}
+                <span class="badge bg-success">
+                    ✔ Published
+                </span>
+                {% elif course.status == "rejected" %}
+                <span class="badge bg-danger">
+                    ❌ Rejected
+                </span>
+                {% if course.rejection_reason %}
+                <div class="small text-danger mt-1">
+                    Reason: {{ course.rejection_reason }}
+                </div>
+                {% endif %}
+                {% endif %}
+            </div>
           </div>
 
           <div class="d-grid gap-2 mt-3">
@@ -578,7 +605,6 @@ p {
         }
     }
 
-    // Update storage information display
     function updateStorageInfo() {
         const saved = localStorage.getItem(NOTEPAD_CONFIG.STORAGE_KEY);
         const storageInfo = document.getElementById("storageInfo");
@@ -645,6 +671,13 @@ p {
             document.body.removeChild(tempMsg);
         }, 3000);
     }
+    
+    function getCSRFToken() {
+        return document.cookie
+        .split("; ")
+        .find(row => row.startsWith("csrftoken="))
+        ?.split("=")[1];
+    }
 
     function cleanupExpiredNotes() {
         const saved = localStorage.getItem(NOTEPAD_CONFIG.STORAGE_KEY);
@@ -680,21 +713,23 @@ p {
  
         if (input.value.trim() === "") return;
 
-        // Add user's message to chat
         messages.innerHTML += `<p><b>You:</b> ${input.value}</p>`;
         messages.innerHTML += `<p><b>AI:</b> Thinking...</p>`;
         messages.scrollTop = messages.scrollHeight;
 
         try {
 
-            // Make POST request to /api/ai/ask
-            const response = await fetch('/api/ai/ask', {
-                method: 'POST',
+            const response = await fetch("/api/ai/ask", {
+                method: "POST",
                 headers: {
-                    'Content-Type': 'application/json',
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": getCSRFToken()
                 },
-                body: JSON.stringify({ question: input.value }),
-            });
+                body: JSON.stringify({
+                question: input.value
+            }),
+        });
+
 
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
@@ -708,12 +743,10 @@ p {
             askButton.disabled = false;
             aiInput.disabled = false;
 
-            // Remove "Thinking..." and add the actual response
             messages.innerHTML = messages.innerHTML.replace('<p><b>AI:</b> Thinking...</p>', '');
             messages.innerHTML += `<p><b>AI:</b> ${formattedAnswer}</p>`;
       
         } catch (error) {
-            // Handle errors (e.g., network issues, server errors)
             messages.innerHTML = messages.innerHTML.replace('<p><b>AI:</b> Thinking...</p>', '');
             messages.innerHTML += `<p><b>AI:</b> Sorry, I couldn't process your request. Error: ${error.message}</p>`;
         }

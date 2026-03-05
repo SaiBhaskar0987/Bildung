@@ -144,9 +144,9 @@ Respond ONLY in valid JSON:
     )
 
     llm = ChatOpenAI(
-    model="gpt-4o-mini",  
+    model="gpt-5-nano",  
     temperature=0,
-    request_timeout=15
+    request_timeout=20
 )
 
     chain = (

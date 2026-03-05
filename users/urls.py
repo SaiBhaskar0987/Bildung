@@ -6,6 +6,11 @@ urlpatterns = [
     # LANDING / AUTH
     # =====================
     path("auth/", views.auth_page, name="auth_page"),
+    path("signup/", views.signup_page, name="signup_page"),
+
+    path('admin/login/', views.admin_login, name='admin_login'),
+    path("logout/", views.logout_view, name="logout_view"),
+    path('admin-dashboard/', views.admin_dashboard, name='admin_dashboard'),
 
     #verification
     path("check-email/", views.check_email, name="check_email"),
@@ -20,7 +25,7 @@ urlpatterns = [
     # ACCOUNT SETTINGS (PASSWORD CONFIRM FLOW)
     path("account-settings/", views.account_settings, name="account_settings"),
     path(
-        "confirm-password/<uuid:token>/",
+        "password-change-confirm/<uuid:token>/",
         views.confirm_password_change,
         name="confirm_password_change",
     ),
@@ -59,15 +64,16 @@ urlpatterns = [
     # CUSTOM PASSWORD RESET
     # =====================
     path("forgot-password/", views.custom_password_reset, name="forgot_password"),
-    path(
-        "password-reset-sent/",
-        views.password_reset_sent,
-        name="password_reset_sent",
-    ),
+    path("password-reset-sent/", views.password_reset_sent, name="password_reset_sent"),
     path(
         "password-reset-confirm/<uidb64>/<token>/",
         views.custom_password_reset_confirm,
-        name="password_reset_confirm",
+        name="password_reset_confirm"
+    ),
+    path(
+        "password-reset-complete/",
+        views.password_reset_complete,
+        name="password_reset_complete"
     ),
 
     # =====================
@@ -94,6 +100,7 @@ urlpatterns = [
     path("mark-read/<int:notif_id>/", views.instructor_mark_read, name="mark_notification_read"),
     path("mark-all-read/", views.instructor_mark_all_read, name="mark_notifications_read"),
     path("settings/", views.instructor_account_settings, name="instructor_account_settings"),
+    path('confirm-password-change/<uuid:token>/', views.inst_confirm_password_change,name='inst_confirm_password_change'),
 
     # Include all instructor dashboard & course URLs
     path("instructor/", include(("courses.instructor_urls", "instructor"), namespace="instructor")),

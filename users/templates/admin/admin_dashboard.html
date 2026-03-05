@@ -1,0 +1,265 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+<style>
+body{
+    background:#f5f7fb;
+    font-family:'Segoe UI', sans-serif;
+}
+
+.sidebar{
+    width:240px;
+    height:100vh;
+    position:fixed;
+    background:linear-gradient(180deg,#7C3AED,#2563EB);
+    color:white;
+    padding-top:25px;
+}
+.sidebar h3{
+    text-align:center;
+    font-weight:700;
+    margin-bottom:30px;
+    color:white;
+}
+.sidebar a{
+    display:block;
+    color:white;
+    padding:12px 25px;
+    text-decoration:none;
+    font-weight:500;
+    transition:.2s;
+}
+.sidebar a:hover{
+    background:rgba(255,255,255,0.15);
+}
+
+.content{
+    margin-left:240px;
+    padding:30px;
+}
+
+.topbar{
+    background:white;
+    padding:15px 25px;
+    border-radius:12px;
+    box-shadow:0 4px 18px rgba(0,0,0,0.05);
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:25px;
+}
+
+.stat-card{
+    background:white;
+    border-radius:16px;
+    padding:22px;
+    box-shadow:0 6px 18px rgba(0,0,0,0.06);
+    text-align:center;
+}
+.stat-card h3{
+    font-weight:700;
+    margin-top:8px;
+}
+
+.approval-card{
+    background:white;
+    border-radius:16px;
+    padding:22px;
+    margin-bottom:20px;
+    box-shadow:0 6px 18px rgba(0,0,0,0.06);
+}
+
+.approval-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+}
+
+.approval-actions{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-top:12px;
+}
+
+.action-btn{
+    height:40px;
+    padding:0 18px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:600;
+    border-radius:8px;
+    white-space:nowrap;
+}
+
+.reject-wrap{
+    display:flex;
+    gap:10px;
+    align-items:center;
+}
+
+.action-input{
+    height:40px;
+    width:200px;
+}
+
+.logout-btn{
+    background:#ef4444;
+    border:none;
+    color:white;
+    padding:8px 16px;
+    border-radius:8px;
+}
+.logout-btn:hover{
+    background:#dc2626;
+}
+</style>
+</head>
+
+<body>
+
+<div class="sidebar">
+    <h3>Speshway</h3>
+    <a href="{% url 'admin_dashboard' %}">
+        <i class="fa-solid fa-book me-2"></i>Courses
+    </a>
+    <a href="{% url 'courses:admin_instructors' %}">
+        <i class="fa-solid fa-chalkboard-teacher me-2"></i>Instructors
+    </a>
+    <a href="{% url 'courses:admin_students' %}">
+        <i class="fa-solid fa-user-graduate me-2"></i>Students
+    </a>
+    <a href="{% url 'courses:admin_notifications' %}">
+        <i class="fa-solid fa-bell me-2"></i>Notifications
+    </a>
+</div>
+
+<div class="content">
+
+    <div class="topbar">
+        <h5 class="mb-0 fw-bold">Admin Dashboard</h5>
+        <a href="{% url 'logout_view' %}" class="logout-btn">Logout</a>
+    </div>
+
+    <div class="row mb-4 g-3">
+        <div class="col-md-3">
+            <div class="stat-card">
+                <small>Total Courses</small>
+                <h3>{{ total_courses }}</h3>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="stat-card">
+                <small>Pending Approvals</small>
+                <h3 class="text-warning">{{ pending_count }}</h3>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="stat-card">
+                <small>Instructors</small>
+                <h3>{{ total_instructors }}</h3>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="stat-card">
+                <small>Students</small>
+                <h3>{{ total_students }}</h3>
+            </div>
+        </div>
+    </div>
+
+    <h5 class="mb-3 fw-bold">Pending Course Approvals</h5>
+
+    {% for course in pending_courses %}
+    <div class="approval-card">
+
+        <div class="approval-header">
+            <h5 class="fw-bold mb-1">{{ course.title }}</h5>
+
+            {% if course.pending_title %}
+                <span class="badge bg-info">Update Request</span>
+            {% else %}
+                <span class="badge bg-warning text-dark">New Course</span>
+            {% endif %}
+        </div>
+
+        <p class="text-muted mb-1">
+            Instructor: <strong>{{ course.instructor.username }}</strong>
+        </p>
+
+        <p class="text-muted small mb-2">
+            {{ course.description|truncatewords:15 }}
+        </p>
+
+        <div class="approval-actions">
+
+            <a href="{% url 'courses:admin_course_detail' course.id %}"
+               class="btn btn-outline-primary action-btn">
+                Preview
+            </a>
+
+            <form method="post"
+                  action="{% url 'courses:admin_approve_course' course.id %}">
+                {% csrf_token %}
+                <button class="btn btn-success action-btn">
+                    ✔ Approve
+                </button>
+            </form>
+
+            <form method="post"
+                  action="{% url 'courses:admin_reject_course' course.id %}"
+                  class="reject-wrap">
+                {% csrf_token %}
+
+                <input type="text"
+                       name="reason"
+                       class="form-control action-input"
+                       placeholder="Reason (optional)">
+
+                <button class="btn btn-danger action-btn">
+                    ✖ Reject
+                </button>
+            </form>
+
+        </div>
+
+    </div>
+    {% empty %}
+        <p class="text-muted">No pending approvals 🎉</p>
+    {% endfor %}
+
+</div>
+
+<script>
+document.querySelectorAll("form[action*='approve']").forEach(form=>{
+    form.addEventListener("submit",function(e){
+        if(!confirm("Approve this course?")){
+            e.preventDefault();
+        }
+    });
+});
+
+document.querySelectorAll("form[action*='reject']").forEach(form=>{
+    form.addEventListener("submit",function(e){
+        if(!confirm("Reject this course?")){
+            e.preventDefault();
+        }
+    });
+});
+</script>
+
+</body>
+</html>

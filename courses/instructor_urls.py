@@ -7,7 +7,14 @@ urlpatterns = [
 
     # Instructor-only course management
     path('courses/add/', views.add_course, name='add_course'),
+    path("account-settings/", views.instructor_account_settings, name="account_settings"),
     path('courses/<int:course_id>/', views.course_detail, name='course_detail'),
+     # ✅ ADD THIS LINE 👇
+    path(
+        "courses/<int:course_id>/assignment/<int:assignment_id>/edit/",
+        views.edit_assignment,
+        name="edit_assignment"
+    ),
     path('courses/<int:course_id>/add-lecture/', views.add_lecture, name='add_lecture'),
     path('courses/<int:course_id>/feedback/', views.give_feedback, name='give_feedback'),
     path('students-list/', views.my_students, name='students_list'),

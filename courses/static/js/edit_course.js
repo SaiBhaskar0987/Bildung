@@ -68,6 +68,9 @@ function generateCardHTML(item, index) {
                         ? `<button class="open-module-btn" onclick="openModule(${index})">Edit</button>`
                         : ""
                 }
+                ${item.type === "Assignment" ?
+                    `<button class="open-module-btn" onclick="openAssignment(${index})">Edit</button>`
+                : ""}
 
                 ${
                     item.type === "Quiz"
@@ -221,5 +224,52 @@ function publishCourse() {
 
     saveCourse(() => {
         window.location.href = `${BASE_URL}/publish/${courseId}/`;
+    });
+}
+
+
+function openAssignment(index) {
+    const item = structure[index];
+
+    if (!courseId) {
+        alert("Please save the course first!");
+        return;
+    }
+
+    // If assignment does not exist yet, create it
+    if (!item.assignment_id) {
+
+        fetch(`/courses/assignment/create/`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                course_id: courseId
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+
+            if (!data.assignment_id) {
+                alert("Failed to create assignment");
+                return;
+            }
+
+            // Store assignment id in structure
+            structure[index].assignment_id = data.assignment_id;
+
+            // Save course structure, then redirect
+            saveCourse(() => {
+                window.location.href =
+                    `${BASE_URL}/courses/${courseId}/assignment/${data.assignment_id}/edit/`;
+            });
+        });
+
+        return;
+    }
+
+    // If assignment already exists
+    saveCourse(() => {
+        window.location.href =
+            `${BASE_URL}/courses/${courseId}/assignment/${item.assignment_id}/edit/`;
     });
 }

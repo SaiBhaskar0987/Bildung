@@ -13,102 +13,239 @@
         const COURSE_ID = "{{ course_id }}";
         const MODULE_ID = "{{ module.id }}";
     </script>
-
-
 <style>
+/* ================= THEME COLORS ================= */
+:root{
+  --yellow:#facc15;
+  --yellow-soft:#fff7cc;
+  --brown:#3a2a1a;
+  --brown-dark:#5a3d1f;
+}
 
+/* ================= PAGE BACKGROUND ================= */
+body{
+    background: linear-gradient(135deg,#fffdf2,#fff7cc);
+    min-height:100vh;
+    position:relative;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+/* Soft glow effect */
+body::before{
+    content:"";
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background: radial-gradient(circle at 20% 30%, rgba(250,204,21,0.15), transparent 40%);
+    pointer-events:none;
+}
+
+/* ================= TOPBAR ================= */
 .topbar {
-    background: white;
-    padding: 12px 25px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    background:white;
+    padding:12px 25px;
+    box-shadow:0 4px 15px rgba(0,0,0,0.08);
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
 }
 
-.topbar-title {
-    font-size: 26px;
-    font-weight: 700;
-    text-decoration: none;
-    color: #222;
+.topbar-title{
+    font-size:26px;
+    font-weight:700;
+    color:var(--yellow);
+    text-decoration:none;
 }
 
+/* Profile Circle */
+.topbar .btn.rounded-circle{
+    background:linear-gradient(135deg,var(--yellow),#fde68a) !important;
+    color:var(--brown) !important;
+    border:none;
+    font-weight:600;
+}
+
+/* ================= MAIN CARD ================= */
+.paper{
+    max-width:850px;
+    margin:60px auto;
+    padding:60px 50px 50px 50px;
+    border-radius:25px;
+    background:white;
+    box-shadow:
+        0 25px 70px rgba(58,42,26,0.18),
+        0 0 60px rgba(250,204,21,0.15);
+    position:relative;
+    animation: floatCard 0.8s ease-out;
+}
+
+/* Floating animation */
+@keyframes floatCard {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ================= HEADER GRADIENT ================= */
+.paper::before{
+    content:"";
+    position:absolute;
+    top:0;
+    left:0;
+    width:100%;
+    height:110px;
+    border-radius:25px 25px 0 0;
+    background:linear-gradient(135deg,var(--brown),var(--brown-dark));
+    z-index:0;
+}
+
+/* ================= TITLES ================= */
+.title{
+    position:relative;
+    z-index:1;
+    text-align:center;
+    font-weight:800;
+    letter-spacing:2px;
+    color:white;
+    margin-bottom:40px;
+}
+
+h2.title{
+    color:var(--brown);
+    margin-top:40px;
+}
+
+/* ================= LABELS ================= */
+.label{
+    font-weight:600;
+    color:var(--brown);
+    margin-bottom:8px;
+    display:block;
+}
+
+/* ================= INPUT FIELDS ================= */
+.input-box{
+    width:100%;
+    padding:14px;
+    border-radius:14px;
+    border:2px solid var(--yellow);
+    margin-bottom:25px;
+    font-size:15px;
+    transition:0.3s;
+}
+
+.input-box:hover{
+    border-color:var(--brown);
+}
+
+.input-box:focus{
+    border-color:var(--brown-dark);
+    box-shadow:0 0 0 4px rgba(250,204,21,0.35);
+    outline:none;
+}
+
+/* ================= DIVIDER ================= */
+.divider{
+    margin:40px 0;
+    height:2px;
+    background:linear-gradient(to right,transparent,var(--yellow),transparent);
+    border:none;
+}
+
+/* ================= ADD LECTURE BUTTON ================= */
+.add-btn{
+    width:100%;
+    padding:15px;
+    border-radius:15px;
+    font-size:16px;
+    font-weight:600;
+    background:linear-gradient(135deg,var(--yellow),#fde68a);
+    color:var(--brown);
+    border:none;
+    transition:0.3s;
+    margin-top:15px;
+}
+
+.add-btn:hover{
+    transform:translateY(-3px);
+    box-shadow:0 8px 25px rgba(250,204,21,0.5);
+}
+
+.add-btn:active{
+    transform:scale(0.96);
+}
+
+/* ================= ACTION BUTTONS ================= */
+.actions{
+    display:flex;
+    justify-content:center;
+    gap:25px;
+    margin-top:40px;
+}
+
+.save-main,
+.publish-main{
+    padding:14px 32px;
+    border-radius:15px;
+    font-weight:600;
+    border:none;
+    background:linear-gradient(135deg,var(--brown),var(--brown-dark));
+    color:white;
+    transition:0.3s;
+}
+
+.save-main:hover,
+.publish-main:hover{
+    transform:translateY(-2px);
+    box-shadow:0 10px 25px rgba(58,42,26,0.35);
+}
+
+.save-main:active,
+.publish-main:active{
+    transform:scale(0.96);
+}
+
+/* ================= LECTURE CARDS ================= */
 .lecture-card {
-    background: #ffffff;
+    background: #fffdf5;
     padding: 20px;
     margin-bottom: 18px;
-    border-radius: 15px;
-    box-shadow: 0 3px 12px rgba(0,0,0,0.08);
-    border-left: 5px solid #5167ff;
-    transition: 0.2s ease;
-}
-.lecture-card:hover {
-    transform: scale(1.01);
-    box-shadow: 0 5px 18px rgba(0,0,0,0.12);
+    border-radius: 18px;
+    box-shadow: 0 8px 25px rgba(58,42,26,0.12);
+    border-left: 6px solid var(--yellow);
+    transition: 0.3s ease;
 }
 
-.lecture-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 12px;
+.lecture-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 35px rgba(58,42,26,0.18);
 }
 
 .lecture-title {
     font-size: 18px;
     font-weight: 700;
-    color: #253b8a;
+    color: var(--brown);
 }
 
 .delete-lecture-btn {
-    background: #ff4d4d;
+    background: linear-gradient(135deg,#dc2626,#991b1b);
     color: white;
     border: none;
     padding: 6px 12px;
     border-radius: 10px;
     cursor: pointer;
-    font-size: 14px;
-}
-.delete-lecture-btn:hover { background: #d93636; }
-
-.lecture-body label {
-    font-weight: 600;
-    margin-top: 10px;
-    margin-bottom: 5px;
 }
 
-.lecture-body input[type="text"],
-.lecture-body input[type="file"] {
-    width: 100%;
-    padding: 10px;
-    border: 2px solid #c9d1f0;
-    border-radius: 10px;
-    margin-bottom: 12px;
-    font-size: 15px;
-    transition: 0.2s;
+.delete-lecture-btn:hover {
+    opacity:0.85;
 }
-
-.lecture-body input[type="text"]:focus {
-    border-color: #5167ff;
-    box-shadow: 0 0 4px rgba(81,103,255,0.35);
-}
-
-.add-btn {
-    margin-top: 15px;
-    width: 100%;
-    padding: 12px;
-    border-radius: 12px;
-    font-size: 16px;
-    background: #5167ff;
-    color: white;
-    border: none;
-    cursor: pointer;
-    transition: 0.2s;
-    margin-bottom: 30px;
-}
-
-.add-btn:hover { background: #3b4fd8; }
-
 </style>
 </head>
 
@@ -118,7 +255,7 @@
 <div class="topbar">
 
     <a href="{% url 'instructor_dashboard' %}" class="topbar-title">
-        Bildung
+        Speshway
     </a>
 
     <div class="dropdown">

@@ -97,16 +97,6 @@ body{background:#f9fafb;}
 </div>
 {% endif %}
 
-{% if profile.linkedin %}
-<p><strong>LinkedIn:</strong>
-<a href="{{ profile.linkedin }}" target="_blank">View Profile</a></p>
-{% endif %}
-
-{% if profile.website %}
-<p><strong>Website:</strong>
-<a href="{{ profile.website }}" target="_blank">Visit</a></p>
-{% endif %}
-
 {% if profile.resume %}
 <a href="{{ profile.resume.url }}" target="_blank"
    class="btn btn-outline-success btn-sm mt-2">

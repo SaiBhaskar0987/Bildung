@@ -28,7 +28,7 @@ from courses.services.recommendation_service import get_recommended_courses
 
 from .models import User, Profile, LoginHistory, InstructorProfile
 from .forms import StudentSignUpForm, InstructorSignUpForm, ProfileForm, UserDisplayForm, InstructorUserReadOnlyForm, InstructorUserForm, InstructorProfileForm
-from courses.models import Certificate, Course, CourseReview, Enrollment, Lecture, LectureProgress, LectureQuestion, LiveClass, LiveClassAttendance, Notification
+from courses.models import Certificate, Course, CourseReview, Enrollment, Feedback, Lecture, LectureProgress, LectureQuestion, LiveClass, LiveClassAttendance, Notification
 
 def auth_page(request):
     return render(request, "users/login_page.html")
@@ -110,7 +110,7 @@ def student_dashboard(request):
 
     if user.role != "student":
         messages.error(request, "Access denied.")
-        return redirect("login")
+        return redirect("auth_page")
 
     enrollments = Enrollment.objects.filter(
         student=user
@@ -240,7 +240,7 @@ def account_settings(request):
             )
 
             send_mail(
-                subject="Confirm Your Password Change - Bildung",
+                subject="Confirm Your Password Change - Speshway",
                 message=f"""
 Hello {user.first_name},
 
@@ -338,16 +338,30 @@ def profile_view_or_edit(request, mode=None):
 @login_required
 def student_my_activity(request):
     user = request.user
-    enrollments = Enrollment.objects.filter(student=user)
+    enrollments = Enrollment.objects.filter(student=user).select_related("course")
+    selected_course_id = request.GET.get("course")
+    selected_course = None
+
+    if selected_course_id:
+        selected_enrollment = enrollments.filter(course_id=selected_course_id).first()
+        if selected_enrollment:
+            selected_course = selected_enrollment.course
+
+    filtered_enrollments = enrollments
+    if selected_course:
+        filtered_enrollments = enrollments.filter(course=selected_course)
 
     course_progress = []
-    for enroll in enrollments:
+
+    for enroll in filtered_enrollments:
         course = enroll.course
         lectures = Lecture.objects.filter(module__course=course)
         total_lectures = lectures.count()
 
         completed = LectureProgress.objects.filter(
-            student=user, lecture__in=lectures, completed=True
+            student=user,
+            lecture__in=lectures,
+            completed=True
         ).count()
 
         percent = round((completed / total_lectures) * 100, 2) if total_lectures > 0 else 0
@@ -360,28 +374,51 @@ def student_my_activity(request):
         })
 
     recent_videos = LectureProgress.objects.filter(
-        student=user, completed=True
-    ).select_related("lecture", "lecture__module__course").order_by("-updated_at")[:10]
+        student=user,
+        completed=True
+    ).select_related("lecture", "lecture__module__course")
 
-    video_lessons_watched = LectureProgress.objects.filter(
-        student=user, completed=True
-    ).select_related("lecture", "lecture__module__course").order_by("-updated_at")
+    video_lessons_watched = recent_videos
 
-    enrolled_course_ids = enrollments.values_list("course_id", flat=True)
+    if selected_course:
+        recent_videos = recent_videos.filter(
+            lecture__module__course=selected_course
+        )
+        video_lessons_watched = video_lessons_watched.filter(
+            lecture__module__course=selected_course
+        )
 
-    all_live_classes = LiveClass.objects.filter(course_id__in=enrolled_course_ids)
+    recent_videos = recent_videos.order_by("-updated_at")[:10]
+    video_lessons_watched = video_lessons_watched.order_by("-updated_at")
+
+    quiz_activity = QuizResult.objects.filter(student=user)
+
+    if selected_course:
+        quiz_activity = quiz_activity.filter(quiz__course=selected_course)
+
+    quiz_activity = quiz_activity.select_related(
+        "quiz", "quiz__course"
+    ).order_by("-submitted_at")
+
+    if selected_course:
+        all_live_classes = LiveClass.objects.filter(course=selected_course)
+    else:
+        enrolled_course_ids = enrollments.values_list("course_id", flat=True)
+        all_live_classes = LiveClass.objects.filter(course_id__in=enrolled_course_ids)
 
     total_classes = all_live_classes.count()
 
-    attendance_records = (
-        LiveClassAttendance.objects
-        .filter(user=user, live_class__in=all_live_classes)
-        .select_related("live_class", "live_class__course")
-    )
+    attendance_records = LiveClassAttendance.objects.filter(
+        user=user,
+        live_class__in=all_live_classes
+    ).select_related("live_class", "live_class__course")
 
     attended_count = attendance_records.exclude(joined_at=None).count()
 
-    attendance_percent = round((attended_count / total_classes) * 100, 2) if total_classes > 0 else 0
+    attendance_percent = (
+        round((attended_count / total_classes) * 100, 2)
+        if total_classes > 0 else 0
+    )
 
     attendance_data = {
         "total_classes": total_classes,
@@ -394,36 +431,62 @@ def student_my_activity(request):
                 "course": rec.live_class.course.title,
                 "date": rec.live_class.date,
                 "status": "Joined" if rec.joined_at else "Missed",
-                "joined_at": rec.joined_at,
                 "duration": f"{rec.duration} mins" if rec.duration else "—",
             }
             for rec in attendance_records
         ]
     }
-    quiz_activity = (
-        QuizResult.objects.filter(student=user)
-            .select_related("quiz", "quiz__course")
-            .order_by("-submitted_at")
+
+    feedback_activity = Feedback.objects.filter(student=user)
+
+    if selected_course:
+        feedback_activity = feedback_activity.filter(course=selected_course)
+
+    feedback_activity = feedback_activity.select_related(
+        "course", "instructor"
+    ).order_by("-created_at")
+
+    qna_activity = LectureQuestion.objects.filter(student=user)
+
+    if selected_course:
+        qna_activity = qna_activity.filter(
+            lecture__module__course=selected_course
         )
+
+    qna_activity = qna_activity.select_related(
+        "lecture", "lecture__module", "lecture__module__course"
+    ).prefetch_related("replies__user").order_by("-created_at")
+
+    total_completed = LectureProgress.objects.filter(
+        student=user,
+        completed=True
+    )
+
+    total_lectures = Lecture.objects.all()
+
+    if selected_course:
+        total_completed = total_completed.filter(
+            lecture__module__course=selected_course
+        )
+        total_lectures = total_lectures.filter(
+            module__course=selected_course
+        )
+
+    total_completed_count = total_completed.count()
+    total_lectures_count = total_lectures.count()
+
+    overall_progress = (
+        round((total_completed_count / total_lectures_count) * 100, 2)
+        if total_lectures_count > 0 else 0
+    )
 
     login_history = LoginHistory.objects.filter(user=user).order_by("-login_time")[:25]
 
-    qna_activity = (
-        LectureQuestion.objects.filter(student=user)
-        .select_related("lecture", "lecture__module", "lecture__module__course")
-        .prefetch_related("replies__user")
-        .order_by("-created_at")
-    )
-
-    total_completed = LectureProgress.objects.filter(student=user, completed=True).count()
-    total_lectures = Lecture.objects.count()
-    overall_progress = (
-        round((total_completed / total_lectures) * 100, 2) if total_lectures > 0 else 0
-    )
-
     context = {
+        "enrollments": enrollments,
+        "selected_course": selected_course,
         "total_enrolled_courses": enrollments.count(),
-        "total_completed_lectures": total_completed,
+        "total_completed_lectures": total_completed_count,
         "overall_progress": overall_progress,
         "course_progress": course_progress,
         "recent_videos": recent_videos,
@@ -432,10 +495,10 @@ def student_my_activity(request):
         "attendance_data": attendance_data,
         "login_history": login_history,
         "qna_activity": qna_activity,
+        "feedback_activity": feedback_activity,
     }
 
     return render(request, "student/my_activity.html", context)
-    
 
 @login_required
 def student_notifications(request):
@@ -546,25 +609,44 @@ def instructor_login(request):
 
     return render(request, "instructor/instructor_login.html", {"form": form})
 
+
 @login_required
 def instructor_dashboard(request):
-    check_and_send_reminders(request.user)
-    courses = Course.objects.filter(instructor=request.user)
+
+    if request.user.role != "instructor":
+        return redirect("auth_page") 
+
+    instructor = request.user
+
+    check_and_send_reminders(instructor)
+
+    courses = Course.objects.filter(instructor=instructor)
+
     unread_count = Notification.objects.filter(
-        user=request.user,
+        user=instructor,
         is_read=False
     ).count()
 
     total_students = Enrollment.objects.filter(
-        course__in=courses
-    ).values('student').distinct().count()
+        course__instructor=instructor
+    ).values("student").distinct().count()
 
-    return render(request, 'instructor/instructor_dashboard.html', {
-        'courses': courses,
-        'total_students': total_students,
-        "unread_count": unread_count,
-    })
+    total_earnings = Enrollment.objects.filter(
+        course__instructor=instructor
+    ).aggregate(
+        total=Sum("course__price")
+    )["total"] or 0
 
+    return render(
+        request,
+        "instructor/instructor_dashboard.html",
+        {
+            "courses": courses,
+            "total_students": total_students,
+            "unread_count": unread_count,
+            "total_earnings": total_earnings,
+        },
+    )
 def logout_view(request):
     logout(request)
     messages.success(request, "You have been successfully logged out.")
@@ -594,11 +676,11 @@ def custom_password_reset(request):
             )
             reset_url = f"{request.scheme}://{request.get_host()}{reset_path}"
 
-            subject = "Password Reset Request - Bildung"
+            subject = "Password Reset Request - Speshway"
             message = f"""
 Hello {user.first_name or user.username},
 
-You requested a password reset for your Bildung account.
+You requested a password reset for your Speshway account.
 
 Reset your password using the link below:
 {reset_url}
@@ -606,7 +688,7 @@ Reset your password using the link below:
 If you didn’t request this, you can safely ignore this email.
 
 Thanks,
-Bildung Team
+Speshway Team
 """
 
             send_mail(
@@ -808,7 +890,7 @@ def instructor_account_settings(request):
             )
 
             send_mail(
-                subject="Confirm Your Password Change - Bildung",
+                subject="Confirm Your Password Change - Speshway",
                 message=f"""
 Hello {user.first_name},
 
@@ -909,7 +991,7 @@ def admin_login(request):
 
             else:
                 messages.error(request, "Access denied. Admin login only.")
-                return redirect("login")
+                return redirect("auth_page")
 
         else:
             messages.error(request, "Invalid username or password")

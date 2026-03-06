@@ -1,6 +1,6 @@
-📚 Bildung – AI-Powered E-Learning Platform
+📚 Speshway – AI-Powered E-Learning Platform
 
-    Bildung is a full-stack e-learning platform that combines Django for core application logic and FastAPI for AI-powered features such as quiz generation, an AI learning chatbot using RAG (Retrieval-Augmented Generation).
+    Speshway is a full-stack e-learning platform that combines Django for core application logic and FastAPI for AI-powered features such as quiz generation, an AI learning chatbot using RAG (Retrieval-Augmented Generation).
     
     The platform supports instructors and students, structured courses, modules, quizzes, assessments, video/PDF content, dashboards, and personalized recommendations and conversational AI assistance.
 
@@ -19,7 +19,7 @@
 
 🔐 Authentication & Google OAuth (Google Login)
 
-    Bildung supports secure authentication using:
+    Speshway supports secure authentication using:
 
     Email & password login
 
@@ -70,7 +70,7 @@
 
 📁 Project Structure
 
-BILDUNG/
+Speshway/
 
 │
 
@@ -232,12 +232,12 @@ BILDUNG/
     You won’t be able to see this key again after closing the dialog.
 
 
-⚙️ Setup guidelines for bildung
+⚙️ Setup guidelines for Speshway
 
 1️⃣ Clone the Repository(VS code terminal or git bash or CMD)
 
-    - git clone https://github.com/SaiBhaskar0987/Bildung.git
-    - cd bildung
+    - git clone https://github.com/SaiBhaskar0987/Speshway.git
+    - cd Speshway
 
 2️⃣ Create Virtual Environment
 
@@ -287,7 +287,7 @@ BILDUNG/
         DATABASES = {
             'default': {
                 'ENGINE': 'django.db.backends.mysql',
-                'NAME': 'bildung_db',
+                'NAME': 'Speshway_db',
                 'USER': 'your_user_name',         # change with your MYSQL username
                 'PASSWORD': 'your_mysql_password', # change with your MYSQL password
                 'HOST': 'localhost',
@@ -325,7 +325,7 @@ BILDUNG/
         **For production**:
             for production follow the same above steps with your new url's.
             Ex: https://your-domain.com/complete/google-oauth2/
-    5. Go back to your app(Bildung):
+    5. Go back to your app(Speshway):
         Go to core/settings.py,
             Update you Client ID and Clent Secret at below variables.
                     SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = 'your_google_client_id'
@@ -364,9 +364,9 @@ Start Exploring
 
 🔐 Admin Setup & Management
 
-    Bildung includes a role-based administration system that allows platform administrators to manage users, courses, content, and platform operations.
+    Speshway includes a role-based administration system that allows platform administrators to manage users, courses, content, and platform operations.
 
-    Unlike the default Django admin panel, Bildung provides an app-level admin interface accessible via:
+    Unlike the default Django admin panel, Speshway provides an app-level admin interface accessible via:
 
     👉 http://127.0.0.1:8000/accounts/admin/login/
 
@@ -552,7 +552,7 @@ Start Exploring
 
 🤝 Contributing
 
-    We welcome contributions to Bildung!
+    We welcome contributions to Speshway!
     Whether it’s a bug fix, new feature, documentation improvement, or AI enhancement — your help is appreciated.
 
     Please follow the guidelines below to ensure smooth collaboration and code quality.
@@ -563,8 +563,8 @@ Start Exploring
 
         Then clone your fork locally:
 
-        - git clone https://github.com/SaiBhaskar0987/Bildung.git
-        - cd bildung
+        - git clone https://github.com/SaiBhaskar0987/Speshway.git
+        - cd Speshway
 
     2️⃣ Create a Feature Branch
 

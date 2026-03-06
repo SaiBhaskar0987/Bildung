@@ -91,13 +91,26 @@ def view_course(request, course_id):
         )
     )
 
+    total_modules = modules.count()
+    total_lectures = sum(
+        module.lectures.count() for module in modules
+    )
+
+    total_quizzes = course.quizzes.count() if hasattr(course, "quizzes") else 0
+    total_assignments = course.assignments.count() if hasattr(course, "assignments") else 0
+    total_live_classes = course.live_classes.count() if hasattr(course, "live_classes") else 0
+
     context = {
         "course": course,
         "modules": modules,
+        "total_modules": total_modules,
+        "total_lectures": total_lectures,
+        "total_quizzes": total_quizzes,
+        "total_assignments": total_assignments,
+        "total_live_classes": total_live_classes,
     }
 
     return render(request, "courses/view_course.html", context)
-
 
 
 @login_required(login_url='/login/')
@@ -626,7 +639,7 @@ def get_certificate(request, course_id):
 
     p.line(150, height - 500, width - 150, height - 500)
     p.setFont("Helvetica-Oblique", 12)
-    p.drawCentredString(width/2, height - 520, "Bildung Learning Platform")
+    p.drawCentredString(width/2, height - 520, "Speshway Learning Platform")
 
     p.showPage()
     p.save()
@@ -907,21 +920,33 @@ def delete_event(request, event_id):
 
 @login_required
 def give_feedback(request, course_id):
-    course = get_object_or_404(Course, id=course_id, instructor=request.user)
+    course = get_object_or_404(
+        Course,
+        id=course_id,
+        instructor=request.user
+    )
 
-    if request.method == 'POST':
-        form = FeedbackForm(request.POST)
+    if request.method == "POST":
+        form = FeedbackForm(request.POST, course=course)
         if form.is_valid():
             feedback = form.save(commit=False)
             feedback.instructor = request.user
             feedback.course = course
             feedback.save()
+
             messages.success(request, "Feedback submitted successfully!")
-            return redirect('instructor:course_detail', course_id=course.id)
+            return redirect("instructor:course_detail", course_id=course.id)
     else:
-        form = FeedbackForm()
-       
-    return render(request, 'courses/instructor/give_feedback.html', {'form': form, 'course': course})
+        form = FeedbackForm(course=course)
+
+    return render(
+        request,
+        "courses/instructor/give_feedback.html",
+        {
+            "form": form,
+            "course": course,
+        },
+    )
 
 @login_required(login_url='/login/')
 def student_course_list(request):

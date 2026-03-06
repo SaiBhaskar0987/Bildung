@@ -196,7 +196,7 @@ USE_TZ = True
 # Email (Development)
 # ---------------------------------------------------------------------
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-DEFAULT_FROM_EMAIL = 'Bildung Platform <noreply@bildung.com>'
+DEFAULT_FROM_EMAIL = 'Speshway Platform <noreply@bildung.com>'
 
 
 # ---------------------------------------------------------------------

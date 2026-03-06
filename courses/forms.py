@@ -1,5 +1,7 @@
 from django import forms
 from django.utils.text import slugify
+
+from users.models import User
 from .models import Course, Lecture, Feedback, Enrollment, Module, LiveClass, CourseEvent, CourseReview
 from django.forms import inlineformset_factory
 from .models import AdminComment
@@ -60,18 +62,31 @@ LectureFormSet = inlineformset_factory(
 class FeedbackForm(forms.ModelForm):
     class Meta:
         model = Feedback
-        fields = ['text']
+        fields = ['student', 'text']
         widgets = {
-            'text': forms.Textarea(attrs={'rows': 4, 'placeholder': 'Write feedback here...'}),
+            'student': forms.Select(attrs={
+                'class': 'form-select'
+            }),
+            'text': forms.Textarea(attrs={
+                'rows': 4,
+                'placeholder': 'Write feedback here...',
+                'class': 'form-control'
+            }),
         }
 
     def __init__(self, *args, **kwargs):
-        course = kwargs.pop('course', None)  
+        course = kwargs.pop('course', None)
         super().__init__(*args, **kwargs)
-        if course:
-            enrolled_students = Enrollment.objects.filter(course=course).values_list("student", flat=True)
-            self.fields['student'].queryset = course.students.filter(id__in=enrolled_students)
 
+        if course:
+            enrolled_students = Enrollment.objects.filter(
+                course=course
+            ).values_list("student", flat=True)
+
+            self.fields['student'].queryset = User.objects.filter(
+                id__in=enrolled_students
+            )
+            
 class CourseEventForm(forms.ModelForm):
 
     start_time = forms.DateTimeField(

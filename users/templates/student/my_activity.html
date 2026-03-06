@@ -15,11 +15,12 @@
 
 <div class="dashboard-header d-flex justify-content-between align-items-center">
     <a href="{% url 'student_dashboard' %}" class="text-decoration-none text-dark">
-        <h3 class="m-0 fw-bold">Bildung</h3>
+        <h3 class="m-0 fw-bold brand-title">
+                <i class="fas fa-graduation-cap"></i> Speshway
+            </h3>
     </a>
 
     <div class="d-flex align-items-center gap-3">
-        <h5 class="m-0">Hello, {{ user.first_name }} {{ user.last_name }}</h5>
 
         <div class="dropdown">
             <button class="btn rounded-circle shadow" style="background:gray;color:white;width:45px;height:45px;" type="button" data-bs-toggle="dropdown">
@@ -50,6 +51,18 @@
 </div>
 
 <div class="container mb-5">
+
+    <form method="get" class="mb-4">
+        <select name="course" class="form-select course-filter" onchange="this.form.submit()">
+            <option value="">All Courses</option>
+            {% for enroll in enrollments %}
+                <option value="{{ enroll.course.id }}"
+                    {% if selected_course and selected_course.id == enroll.course.id %}selected{% endif %}>
+                    {{ enroll.course.title }}
+                </option>
+            {% endfor %}
+        </select>
+    </form>
 
     <div class="row mb-4">
         <div class="col-md-3 mb-3">
@@ -90,8 +103,8 @@
         <button class="tab-button" onclick="openTab(event, 'quizzes-tab')"><i class="fas fa-list-check me-2"></i>Quizzes</button>
         <button class="tab-button" onclick="openTab(event, 'attendance-tab')"><i class="fas fa-user-check me-2"></i>Attendance</button>
         <button class="tab-button" onclick="openTab(event, 'history-tab')"><i class="fas fa-history me-2"></i>Login History</button>
-        <button class="tab-button" onclick="openTab(event, 'videos-tab')"><i class="fas fa-play-circle me-2"></i>Video Lessons Watched</button>
         <button class="tab-button" onclick="openTab(event, 'qna-tab')"><i class="fas fa-question-circle me-2"></i>Q&A Activity</button>
+        <button class="tab-button" onclick="openTab(event, 'feedback-tab')"><i class="fas fa-comment-dots me-2"></i>Feedback</button>
       
     </div>
 
@@ -307,38 +320,6 @@
     </table>
 </div>
 
-   <div id="videos-tab" class="tab-content">
-    <h3>Video Lessons Watched</h3>
-
-    {% if video_lessons_watched %}
-    <table class="activity-table">
-        <thead>
-            <tr>
-                <th>Lecture Title</th>
-                <th>Course</th>
-                <th>Status</th>
-                <th>Completed On</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for v in video_lessons_watched %}
-            <tr>
-                <td>{{ v.lecture.title }}</td>
-                <td>{{ v.lecture.module.course.title }}</td>
-                <td class="status-success">Completed</td>
-                <td>{{ v.updated_at|date:"Y-m-d H:i" }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    {% else %}
-    <div class="text-center py-4">
-        <i class="fas fa-video fa-3x text-muted mb-3"></i>
-        <p class="text-muted">You haven't completed any video lessons yet.</p>
-    </div>
-    {% endif %}
-</div>
-
     <div id="qna-tab" class="tab-content">
     <h3>Q&A Activity</h3>
 
@@ -371,12 +352,47 @@
     </div>
     {% endfor %}
 </div>
-   
+
+<div id="feedback-tab" class="tab-content">
+    <h3>Instructor Feedback</h3>
+
+    {% if feedback_activity %}
+        {% for fb in feedback_activity %}
+        <div class="card shadow-sm mb-3 border-0 rounded-4">
+            <div class="card-body">
+
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="fw-bold mb-1">
+                        {{ fb.course.title }}
+                    </h5>
+                    <span class="text-muted small">
+                        {{ fb.created_at|date:"Y-m-d H:i" }}
+                    </span>
+                </div>
+
+                <p class="text-muted mb-2">
+                    From: <strong>{{ fb.instructor.get_full_name|default:fb.instructor.username }}</strong>
+                </p>
+
+                <div class="p-3 bg-light rounded-3">
+                    {{ fb.text }}
+                </div>
+
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="text-center py-4">
+            <i class="fas fa-comment-dots fa-3x text-muted mb-3"></i>
+            <p class="text-muted">No feedback received yet.</p>
+        </div>
+    {% endif %}
+</div>
 </div>
 
 <footer class="bg-light py-4 mt-5">
     <div class="container text-center">
-        <p class="mb-0">&copy; 2025 Bildung. All rights reserved.</p>
+        <p class="mb-0">&copy; 2025 Speshway. All rights reserved.</p>
     </div>
 </footer>
 

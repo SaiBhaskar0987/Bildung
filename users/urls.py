@@ -8,12 +8,13 @@ urlpatterns = [
     path("auth/", views.auth_page, name="auth_page"),
     path("signup/", views.signup_page, name="signup_page"),
 
-    path('admin/login/', views.admin_login, name='admin_login'),
+    path('admin-login/', views.admin_login, name='admin_login'),
     path("logout/", views.logout_view, name="logout_view"),
+    path('admin-logout/', views.admin_logout, name='admin_logout'),
     path('admin-dashboard/', views.admin_dashboard, name='admin_dashboard'),
-    path("admin/instructor/<int:user_id>/", views.admin_view_instructor, name="admin_view_instructor"),
-    path("admin/student/<int:user_id>/", views.admin_view_student, name="admin_view_student"),
-    path("admin/user/<int:user_id>/toggle-suspend/", views.toggle_suspend_user, name="toggle_suspend_user"),
+    path("admin-instructor/<int:user_id>/", views.admin_view_instructor, name="admin_view_instructor"),
+    path("admin-student/<int:user_id>/", views.admin_view_student, name="admin_view_student"),
+    path("admin-user/<int:user_id>/toggle-suspend/", views.toggle_suspend_user, name="toggle_suspend_user"),
 
     #verification
     path("check-email/", views.check_email, name="check_email"),
@@ -108,8 +109,6 @@ urlpatterns = [
     # Include all instructor dashboard & course URLs
     path("instructor/", include(("courses.instructor_urls", "instructor"), namespace="instructor")),
 
-    # Admin
-    path("admin/dashboard/", views.admin_dashboard, name="admin_dashboard"),
 
     # =====================
     # LOGOUT / REDIRECT

@@ -1,155 +1,286 @@
 {% load static %}
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Instructor Profile - Admin</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Instructor Profile</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
 <style>
-body{background:#f9fafb;}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-.admin-card{
-    background:white;
-    padding:35px;
-    border-radius:20px;
-    box-shadow:0 10px 25px rgba(0,0,0,0.05);
+:root {
+  --bg:          #05080f;
+  --sidebar:     #0a0d14;
+  --panel:       #0d1117;
+  --card:        #111620;
+  --card-inner:  #161c27;
+  --border:      rgba(255,255,255,0.07);
+  --accent:      #4ade80;
+  --accent-dim:  rgba(74,222,128,0.10);
+  --blue:        #38bdf8;
+  --blue-dim:    rgba(56,189,248,0.10);
+  --yellow:      #fbbf24;
+  --yellow-dim:  rgba(251,191,36,0.10);
+  --red:         #f87171;
+  --red-dim:     rgba(248,113,113,0.10);
+  --text:        #e8edf5;
+  --muted:       #4e5a6e;
+  --muted-light: #7a8699;
+  --sidebar-w:   260px;
 }
 
-.stat-box{
-    background:#eef2ff;
-    padding:20px;
-    border-radius:12px;
-    text-align:center;
+html, body { height: 100%; font-family: 'Sora', sans-serif; background: var(--bg); color: var(--text); }
+
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image:
+    linear-gradient(rgba(74,222,128,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(74,222,128,0.025) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none; z-index: 0;
 }
 
-.stat-box h4{
-    font-weight:700;
-    margin-top:5px;
-}
+.sidebar { width: var(--sidebar-w); height: 100vh; position: fixed; left: 0; top: 0; background: var(--sidebar); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 28px 0; z-index: 100; }
+.sidebar-brand { display: flex; align-items: center; gap: 10px; padding: 0 24px 28px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+.brand-icon { width: 36px; height: 36px; background: var(--accent); border-radius: 9px; display: grid; place-items: center; flex-shrink: 0; }
+.brand-icon svg { width: 18px; height: 18px; }
+.brand-name { font-size: 1.05rem; font-weight: 700; color: var(--text); }
+.brand-tag { font-family: 'DM Mono', monospace; font-size: 0.6rem; color: var(--accent); letter-spacing: 0.12em; text-transform: uppercase; margin-top: 1px; }
+.nav-section { padding: 0 14px; flex: 1; }
+.nav-label { font-family: 'DM Mono', monospace; font-size: 0.6rem; letter-spacing: 0.18em; color: var(--muted); text-transform: uppercase; padding: 0 10px; margin: 18px 0 6px; }
+.nav-item { display: flex; align-items: center; gap: 11px; padding: 11px 12px; border-radius: 9px; color: var(--muted-light); text-decoration: none; font-size: 0.88rem; font-weight: 500; transition: all 0.2s; margin-bottom: 2px; }
+.nav-item i { width: 18px; text-align: center; font-size: 0.85rem; flex-shrink: 0; }
+.nav-item:hover { background: rgba(255,255,255,0.05); color: var(--text); }
+.nav-item.active { background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(74,222,128,0.15); }
+.sidebar-footer { padding: 20px 14px 0; border-top: 1px solid var(--border); margin-top: 12px; }
+.logout-link { display: flex; align-items: center; gap: 11px; padding: 11px 12px; border-radius: 9px; color: var(--red); text-decoration: none; font-size: 0.88rem; font-weight: 500; transition: all 0.2s; }
+.logout-link:hover { background: var(--red-dim); color: var(--red); }
 
-.profile-section-title{
-    font-weight:600;
-    margin-bottom:15px;
+.main { margin-left: var(--sidebar-w); min-height: 100vh; position: relative; z-index: 1; }
+.topbar { background: var(--panel); border-bottom: 1px solid var(--border); padding: 18px 36px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 50; backdrop-filter: blur(12px); }
+.topbar-left h5 { font-size: 1rem; font-weight: 700; color: var(--text); }
+.topbar-left span { font-size: 0.78rem; color: var(--muted-light); font-family: 'DM Mono', monospace; }
+.btn-back { display: inline-flex; align-items: center; gap: 7px; height: 34px; padding: 0 14px; border-radius: 8px; border: 1px solid var(--border); background: transparent; color: var(--muted-light); font-family: 'Sora', sans-serif; font-size: 0.8rem; font-weight: 600; cursor: pointer; text-decoration: none; transition: all 0.2s; }
+.btn-back:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-dim); }
+
+.body-wrap { padding: 32px 36px; }
+
+.profile-grid { display: grid; grid-template-columns: 280px 1fr; gap: 24px; animation: fadeUp 0.5s cubic-bezier(.22,1,.36,1) both; }
+
+@keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+
+.profile-left { display: flex; flex-direction: column; gap: 16px; }
+
+.profile-avatar-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 28px 24px; text-align: center; }
+.avatar-wrap { position: relative; display: inline-block; margin-bottom: 16px; }
+.avatar-wrap img { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid rgba(74,222,128,0.3); }
+.avatar-status { position: absolute; bottom: 4px; right: 4px; width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--card); }
+.avatar-status.active { background: var(--accent); }
+.avatar-status.suspended { background: var(--red); }
+.profile-name { font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.profile-email { font-size: 0.78rem; color: var(--muted-light); margin-bottom: 14px; }
+.status-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 999px; font-family: 'DM Mono', monospace; font-size: 0.68rem; letter-spacing: 0.08em; font-weight: 500; }
+.status-badge.active { background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(74,222,128,0.2); }
+.status-badge.suspended { background: var(--red-dim); color: var(--red); border: 1px solid rgba(248,113,113,0.2); }
+.profile-meta-list { margin-top: 18px; text-align: left; border-top: 1px solid var(--border); padding-top: 16px; display: flex; flex-direction: column; gap: 10px; }
+.meta-row { display: flex; align-items: center; gap: 10px; font-size: 0.82rem; }
+.meta-row i { color: var(--muted-light); width: 14px; flex-shrink: 0; }
+.meta-row span { color: var(--muted-light); }
+.meta-row strong { color: var(--text); margin-left: auto; text-align: right; }
+
+.btn-resume { display: inline-flex; align-items: center; gap: 7px; width: 100%; justify-content: center; height: 38px; border-radius: 8px; border: 1px solid rgba(56,189,248,0.25); background: var(--blue-dim); color: var(--blue); font-family: 'Sora', sans-serif; font-size: 0.82rem; font-weight: 600; text-decoration: none; transition: all 0.2s; margin-top: 4px; }
+.btn-resume:hover { background: var(--blue); color: #05080f; }
+
+.profile-right { display: flex; flex-direction: column; gap: 20px; }
+
+.detail-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 24px 26px; }
+.card-section-title { display: flex; align-items: center; gap: 9px; font-size: 0.78rem; font-family: 'DM Mono', monospace; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted-light); margin-bottom: 20px; font-weight: 500; }
+.card-section-title i { color: var(--accent); }
+
+.detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px 32px; }
+.detail-item label { display: block; font-size: 0.7rem; font-family: 'DM Mono', monospace; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+.detail-item p { font-size: 0.88rem; color: var(--text); font-weight: 500; }
+
+.about-text { font-size: 0.88rem; color: var(--muted-light); line-height: 1.7; }
+
+.stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.stat-mini { background: var(--card-inner); border: 1px solid var(--border); border-radius: 12px; padding: 18px; text-align: center; }
+.stat-mini .s-label { font-size: 0.7rem; font-family: 'DM Mono', monospace; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted-light); margin-bottom: 8px; }
+.stat-mini .s-value { font-size: 1.6rem; font-weight: 700; line-height: 1; }
+.stat-mini.green .s-value { color: var(--accent); }
+.stat-mini.yellow .s-value { color: var(--yellow); }
+.stat-mini.blue  .s-value  { color: var(--blue); }
+
+.btn-suspend { width: 100%; height: 44px; border-radius: 10px; border: 1px solid rgba(248,113,113,0.25); background: var(--red-dim); color: var(--red); font-family: 'Sora', sans-serif; font-size: 0.9rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 9px; transition: all 0.2s; }
+.btn-suspend:hover { background: var(--red); color: #fff; box-shadow: 0 0 20px rgba(248,113,113,0.3); }
+.btn-activate { border-color: rgba(74,222,128,0.25); background: var(--accent-dim); color: var(--accent); }
+.btn-activate:hover { background: var(--accent); color: #05080f; box-shadow: 0 0 20px rgba(74,222,128,0.3); }
+
+@media (max-width: 900px) {
+  .profile-grid { grid-template-columns: 1fr; }
+  .detail-grid { grid-template-columns: 1fr; }
+  .stats-row { grid-template-columns: 1fr 1fr; }
 }
 </style>
 </head>
-<div class="d-flex justify-content-between align-items-center p-3 bg-white shadow-sm mb-4 rounded">
-    <a href="{% url 'admin_dashboard' %}" class="text-decoration-none text-dark">
-        <h4 class="fw-bold m-0">Speshway</h4>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#05080f" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+      </svg>
+    </div>
+    <div>
+      <div class="brand-name">Speshway</div>
+      <div class="brand-tag">Admin Portal</div>
+    </div>
+  </div>
+  <nav class="nav-section">
+    <div class="nav-label">Platform</div>
+    <a href="{% url 'admin_dashboard' %}" class="nav-item"><i class="fa-solid fa-gauge-high"></i>Dashboard</a>
+    <a href="{% url 'courses:admin_courses' %}" class="nav-item"><i class="fa-solid fa-book-open"></i>Courses</a>
+    <a href="{% url 'courses:admin_instructors' %}" class="nav-item active"><i class="fa-solid fa-chalkboard-user"></i>Instructors</a>
+    <a href="{% url 'courses:admin_students' %}" class="nav-item"><i class="fa-solid fa-user-graduate"></i>Students</a>
+    <div class="nav-label">Tools</div>
+    <a href="{% url 'courses:admin_notifications' %}" class="nav-item"><i class="fa-solid fa-bell"></i>Notifications</a>
+  </nav>
+  <div class="sidebar-footer">
+    <a href="{% url 'admin_logout' %}" class="logout-link"><i class="fa-solid fa-arrow-right-from-bracket"></i>Logout</a>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <h5>Instructor Profile</h5>
+      <span>{{ user_obj.get_full_name }}</span>
+    </div>
+    <a href="{% url 'courses:admin_instructors' %}" class="btn-back">
+      <i class="fa-solid fa-arrow-left"></i> Back to Instructors
     </a>
-    <a href="{% url 'logout_view' %}" class="btn btn-sm btn-danger rounded-pill px-3">
-        Logout
-    </a>
-</div>
+  </div>
 
-<body class="bg-light">
+  <div class="body-wrap">
+    <div class="profile-grid">
 
-<div class="container py-4">
+      <!-- Left -->
+      <div class="profile-left">
+        <div class="profile-avatar-card">
+          <div class="avatar-wrap">
+            {% if profile and profile.profile_picture %}
+              <img src="{{ profile.profile_picture.url }}" alt="avatar">
+            {% else %}
+              <img src="{% static 'default-avatar.png' %}" alt="avatar">
+            {% endif %}
+            <span class="avatar-status {% if user_obj.is_suspended %}suspended{% else %}active{% endif %}"></span>
+          </div>
+          <div class="profile-name">{{ user_obj.get_full_name }}</div>
+          <div class="profile-email">{{ user_obj.email }}</div>
+          {% if user_obj.is_suspended %}
+            <span class="status-badge suspended"><i class="fa-solid fa-ban"></i> Suspended</span>
+          {% else %}
+            <span class="status-badge active"><i class="fa-solid fa-circle-check"></i> Active</span>
+          {% endif %}
 
-<div class="admin-card">
+          <div class="profile-meta-list">
+            <div class="meta-row">
+              <i class="fa-solid fa-calendar-days"></i>
+              <span>Joined</span>
+              <strong>{{ user_obj.date_joined|date:"M d, Y" }}</strong>
+            </div>
+            <div class="meta-row">
+              <i class="fa-solid fa-clock-rotate-left"></i>
+              <span>Last Login</span>
+              <strong>{{ user_obj.last_login|date:"M d, Y H:i" }}</strong>
+            </div>
+          </div>
 
-<div class="row">
+          {% if profile.resume %}
+          <a href="{{ profile.resume.url }}" target="_blank" class="btn-resume" style="margin-top:16px;">
+            <i class="fa-solid fa-file-lines"></i> View Resume
+          </a>
+          {% endif %}
+        </div>
+      </div>
 
-<div class="col-md-3 text-center">
+      <div class="profile-right">
 
-{% if profile and profile.profile_picture %}
-    <img src="{{ profile.profile_picture.url }}" width="130" class="rounded-circle mb-3">
-{% else %}
-    <img src="{% static 'default-avatar.png' %}" width="130" class="rounded-circle mb-3">
-{% endif %}
+        <div class="detail-card">
+          <div class="card-section-title"><i class="fa-solid fa-id-card"></i> Full Details</div>
+          <div class="detail-grid">
+            <div class="detail-item">
+              <label>Phone</label>
+              <p>{{ profile.phone|default:"—" }}</p>
+            </div>
+            <div class="detail-item">
+              <label>Professional Title</label>
+              <p>{{ profile.professional_title|default:"—" }}</p>
+            </div>
+            <div class="detail-item">
+              <label>Expertise</label>
+              <p>{{ profile.expertise|default:"—" }}</p>
+            </div>
+            <div class="detail-item">
+              <label>Experience</label>
+              <p>{{ profile.experience|default:"0" }} Years</p>
+            </div>
+            <div class="detail-item">
+              <label>Qualification</label>
+              <p>{{ profile.qualification|default:"—" }}</p>
+            </div>
+          </div>
+          {% if profile.about_me %}
+          <div style="margin-top:20px; padding-top:18px; border-top:1px solid var(--border);">
+            <div class="card-section-title" style="margin-bottom:10px;"><i class="fa-solid fa-quote-left"></i> About</div>
+            <p class="about-text">{{ profile.about_me }}</p>
+          </div>
+          {% endif %}
+        </div>
 
-<h5>{{ user_obj.get_full_name }}</h5>
-<p class="text-muted">{{ user_obj.email }}</p>
+        <!-- Performance -->
+        <div class="detail-card">
+          <div class="card-section-title"><i class="fa-solid fa-chart-line"></i> Performance</div>
+          <div class="stats-row">
+            <div class="stat-mini green">
+              <div class="s-label">Total Revenue</div>
+              <div class="s-value">₹{{ total_revenue }}</div>
+            </div>
+            <div class="stat-mini yellow">
+              <div class="s-label">Avg. Rating</div>
+              <div class="s-value">{{ avg_rating }}</div>
+            </div>
+            <div class="stat-mini blue">
+              <div class="s-label">Courses Created</div>
+              <div class="s-value">{{ courses.count }}</div>
+            </div>
+          </div>
+        </div>
 
-<p class="small"><strong>Last Login:</strong><br>
-{{ user_obj.last_login|date:"M d, Y H:i" }}</p>
+        <div class="detail-card">
+          <div class="card-section-title"><i class="fa-solid fa-shield-halved"></i> Account Control</div>
+          <form method="post" action="{% url 'toggle_suspend_user' user_obj.id %}">
+            {% csrf_token %}
+            <button class="btn-suspend {% if user_obj.is_suspended %}btn-activate{% endif %}">
+              {% if user_obj.is_suspended %}
+                <i class="fa-solid fa-circle-check"></i> Activate Account
+              {% else %}
+                <i class="fa-solid fa-ban"></i> Suspend Account
+              {% endif %}
+            </button>
+          </form>
+        </div>
 
-{% if user_obj.is_suspended %}
-    <span class="badge bg-danger">Suspended</span>
-{% else %}
-    <span class="badge bg-success">Active</span>
-{% endif %}
-
-</div>
-
-<div class="col-md-9">
-
-<h5 class="profile-section-title">📋 Full Details</h5>
-
-<div class="row mb-3">
-<div class="col-md-6">
-    <p><strong>Phone:</strong> {{ profile.phone|default:"-" }}</p>
-    <p><strong>Professional Title:</strong> {{ profile.professional_title|default:"-" }}</p>
-    <p><strong>Expertise:</strong> {{ profile.expertise|default:"-" }}</p>
-</div>
-
-<div class="col-md-6">
-    <p><strong>Experience:</strong> {{ profile.experience|default:"0" }} Years</p>
-    <p><strong>Qualification:</strong> {{ profile.qualification|default:"-" }}</p>
-    <p><strong>Date Joined:</strong> {{ user_obj.date_joined|date:"M d, Y" }}</p>
-</div>
-</div>
-
-{% if profile.about_me %}
-<div class="mb-4">
-    <p><strong>About:</strong></p>
-    <p class="text-muted">{{ profile.about_me }}</p>
-</div>
-{% endif %}
-
-{% if profile.resume %}
-<a href="{{ profile.resume.url }}" target="_blank"
-   class="btn btn-outline-success btn-sm mt-2">
-   View Resume
-</a>
-{% endif %}
-
-<hr>
-
-<h5 class="profile-section-title">📊 Performance</h5>
-
-<div class="row">
-
-<div class="col-md-4">
-    <div class="stat-box">
-        <small>Total Revenue</small>
-        <h4 class="text-success">₹ {{ total_revenue }}</h4>
+      </div>
     </div>
-</div>
-
-<div class="col-md-4">
-    <div class="stat-box">
-        <small>Average Rating</small>
-        <h4 class="text-warning">⭐ {{ avg_rating }}</h4>
-    </div>
-</div>
-
-<div class="col-md-4">
-    <div class="stat-box">
-        <small>Courses Created</small>
-        <h4>{{ courses.count }}</h4>
-    </div>
-</div>
-
-</div>
-
-<hr>
-
-<form method="post" action="{% url 'toggle_suspend_user' user_obj.id %}">
-{% csrf_token %}
-<button class="btn btn-danger w-100 mt-3">
-    {% if user_obj.is_suspended %}
-        Activate Account
-    {% else %}
-        Suspend Account
-    {% endif %}
-</button>
-</form>
-
-</div>
-</div>
-</div>
-</div>
+  </div>
+</main>
 
 </body>
 </html>

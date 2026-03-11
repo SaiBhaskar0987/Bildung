@@ -3,159 +3,251 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Admin Notifications</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Notifications</title>
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
 <style>
-body{
-    background:#f3f4f6;
-    font-family:'Segoe UI', sans-serif;
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:          #05080f;
+  --sidebar:     #0a0d14;
+  --panel:       #0d1117;
+  --card:        #111620;
+  --border:      rgba(255,255,255,0.07);
+  --accent:      #4ade80;
+  --accent-dim:  rgba(74,222,128,0.10);
+  --accent-glow: rgba(74,222,128,0.30);
+  --blue:        #38bdf8;
+  --blue-dim:    rgba(56,189,248,0.10);
+  --yellow:      #fbbf24;
+  --yellow-dim:  rgba(251,191,36,0.10);
+  --red:         #f87171;
+  --red-dim:     rgba(248,113,113,0.10);
+  --text:        #e8edf5;
+  --muted:       #4e5a6e;
+  --muted-light: #7a8699;
+  --sidebar-w:   260px;
+  --unread-left: #4ade80;
 }
 
-.topbar{
-    background:white;
-    padding:18px 25px;
-    box-shadow:0 6px 20px rgba(0,0,0,0.05);
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
+html, body { height: 100%; font-family: 'Sora', sans-serif; background: var(--bg); color: var(--text); }
+
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image:
+    linear-gradient(rgba(74,222,128,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(74,222,128,0.025) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none; z-index: 0;
 }
 
-.container-box{
-    max-width:950px;
-    margin:40px auto;
+/* ── Sidebar ── */
+.sidebar {
+  width: var(--sidebar-w); height: 100vh;
+  position: fixed; left: 0; top: 0;
+  background: var(--sidebar);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  padding: 28px 0; z-index: 100;
+}
+.sidebar-brand {
+  display: flex; align-items: center; gap: 10px;
+  padding: 0 24px 28px;
+  border-bottom: 1px solid var(--border); margin-bottom: 16px;
+}
+.brand-icon {
+  width: 36px; height: 36px; background: var(--accent);
+  border-radius: 9px; display: grid; place-items: center; flex-shrink: 0;
+}
+.brand-icon svg { width: 18px; height: 18px; }
+.brand-name { font-size: 1.05rem; font-weight: 700; color: var(--text); }
+.brand-tag { font-family: 'DM Mono', monospace; font-size: 0.6rem; color: var(--accent); letter-spacing: 0.12em; text-transform: uppercase; margin-top: 1px; }
+.nav-section { padding: 0 14px; flex: 1; }
+.nav-label { font-family: 'DM Mono', monospace; font-size: 0.6rem; letter-spacing: 0.18em; color: var(--muted); text-transform: uppercase; padding: 0 10px; margin: 18px 0 6px; }
+.nav-item {
+  display: flex; align-items: center; gap: 11px;
+  padding: 11px 12px; border-radius: 9px;
+  color: var(--muted-light); text-decoration: none;
+  font-size: 0.88rem; font-weight: 500;
+  transition: all 0.2s; margin-bottom: 2px;
+}
+.nav-item i { width: 18px; text-align: center; font-size: 0.85rem; flex-shrink: 0; }
+.nav-item:hover { background: rgba(255,255,255,0.05); color: var(--text); }
+.nav-item.active { background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(74,222,128,0.15); }
+.nav-badge {
+  margin-left: auto; background: var(--yellow-dim); color: var(--yellow);
+  border: 1px solid rgba(251,191,36,0.2);
+  font-family: 'DM Mono', monospace; font-size: 0.65rem;
+  padding: 1px 7px; border-radius: 999px;
+}
+.sidebar-footer { padding: 20px 14px 0; border-top: 1px solid var(--border); margin-top: 12px; }
+.logout-link {
+  display: flex; align-items: center; gap: 11px;
+  padding: 11px 12px; border-radius: 9px;
+  color: var(--red); text-decoration: none;
+  font-size: 0.88rem; font-weight: 500; transition: all 0.2s;
+}
+.logout-link:hover { background: var(--red-dim); color: var(--red); }
+
+/* ── Main ── */
+.main { margin-left: var(--sidebar-w); min-height: 100vh; position: relative; z-index: 1; }
+.topbar {
+  background: var(--panel); border-bottom: 1px solid var(--border);
+  padding: 18px 36px;
+  display: flex; justify-content: space-between; align-items: center;
+  position: sticky; top: 0; z-index: 50; backdrop-filter: blur(12px);
+}
+.topbar-left h5 { font-size: 1rem; font-weight: 700; color: var(--text); }
+.topbar-left span { font-size: 0.78rem; color: var(--muted-light); font-family: 'DM Mono', monospace; }
+.body-wrap { padding: 32px 36px; max-width: 900px; }
+
+.section-heading {
+  display: flex; justify-content: space-between; align-items: flex-end;
+  margin-bottom: 22px;
+}
+.section-heading h6 { font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted-light); margin-bottom: 3px; }
+.section-heading h4 { font-size: 1.05rem; font-weight: 700; color: var(--text); }
+
+.btn-mark-all {
+  height: 36px; padding: 0 16px; border-radius: 8px;
+  border: 1px solid rgba(74,222,128,0.25);
+  background: var(--accent-dim); color: var(--accent);
+  font-family: 'Sora', sans-serif; font-size: 0.8rem; font-weight: 600;
+  cursor: pointer; display: inline-flex; align-items: center; gap: 7px;
+  text-decoration: none; transition: all 0.2s;
+}
+.btn-mark-all:hover { background: var(--accent); color: #05080f; }
+
+/* ── Note cards ── */
+.note-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 14px; padding: 18px 22px;
+  display: flex; justify-content: space-between; align-items: center; gap: 16px;
+  margin-bottom: 12px;
+  transition: all 0.2s;
+  animation: fadeUp 0.4s cubic-bezier(.22,1,.36,1) both;
+}
+.note-card:hover { border-color: rgba(74,222,128,0.2); transform: translateY(-2px); }
+.note-card.unread { border-left: 3px solid var(--accent); }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-.note-card{
-    background:white;
-    border-radius:18px;
-    padding:20px 22px;
-    margin-bottom:15px;
-    box-shadow:0 8px 22px rgba(0,0,0,0.05);
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    transition:0.2s ease;
+.note-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--accent); flex-shrink: 0; margin-top: 4px;
 }
 
-.note-card:hover{
-    transform:translateY(-3px);
-    box-shadow:0 10px 28px rgba(0,0,0,0.08);
-}
+.note-body { flex: 1; }
+.note-message { font-size: 0.9rem; font-weight: 500; color: var(--text); margin-bottom: 5px; }
+.note-time { font-family: 'DM Mono', monospace; font-size: 0.72rem; color: var(--muted-light); }
 
-.unread{
-    border-left:6px solid #7C3AED;
-    background:#f5f3ff;
+.btn-mark-read {
+  height: 34px; padding: 0 14px; border-radius: 8px;
+  border: 1px solid var(--border);
+  background: transparent; color: var(--muted-light);
+  font-family: 'Sora', sans-serif; font-size: 0.78rem; font-weight: 600;
+  cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+  transition: all 0.2s; flex-shrink: 0;
 }
+.btn-mark-read:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
 
-.note-message{
-    font-weight:500;
+/* Empty state */
+.empty-state {
+  text-align: center; padding: 56px 24px;
+  background: var(--card); border: 1px dashed var(--border); border-radius: 14px;
 }
-
-.time{
-    font-size:13px;
-    color:#6b7280;
-    margin-top:4px;
-}
-
-.mark-btn{
-    border:none;
-    background:#eef2ff;
-    color:#4f46e5;
-    font-size:13px;
-    padding:6px 12px;
-    border-radius:8px;
-    font-weight:600;
-    transition:0.2s;
-}
-
-.mark-btn:hover{
-    background:#6366f1;
-    color:white;
-}
-
-.logout-btn{
-    background:#ef4444;
-    border:none;
-    color:white;
-    padding:8px 16px;
-    border-radius:8px;
-    font-weight:600;
-}
-
-.logout-btn:hover{
-    background:#dc2626;
-}
+.empty-icon { font-size: 2.4rem; color: var(--accent); opacity: 0.6; margin-bottom: 16px; }
+.empty-state strong { display: block; color: var(--text); font-size: 1rem; font-weight: 700; margin-bottom: 6px; }
+.empty-state p { color: var(--muted-light); font-size: 0.88rem; }
 </style>
 </head>
-
 <body>
 
-<div class="topbar">
-    <a href="{% url 'admin_dashboard' %}" class="text-decoration-none text-dark">
-        <h4 class="fw-bold m-0">Speshway</h4>
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#05080f" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+      </svg>
+    </div>
+    <div>
+      <div class="brand-name">Speshway</div>
+      <div class="brand-tag">Admin Portal</div>
+    </div>
+  </div>
+  <nav class="nav-section">
+    <div class="nav-label">Platform</div>
+    <a href="{% url 'admin_dashboard' %}" class="nav-item"><i class="fa-solid fa-gauge-high"></i>Dashboard</a>
+    <a href="{% url 'courses:admin_courses' %}" class="nav-item"><i class="fa-solid fa-book-open"></i>Courses</a>
+    <a href="{% url 'courses:admin_instructors' %}" class="nav-item"><i class="fa-solid fa-chalkboard-user"></i>Instructors</a>
+    <a href="{% url 'courses:admin_students' %}" class="nav-item"><i class="fa-solid fa-user-graduate"></i>Students</a>
+    <div class="nav-label">Tools</div>
+    <a href="{% url 'courses:admin_notifications' %}" class="nav-item active">
+      <i class="fa-solid fa-bell"></i>Notifications
+      {% if unread_count > 0 %}<span class="nav-badge">{{ unread_count }}</span>{% endif %}
     </a>
+  </nav>
+  <div class="sidebar-footer">
+    <a href="{% url 'admin_logout' %}" class="logout-link"><i class="fa-solid fa-arrow-right-from-bracket"></i>Logout</a>
+  </div>
+</aside>
 
-    <a href="{% url 'logout_view' %}" class="btn btn-sm btn-danger rounded-pill px-3">
-        Logout
-    </a>
-</div>
+<main class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <h5>Notifications</h5>
+      <span>System &amp; activity alerts</span>
+    </div>
+  </div>
 
-<div class="container-box">
-
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h4 class="fw-bold mb-0">
-            <i class="fa-solid fa-bell me-2 text-primary"></i>
-            Notifications
-        </h4>
-
-        {% if unread_count > 0 %}
-        <a href="{% url 'courses:mark_all_admin_notifications_read' %}"
-           class="btn btn-outline-primary btn-sm rounded-pill px-3">
-           Mark all as read
-        </a>
-        {% endif %}
+  <div class="body-wrap">
+    <div class="section-heading">
+      <div>
+        <h6>Inbox</h6>
+        <h4>All Notifications</h4>
+      </div>
+      {% if unread_count > 0 %}
+      <a href="{% url 'courses:mark_all_admin_notifications_read' %}" class="btn-mark-all">
+        <i class="fa-solid fa-check-double"></i> Mark all as read
+      </a>
+      {% endif %}
     </div>
 
     {% for note in notifications %}
     <div class="note-card {% if not note.is_read %}unread{% endif %}">
-
-        <div>
-            <div class="note-message">
-                {{ note.message }}
-            </div>
-            <div class="time">
-                <i class="fa-regular fa-clock me-1"></i>
-                {{ note.created_at|timesince }} ago
-            </div>
-        </div>
-
-        {% if not note.is_read %}
-        <button class="mark-btn"
-            onclick="markRead({{ note.id }})">
-            <i class="fa-solid fa-check me-1"></i>
-            Mark read
-        </button>
-        {% endif %}
-
+      {% if not note.is_read %}<div class="note-dot"></div>{% endif %}
+      <div class="note-body">
+        <div class="note-message">{{ note.message }}</div>
+        <div class="note-time"><i class="fa-regular fa-clock me-1"></i>{{ note.created_at|timesince }} ago</div>
+      </div>
+      {% if not note.is_read %}
+      <button class="btn-mark-read" onclick="markRead({{ note.id }})">
+        <i class="fa-solid fa-check"></i> Mark read
+      </button>
+      {% endif %}
     </div>
     {% empty %}
-        <div class="alert alert-info rounded-4">
-            <i class="fa-solid fa-circle-info me-2"></i>
-            No notifications
-        </div>
+    <div class="empty-state">
+      <div class="empty-icon"><i class="fa-solid fa-bell-slash"></i></div>
+      <strong>All clear!</strong>
+      <p>No notifications to show right now.</p>
+    </div>
     {% endfor %}
-
-</div>
+  </div>
+</main>
 
 <script>
 function markRead(id){
-    fetch(`/admin/notifications/read/${id}/`)
-        .then(()=> location.reload());
+  fetch(`/admin/notifications/read/${id}/`).then(() => location.reload());
 }
 </script>
-
 </body>
 </html>

@@ -368,7 +368,7 @@ Start Exploring
 
     Unlike the default Django admin panel, Speshway provides an app-level admin interface accessible via:
 
-    👉 http://127.0.0.1:8000/accounts/admin/login/
+    👉 http://127.0.0.1:8000/accounts/admin-login/
 
     Admins log in through the standard authentication system and are granted elevated privileges.
 
@@ -416,7 +416,7 @@ Start Exploring
 
     🌐 Login URL
 
-    👉 http://127.0.0.1:8000/accounts/admin/login/
+    👉 http://127.0.0.1:8000/accounts/admin-login/
 
     🪪 Steps
 

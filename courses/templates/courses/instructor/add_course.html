@@ -1,355 +1,737 @@
+ 
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <title>Create Course</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Course – SPESHWAY</title>
 
     <link rel="stylesheet" href="{% static 'css/add_course.css' %}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap"
+        rel="stylesheet">
 
     <script>
         const BASE_URL = "/accounts/instructor";
         const COURSE_ID = "{{ course_id }}";
-        const PRELOAD = {{ preload|safe }};
+        const PRELOAD = {{ preload| safe }};
     </script>
 
+    <style>
+        /* ─── DESIGN SYSTEM ─── */
+        :root {
+            --ink: #0F1117;
+            --ink-soft: #2C2F3A;
+            --teal: #0D9488;
+            --teal-mid: #14B8A6;
+            --teal-glow: #5EEAD4;
+            --teal-pale: #CCFBF1;
+            --surface: #F8FFFE;
+            --card-bg: #FFFFFF;
+            --border: #D1FAF6;
+            --muted: #64748B;
+            --red: #EF4444;
+            --radius: 16px;
+            --radius-sm: 10px;
+        }
 
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-<style>
-    
-    *{
-    box-sizing:border-box;
-    font-family: 'Segoe UI', sans-serif;
-}
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--surface);
+            color: var(--ink);
+            min-height: 100vh;
+        }
 
-/* PAGE BACKGROUND */
-body{
-    margin:0;
-    background: linear-gradient(135deg,#ffffff,#fff7cc,#ffffff);
-    min-height:100vh;
-}
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
 
-/* TOP BAR */
-.topbar{
-    background: linear-gradient(135deg,#3a2a1a,#5a3d1f);
-    padding:12px 25px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    box-shadow:0 4px 12px rgba(0,0,0,0.4);
-}
+        ::-webkit-scrollbar-thumb {
+            background: var(--teal-glow);
+            border-radius: 99px;
+        }
 
-.topbar-title{
-    font-size:26px;
-    font-weight:bold;
-    text-decoration:none;
-    color:#facc15;
-}
+        /* ─── TOPNAV ─── */
+        .topnav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            height: 64px;
+            background: rgba(255, 255, 255, .92);
+            backdrop-filter: blur(18px);
+            border-bottom: 1px solid var(--border);
+        }
 
-/* PROFILE ICON */
-.topbar .btn.rounded-circle{
-    background: linear-gradient(135deg,#facc15,#fde68a);
-    color:#3a2a1a;
-    border:none;
-    box-shadow:0 4px 10px rgba(250,204,21,0.6);
-}
+        .brand {
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: 1.35rem;
+            letter-spacing: -.5px;
+            color: var(--teal);
+            text-decoration: none;
+        }
 
-/* MAIN CARD */
-.paper{
-    width:100%;
-    max-width:1200px;
-    margin:40px auto;
-    background:#ffffff;
-    padding:45px;
-    border-radius:22px;
-    box-shadow:0 25px 60px rgba(0,0,0,0.15);
-}
+        .brand span {
+            color: var(--ink);
+        }
 
-/* TITLES */
-.title{
-    text-align:center;
-    font-size:40px;
-    color:#3a2a1a;
-    margin-bottom:30px;
-}
+        .avatar-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--teal), var(--teal-mid));
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: box-shadow .2s, transform .15s;
+        }
 
-/* LABELS */
-.label{
-    font-weight:600;
-    color:#3a2a1a;
-}
+        .avatar-btn:hover {
+            box-shadow: 0 0 0 4px var(--teal-pale);
+            transform: scale(1.05);
+        }
 
-/* INPUTS */
-.input-box{
-    width:100%;
-    padding:14px 16px;
-    border-radius:12px;
-    border:2px solid #facc15;
-    margin-bottom:18px;
-}
+        .dropdown-menu {
+            border: 1px solid var(--border) !important;
+            border-radius: var(--radius) !important;
+            box-shadow: 0 12px 40px rgba(13, 148, 136, .12) !important;
+            padding: 8px !important;
+            min-width: 220px !important;
+        }
 
-.input-box:focus{
-    outline:none;
-    border-color:#92400e;
-    box-shadow:0 0 0 4px rgba(250,204,21,0.35);
-}
+        .dropdown-item {
+            border-radius: var(--radius-sm);
+            font-size: .875rem;
+            color: var(--ink-soft);
+            padding: 8px 12px;
+            transition: background .15s, color .15s;
+        }
 
-/* DIVIDER */
-.divider{
-    margin:60px 0;
-}
+        .dropdown-item:hover {
+            background: var(--teal-pale);
+            color: var(--teal);
+        }
 
-/* MODULE ROW */
-#topRow{
-    display:flex;
-    flex-wrap:wrap;
-    justify-content:center;
-    gap:22px;
-    margin-top:25px;
-}
+        .dropdown-item.text-danger:hover {
+            background: #FEE2E2;
+            color: var(--red);
+        }
 
-/* BUILDER CARD */
-.builder-card{
-    width:200px;
-    height:170px;
-    background:linear-gradient(135deg,#fffdf2,#fff7cc);
-    border-radius:20px;
-    border:2px dashed #facc15;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    box-shadow:0 12px 28px rgba(0,0,0,0.18);
-    transition:0.3s;
-    cursor:grab;
-}
+        .dropdown-divider {
+            border-color: var(--border) !important;
+        }
 
-.builder-card:hover{
-    transform:scale(1.06);
-}
+        /* ─── PAGE WRAP ─── */
+        .page-wrap {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 40px 24px 80px;
+        }
 
-/* PLUS BOX */
-.drop-zone{
-    width:220px;
-    height:200px;
-    border-radius:22px;
-    border:3px dashed #facc15;
-    background:rgba(250,204,21,0.12);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:60px;
-    font-weight:bold;
-    color:#3a2a1a;
-    transition:0.3s;
-}
+        /* ─── BACK LINK ─── */
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            color: var(--teal);
+            font-size: .85rem;
+            font-weight: 600;
+            text-decoration: none;
+            margin-bottom: 24px;
+            transition: gap .2s;
+        }
 
-.drop-zone:hover{
-    background:rgba(250,204,21,0.25);
-    transform:scale(1.08);
-}
+        .back-link:hover {
+            gap: 10px;
+        }
 
-/* DRAG BUTTONS */
-.drag-row{
-    display:flex;
-    justify-content:center;
-    gap:18px;
-    flex-wrap:wrap;
-    margin-top:25px;
-}
+        /* ─── PAGE HEADER ─── */
+        .page-header {
+            margin-bottom: 32px;
+        }
 
-.draggable-btn{
-    background:linear-gradient(135deg,#fde047,#facc15);
-    padding:12px 22px;
-    border-radius:14px;
-    font-weight:600;
-    color:#3a2a1a;
-    box-shadow:0 8px 18px rgba(0,0,0,0.2);
-    cursor:grab;
-}
+        .page-header h2 {
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: 1.9rem;
+            letter-spacing: -1px;
+            color: var(--ink);
+        }
 
-/* ACTION BUTTONS */
-.actions{
-    display:flex;
-    justify-content:center;
-    gap:22px;
-    margin-top:30px;
-}
+        .page-header h2 span {
+            color: var(--teal);
+        }
 
-.save-main,
-.publish-main{
-    background:linear-gradient(135deg,#3a2a1a,#5a3d1f);
-    color:white;
-    border:none;
-    padding:14px 36px;
-    font-size:16px;
-    border-radius:14px;
-    box-shadow:0 10px 28px rgba(0,0,0,0.35);
-    transition:0.3s;
-}
+        .page-header p {
+            color: var(--muted);
+            margin-top: 6px;
+            font-size: .88rem;
+        }
 
-.save-main:hover,
-.publish-main:hover{
-    transform:translateY(-3px);
-}
+        /* ─── SECTION CARD ─── */
+        .section-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(13, 148, 136, .06);
+            animation: fadeUp .4s ease both;
+        }
 
-/* NOTE */
-.note{
-    text-align:center;
-    margin-top:18px;
-    color:#3a2a1a;
-}
+        .section-card.delay {
+            animation-delay: .1s;
+        }
 
-/* ======================================
-   PROFILE LOGO BADGE (YELLOW)
-====================================== */
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(14px);
+            }
 
-.topbar .btn.rounded-circle{
-    background: linear-gradient(135deg,#fde047,#facc15) !important;
-    color:#3a2a1a !important;
-    font-size:18px;
-    font-weight:700;
-    border:2px solid #ffffff;
-    box-shadow:0 0 0 3px rgba(250,204,21,0.7),
-               0 4px 12px rgba(0,0,0,0.3);
-}
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
-/* ===============================
-   STEP INDICATOR
-================================ */
+        .card-top-bar {
+            height: 4px;
+            background: linear-gradient(90deg, var(--teal), var(--teal-glow));
+        }
 
-.stepper {
-    display:flex;
-    justify-content:center;
-    gap:40px;
-    margin-bottom:40px;
-}
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 18px 24px 0;
+        }
 
-.step {
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    font-weight:600;
-    color:#999;
-}
+        .section-icon {
+            width: 36px;
+            height: 36px;
+            background: var(--teal-pale);
+            color: var(--teal);
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .95rem;
+            flex-shrink: 0;
+        }
 
-.step-circle {
-    width:42px;
-    height:42px;
-    border-radius:50%;
-    background:#e5e5e5;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    margin-bottom:6px;
-}
+        .section-title {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--ink);
+        }
 
-.step.active {
-    color:#3a2a1a;
-}
+        .section-body {
+            padding: 20px 24px 24px;
+        }
 
-.step.active .step-circle {
-    background:linear-gradient(135deg,#fde047,#facc15);
-    box-shadow:0 0 15px rgba(250,204,21,0.6);
-}
+        /* ─── FORM FIELDS ─── */
+        .field-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
 
+        .field-group.single {
+            grid-template-columns: 1fr;
+        }
 
+        .field-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            margin-bottom: 14px;
+        }
 
+        .field-wrap:last-child {
+            margin-bottom: 0;
+        }
 
-</style>
+        .field-label {
+            font-size: .73rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .7px;
+            color: var(--muted);
+        }
+
+        .field-input,
+        .field-select,
+        .field-textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-family: 'DM Sans', sans-serif;
+            font-size: .9rem;
+            color: var(--ink);
+            background: #fff;
+            outline: none;
+            transition: border-color .2s, box-shadow .2s;
+            appearance: none;
+        }
+
+        .field-input:focus,
+        .field-select:focus,
+        .field-textarea:focus {
+            border-color: var(--teal);
+            box-shadow: 0 0 0 3px rgba(13, 148, 136, .12);
+        }
+
+        .field-textarea {
+            resize: vertical;
+            min-height: 90px;
+            line-height: 1.5;
+        }
+
+        .select-wrap {
+            position: relative;
+        }
+
+        .select-wrap::after {
+            content: '\f107';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            right: 13px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--muted);
+            pointer-events: none;
+            font-size: .85rem;
+        }
+
+        /* ─── ORIGINAL MODULE BUILDER STYLES (100% unchanged) ─── */
+        #topRow {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 18px;
+            margin-top: 30px;
+        }
+
+        .builder-card {
+            width: 180px;
+            height: 160px;
+            background: #ffffff;
+            border-radius: 18px;
+            border: 3px dashed #dcdcdc;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+            transition: 0.25s ease;
+            cursor: grab;
+        }
+
+        .builder-card:hover {
+            transform: scale(1.05);
+        }
+
+        #dropZone {
+            margin-bottom: 30px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .module-card {
+            border-color: #6aa9ff !important;
+        }
+
+        .quiz-card {
+            border-color: #ffcf7d !important;
+        }
+
+        .assignment-card {
+            border-color: #7ee6a0 !important;
+        }
+
+        .liveclass-card {
+            border-color: #ff8fba !important;
+        }
+
+        .card-actions {
+            position: absolute;
+            bottom: 12px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .open-module-btn {
+            background: #4caf50;
+            color: white;
+            border: none;
+            padding: 5px 12px;
+            font-size: 13px;
+            border-radius: 6px;
+        }
+
+        .delete-module-btn {
+            background: #ff4d4d;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            font-size: 13px;
+            border-radius: 6px;
+        }
+
+        .drop-zone {
+            width: 180px;
+            height: 160px;
+            border-radius: 18px;
+            border: 3px dashed #bfc7e6;
+            background: #eef2ff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 40px;
+            font-weight: bold;
+            color: #5b6cff;
+            cursor: pointer;
+            transition: 0.25s ease;
+        }
+
+        .drop-zone:hover {
+            transform: scale(1.08);
+            border-color: #5167ff;
+            color: #5167ff;
+        }
+
+        .drag-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+
+        .draggable-btn {
+            padding: 8px 18px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: grab;
+            border: none;
+            color: white;
+            user-select: none;
+        }
+
+        .module-btn {
+            background: #6aa9ff;
+        }
+
+        .quiz-btn {
+            background: #ffbf47;
+            color: #333;
+        }
+
+        .assignment-btn {
+            background: #4caf50;
+        }
+
+        .liveclass-btn {
+            background: #ff6fa8;
+        }
+
+        /* ─── ACTIONS BAR ─── */
+        .actions-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            padding: 20px 24px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: 0 4px 20px rgba(13, 148, 136, .06);
+        }
+
+        .hint {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-size: .82rem;
+            color: var(--muted);
+            font-weight: 500;
+        }
+
+        .hint i {
+            color: var(--teal);
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-save-course {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            background: var(--teal-pale);
+            color: var(--teal);
+            border: 1.5px solid var(--teal-glow);
+            border-radius: var(--radius-sm);
+            padding: 10px 22px;
+            font-size: .88rem;
+            font-weight: 700;
+            font-family: 'Syne', sans-serif;
+            cursor: pointer;
+            transition: background .15s, color .15s;
+        }
+
+        .btn-save-course:hover {
+            background: var(--teal);
+            color: #fff;
+        }
+
+        .btn-publish {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            background: linear-gradient(135deg, var(--teal), var(--teal-mid));
+            color: #fff;
+            border: none;
+            border-radius: var(--radius-sm);
+            padding: 10px 24px;
+            font-size: .88rem;
+            font-weight: 700;
+            font-family: 'Syne', sans-serif;
+            cursor: pointer;
+            transition: opacity .2s, transform .15s;
+        }
+
+        .btn-publish:hover {
+            opacity: .88;
+            transform: translateY(-1px);
+        }
+
+        /* ─── RESPONSIVE ─── */
+        @media (max-width: 640px) {
+            .topnav {
+                padding: 0 16px;
+            }
+
+            .page-wrap {
+                padding: 24px 16px 60px;
+            }
+
+            .field-group {
+                grid-template-columns: 1fr;
+            }
+
+            .actions-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .action-btns {
+                flex-direction: column;
+            }
+        }
+    </style>
 </head>
 
+<body>
 
-<body class="bg-light">
+    <!-- ── TOPNAV ─── -->
+    <nav class="topnav">
+        <a href="{% url 'instructor_dashboard' %}" class="brand">SPESH<span>WAY</span></a>
+        <div class="dropdown">
+            <button class="avatar-btn" type="button" data-bs-toggle="dropdown">
+                {{ request.user.username|first|upper }}
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="{% url 'instructor_profile_view' %}"><i
+                            class="fa-regular fa-user me-2"></i>Profile</a></li>
+                <li><a class="dropdown-item" href="{% url 'instructor:add_course' %}"><i
+                            class="fa-solid fa-plus me-2"></i>Create New Course</a></li>
+                <li><a class="dropdown-item" href="{% url 'instructor:students_list' %}"><i
+                            class="fa-solid fa-users me-2"></i>My Students</a></li>
+                <li><a class="dropdown-item" href="{% url 'instructor:calendar_view' %}"><i
+                            class="fa-regular fa-calendar me-2"></i>My Schedules</a></li>
+                <li><a class="dropdown-item" href="{% url 'instructor_notifications' %}"><i
+                            class="fa-regular fa-bell me-2"></i>Notifications</a></li>
+                <li><a class="dropdown-item" href="#"><i class="fa-solid fa-wallet me-2"></i>Earnings & Payments</a>
+                </li>
+                <li><a class="dropdown-item" href="#"><i class="fa-regular fa-circle-question me-2"></i>Help &
+                        Support</a></li>
+                <li><a class="dropdown-item" href="{% url 'instructor_account_settings' %}"><i
+                            class="fa-solid fa-gear me-2"></i>Account Settings</a></li>
+                <li>
+                    <hr class="dropdown-divider">
+                </li>
+                <li><a class="dropdown-item text-danger" href="{% url 'logout_view' %}"><i
+                            class="fa-solid fa-right-from-bracket me-2"></i>Logout</a></li>
+            </ul>
+        </div>
+    </nav>
 
+    <!-- ── PAGE ─── -->
+    <div class="page-wrap">
 
-<div class="topbar">
-    <a href="{% url 'instructor_dashboard' %}" class="topbar-title">Speshway</a>
+        
 
-    <div class="dropdown">
-        <button class="btn rounded-circle shadow"
-                style="background:#666;color:white;width:45px;height:45px;"
-                data-bs-toggle="dropdown">
-            {{ request.user.username|first|upper }}
-        </button>
-
-        <ul class="dropdown-menu dropdown-menu-end">
-                <li><a class="dropdown-item" href="{% url 'instructor_profile_view' %}">Profile</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor:add_course' %}">Create New Course</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor:students_list' %}">My Students</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor:calendar_view' %}">My Schedules</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor_notifications' %}">Notifications</a></li>
-                <li><a class="dropdown-item" href="#">Earnings & Payments</a></li>
-                <li><a class="dropdown-item" href="#">Help & Support</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor_account_settings' %}">Account Settings</a></li>
-                <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item text-danger" href="{% url 'logout_view' %}">Logout</a></li>
-        </ul>
-    </div>
-</div>
-
-
-<div class="paper">
-
-
-    <h1 class="title">CREATE COURSE</h1>
-
-    <label class="label">Course Title</label>
-    <input id="courseTitle" class="input-box" value="{{ course_title }}">
-
-    <label class="label">Description</label>
-    <textarea id="courseDescription" class="input-box" style="height:80px;">{{ course_description }}</textarea>
-
-    <label class="label">Price (₹)</label>
-    <input id="coursePrice" type="number" class="input-box" value="{{ course_price }}">
-
-    <label class="label">Category</label>
-    <select id="courseCategory" class="input-box">
-    <option value="" disabled selected>Select Category</option>
-        <option value="business" {% if course_category == 'business' %}selected{% endif %}>Business</option>
-        <option value="design" {% if course_category == 'design' %}selected{% endif %}>Design</option>
-        <option value="music" {% if course_category == 'music' %}selected{% endif %}>Music</option>
-        <option value="programming" {% if course_category == 'programming' %}selected{% endif %}>Programming</option>
-        <option value="others" {% if course_category == 'others' %}selected{% endif %}>Others</option>
-    </select>
-
-    <label class="label">Course Level</label>
-    <select id="courseLevel" class="input-box">
-        <option value="" disabled selected>Select Level</option>
-        <option value="beginner" {% if course_level == 'beginner' %}selected{% endif %}>Beginner</option>
-        <option value="intermediate" {% if course_level == 'intermediate' %}selected{% endif %}>Intermediate</option>
-        <option value="advanced" {% if course_level == 'advanced' %}selected{% endif %}>Advanced</option>
-    </select>
-
-    <hr class="divider">
-
-    <h1 class="title">MODULE BUILDER</h1>
-
-    <div id="moduleBuilder">
-          <div id="topRow"></div>
-    </div>
-
-    <div class="bottom-area">
-
-        <div class="drag-row">
-            <div class="draggable-btn module-btn" draggable="true" data-type="Module">Module</div>
-            <div class="draggable-btn quiz-btn" draggable="true" data-type="Quiz">Quiz</div>
-            <div class="draggable-btn assignment-btn" draggable="true" data-type="Assignment">Assignment</div>
-            <div class="draggable-btn liveclass-btn" draggable="true" data-type="Live Class">Live Class</div>
+        <div class="page-header">
+            <h2>Create <span>Course</span></h2>
+            <p>Fill in the details below, then build your course structure with modules, quizzes, and more.</p>
         </div>
 
-        <div class="actions">
-            <button class="save-main" onclick="saveCourse()">Save Course</button>
-            <button class="publish-main" onclick="publishCourse()">Publish</button>
+        <!-- ── Course Details Card ── -->
+        <div class="section-card">
+            <div class="card-top-bar"></div>
+            <div class="section-header">
+                <div class="section-icon"><i class="fa-solid fa-book-open"></i></div>
+                <div class="section-title">Course Details</div>
+            </div>
+            <div class="section-body">
+
+                <div class="field-group single">
+                    <div class="field-wrap">
+                        <label class="field-label">Course Title</label>
+                        <input id="courseTitle" class="field-input" placeholder="e.g. Complete Python Bootcamp"
+                            value="{{ course_title }}">
+                    </div>
+                </div>
+
+                <div class="field-group single">
+                    <div class="field-wrap">
+                        <label class="field-label">Description</label>
+                        <textarea id="courseDescription" class="field-textarea"
+                            placeholder="What will students learn in this course?">{{ course_description }}</textarea>
+                    </div>
+                </div>
+
+                <div class="field-group">
+                    <div class="field-wrap">
+                        <label class="field-label">Price (₹)</label>
+                        <input id="coursePrice" type="number" class="field-input" placeholder="0 for free"
+                            value="{{ course_price }}">
+                    </div>
+                    <div class="field-wrap">
+                        <label class="field-label">Category</label>
+                        <div class="select-wrap">
+                            <select id="courseCategory" class="field-select">
+                                <option value="" disabled selected>Select Category</option>
+                                <option value="business" {% if course_category == 'business' %}selected{% endif %}>
+                                    Business</option>
+                                <option value="design" {% if course_category == 'design' %}selected{% endif %}>Design
+                                </option>
+                                <option value="music" {% if course_category == 'music' %}selected{% endif %}>Music
+                                </option>
+                                <option value="programming" {% if course_category == 'programming' %}selected{% endif %}>
+                                    Programming</option>
+                                <option value="others" {% if course_category == 'others' %}selected{% endif %}>Others
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="field-group" style="margin-bottom:0;">
+                    <div class="field-wrap" style="margin-bottom:0;">
+                        <label class="field-label">Course Level</label>
+                        <div class="select-wrap">
+                            <select id="courseLevel" class="field-select">
+                                <option value="" disabled selected>Select Level</option>
+                                <option value="beginner" {% if course_level == 'beginner' %}selected{% endif %}>Beginner
+                                </option>
+                                <option value="intermediate" {% if course_level == 'intermediate' %}selected{% endif %}>
+                                    Intermediate</option>
+                                <option value="advanced" {% if course_level == 'advanced' %}selected{% endif %}>Advanced
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="field-wrap"></div>
+                </div>
+
+            </div>
         </div>
 
-        <div class="note">💡 Drag items onto the + box to add them</div>
+        <!-- ── Module Builder Card (original HTML preserved exactly) ── -->
+        <div class="section-card delay">
+            <div class="card-top-bar"></div>
+            <div class="section-header">
+                <div class="section-icon"><i class="fa-solid fa-cubes"></i></div>
+                <div class="section-title">Module Builder</div>
+            </div>
+            <div class="section-body">
+
+                <div id="moduleBuilder">
+                    <div id="topRow"></div>
+                </div>
+
+                <div class="bottom-area">
+                    <div class="drag-row">
+                        <div class="draggable-btn module-btn" draggable="true" data-type="Module">Module</div>
+                        <div class="draggable-btn quiz-btn" draggable="true" data-type="Quiz">Quiz</div>
+                        <div class="draggable-btn assignment-btn" draggable="true" data-type="Assignment">Assignment
+                        </div>
+                        <div class="draggable-btn liveclass-btn" draggable="true" data-type="Live Class">Live Class
+                        </div>
+                    </div>
+                    <div class="note">💡 Drag items onto the + box to add them</div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ── Actions Bar ── -->
+        <div class="actions-bar">
+            <div class="hint">
+                <i class="fa-solid fa-lightbulb"></i>
+                Drag items onto the + box to add them
+            </div>
+            <div class="action-btns">
+                <button class="btn-save-course" onclick="saveCourse()">
+                    <i class="fa-solid fa-floppy-disk"></i> Save Course
+                </button>
+                <button class="btn-publish" onclick="publishCourse()">
+                    <i class="fa-solid fa-rocket"></i> Publish
+                </button>
+            </div>
+        </div>
+
     </div>
 
-</div>
-
-<script src="{% static 'js/add_course.js' %}"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'js/add_course.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
+
 </html>

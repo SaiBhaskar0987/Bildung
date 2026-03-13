@@ -1,213 +1,242 @@
-
-{% block content %}
-
-<style>
-:root{
-    --yellow-main: #f4c430;
-    --yellow-light: #fff8dc;
-    --brown-dark: #4b2e05;
-    --brown-medium: #6b3e0f;
-    --brown-light: #8b5a2b;
-}
-
-/* Background */
-.container{
-    background: var(--yellow-light);
-}
-
-/* Card */
-.theme-card{
-    background: white;
-    border-radius: 20px;
-    box-shadow: 0 10px 25px rgba(75,46,5,0.15);
-}
-
-/* Heading */
-.theme-heading{
-    color: var(--brown-dark);
-}
-
-/* Labels */
-.form-label{
-    color: var(--brown-dark);
-}
-
-/* Inputs */
-.form-control{
-    border-radius: 12px;
-    border: 1.5px solid var(--brown-light);
-}
-
-.form-control:focus{
-    border-color: var(--yellow-main);
-    box-shadow: 0 0 0 0.2rem rgba(244,196,48,0.25);
-}
-
-/* 🔥 SELECT DROPDOWN DARK BROWN */
-.form-select{
-    border-radius: 12px;
-    border: 1.5px solid var(--brown-light);
-    background-color: var(--brown-dark);
-    color: var(--yellow-main);
-    font-weight: 500;
-}
-
-.form-select:focus{
-    border-color: var(--yellow-main);
-    box-shadow: 0 0 0 0.2rem rgba(244,196,48,0.25);
-}
-
-/* Dropdown options */
-.form-select option{
-    background: var(--brown-dark);
-    color: var(--yellow-main);
-}
-
-/* Create Button */
-.btn-theme{
-    background: var(--brown-dark);
-    color: white;
-    border-radius: 10px;
-    padding: 8px 18px;
-    border: none;
-}
-
-.btn-theme:hover{
-    background: var(--brown-medium);
-    color: white;
-}
-
-/* Cancel Button */
-.btn-cancel{
-    background: var(--yellow-main);
-    color: var(--brown-dark);
-    border-radius: 10px;
-    padding: 8px 18px;
-    border: 2px solid var(--brown-dark);
-}
-
-.btn-cancel:hover{
-    background: var(--brown-dark);
-    color: white;
-}
-</style>
-{% load static %}
-
+ {% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Add Event</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Add Event – SPESHWAY</title>
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 
+<style>
+:root {
+  --ink:       #0F1117;
+  --ink-soft:  #2C2F3A;
+  --teal:      #0D9488;
+  --teal-mid:  #14B8A6;
+  --teal-glow: #5EEAD4;
+  --teal-pale: #CCFBF1;
+  --surface:   #F8FFFE;
+  --card-bg:   #FFFFFF;
+  --border:    #D1FAF6;
+  --muted:     #64748B;
+  --red:       #EF4444;
+  --radius:    16px;
+  --radius-sm: 10px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', sans-serif; background: var(--surface); color: var(--ink); min-height: 100vh; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-thumb { background: var(--teal-glow); border-radius: 99px; }
+
+/* ─── TOPNAV ─── */
+.topnav {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 32px; height: 64px;
+  background: rgba(255,255,255,.92);
+  backdrop-filter: blur(18px);
+  border-bottom: 1px solid var(--border);
+}
+.brand { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.35rem; letter-spacing: -.5px; color: var(--teal); text-decoration: none; }
+.brand span { color: var(--ink); }
+.avatar-btn {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--teal), var(--teal-mid));
+  color: #fff; border: none; cursor: pointer;
+  font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1rem;
+  display: flex; align-items: center; justify-content: center;
+  transition: box-shadow .2s, transform .15s;
+}
+.avatar-btn:hover { box-shadow: 0 0 0 4px var(--teal-pale); transform: scale(1.05); }
+.dropdown-menu { border: 1px solid var(--border) !important; border-radius: var(--radius) !important; box-shadow: 0 12px 40px rgba(13,148,136,.12) !important; padding: 8px !important; min-width: 220px !important; }
+.dropdown-item { border-radius: var(--radius-sm); font-size: .875rem; color: var(--ink-soft); padding: 8px 12px; transition: background .15s, color .15s; }
+.dropdown-item:hover { background: var(--teal-pale); color: var(--teal); }
+.dropdown-item.text-danger:hover { background: #FEE2E2; color: var(--red); }
+.dropdown-divider { border-color: var(--border) !important; }
+
+/* ─── PAGE WRAP ─── */
+.page-wrap { max-width: 680px; margin: 0 auto; padding: 40px 24px 80px; }
+
+/* ─── BACK LINK ─── */
+.back-link { display: inline-flex; align-items: center; gap: 7px; color: var(--teal); font-size: .85rem; font-weight: 600; text-decoration: none; margin-bottom: 24px; transition: gap .2s; }
+.back-link:hover { gap: 10px; }
+
+/* ─── PAGE HEADER ─── */
+.page-header { margin-bottom: 28px; }
+.page-header h2 { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.9rem; letter-spacing: -1px; color: var(--ink); }
+.page-header h2 span { color: var(--teal); }
+.page-header p { color: var(--muted); margin-top: 5px; font-size: .88rem; }
+
+/* ─── FORM CARD ─── */
+.form-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: 0 6px 28px rgba(13,148,136,.08); animation: fadeUp .4s ease both; }
+@keyframes fadeUp { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
+.card-top-bar { height: 4px; background: linear-gradient(90deg, var(--teal), var(--teal-glow)); }
+.card-header-row { display: flex; align-items: center; gap: 10px; padding: 18px 24px; border-bottom: 1px solid var(--border); }
+.card-header-icon { width: 36px; height: 36px; background: var(--teal-pale); color: var(--teal); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-size: .9rem; flex-shrink: 0; }
+.card-header-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1rem; color: var(--ink); }
+
+/* ─── FORM BODY ─── */
+.form-body { padding: 24px 24px 8px; }
+.field-wrap { display: flex; flex-direction: column; gap: 5px; margin-bottom: 18px; }
+.field-wrap:last-of-type { margin-bottom: 0; }
+.field-label { font-size: .73rem; font-weight: 700; text-transform: uppercase; letter-spacing: .7px; color: var(--muted); }
+
+.field-input,
+.field-textarea {
+  width: 100%; padding: 10px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: 'DM Sans', sans-serif;
+  font-size: .9rem; color: var(--ink);
+  background: #fff; outline: none;
+  transition: border-color .2s, box-shadow .2s;
+  color-scheme: light;
+}
+.field-input:focus, .field-textarea:focus {
+  border-color: var(--teal);
+  box-shadow: 0 0 0 3px rgba(13,148,136,.12);
+}
+.field-textarea { resize: vertical; min-height: 90px; line-height: 1.6; }
+
+/* Select wrapper */
+.select-wrap { position: relative; }
+.select-wrap::after { content: '\f107'; font-family: 'Font Awesome 6 Free'; font-weight: 900; position: absolute; right: 13px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; font-size: .85rem; }
+.select-wrap select { appearance: none; padding-right: 36px; }
+
+/* Form divider */
+.form-divider { height: 1px; background: var(--border); margin: 20px 0; }
+
+/* Datetime side-by-side */
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 520px) { .field-row { grid-template-columns: 1fr; } }
+
+/* ─── BUTTONS ─── */
+.btn-row { display: flex; gap: 10px; flex-wrap: wrap; padding: 4px 24px 24px; justify-content: flex-end; }
+.btn-create { display: inline-flex; align-items: center; gap: 7px; background: linear-gradient(135deg, var(--teal), var(--teal-mid)); color: #fff; border: none; border-radius: var(--radius-sm); padding: 10px 26px; font-size: .9rem; font-weight: 700; font-family: 'Syne', sans-serif; cursor: pointer; transition: opacity .2s, transform .15s; }
+.btn-create:hover { opacity: .88; transform: translateY(-1px); }
+.btn-cancel { display: inline-flex; align-items: center; gap: 7px; background: #fff; color: var(--muted); border: 1.5px solid var(--border); border-radius: var(--radius-sm); padding: 10px 20px; font-size: .9rem; font-weight: 600; text-decoration: none; transition: border-color .15s, color .15s; }
+.btn-cancel:hover { border-color: var(--muted); color: var(--ink); }
+
+@media (max-width: 480px) {
+  .topnav { padding: 0 16px; }
+  .page-wrap { padding: 24px 16px 60px; }
+  .btn-row { flex-direction: column-reverse; }
+}
+</style>
 </head>
+<body>
 
-<body class="bg-light">
-
-<div class="d-flex justify-content-between align-items-center p-3 bg-white shadow-sm">
-  <a href="{% url 'instructor_dashboard' %}" class="text-decoration-none text-dark">
-    <h3 class="m-0 fw-bold">Bildung</h3>
-  </a>
-
+<!-- ── TOPNAV ─── -->
+<nav class="topnav">
+  <a href="{% url 'instructor_dashboard' %}" class="brand">SPESH<span>WAY</span></a>
   <div class="dropdown">
-    <button class="btn rounded-circle shadow"
-            style="background:gray;color:white;width:45px;height:45px;"
-            data-bs-toggle="dropdown">
+    <button class="avatar-btn" type="button" data-bs-toggle="dropdown">
       {{ request.user.username|first|upper }}
     </button>
-
     <ul class="dropdown-menu dropdown-menu-end">
-              <li><a class="dropdown-item" href="{% url 'instructor_profile_view' %}">Profile</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor:add_course' %}">Create New Course</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor:students_list' %}">My Students</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor:calendar_view' %}">My Schedules</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor_notifications' %}">Notifications</a></li>
-                <li><a class="dropdown-item" href="#">Earnings & Payments</a></li>
-                <li><a class="dropdown-item" href="#">Help & Support</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor_account_settings' %}">Account Settings</a></li>
-                <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item text-danger" href="{% url 'logout_view' %}">Logout</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor_profile_view' %}"><i class="fa-regular fa-user me-2"></i>Profile</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor:add_course' %}"><i class="fa-solid fa-plus me-2"></i>Create New Course</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor:students_list' %}"><i class="fa-solid fa-users me-2"></i>My Students</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor:calendar_view' %}"><i class="fa-regular fa-calendar me-2"></i>My Schedules</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor_notifications' %}"><i class="fa-regular fa-bell me-2"></i>Notifications</a></li>
+      <li><a class="dropdown-item" href="#"><i class="fa-solid fa-wallet me-2"></i>Earnings & Payments</a></li>
+      <li><a class="dropdown-item" href="#"><i class="fa-regular fa-circle-question me-2"></i>Help & Support</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor_account_settings' %}"><i class="fa-solid fa-gear me-2"></i>Account Settings</a></li>
+      <li><hr class="dropdown-divider"></li>
+      <li><a class="dropdown-item text-danger" href="{% url 'logout_view' %}"><i class="fa-solid fa-right-from-bracket me-2"></i>Logout</a></li>
     </ul>
   </div>
-</div>
+</nav>
 
-<body class="bg-light py-5">
+<!-- ── PAGE ─── -->
+<div class="page-wrap">
 
+  <a href="{% url 'instructor:calendar_view' %}" class="back-link">
+    <i class="fa-solid fa-arrow-left"></i> Back to Schedules
+  </a>
 
-<div class="container py-5">
+  <div class="page-header">
+    <h2>Add New <span>Event</span></h2>
+    <p>Create an event and assign it to one of your courses.</p>
+  </div>
 
-    <div class="card theme-card shadow-sm p-4 border-0">
-
-        <h4 class="fw-bold mb-4 theme-heading">📌 Add New Event</h4>
-
-        <form method="post">
-            {% csrf_token %}
-
-            <div class="mb-3">
-                <label class="form-label fw-semibold">Select Course</label>
-                <select name="course" class="form-select" required>
-                    <option value="">-- Choose Course --</option>
-
-                    {% for c in instructor_courses %}
-                        <option value="{{ c.id }}"
-                            {% if selected_course_id == c.id %}selected{% endif %}>
-                            {{ c.title }}
-                        </option>
-                    {% endfor %}
-                </select>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label fw-semibold">Event Title</label>
-                <input type="text"
-                       name="{{ form.title.name }}"
-                       value="{{ form.title.value|default:'' }}"
-                       class="form-control"
-                       required>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label fw-semibold">Description</label>
-                <textarea name="{{ form.description.name }}"
-                          class="form-control"
-                          rows="3">{{ form.description.value|default:'' }}</textarea>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label fw-semibold">Start Date & Time</label>
-                <input type="datetime-local"
-                       name="{{ form.start_time.name }}"
-                       value="{{ form.start_time.value|default:'' }}"
-                       class="form-control"
-                       required>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label fw-semibold">End Date & Time</label>
-                <input type="datetime-local"
-                       name="{{ form.end_time.name }}"
-                       value="{{ form.end_time.value|default:'' }}"
-                       class="form-control"
-                       required>
-            </div>
-
-            <div class="mt-4">
-                <button type="submit" class="btn btn-theme me-2">
-                    💡 Create Event
-                </button>
-
-                <a href="{% url 'instructor_dashboard' %}" class="btn btn-cancel">
-                    Cancel
-                </a>
-            </div>
-
-        </form>
-
+  <div class="form-card">
+    <div class="card-top-bar"></div>
+    <div class="card-header-row">
+      <div class="card-header-icon"><i class="fa-solid fa-calendar-plus"></i></div>
+      <div class="card-header-title">Event Details</div>
     </div>
+
+    <form method="post">
+      {% csrf_token %}
+      <div class="form-body">
+
+        <div class="field-wrap">
+          <label class="field-label">Select Course</label>
+          <div class="select-wrap">
+            <select name="course" class="field-input" required>
+              <option value="">— Choose a course —</option>
+              {% for c in instructor_courses %}
+              <option value="{{ c.id }}" {% if selected_course_id == c.id %}selected{% endif %}>
+                {{ c.title }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+
+        <div class="field-wrap">
+          <label class="field-label">Event Title</label>
+          <input type="text" name="{{ form.title.name }}"
+                 value="{{ form.title.value|default:'' }}"
+                 class="field-input" required
+                 placeholder="e.g. End-of-Module Assessment">
+        </div>
+
+        <div class="field-wrap">
+          <label class="field-label">Description</label>
+          <textarea name="{{ form.description.name }}"
+                    class="field-textarea"
+                    rows="3"
+                    placeholder="Optional notes or details about this event">{{ form.description.value|default:'' }}</textarea>
+        </div>
+
+        <div class="form-divider"></div>
+
+        <div class="field-row">
+          <div class="field-wrap" style="margin-bottom:0;">
+            <label class="field-label">Start Date &amp; Time</label>
+            <input type="datetime-local" name="{{ form.start_time.name }}"
+                   value="{{ form.start_time.value|default:'' }}"
+                   class="field-input" required>
+          </div>
+          <div class="field-wrap" style="margin-bottom:0;">
+            <label class="field-label">End Date &amp; Time</label>
+            <input type="datetime-local" name="{{ form.end_time.name }}"
+                   value="{{ form.end_time.value|default:'' }}"
+                   class="field-input" required>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="btn-row">
+        <a href="{% url 'instructor_dashboard' %}" class="btn-cancel">
+          <i class="fa-solid fa-xmark"></i> Cancel
+        </a>
+        <button type="submit" class="btn-create">
+          <i class="fa-solid fa-calendar-check"></i> Create Event
+        </button>
+      </div>
+    </form>
+  </div>
+
 </div>
 
-{% endblock %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

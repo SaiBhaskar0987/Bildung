@@ -1,10 +1,183 @@
-{% extends "base.html" %}
+ {% extends "base.html" %}
 {% block content %}
-<h2>Delete Lecture</h2>
-<p>Are you sure you want to delete "{{ lecture.title }}"?</p>
-<form method="post">
-  {% csrf_token %}
-  <button type="submit" class="btn btn-danger">Yes, Delete</button>
-  <a href="{% url 'course_detail' course_id=course_id %}" class="btn btn-secondary">Cancel</a>
-</form>
+
+<style>
+:root {
+  --ink:       #0F1117;
+  --ink-soft:  #2C2F3A;
+  --teal:      #0D9488;
+  --teal-mid:  #14B8A6;
+  --teal-glow: #5EEAD4;
+  --teal-pale: #CCFBF1;
+  --surface:   #F8FFFE;
+  --card-bg:   #FFFFFF;
+  --border:    #D1FAF6;
+  --muted:     #64748B;
+  --red:       #EF4444;
+  --radius:    16px;
+  --radius-sm: 10px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--surface);
+  color: var(--ink);
+  min-height: 100vh;
+}
+
+/* ─── CENTRED CONFIRM WRAP ─── */
+.confirm-wrap {
+  min-height: calc(100vh - 64px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 40px 24px;
+}
+
+/* ─── CONFIRM CARD ─── */
+.confirm-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 8px 32px rgba(13,148,136,.08);
+  width: 100%; max-width: 480px;
+  overflow: hidden;
+  animation: fadeUp .4s ease both;
+}
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(16px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+.confirm-top-bar {
+  height: 4px;
+  background: linear-gradient(90deg, #EF4444, #FCA5A5);
+}
+
+.confirm-body {
+  padding: 32px 32px 28px;
+  text-align: center;
+}
+
+/* Warning icon */
+.warn-icon-wrap {
+  width: 64px; height: 64px; border-radius: 50%;
+  background: #FEE2E2;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 20px;
+  font-size: 1.7rem; color: var(--red);
+}
+
+.confirm-title {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800; font-size: 1.25rem;
+  letter-spacing: -.5px; color: var(--ink);
+  margin-bottom: 10px;
+}
+
+.confirm-desc {
+  font-size: .9rem; color: var(--muted);
+  line-height: 1.6; margin-bottom: 8px;
+}
+
+/* Lecture name pill */
+.lecture-name-pill {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: #FEE2E2; color: #991B1B;
+  border-radius: var(--radius-sm);
+  padding: 7px 16px; font-size: .88rem; font-weight: 700;
+  margin: 12px 0 24px;
+}
+.lecture-name-pill i { font-size: .9rem; }
+
+/* Divider */
+.confirm-divider {
+  height: 1px; background: var(--border); margin: 4px 0 24px;
+}
+
+/* Warning note */
+.warn-note {
+  display: flex; align-items: flex-start; gap: 8px;
+  background: #FFF7ED;
+  border: 1px solid #FED7AA;
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: .8rem; color: #92400E;
+  text-align: left; margin-bottom: 24px;
+  line-height: 1.5;
+}
+.warn-note i { color: #D97706; flex-shrink: 0; margin-top: 1px; }
+
+/* Buttons */
+.confirm-actions {
+  display: flex; gap: 10px;
+}
+.btn-delete {
+  flex: 1;
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  background: linear-gradient(135deg, #EF4444, #DC2626);
+  color: #fff; border: none; border-radius: var(--radius-sm);
+  padding: 11px 20px; font-size: .9rem; font-weight: 700;
+  font-family: 'Syne', sans-serif; cursor: pointer;
+  transition: opacity .2s, transform .15s;
+  text-decoration: none;
+}
+.btn-delete:hover { opacity: .88; transform: translateY(-1px); color: #fff; }
+
+.btn-cancel {
+  flex: 1;
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  background: var(--teal-pale); color: var(--teal);
+  border: 1.5px solid var(--teal-glow); border-radius: var(--radius-sm);
+  padding: 11px 20px; font-size: .9rem; font-weight: 700;
+  font-family: 'Syne', sans-serif; cursor: pointer;
+  transition: background .15s, color .15s;
+  text-decoration: none;
+}
+.btn-cancel:hover { background: var(--teal); color: #fff; }
+</style>
+
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+<div class="confirm-wrap">
+  <div class="confirm-card">
+    <div class="confirm-top-bar"></div>
+    <div class="confirm-body">
+
+      <div class="warn-icon-wrap">
+        <i class="fa-solid fa-trash-can"></i>
+      </div>
+
+      <div class="confirm-title">Delete Lecture</div>
+      <div class="confirm-desc">You are about to permanently delete:</div>
+
+      <div class="lecture-name-pill">
+        <i class="fa-solid fa-film"></i>
+        {{ lecture.title }}
+      </div>
+
+      <div class="confirm-divider"></div>
+
+      <div class="warn-note">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        This action cannot be undone. All associated content, videos, and student progress for this lecture will be permanently removed.
+      </div>
+
+      <form method="post">
+        {% csrf_token %}
+        <div class="confirm-actions">
+          <a href="{% url 'course_detail' course_id=course_id %}" class="btn-cancel">
+            <i class="fa-solid fa-arrow-left"></i> Cancel
+          </a>
+          <button type="submit" class="btn-delete">
+            <i class="fa-solid fa-trash-can"></i> Yes, Delete
+          </button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+</div>
+
 {% endblock %}

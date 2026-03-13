@@ -1,104 +1,375 @@
-{% load static %}
+ {% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Notifications</title>
+<title>Notifications – SPESHWAY</title>
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" type="text/css" href="{% static 'instructor_notifications/style.css' %}">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 
-</head>
-
-<body class="bg-light">
-
-<!-- HEADER -->
-<div class="d-flex justify-content-between align-items-center p-3 bg-white shadow-sm">
-
-    <a href="{% url 'instructor_dashboard' %}" class="text-decoration-none text-dark">
-        <h3 class="m-0 fw-bold">Speshway</h3>
-    </a>
-
-    <div class="dropdown">
-        <button class="btn rounded-circle shadow"
-                style="background:gray;color:white;width:45px;height:45px;"
-                data-bs-toggle="dropdown">
-            {{ request.user.username|first|upper }}
-        </button>
-
-        <ul class="dropdown-menu dropdown-menu-end">
-            <li><a class="dropdown-item" href="{% url 'instructor_profile_view' %}">Profile</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor:add_course' %}">Create New Course</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor:students_list' %}">My Students</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor:calendar_view' %}">My Schedules</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor_notifications' %}">Notifications</a></li>
-                <li><a class="dropdown-item" href="#">Earnings & Payments</a></li>
-                <li><a class="dropdown-item" href="#">Help & Support</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor_account_settings' %}">Account Settings</a></li>
-                <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item text-danger" href="{% url 'logout_view' %}">Logout</a></li>
-        </ul>
-    </div>
-</div>
-
-<!-- MAIN CONTENT -->
-<div class="container mt-4 mb-5">
-
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h3 class="fw-bold">Notifications</h3>
-
-        <button onclick="markAllRead()" class="btn btn-sm btn-outline-primary">
-            Mark All as Read
-        </button>
-    </div>
-
-    {% if notifications %}
-        {% for n in notifications %}
-        <div class="p-3 mb-3 shadow-sm rounded notif-card {% if not n.is_read %}notif-unread{% endif %}">
-            <div class="d-flex justify-content-between">
-
-                <div>
-                    <strong>{{ n.message }}</strong><br>
-                    <small class="text-muted">
-                        📅 {{ n.created_at|date:"M d, Y" }}
-                        &nbsp; ⏰ {{ n.created_at|date:"h:i A" }}
-                    </small>
-                </div>
-
-                <div class="text-end">
-
-                    {% if n.url %}
-                    <a href="{{ n.url }}" class="btn btn-sm btn-primary mb-1">Open</a>
-                    {% endif %}
-
-                    {% if not n.is_read %}
-                    <button class="btn btn-sm btn-outline-secondary"
-                            onclick="markRead({{ n.id }})">
-                        Mark Read
-                    </button>
-                    {% endif %}
-                </div>
-
-            </div>
-        </div>
-        {% endfor %}
-    {% else %}
-        <p class="text-center text-muted mt-5">No notifications yet.</p>
-    {% endif %}
-
-</div>
-
-<!-- JS -->
-<script>
-function markRead(id) {
-    fetch("{% url 'mark_notification_read' 0 %}".replace("0", id))
-        .then(() => location.reload());
+<style>
+/* ─── DESIGN SYSTEM ─── */
+:root {
+  --ink:       #0F1117;
+  --ink-soft:  #2C2F3A;
+  --teal:      #0D9488;
+  --teal-mid:  #14B8A6;
+  --teal-glow: #5EEAD4;
+  --teal-pale: #CCFBF1;
+  --surface:   #F8FFFE;
+  --card-bg:   #FFFFFF;
+  --border:    #D1FAF6;
+  --muted:     #64748B;
+  --red:       #EF4444;
+  --radius:    16px;
+  --radius-sm: 10px;
 }
 
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--surface);
+  color: var(--ink);
+  min-height: 100vh;
+}
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-thumb { background: var(--teal-glow); border-radius: 99px; }
+
+/* ─── TOPNAV ─── */
+.topnav {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 32px; height: 64px;
+  background: rgba(255,255,255,.92);
+  backdrop-filter: blur(18px);
+  border-bottom: 1px solid var(--border);
+}
+.brand {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800; font-size: 1.35rem;
+  letter-spacing: -.5px; color: var(--teal);
+  text-decoration: none;
+}
+.brand span { color: var(--ink); }
+.avatar-btn {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--teal), var(--teal-mid));
+  color: #fff; border: none; cursor: pointer;
+  font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1rem;
+  display: flex; align-items: center; justify-content: center;
+  transition: box-shadow .2s, transform .15s;
+}
+.avatar-btn:hover { box-shadow: 0 0 0 4px var(--teal-pale); transform: scale(1.05); }
+.dropdown-menu {
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius) !important;
+  box-shadow: 0 12px 40px rgba(13,148,136,.12) !important;
+  padding: 8px !important; min-width: 220px !important;
+}
+.dropdown-item {
+  border-radius: var(--radius-sm);
+  font-size: .875rem; color: var(--ink-soft);
+  padding: 8px 12px;
+  transition: background .15s, color .15s;
+}
+.dropdown-item:hover { background: var(--teal-pale); color: var(--teal); }
+.dropdown-item.text-danger:hover { background: #FEE2E2; color: var(--red); }
+.dropdown-divider { border-color: var(--border) !important; }
+
+/* ─── PAGE WRAP ─── */
+.page-wrap {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+}
+
+/* ─── BACK LINK ─── */
+.back-link {
+  display: inline-flex; align-items: center; gap: 7px;
+  color: var(--teal); font-size: .85rem; font-weight: 600;
+  text-decoration: none; margin-bottom: 24px;
+  transition: gap .2s;
+}
+.back-link:hover { gap: 10px; }
+
+/* ─── PAGE HEADER ─── */
+.page-header {
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 14px;
+  margin-bottom: 28px;
+}
+.page-header h2 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800; font-size: 1.9rem;
+  letter-spacing: -1px; color: var(--ink);
+}
+.page-header h2 span { color: var(--teal); }
+
+.btn-mark-all {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: var(--teal-pale); color: var(--teal);
+  border: 1.5px solid var(--teal-glow);
+  border-radius: var(--radius-sm);
+  padding: 8px 18px;
+  font-size: .85rem; font-weight: 700;
+  font-family: 'Syne', sans-serif;
+  cursor: pointer; transition: background .15s, color .15s;
+}
+.btn-mark-all:hover { background: var(--teal); color: #fff; }
+
+/* ─── NOTIFICATION CARD ─── */
+.notif-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  margin-bottom: 12px;
+  display: flex; align-items: flex-start;
+  justify-content: space-between; gap: 16px;
+  transition: transform .18s, box-shadow .18s, border-color .18s;
+  animation: fadeUp .35s ease both;
+  position: relative;
+  overflow: hidden;
+}
+.notif-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(13,148,136,.1);
+  border-color: var(--teal-glow);
+}
+
+/* Unread left accent + tinted bg */
+.notif-unread {
+  background: #F0FDFA;
+  border-color: var(--teal-glow);
+}
+.notif-unread::before {
+  content: '';
+  position: absolute; left: 0; top: 0; bottom: 0;
+  width: 4px;
+  background: linear-gradient(180deg, var(--teal), var(--teal-glow));
+  border-radius: 4px 0 0 4px;
+}
+
+/* Read: faint left border */
+.notif-card:not(.notif-unread)::before {
+  content: '';
+  position: absolute; left: 0; top: 0; bottom: 0;
+  width: 4px;
+  background: var(--border);
+  border-radius: 4px 0 0 4px;
+}
+
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(10px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+/* Avatar chip */
+.notif-avatar {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--teal), var(--teal-mid));
+  color: #fff; font-family: 'Syne', sans-serif;
+  font-weight: 700; font-size: .95rem;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.notif-unread .notif-avatar {
+  box-shadow: 0 0 0 3px var(--teal-pale);
+}
+.notif-card:not(.notif-unread) .notif-avatar {
+  background: #E2E8F0; color: var(--muted);
+}
+
+/* Body */
+.notif-body { flex: 1; }
+.notif-message {
+  font-weight: 600; font-size: .92rem;
+  color: var(--ink); margin-bottom: 5px;
+  line-height: 1.4;
+}
+.notif-card:not(.notif-unread) .notif-message {
+  color: var(--muted); font-weight: 400;
+}
+.notif-time {
+  display: flex; align-items: center; gap: 12px;
+  font-size: .76rem; color: var(--muted);
+}
+.notif-time span { display: flex; align-items: center; gap: 4px; }
+.notif-time i { color: var(--teal); font-size: .7rem; }
+
+/* Unread dot */
+.unread-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--teal);
+  flex-shrink: 0; margin-top: 6px;
+  box-shadow: 0 0 0 2px var(--teal-pale);
+}
+
+/* Actions */
+.notif-actions {
+  display: flex; flex-direction: column;
+  align-items: flex-end; gap: 7px;
+  flex-shrink: 0;
+}
+
+.btn-open {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: linear-gradient(135deg, var(--teal), var(--teal-mid));
+  color: #fff; border: none;
+  border-radius: var(--radius-sm);
+  padding: 6px 14px;
+  font-size: .78rem; font-weight: 700;
+  text-decoration: none; white-space: nowrap;
+  transition: opacity .15s;
+}
+.btn-open:hover { opacity: .85; color: #fff; }
+
+.btn-mark-read {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: none;
+  color: var(--teal);
+  border: 1px solid var(--teal-glow);
+  border-radius: var(--radius-sm);
+  padding: 5px 12px;
+  font-size: .76rem; font-weight: 600;
+  cursor: pointer; white-space: nowrap;
+  transition: background .15s, color .15s;
+}
+.btn-mark-read:hover { background: var(--teal-pale); }
+
+.read-label {
+  font-size: .72rem; color: var(--muted);
+  display: flex; align-items: center; gap: 4px;
+}
+.read-label i { color: var(--teal-glow); }
+
+/* ─── EMPTY STATE ─── */
+.empty-state {
+  text-align: center; padding: 70px 32px;
+  background: var(--card-bg);
+  border: 1.5px dashed var(--border);
+  border-radius: var(--radius);
+}
+.empty-state i { font-size: 2.8rem; color: var(--teal-glow); margin-bottom: 16px; }
+.empty-state h5 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700; font-size: 1.05rem;
+  color: var(--ink); margin-bottom: 6px;
+}
+.empty-state p { font-size: .85rem; color: var(--muted); }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 560px) {
+  .topnav { padding: 0 16px; }
+  .page-wrap { padding: 24px 16px 60px; }
+  .notif-card { flex-direction: column; gap: 12px; }
+  .notif-actions { flex-direction: row; align-items: center; }
+  .page-header { flex-direction: column; align-items: flex-start; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── TOPNAV ─── -->
+<nav class="topnav">
+  <a href="{% url 'instructor_dashboard' %}" class="brand">SPESH<span>WAY</span></a>
+  <div class="dropdown">
+    <button class="avatar-btn" type="button" data-bs-toggle="dropdown">
+      {{ request.user.username|first|upper }}
+    </button>
+    <ul class="dropdown-menu dropdown-menu-end">
+      <li><a class="dropdown-item" href="{% url 'instructor_profile_view' %}"><i class="fa-regular fa-user me-2"></i>Profile</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor:add_course' %}"><i class="fa-solid fa-plus me-2"></i>Create New Course</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor:students_list' %}"><i class="fa-solid fa-users me-2"></i>My Students</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor:calendar_view' %}"><i class="fa-regular fa-calendar me-2"></i>My Schedules</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor_notifications' %}"><i class="fa-regular fa-bell me-2"></i>Notifications</a></li>
+      <li><a class="dropdown-item" href="#"><i class="fa-solid fa-wallet me-2"></i>Earnings & Payments</a></li>
+      <li><a class="dropdown-item" href="#"><i class="fa-regular fa-circle-question me-2"></i>Help & Support</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor_account_settings' %}"><i class="fa-solid fa-gear me-2"></i>Account Settings</a></li>
+      <li><hr class="dropdown-divider"></li>
+      <li><a class="dropdown-item text-danger" href="{% url 'logout_view' %}"><i class="fa-solid fa-right-from-bracket me-2"></i>Logout</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ── PAGE ─── -->
+<div class="page-wrap">
+
+  
+  <div class="page-header">
+    <h2>Notifi<span>cations</span></h2>
+    {% if notifications %}
+    <button onclick="markAllRead()" class="btn-mark-all">
+      <i class="fa-solid fa-check-double"></i> Mark All as Read
+    </button>
+    {% endif %}
+  </div>
+
+  {% if notifications %}
+    {% for n in notifications %}
+    <div class="notif-card {% if not n.is_read %}notif-unread{% endif %}"
+         style="animation-delay: {{ forloop.counter0 }}0ms">
+
+      <!-- Avatar -->
+      <div class="notif-avatar">{{ n.message|first|upper }}</div>
+
+      <!-- Body -->
+      <div class="notif-body">
+        <div class="notif-message">{{ n.message }}</div>
+        <div class="notif-time">
+          <span><i class="fa-regular fa-calendar"></i>{{ n.created_at|date:"M d, Y" }}</span>
+          <span><i class="fa-regular fa-clock"></i>{{ n.created_at|date:"h:i A" }}</span>
+        </div>
+      </div>
+
+      {% if not n.is_read %}
+      <div class="unread-dot"></div>
+      {% endif %}
+
+      <!-- Actions -->
+      <div class="notif-actions">
+        {% if n.url %}
+        <a href="{{ n.url }}" class="btn-open">
+          <i class="fa-solid fa-arrow-up-right-from-square"></i> Open
+        </a>
+        {% endif %}
+
+        {% if not n.is_read %}
+        <button class="btn-mark-read" onclick="markRead({{ n.id }})">
+          <i class="fa-solid fa-check"></i> Mark Read
+        </button>
+        {% else %}
+        <span class="read-label"><i class="fa-solid fa-circle-check"></i> Read</span>
+        {% endif %}
+      </div>
+
+    </div>
+    {% endfor %}
+
+  {% else %}
+    <div class="empty-state">
+      <i class="fa-regular fa-bell-slash"></i>
+      <h5>No Notifications</h5>
+      <p>You're all caught up! New notifications will appear here.</p>
+    </div>
+  {% endif %}
+
+</div>
+
+<!-- ── JS ─── -->
+<script>
+function markRead(id) {
+  fetch("{% url 'mark_notification_read' 0 %}".replace("0", id))
+    .then(() => location.reload());
+}
 function markAllRead() {
-    fetch("{% url 'mark_notifications_read' %}")
-        .then(() => location.reload());
+  fetch("{% url 'mark_notifications_read' %}")
+    .then(() => location.reload());
 }
 </script>
 

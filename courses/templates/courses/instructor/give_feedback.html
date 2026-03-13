@@ -9,20 +9,172 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+
+<style>
+:root {
+  --ink:       #0F1117;
+  --ink-soft:  #2C2F3A;
+  --teal:      #0D9488;
+  --teal-mid:  #14B8A6;
+  --teal-glow: #5EEAD4;
+  --teal-pale: #CCFBF1;
+  --surface:   #F8FFFE;
+  --card-bg:   #FFFFFF;
+  --border:    #D1FAF6;
+  --muted:     #64748B;
+  --red:       #EF4444;
+  --radius:    16px;
+  --radius-sm: 10px;
+}
+
+.feedback-wrap {
+  max-width: 620px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+}
+
+.back-link {
+  display: inline-flex; align-items: center; gap: 7px;
+  color: var(--teal); font-size: .85rem; font-weight: 600;
+  text-decoration: none; margin-bottom: 24px;
+  transition: gap .2s;
+}
+.back-link:hover { gap: 10px; }
+
+.page-header { margin-bottom: 28px; }
+.page-header h2 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800; font-size: 1.9rem;
+  letter-spacing: -1px; color: var(--ink);
+}
+.page-header h2 span { color: var(--teal); }
+.page-header p { color: var(--muted); margin-top: 5px; font-size: .88rem; }
+
+/* ─── FORM CARD ─── */
+.form-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: 0 6px 28px rgba(13,148,136,.08);
+  animation: fadeUp .4s ease both;
+}
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(14px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+.card-top-bar {
+  height: 4px;
+  background: linear-gradient(90deg, var(--teal), var(--teal-glow));
+}
+.card-header-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--border);
+}
+.card-header-icon {
+  width: 36px; height: 36px;
+  background: var(--teal-pale); color: var(--teal);
+  border-radius: var(--radius-sm);
+  display: flex; align-items: center; justify-content: center;
+  font-size: .9rem; flex-shrink: 0;
+}
+.card-header-title {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700; font-size: 1rem; color: var(--ink);
+}
+
+/* Course context pill */
+.course-pill {
+  margin: 18px 24px 0;
+  display: inline-flex; align-items: center; gap: 7px;
+  background: var(--teal-pale); color: var(--teal);
+  border-radius: 99px; padding: 5px 14px;
+  font-size: .8rem; font-weight: 700;
+}
+
+/* ─── FORM BODY ─── */
+.form-body { padding: 20px 24px 6px; }
+
+.field-wrap { display: flex; flex-direction: column; gap: 5px; margin-bottom: 18px; }
+.field-wrap:last-of-type { margin-bottom: 0; }
+.field-label {
+  font-size: .73rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .7px; color: var(--muted);
+}
+
+/* Auto-style Django form widgets */
+.form-body select,
+.form-body input[type="text"],
+.form-body input[type="email"],
+.form-body textarea {
+  width: 100%; padding: 10px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: 'DM Sans', sans-serif;
+  font-size: .9rem; color: var(--ink);
+  background: #fff; outline: none;
+  transition: border-color .2s, box-shadow .2s;
+  appearance: none;
+}
+.form-body select:focus,
+.form-body input:focus,
+.form-body textarea:focus {
+  border-color: var(--teal);
+  box-shadow: 0 0 0 3px rgba(13,148,136,.12);
+}
+.form-body textarea { resize: vertical; min-height: 130px; line-height: 1.6; }
+
+/* Select wrapper with chevron */
+.select-wrap { position: relative; }
+.select-wrap::after {
+  content: '\f107'; font-family: 'Font Awesome 6 Free'; font-weight: 900;
+  position: absolute; right: 13px; top: 50%; transform: translateY(-50%);
+  color: var(--muted); pointer-events: none; font-size: .85rem;
+}
+
+/* ─── BUTTONS ─── */
+.btn-row {
+  display: flex; gap: 10px; flex-wrap: wrap;
+  padding: 18px 24px 24px;
+  justify-content: flex-end;
+}
+.btn-submit {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: linear-gradient(135deg, var(--teal), var(--teal-mid));
+  color: #fff; border: none; border-radius: var(--radius-sm);
+  padding: 10px 26px; font-size: .9rem; font-weight: 700;
+  font-family: 'Syne', sans-serif; cursor: pointer;
+  transition: opacity .2s, transform .15s;
+}
+.btn-submit:hover { opacity: .88; transform: translateY(-1px); }
+
+.btn-cancel {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: #fff; color: var(--muted);
+  border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+  padding: 10px 20px; font-size: .9rem; font-weight: 600;
+  text-decoration: none; transition: border-color .15s, color .15s;
+}
+.btn-cancel:hover { border-color: var(--muted); color: var(--ink); }
+
+@media (max-width: 480px) {
+  .feedback-wrap { padding: 24px 16px 60px; }
+  .btn-row { flex-direction: column-reverse; }
+}
 </style>
 </head>
  
-<body class="bg-light">
+  <body style="background: var(--surface);"></body>
  
 <div class="d-flex justify-content-between align-items-center p-3 bg-white shadow-sm">
     <a href="{% url 'instructor_dashboard' %}" class="text-decoration-none text-dark">
-        <h3 class="m-0 fw-bold brand-title">
-                <i class="fas fa-graduation-cap"></i> Speshway
-            </h3>
+
+        <h3 class="m-0 fw-bold brand-text">Speshway</h3>
     </a>
+
  
     <div class="d-flex align-items-center gap-3">
-        <h4 class="m-0">Hello, {{ user.first_name }} {{ user.last_name }}</h4>
  
         <div class="dropdown">
             <button class="btn rounded-circle shadow"
@@ -47,51 +199,68 @@
     </div>
 </div>
 
-<div class="container py-5">
+<div class="feedback-wrap">
 
-  <div class="card shadow-sm border-0 rounded-4 mx-auto" style="max-width:700px;">
-    <div class="card-body p-4">
+  <a href="{% url 'instructor:course_detail' course.id %}" class="back-link">
+      <i class="fas fa-arrow-left"></i> Back to Course
+  </a>
 
-      <h3 class="fw-bold mb-3">
-        Give Feedback
-      </h3>
+  <div class="page-header">
+      <h2>Give <span>Feedback</span></h2>
+      <p>Share feedback for the student in this course.</p>
+  </div>
 
-      <p class="text-muted mb-4">
-        Course: <strong>{{ course.title }}</strong>
-      </p>
+  <div class="form-card">
+
+      <div class="card-top-bar"></div>
+
+      <div class="card-header-row">
+          <div class="card-header-icon">
+              <i class="fas fa-comment-dots"></i>
+          </div>
+          <div class="card-header-title">
+              Student Feedback
+          </div>
+      </div>
+
+      <div class="course-pill">
+          <i class="fas fa-book"></i>
+          {{ course.title }}
+      </div>
 
       <form method="post">
-        {% csrf_token %}
+          {% csrf_token %}
 
-        <div class="mb-3">
-          <label class="form-label fw-semibold">
-            Select Student
-          </label>
-          {{ form.student }}
-        </div>
+          <div class="form-body">
 
-        <div class="mb-3">
-          <label class="form-label fw-semibold">
-            Feedback
-          </label>
-          {{ form.text }}
-        </div>
+              <div class="field-wrap">
+                  <label class="field-label">Select Student</label>
+                  <div class="select-wrap">
+                      {{ form.student }}
+                  </div>
+              </div>
 
-        <div class="d-flex justify-content-between align-items-center mt-4">
-          <a href="{% url 'instructor:course_detail' course.id %}"
-             class="btn btn-outline-secondary">
-            ← Back to Course
-          </a>
+              <div class="field-wrap">
+                  <label class="field-label">Feedback</label>
+                  {{ form.text }}
+              </div>
 
-          <button type="submit"
-                  class="btn btn-primary px-4">
-            Submit Feedback
-          </button>
-        </div>
+          </div>
+
+          <div class="btn-row">
+              <a href="{% url 'instructor:course_detail' course.id %}" class="btn-cancel">
+                  <i class="fas fa-arrow-left"></i>
+                  Cancel
+              </a>
+
+              <button type="submit" class="btn-submit">
+                  <i class="fas fa-paper-plane"></i>
+                  Submit Feedback
+              </button>
+          </div>
 
       </form>
 
-    </div>
   </div>
 
 </div>

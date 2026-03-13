@@ -46,7 +46,7 @@ body::before {
   pointer-events: none; z-index: 0;
 }
 
-/* ── Sidebar ── */
+
 .sidebar { width: var(--sidebar-w); height: 100vh; position: fixed; left: 0; top: 0; background: var(--sidebar); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 28px 0; z-index: 100; }
 .sidebar-brand { display: flex; align-items: center; gap: 10px; padding: 0 24px 28px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
 .brand-icon { width: 36px; height: 36px; background: var(--accent); border-radius: 9px; display: grid; place-items: center; flex-shrink: 0; }
@@ -63,7 +63,6 @@ body::before {
 .logout-link { display: flex; align-items: center; gap: 11px; padding: 11px 12px; border-radius: 9px; color: var(--red); text-decoration: none; font-size: 0.88rem; font-weight: 500; transition: all 0.2s; }
 .logout-link:hover { background: var(--red-dim); color: var(--red); }
 
-/* ── Main ── */
 .main { margin-left: var(--sidebar-w); min-height: 100vh; position: relative; z-index: 1; }
 .topbar { background: var(--panel); border-bottom: 1px solid var(--border); padding: 18px 36px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 50; backdrop-filter: blur(12px); }
 .topbar-left h5 { font-size: 1rem; font-weight: 700; color: var(--text); }
@@ -78,7 +77,6 @@ body::before {
 
 @keyframes fadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
 
-/* ── Table card ── */
 .table-card {
   background: var(--card); border: 1px solid var(--border);
   border-radius: 14px; overflow: hidden;
@@ -93,7 +91,6 @@ tbody tr:last-child { border-bottom: none; }
 tbody tr:hover { background: rgba(255,255,255,0.025); }
 tbody td { padding: 16px 18px; font-size: 0.88rem; vertical-align: middle; }
 
-/* Student avatar */
 .student-info { display: flex; align-items: center; gap: 12px; }
 .student-avatar {
   width: 36px; height: 36px; border-radius: 50%;
@@ -103,7 +100,6 @@ tbody td { padding: 16px 18px; font-size: 0.88rem; vertical-align: middle; }
 }
 .student-name { font-weight: 600; color: var(--text); font-size: 0.9rem; }
 
-/* Course enrollment badges */
 .course-tags { display: flex; flex-wrap: wrap; gap: 6px; }
 .course-tag {
   display: inline-flex; align-items: center; gap: 6px;

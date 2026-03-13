@@ -1,236 +1,581 @@
-{% load static %}
+ 
+ {% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>{{ course.title }}</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ course.title }} | SPESHWAY</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 
-    <style>
-        body { background-color: #f4f6fb; }
+  <style>
+  :root {
+    --amber:    #d97706;
+    --amber-lt: #fef3c7;
+    --rust:     #b45309;
+    --cream:    #fffbf5;
+    --ink:      #1c1412;
+    --muted:    #7c6f67;
+    --border:   #e8ddd4;
+    --glass:    rgba(255,251,245,0.82);
+    --shadow:   0 8px 40px rgba(28,20,18,0.10);
+  }
 
-        .course-header {
-            background: linear-gradient(120deg, #4c6ef5, #6c8cff);
-            color: white;
-            padding: 70px 20px;
-        }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        .course-stats span {
-            background: rgba(255,255,255,0.15);
-            padding: 6px 12px;
-            border-radius: 20px;
-            margin: 4px;
-            display: inline-block;
-            font-size: 14px;
-        }
+  body {
+    font-family:  Franklin Gothic Medium;
+    background: var(--cream);
+    color: var(--ink);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
 
-        .module-card {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            border: 1px solid #e5e7eb;
-            margin-bottom: 15px;
-            transition: 0.2s ease;
-        }
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 85% 10%, #fde68a55 0%, transparent 60%),
+      radial-gradient(ellipse 40% 60% at 5% 90%,  #fcd34d33 0%, transparent 55%),
+      radial-gradient(ellipse 50% 40% at 50% 50%, #fff7ed   0%, transparent 80%);
+    pointer-events: none; z-index: 0;
+  }
 
-        .module-card:hover {
-            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
-        }
+  body::after {
+    content: '';
+    position: fixed; top: -120px; right: -120px;
+    width: 420px; height: 420px;
+    border: 1.5px solid rgba(217,119,6,0.18);
+    border-radius: 50%;
+    pointer-events: none; z-index: 0;
+    animation: spin 40s linear infinite;
+  }
 
-        .lecture-item {
-            padding: 6px 0;
-            color: #444;
-            font-size: 14px;
-        }
+  @keyframes spin { to { transform: rotate(360deg); } }
 
-        .enroll-box {
-            background: white;
-            border-radius: 14px;
-            padding: 25px;
-            border: 1px solid #ddd;
-            position: sticky;
-            top: 20px;
-            box-shadow: 0 6px 18px rgba(0,0,0,0.05);
-        }
+  /* ════════ HEADER ════════ */
+  .topbar {
+    position: sticky; top: 0; z-index: 999;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 48px;
+    background: var(--glass);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+  }
 
-        .badge-soft {
-            background: #eef2ff;
-            color: #4f46e5;
-            font-weight: 500;
-            padding: 6px 10px;
-            border-radius: 20px;
-            font-size: 13px;
-        }
-    </style>
+  .brand {
+    font-family:  Franklin Gothic Medium;
+    font-weight: 700; font-size: 26px;
+      color: var(--ink);
+    text-decoration: none;
+    display: flex; align-items: center; gap: 10px;
+  }
+
+  .brand .dot {
+    width: 9px; height: 9px; border-radius: 50%;
+    background: var(--amber); flex-shrink: 0;
+    box-shadow: 0 0 0 3px rgba(217,119,6,.2);
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%,100% { box-shadow: 0 0 0 3px rgba(217,119,6,.2); }
+    50%      { box-shadow: 0 0 0 7px rgba(217,119,6,.07); }
+  }
+
+  .topbar-right { display: flex; align-items: center; gap: 20px; }
+
+  .notif-trigger {
+    position: relative; color: var(--ink); font-size: 20px;
+    text-decoration: none; width: 42px; height: 42px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 50%; border: 1.5px solid var(--border);
+    background: white; transition: border-color .2s, box-shadow .2s;
+  }
+
+  .notif-trigger:hover { border-color: var(--amber); box-shadow: 0 3px 12px rgba(217,119,6,.18); color: var(--rust); }
+
+  .notif-trigger .badge {
+    position: absolute; top: -4px; right: -4px;
+    font-size: 9px; background: #ef4444;
+    border: 2px solid white; border-radius: 99px; padding: 2px 5px;
+  }
+
+  .avatar-btn {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--amber), var(--rust));
+    color: white; font-family: 'Cormorant Garamond', serif;
+    font-size: 18px; font-weight: 700;
+    border: none; cursor: pointer;
+    box-shadow: 0 4px 14px rgba(180,83,9,.35);
+    transition: transform .2s, box-shadow .2s;
+  }
+
+  .avatar-btn:hover { transform: scale(1.07); box-shadow: 0 6px 20px rgba(180,83,9,.45); }
+
+  .dropdown-menu {
+    border: 1px solid var(--border); border-radius: 16px;
+    padding: 10px; min-width: 230px;
+    box-shadow: 0 24px 60px rgba(28,20,18,0.12);
+    background: white; animation: dropIn .18s ease;
+  }
+
+  @keyframes dropIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .dropdown-item {
+    border-radius: 10px; padding: 10px 14px;
+    font-family: Franklin Gothic Medium;
+    font-size: 13.5px; font-weight: 500; color: var(--ink);
+    transition: background .2s, color .2s, transform .2s;
+  }
+
+  .dropdown-item:hover { background: var(--amber-lt); color: var(--rust); transform: translateX(4px); }
+  .dropdown-item.logout-item { color: #dc2626; }
+  .dropdown-item.logout-item:hover { background: #fef2f2; color: #b91c1c; }
+  .dropdown-divider { border-color: var(--border); margin: 6px 0; }
+
+  /* ════════ COURSE HERO ════════ */
+  .course-hero {
+    position: relative; z-index: 1;
+    background: linear-gradient(135deg, var(--amber) 0%, var(--rust) 100%);
+    padding: 72px 48px 80px;
+    overflow: hidden;
+    color: white;
+  }
+
+  .course-hero::before {
+    content: '';
+    position: absolute; top: -80px; right: -80px;
+    width: 320px; height: 320px; border-radius: 50%;
+    background: rgba(255,255,255,0.08); pointer-events: none;
+  }
+
+  .course-hero::after {
+    content: '';
+    position: absolute; bottom: -60px; left: 60px;
+    width: 200px; height: 200px; border-radius: 50%;
+    background: rgba(255,255,255,0.05); pointer-events: none;
+  }
+
+  .course-hero-inner { max-width: 860px; margin: 0 auto; position: relative; z-index: 1; }
+
+  .course-category-tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: .16em; text-transform: uppercase;
+    background: rgba(255,255,255,0.18);
+    border: 1px solid rgba(255,255,255,0.3);
+    color: white; padding: 5px 14px; border-radius: 99px;
+    margin-bottom: 18px;
+  }
+
+  .course-hero h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(28px, 4vw, 44px);
+    font-weight: 700; line-height: 1.15;
+    margin-bottom: 20px;
+  }
+
+  .course-meta-pills {
+    display: flex; flex-wrap: wrap; gap: 10px;
+    margin-bottom: 24px;
+  }
+
+  .meta-pill {
+    display: inline-flex; align-items: center; gap: 7px;
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 99px; padding: 6px 14px;
+    font-size: 13px; font-weight: 500; color: white;
+  }
+
+  .course-price {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 38px; font-weight: 700;
+    display: flex; align-items: baseline; gap: 6px;
+  }
+
+  .course-price span { font-size: 18px; font-weight: 500; opacity: .8; }
+
+  /* ════════ PAGE BODY ════════ */
+  .page-body {
+    position: relative; z-index: 1;
+    max-width: 1060px;
+    margin: 0 auto;
+    padding: 48px 24px 80px;
+  }
+
+  /* ── Section title ── */
+  .section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px; font-weight: 700; color: var(--ink);
+    margin-bottom: 20px;
+    display: flex; align-items: center; gap: 12px;
+  }
+
+  .section-title::after {
+    content: ''; flex: 1; height: 1.5px;
+    background: var(--border); display: block;
+  }
+
+  /* ── About card ── */
+  .about-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 22px;
+    padding: 32px 36px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    margin-bottom: 40px;
+    position: relative;
+  }
+
+  .about-card::before {
+    content: ''; display: block; height: 4px;
+    background: linear-gradient(90deg, var(--amber), #f59e0b, var(--rust));
+    position: absolute; top: 0; left: 0; right: 0;
+  }
+
+  .about-text {
+    font-size: 15px; line-height: 1.85; color: #3a3330;
+  }
+
+  /* ── Module card ── */
+  .module-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    overflow: hidden;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow);
+    transition: transform .25s, box-shadow .25s;
+    animation: fadeUp .45s ease both;
+  }
+
+  .module-card:hover { transform: translateY(-4px); box-shadow: 0 20px 48px rgba(180,83,9,.11); }
+
+  .module-header {
+    display: flex; align-items: center; gap: 16px;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+    background: #fffbf2;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .module-num {
+    width: 36px; height: 36px; flex-shrink: 0;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--amber), var(--rust));
+    color: white;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 16px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 3px 10px rgba(180,83,9,.28);
+  }
+
+  .module-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px; font-weight: 700; color: var(--ink);
+    flex: 1;
+  }
+
+  .module-toggle { color: var(--muted); font-size: 13px; transition: transform .25s; }
+  .module-card.open .module-toggle { transform: rotate(180deg); }
+
+  .module-lectures {
+    padding: 0 24px;
+    max-height: 0; overflow: hidden;
+    transition: max-height .35s ease, padding .2s;
+  }
+
+  .module-card.open .module-lectures { max-height: 600px; padding: 16px 24px; }
+
+  .lecture-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px; color: var(--ink);
+    transition: color .2s;
+  }
+
+  .lecture-row:last-child { border-bottom: none; }
+  .lecture-row:hover { color: var(--rust); }
+
+  .lecture-icon {
+    width: 28px; height: 28px; flex-shrink: 0;
+    border-radius: 50%;
+    background: var(--amber-lt);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; color: var(--amber);
+  }
+
+  .lock-note {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12.5px; color: var(--muted);
+    margin-top: 14px;
+    background: #fffbf2;
+    border: 1px solid var(--border);
+    border-radius: 99px; padding: 5px 14px;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ════════ ENROLL SIDEBAR ════════ */
+  .enroll-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    position: sticky; top: 90px;
+  }
+
+  .enroll-card::before {
+    content: ''; display: block; height: 5px;
+    background: linear-gradient(90deg, var(--amber), #f59e0b, var(--rust));
+  }
+
+  .enroll-body { padding: 28px 28px 32px; }
+
+  .enroll-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px; font-weight: 700; color: var(--ink);
+    margin-bottom: 20px;
+  }
+
+  .enroll-feature {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13.5px; color: var(--ink);
+  }
+
+  .enroll-feature:last-of-type { border-bottom: none; margin-bottom: 4px; }
+
+  .enroll-feature i {
+    width: 30px; height: 30px; flex-shrink: 0;
+    border-radius: 50%; background: var(--amber-lt);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; color: var(--amber);
+  }
+
+  .btn-enroll {
+    display: block; width: 100%;
+    background: linear-gradient(135deg, var(--amber), var(--rust));
+    color: white; border: none;
+    padding: 14px 20px; border-radius: 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px; font-weight: 700;
+    text-align: center; text-decoration: none;
+    box-shadow: 0 6px 20px rgba(180,83,9,.32);
+    margin-top: 22px;
+    transition: transform .2s, box-shadow .2s;
+  }
+
+  .btn-enroll:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 28px rgba(180,83,9,.42);
+    color: white;
+  }
+
+  .enroll-guarantee {
+    text-align: center; margin-top: 14px;
+    font-size: 12px; color: var(--muted);
+    display: flex; align-items: center; justify-content: center; gap: 5px;
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 768px) {
+    .topbar { padding: 12px 20px; }
+    .course-hero { padding: 48px 24px 56px; }
+    .page-body { padding: 32px 16px 60px; }
+    .about-card { padding: 22px 20px; }
+    .enroll-card { position: static; margin-top: 32px; }
+  }
+  </style>
 </head>
 
 <body>
 
-    {% if user.is_authenticated and user.role == "student" %}
+{% if user.is_authenticated and user.role == "student" %}
+<!-- ════════ HEADER ════════ -->
+<nav class="topbar">
+  <a href="{% url 'student_dashboard' %}" class="brand">
+    <span class="dot"></span>
+    Speshway
+  </a>
 
-<div class="dashboard-header d-flex justify-content-between align-items-center px-4 py-3 bg-white shadow-sm">
-    <a href="{% url 'student_dashboard' %}" class="text-decoration-none text-dark">
-        <h3 class="m-0 fw-bold"><i class="fas fa-graduation-cap"></i> Bildung</h3>
-    </a>
-
-    <div class="d-flex align-items-center gap-3">
-
-        <div class="dropdown">
-            <button
-                class="btn rounded-circle shadow"
-                style="background:gray;color:white;width:45px;height:45px;"
-                type="button"
-                data-bs-toggle="dropdown"
-            >
-                {{ request.user.username|first|upper }}
-            </button>
-
-            <ul class="dropdown-menu dropdown-menu-end">
-                <li><a class="dropdown-item" href="{% url 'profile_view' %}">Profile</a></li>
-                <li><a class="dropdown-item" href="{% url 'student:my_courses' %}">My Courses</a></li>
-                <li><a class="dropdown-item" href="{% url 'student:student_upcoming_classes' %}">My Schedules</a></li>
-                <li><a class="dropdown-item" href="{% url 'student_my_activity' %}">My Activity</a></li>
-                <li><a class="dropdown-item" href="{% url 'student:my_certificates' %}">My Certificates</a></li>
-                <li><a class="dropdown-item" href="{% url 'student_notifications' %}">Notifications</a></li>
-                <li><a class="dropdown-item" href="#">Payments</a></li>
-                <li><a class="dropdown-item" href="#">Help & Support</a></li>
-                <li><a class="dropdown-item" href="{% url 'account_settings' %}">Account Settings</a></li>
-                <li><hr class="dropdown-divider"></li>
-                <li>
-                    <a class="dropdown-item text-danger" href="{% url 'logout_view' %}">
-                        Logout
-                    </a>
-                </li>
-            </ul>
-        </div>
+  
+    <div class="dropdown">
+      <button class="avatar-btn" data-bs-toggle="dropdown" aria-expanded="false">
+        {{ request.user.username|first|upper }}
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end">
+        <li><a class="dropdown-item" href="{% url 'profile_view' %}"><i class="fas fa-user fa-fw me-2" style="color:var(--amber)"></i>Profile</a></li>
+        <li><a class="dropdown-item" href="{% url 'student:my_courses' %}"><i class="fas fa-book fa-fw me-2" style="color:var(--amber)"></i>My Courses</a></li>
+        <li><a class="dropdown-item" href="{% url 'student:student_upcoming_classes' %}"><i class="fas fa-calendar fa-fw me-2" style="color:var(--amber)"></i>My Schedules</a></li>
+        <li><a class="dropdown-item" href="{% url 'student_my_activity' %}"><i class="fas fa-chart-line fa-fw me-2" style="color:var(--amber)"></i>My Activity</a></li>
+        <li><a class="dropdown-item" href="{% url 'student:my_certificates' %}"><i class="fas fa-certificate fa-fw me-2" style="color:var(--amber)"></i>My Certificates</a></li>
+        <li><a class="dropdown-item" href="{% url 'student_notifications' %}"><i class="fas fa-bell fa-fw me-2" style="color:var(--amber)"></i>Notifications</a></li>
+        <li><a class="dropdown-item" href="#"><i class="fas fa-credit-card fa-fw me-2" style="color:var(--amber)"></i>Payments</a></li>
+        <li><a class="dropdown-item" href="#"><i class="fas fa-circle-question fa-fw me-2" style="color:var(--amber)"></i>Help & Support</a></li>
+        <li><a class="dropdown-item" href="{% url 'account_settings' %}"><i class="fas fa-gear fa-fw me-2" style="color:var(--amber)"></i>Account Settings</a></li>
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item logout-item" href="{% url 'logout_view' %}"><i class="fas fa-arrow-right-from-bracket fa-fw me-2"></i>Sign Out</a></li>
+      </ul>
     </div>
-</div>
 
-{% else %}
-
-<nav class="navbar navbar-light bg-light px-4">
-<a href="/" class="text-decoration-none text-dark">
-        <h3 class="m-2 fw-bold"><i class="fas fa-graduation-cap"></i> Bildung</h3>
-    </a>
+  </div>
 </nav>
-
-
 {% endif %}
 
-<section class="course-header text-center">
-    <h1 class="fw-bold">{{ course.title }}</h1>
+<!-- ════════ COURSE HERO ════════ -->
+<section class="course-hero">
+  <div class="course-hero-inner">
 
-    <div class="mt-3">
-        <span>📚 {{ course.category|title }}</span>
-        <span>🎓 Beginner Friendly</span>
-        <span>🕒 Lifetime Access</span>
+    <div class="course-category-tag">
+      <i class="fas fa-tag"></i>
+      {{ course.category|title }}
     </div>
 
-    <h3 class="mt-4 fw-bold">₹{{ course.price }}</h3>
+    <h1>{{ course.title }}</h1>
 
-    <div class="course-stats mt-4">
-        <span>📦 {{ total_modules }} Modules</span>
-        <span>🎥 {{ total_lectures }} Lectures</span>
-        <span>📝 {{ total_quizzes }} Quizzes</span>
-        <span>📂 {{ total_assignments }} Assignments</span>
+    <div class="course-meta-pills">
+      <div class="meta-pill"><i class="fas fa-graduation-cap"></i> Beginner Friendly</div>
+      <div class="meta-pill"><i class="fas fa-infinity"></i> Lifetime Access</div>
+      <div class="meta-pill"><i class="fas fa-certificate"></i> Certificate Included</div>
+      <div class="meta-pill"><i class="fas fa-video"></i> Live Classes</div>
     </div>
+
+    <div class="course-price">
+      ₹{{ course.price }}
+      <span>one-time</span>
+    </div>
+
+  </div>
 </section>
 
-<div class="container my-5">
-    <div class="row">
+<!-- ════════ PAGE BODY ════════ -->
+<div class="page-body">
+  <div class="row g-4 align-items-start">
 
-        <div class="col-lg-8">
+    <!-- Left column -->
+    <div class="col-lg-8">
 
-            <section class="mb-5">
-                <h3 class="fw-bold mb-3">About this course</h3>
-                <p class="text-muted" style="line-height: 1.8;">
-                    {{ course.description }}
-                </p>
-            </section>
+      <!-- About -->
+      <h2 class="section-title">About this Course</h2>
+      <div class="about-card">
+        <p class="about-text">{{ course.description }}</p>
+      </div>
 
-            <section>
-                <h3 class="fw-bold mb-4">Course Curriculum</h3>
+      <!-- Curriculum -->
+      <h2 class="section-title">Course Curriculum</h2>
 
-                {% if modules %}
-                    {% for module in modules %}
-                        <div class="module-card">
+      {% if modules.exists %}
+        {% for module in modules %}
+        <div class="module-card" id="module-{{ forloop.counter }}" style="animation-delay:{{ forloop.counter0 }}0ms">
+          <div class="module-header" onclick="toggleModule('module-{{ forloop.counter }}')">
+            <div class="module-num">{{ forloop.counter }}</div>
+            <div class="module-title">{{ module.title }}</div>
+            <i class="fas fa-chevron-down module-toggle"></i>
+          </div>
 
-                            <div class="d-flex justify-content-between align-items-center">
-                                <h5 class="fw-semibold mb-0">
-                                    Module {{ forloop.counter }}
-                                </h5>
+          <div class="module-lectures">
+            {% if module.lectures.exists %}
+              {% for lecture in module.lectures.all %}
+              <div class="lecture-row">
+                <div class="lecture-icon"><i class="fas fa-play"></i></div>
+                {{ lecture.title }}
+              </div>
+              {% endfor %}
+            {% else %}
+              <p style="color:var(--muted);font-size:13.5px;padding:8px 0;">Lectures will be added soon.</p>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
 
-                                <span class="badge-soft">
-                                    {{ module.lectures.count }} Lectures
-                                </span>
-                            </div>
-
-                            {% if module.lectures.all %}
-                                <ul class="mt-3 ps-3">
-                                    {% for lecture in module.lectures.all %}
-                                        <li class="lecture-item">
-                                            ▶️ {{ lecture.title }}
-                                        </li>
-                                    {% endfor %}
-                                </ul>
-                            {% else %}
-                                <p class="text-muted mt-2">
-                                    Lectures will be added soon.
-                                </p>
-                            {% endif %}
-
-                        </div>
-                    {% endfor %}
-                {% else %}
-                    <p class="text-muted">Course curriculum will be published soon.</p>
-                {% endif %}
-
-                <p class="text-muted mt-3">
-                    🔒 Full access to videos, files, quizzes, and live sessions after enrollment.
-                </p>
-            </section>
-
+        <div class="mt-3">
+          <span class="lock-note">
+            <i class="fas fa-lock" style="color:var(--amber)"></i>
+            Full access unlocked after enrollment
+          </span>
         </div>
 
-        <div class="col-lg-4">
-
-            <div class="enroll-box">
-                <h4 class="fw-bold">Enroll in this course</h4>
-
-                <ul class="small text-muted ps-3 mt-3">
-                    <li>✔ Full lifetime access</li>
-                    <li>✔ Certificate of completion</li>
-                    <li>✔ Assignments & quizzes</li>
-                    <li>✔ Live classes (if scheduled)</li>
-                </ul>
-
-                {% if user.is_authenticated %}
-                    {% if user.role == "student" %}
-                        <a href="{% url 'student:enroll_course' course.id %}" 
-                           class="btn btn-success w-100 mt-3">
-                           Enroll Now
-                        </a>
-                    {% else %}
-                        <p class="text-muted mt-3">
-                            Login as a student to enroll.
-                        </p>
-                    {% endif %}
-                {% else %}
-                    <a href="{% url 'student_login' %}" 
-                       class="btn btn-primary w-100 mt-3">
-                        Login to Enroll
-                    </a>
-                {% endif %}
-
-            </div>
-
+      {% else %}
+        <div style="text-align:center;padding:48px 20px;color:var(--muted);">
+          <i class="fas fa-book-open" style="font-size:40px;color:var(--amber);opacity:.5;margin-bottom:12px;display:block;"></i>
+          <p style="font-size:15px;">Course curriculum will be published soon.</p>
         </div>
+      {% endif %}
 
     </div>
+
+    <!-- Right sidebar -->
+    <div class="col-lg-4">
+      <div class="enroll-card">
+        <div class="enroll-body">
+
+          <p class="enroll-title">Enroll in this Course</p>
+
+          <div class="enroll-feature">
+            <i class="fas fa-infinity"></i>
+            Full lifetime access
+          </div>
+          <div class="enroll-feature">
+            <i class="fas fa-certificate"></i>
+            Certificate of completion
+          </div>
+          <div class="enroll-feature">
+            <i class="fas fa-clipboard-check"></i>
+            Assignments & quizzes
+          </div>
+          <div class="enroll-feature">
+            <i class="fas fa-video"></i>
+            Live classes included
+          </div>
+          <div class="enroll-feature">
+            <i class="fas fa-headset"></i>
+            Instructor support
+          </div>
+
+          <a href="{% url 'student:enroll_course' course.id %}" class="btn-enroll">
+            <i class="fas fa-bolt me-2"></i>Enroll Now — ₹{{ course.price }}
+          </a>
+
+          <p class="enroll-guarantee">
+            <i class="fas fa-shield-halved" style="color:var(--amber)"></i>
+            30-day money-back guarantee
+          </p>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  function toggleModule(id) {
+    const card = document.getElementById(id);
+    card.classList.toggle('open');
+  }
+
+  // Open first module by default
+  const first = document.querySelector('.module-card');
+  if (first) first.classList.add('open');
+</script>
+
 </body>
 </html>

@@ -39,8 +39,8 @@ def signup_page(request):
         "instructor_form": InstructorSignUpForm(),
     })
 
-
 def student_signup(request):
+
     if request.method == "POST":
         form = StudentSignUpForm(request.POST)
 
@@ -62,18 +62,17 @@ def student_signup(request):
 
             messages.success(
                 request,
-                "✅ Account created! Please check your email to verify your account."
+                "Account created! Please check your email to verify your account."
             )
 
             return render(request, "users/check_email.html")
 
-        else:
-            messages.error(request, "Please correct the errors below.")
+        messages.error(request, "Please correct the errors below.")
 
-            return render(request, "users/signup_page.html", {
-                "student_form": form,
-                "instructor_form": InstructorSignUpForm(),
-            })
+        return render(request, "users/signup_page.html", {
+            "student_form": form,
+            "instructor_form": InstructorSignUpForm(),
+        })
 
     return redirect("signup_page")
 
@@ -138,6 +137,35 @@ def student_dashboard(request):
     else:
         average_progress = 0
 
+    continue_courses = []
+    completed_courses_count = 0
+
+    for enrollment in enrollments:
+        course = enrollment.course
+
+        course_lectures = Lecture.objects.filter(
+            module__course=course
+        ).count()
+
+        completed = LectureProgress.objects.filter(
+            student=user,
+            completed=True,
+            lecture__module__course=course
+        ).count()
+
+        if course_lectures > 0:
+            progress = round((completed / course_lectures) * 100)
+        else:
+            progress = 0
+
+        if progress == 100:
+            completed_courses_count += 1
+        else:
+            course.progress = progress
+            continue_courses.append(course)
+
+    in_progress_count = len(continue_courses)
+
     unread_notifications = Notification.objects.filter(
         user=user,
         is_read=False
@@ -173,14 +201,19 @@ def student_dashboard(request):
             "label": "Enrolled Courses",
         },
         {
+            "icon": "fas fa-play-circle",
+            "value": in_progress_count,
+            "label": "In Progress",
+        },
+        {
+            "icon": "fas fa-check-circle",
+            "value": completed_courses_count,
+            "label": "Completed",
+        },
+        {
             "icon": "fas fa-certificate",
             "value": certificates_count,
             "label": "Certificates Earned",
-        },
-        {
-            "icon": "fas fa-chart-line",
-            "value": f"{average_progress}%",
-            "label": "Learning Progress",
         },
     ]
 
@@ -188,10 +221,11 @@ def student_dashboard(request):
         "all_courses": all_courses,
         "recommended_courses": recommended_courses,
         "enrolled_course_ids": enrolled_course_ids,
+        "continue_courses": continue_courses,
+        "dashboard_stats": dashboard_stats,
         "unread_count": unread_count,
         "unread_notifications": unread_notifications,
         "popular_categories": popular_categories,
-        "dashboard_stats": dashboard_stats,
     }
 
     return render(request, "student/student_dashboard.html", context)
@@ -541,8 +575,8 @@ def mark_notification(request, notif_id):
 
 
 # --- Instructor --- #
-
 def instructor_signup(request):
+
     if request.method == "POST":
         form = InstructorSignUpForm(request.POST)
 
@@ -551,9 +585,7 @@ def instructor_signup(request):
             user.is_active = False
             user.save()
 
-            InstructorProfile.objects.create(
-                user=user,
-            )
+            InstructorProfile.objects.create(user=user)
 
             verification, _ = EmailVerification.objects.get_or_create(user=user)
 
@@ -566,18 +598,17 @@ def instructor_signup(request):
 
             messages.success(
                 request,
-                "✅ Account created! Please verify your email to activate your account."
+                "Account created! Please verify your email to activate your account."
             )
 
             return render(request, "users/check_email.html")
 
-        else:
-            messages.error(request, "Please correct the errors below.")
+        messages.error(request, "Please correct the errors below.")
 
-            return render(request, "users/signup_page.html", {
-                "student_form": StudentSignUpForm(),
-                "instructor_form": form,
-            })
+        return render(request, "users/signup_page.html", {
+            "student_form": StudentSignUpForm(),
+            "instructor_form": form,
+        })
 
     return redirect("signup_page")
 
@@ -1073,62 +1104,6 @@ def verify_email(request, role, token):
     )
 
 
-from django.contrib import messages
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth import update_session_auth_hash
-from django.core.mail import send_mail
-from django.conf import settings
-from django.shortcuts import render, redirect
-
-
-@login_required
-def account_settings(request):
-    if request.method == "POST":
-        current_password = request.POST.get("current_password")
-        new_password = request.POST.get("new_password")
-        confirm_password = request.POST.get("confirm_password")
-
-        user = request.user
-
-        # 1) Validate current password
-        if not user.check_password(current_password):
-            messages.error(request, "Current password is incorrect.")
-            return redirect("account_settings")
-
-        # 2) Validate new password match
-        if new_password != confirm_password:
-            messages.error(request, "New password and Confirm password do not match.")
-            return redirect("account_settings")
-
-        # 3) Update password
-        user.set_password(new_password)
-        user.save()
-
-        # 4) Keep user logged in after password change
-        update_session_auth_hash(request, user)
-
-        # 5) Send confirmation email
-        subject = "Password Changed Successfully"
-        message = f"""
-Hi {user.get_full_name() or user.username},
-Your account password has been changed successfully.
-If you did not perform this action, please contact support immediately.
-Regards,
-Bildung Platform Team
-        """.strip()
-
-        send_mail(
-            subject=subject,
-            message=message,
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[user.email],
-            fail_silently=False,
-        )
-
-        messages.success(request, "Password updated successfully. Confirmation email generated.")
-        return redirect("account_settings")
-
-    return render(request, "account_settings.html")
 @staff_member_required
 def admin_dashboard(request):
 

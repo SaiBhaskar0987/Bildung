@@ -7,7 +7,6 @@ urlpatterns = [
 
     # Instructor-only course management
     path('courses/add/', views.add_course, name='add_course'),
-    path("account-settings/", views.instructor_account_settings, name="account_settings"),
     path('courses/<int:course_id>/', views.course_detail, name='course_detail'),
      # ✅ ADD THIS LINE 👇
     path(

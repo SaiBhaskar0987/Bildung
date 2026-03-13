@@ -2,389 +2,603 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Speshway - Sign Up</title>
-
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <meta charset="UTF-8">
+  <title>Speshway — Create Account</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 
 <style>
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap");
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: "Poppins", sans-serif;
+:root {
+  --purple:    #7c3aed;
+  --purple-lt: #ede9fe;
+  --pink:      #ec4899;
+  --pink-lt:   #fce7f3;
+  --blue:      #3b82f6;
+  --blue-lt:   #dbeafe;
+  --orange:    #f97316;
+  --teal:      #14b8a6;
+  --teal-lt:   #ccfbf1;
+  --yellow:    #f59e0b;
+  --yellow-lt: #fef3c7;
+  --green:     #22c55e;
+  --green-lt:  #dcfce7;
+  --white:     #ffffff;
+  --bg:        #fdfcff;
+  --border:    #e8e4f0;
+  --text:      #1e1b2e;
+  --muted:     #6b7280;
+  --muted-lt:  #9ca3af;
 }
 
-body {
-  min-height: 100vh;
-  background: linear-gradient(to right, #CFDEF3, #E0EAFC);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+html, body {
+  min-height: 100%;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background: var(--bg);
+  display: flex; align-items: center; justify-content: center;
+  padding: 32px 16px;
 }
 
-.signup-container {
-  width: 100%;
-  max-width: 1050px;
-  display: flex;
-  border-radius: 25px;
+/* ════ ANIMATED SCENE (behind card) ════ */
+.scene {
+  position: fixed; inset: 0; z-index: 0; overflow: hidden;
+  background: linear-gradient(135deg, #f5f3ff 0%, #fdf4ff 45%, #fff1f5 75%, #f0fdfa 100%);
+}
+.scene::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image: radial-gradient(rgba(124,58,237,.16) 1px, transparent 1px);
+  background-size: 28px 28px;
+  mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
+  animation: gridBreath 8s ease-in-out infinite alternate;
+}
+@keyframes gridBreath { from{opacity:.4} to{opacity:.9} }
+
+/* Blobs */
+.blob { position: absolute; border-radius: 50%; filter: blur(72px); pointer-events: none; }
+.b1 { width: 580px; height: 580px; top: -180px; left: -150px; background: radial-gradient(circle, rgba(124,58,237,.22), transparent 65%); animation: fa 20s ease-in-out infinite alternate; }
+.b2 { width: 480px; height: 480px; bottom: -140px; right: -110px; background: radial-gradient(circle, rgba(236,72,153,.18), transparent 65%); animation: fb 24s ease-in-out infinite alternate; }
+.b3 { width: 340px; height: 340px; top: 40%; left: 52%; background: radial-gradient(circle, rgba(59,130,246,.14), transparent 65%); animation: fc 18s ease-in-out infinite alternate; }
+.b4 { width: 280px; height: 280px; bottom: 20%; left: 3%; background: radial-gradient(circle, rgba(20,184,166,.14), transparent 65%); animation: fd 22s ease-in-out infinite alternate; }
+@keyframes fa { from{transform:translate(0,0) scale(1)}    to{transform:translate(30px,22px) scale(1.08)} }
+@keyframes fb { from{transform:translate(0,0) scale(1)}    to{transform:translate(-24px,20px) scale(1.07)} }
+@keyframes fc { from{transform:translate(-50%,0) scale(1)} to{transform:translate(-50%,28px) scale(1.1)} }
+@keyframes fd { from{transform:translate(0,0) scale(1)}    to{transform:translate(20px,-26px) scale(1.07)} }
+
+/* Orbiting rings (behind card) */
+.ring {
+  position: absolute; border-radius: 50%; border: 1.5px solid; pointer-events: none;
+  top: 50%; left: 22%;
+}
+.ring-1 { width: 720px; height: 720px; transform: translate(-50%,-50%); border-color: rgba(124,58,237,.09); animation: cw 65s linear infinite; }
+.ring-2 { width: 500px; height: 500px; transform: translate(-50%,-50%); border-color: rgba(236,72,153,.09); animation: ccw 48s linear infinite; }
+.ring-3 { width: 300px; height: 300px; transform: translate(-50%,-50%); border-color: rgba(59,130,246,.11); animation: cw 32s linear infinite; }
+@keyframes cw  { to{ transform: translate(-50%,-50%) rotate(360deg); } }
+@keyframes ccw { to{ transform: translate(-50%,-50%) rotate(-360deg); } }
+
+/* Floating emoji orbs */
+.orb {
+  position: absolute; border-radius: 18px; pointer-events: none;
+  display: grid; place-items: center; font-size: 1.35rem;
+  background: rgba(255,255,255,.72); border: 1px solid rgba(255,255,255,.7);
+  box-shadow: 0 10px 32px rgba(0,0,0,.09); backdrop-filter: blur(6px);
+}
+.orb-1 { width: 54px; height: 54px; top: 16%; left: 7%;  animation: of1 7s ease-in-out infinite; }
+.orb-2 { width: 46px; height: 46px; top: 56%; left: 11%; animation: of2 9s ease-in-out infinite; }
+.orb-3 { width: 50px; height: 50px; top: 26%; left: 33%; animation: of3 6s ease-in-out infinite; }
+.orb-4 { width: 42px; height: 42px; top: 74%; left: 26%; animation: of4 8s ease-in-out infinite; }
+.orb-5 { width: 58px; height: 58px; top: 44%; left: 2%;  animation: of5 11s ease-in-out infinite; }
+@keyframes of1 { 0%,100%{transform:translateY(0) rotate(-4deg)}   50%{transform:translateY(-20px) rotate(5deg)} }
+@keyframes of2 { 0%,100%{transform:translateY(0) rotate(3deg)}    50%{transform:translateY(-15px) rotate(-4deg)} }
+@keyframes of3 { 0%,100%{transform:translateY(-5px) rotate(2deg)} 50%{transform:translateY(9px) rotate(-6deg)} }
+@keyframes of4 { 0%,100%{transform:translateY(4px) rotate(-2deg)} 50%{transform:translateY(-14px) rotate(5deg)} }
+@keyframes of5 { 0%,100%{transform:translateY(0) rotate(5deg)}    50%{transform:translateY(-22px) rotate(-4deg)} }
+
+/* Sparkle dots */
+.sp { position: absolute; border-radius: 50%; pointer-events: none; animation: spPop 3s ease-in-out infinite; }
+.sp1 { width:7px; height:7px; top:22%; left:19%; background:var(--purple); animation-delay:0s; }
+.sp2 { width:6px; height:6px; top:63%; left:5%;  background:var(--pink);   animation-delay:1.1s; }
+.sp3 { width:5px; height:5px; top:12%; left:38%; background:var(--blue);   animation-delay:.6s; }
+.sp4 { width:7px; height:7px; top:80%; left:21%; background:var(--teal);   animation-delay:1.8s; }
+.sp5 { width:6px; height:6px; top:48%; left:37%; background:var(--orange); animation-delay:.3s; }
+.sp6 { width:5px; height:5px; top:35%; left:28%; background:var(--yellow); animation-delay:2.4s; }
+@keyframes spPop {
+  0%,100%{ transform:scale(0); opacity:0; }
+  50%    { transform:scale(2); opacity:1; }
+}
+
+/* Rainbow top stripe */
+.rainbow-bar {
+  position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 200;
+  background: linear-gradient(90deg,#6366f1,#8b5cf6,#ec4899,#f59e0b,#10b981,#3b82f6,#6366f1);
+  background-size: 300% 100%;
+  animation: rbSlide 5s linear infinite;
+}
+@keyframes rbSlide { to { background-position: 300% 0%; } }
+
+/* ════ CARD ════ */
+.container {
+  position: relative; z-index: 10;
+  width: 1000px; max-width: 96vw;
+  height: 650px;
+  background: var(--white);
+  border: 1.5px solid rgba(124,58,237,.14);
+  border-radius: 28px;
+  display: grid; grid-template-columns: 1fr 1.45fr;
   overflow: hidden;
-  background: #ffffff;
-  box-shadow: 0 25px 60px rgba(0,0,0,0.15);
+  box-shadow: 0 0 0 6px rgba(124,58,237,.04), 0 40px 100px rgba(124,58,237,.18), 0 8px 24px rgba(236,72,153,.08);
+  animation: cardIn .7s cubic-bezier(.22,1,.36,1) both;
+}
+@keyframes cardIn {
+  from { opacity:0; transform: translateY(32px) scale(.96); }
+  to   { opacity:1; transform: translateY(0) scale(1); }
 }
 
-.welcome-section {
-  flex: 1;
-  padding: 50px 35px;
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  color: white;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+/* ════ LEFT PANEL ════ */
+.left {
+  padding: 52px 36px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 36px;
+  background: linear-gradient(150deg, #f0ebff 0%, #faf5ff 40%, #fdf2ff 70%, #fff0f7 100%);
+  border-right: 1.5px solid rgba(124,58,237,.1);
+  position: relative; overflow: hidden; text-align: center;
+}
+.left::before {
+  content: ''; position: absolute; top: -70px; left: -70px;
+  width: 260px; height: 260px; border-radius: 50%;
+  background: conic-gradient(from 0deg, rgba(99,102,241,.3), rgba(168,85,247,.22), rgba(236,72,153,.2), rgba(99,102,241,.3));
+  filter: blur(52px); opacity: .65; pointer-events: none;
+}
+.left::after {
+  content: ''; position: absolute; bottom: -50px; right: -50px;
+  width: 210px; height: 210px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(236,72,153,.2), transparent 70%);
+  filter: blur(44px); pointer-events: none;
 }
 
-.features {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 18px;
-  margin-top: 30px;
+/* Brand */
+.brand-link { text-decoration: none; color: inherit; position: relative; z-index: 2; }
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand-icon {
+  width: 48px; height: 48px; border-radius: 15px;
+  background: linear-gradient(135deg, var(--purple), var(--pink));
+  display: grid; place-items: center; font-size: 1.3rem; color: white;
+  box-shadow: 0 10px 28px rgba(124,58,237,.42);
+  animation: iconBob 4s ease-in-out infinite;
+}
+@keyframes iconBob {
+  0%,100%{ transform: translateY(0) rotate(-2deg); }
+  50%    { transform: translateY(-6px) rotate(2deg); }
+}
+.brand-name {
+  font-size: 1.4rem; font-weight: 800;
+  background: linear-gradient(135deg, var(--purple), var(--pink));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
 }
 
-.feature {
-  padding: 18px;
-  border-radius: 12px;
-  background: rgba(255,255,255,0.15);
+/* Central emblem */
+.emblem { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 16px; }
+
+.emblem-ring-wrap {
+  position: relative; width: 148px; height: 148px;
+  display: grid; place-items: center;
+}
+.emblem-ring-wrap::before,
+.emblem-ring-wrap::after {
+  content: ''; position: absolute; border-radius: 50%; border: 2px solid;
+}
+.emblem-ring-wrap::before { inset: 0; border-color: rgba(124,58,237,.22); animation: cw 14s linear infinite; }
+.emblem-ring-wrap::after  { inset: 18px; border-color: rgba(236,72,153,.18); animation: ccw 10s linear infinite; }
+
+.emblem-core {
+  width: 88px; height: 88px; border-radius: 26px;
+  background: linear-gradient(135deg, var(--purple), var(--pink));
+  display: grid; place-items: center; font-size: 2.4rem;
+  box-shadow: 0 14px 40px rgba(124,58,237,.48), 0 0 0 10px rgba(124,58,237,.07);
+  position: relative; z-index: 1;
+  animation: corePulse 3.5s ease-in-out infinite;
+}
+@keyframes corePulse {
+  0%,100%{ box-shadow: 0 14px 40px rgba(124,58,237,.48), 0 0 0 10px rgba(124,58,237,.07); }
+  50%    { box-shadow: 0 18px 54px rgba(124,58,237,.62), 0 0 0 18px rgba(124,58,237,.04); }
 }
 
-.form-section {
-  flex: 1;
-  padding: 45px 40px;
+/* Orbiting micro icons around emblem */
+.oi {
+  position: absolute; width: 36px; height: 36px; border-radius: 11px;
+  display: grid; place-items: center; font-size: .88rem;
+  background: white; border: 1.5px solid rgba(255,255,255,.9);
+  box-shadow: 0 5px 16px rgba(0,0,0,.1);
+}
+.oi-1 { top: -2px; left: 50%; transform: translateX(-50%); animation: oiT 4.0s 0.0s ease-in-out infinite; }
+.oi-2 { right: -4px; top: 50%; transform: translateY(-50%); animation: oiR 4.0s 1.0s ease-in-out infinite; }
+.oi-3 { bottom: -2px; left: 50%; transform: translateX(-50%); animation: oiT 4.0s 2.0s ease-in-out infinite; }
+.oi-4 { left: -4px; top: 50%; transform: translateY(-50%); animation: oiR 4.0s 3.0s ease-in-out infinite; }
+@keyframes oiT { 0%,100%{transform:translateX(-50%) scale(1)} 50%{transform:translateX(-50%) scale(1.2)} }
+@keyframes oiR { 0%,100%{transform:translateY(-50%) scale(1)} 50%{transform:translateY(-50%) scale(1.2)} }
+
+.emblem-title {
+  font-size: 1.55rem; font-weight: 800; color: var(--text); line-height: 1.2;
+}
+.emblem-title .grad {
+  background: linear-gradient(135deg, var(--purple), var(--pink));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.emblem-sub { font-size: 0.82rem; color: var(--muted); line-height: 1.6; max-width: 210px; }
+
+/* Features list */
+.features { display: flex; flex-direction: column; gap: 8px; width: 100%; position: relative; z-index: 2; }
+.feat {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 14px; border-radius: 13px;
+  background: rgba(255,255,255,.58); border: 1px solid rgba(124,58,237,.1);
+  backdrop-filter: blur(6px); transition: transform .2s, background .2s;
+  animation: featIn .5s cubic-bezier(.22,1,.36,1) both;
+}
+.feat:hover { transform: translateX(5px); background: rgba(255,255,255,.85); }
+.feat:nth-child(1){ animation-delay:.10s; }
+.feat:nth-child(2){ animation-delay:.20s; }
+.feat:nth-child(3){ animation-delay:.30s; }
+.feat:nth-child(4){ animation-delay:.40s; }
+@keyframes featIn {
+  from { opacity:0; transform: translateX(-14px); }
+  to   { opacity:1; transform: translateX(0); }
+}
+.feat-icon {
+  width: 34px; height: 34px; border-radius: 10px; flex-shrink: 0;
+  display: grid; place-items: center; font-size: 0.85rem;
+}
+.feat-text { text-align: left; }
+.feat-title { font-size: 0.82rem; font-weight: 700; color: var(--text); }
+.feat-sub   { font-size: 0.69rem; color: var(--muted-lt); font-weight: 500; margin-top: 1px; }
+
+/* ════ RIGHT PANEL ════ */
+.right {
+  padding: 32px 44px;
+  display: flex; flex-direction: column; justify-content: center;
+  background: var(--white); position: relative; overflow: hidden;
+}
+.right::before {
+  content: ''; position: absolute; top: -50px; right: -50px;
+  width: 220px; height: 220px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(168,85,247,.1), transparent 70%);
+  filter: blur(35px); pointer-events: none;
+}
+.right::after {
+  content: ''; position: absolute; bottom: -40px; left: -20px;
+  width: 180px; height: 180px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(236,72,153,.08), transparent 70%);
+  filter: blur(30px); pointer-events: none;
 }
 
+.r-head { text-align: center; margin-bottom: 18px; position: relative; z-index: 2; }
+.r-head h2 { font-size: 1.35rem; font-weight: 800; color: var(--text); margin-bottom: 5px; }
+.r-head p  { font-size: 0.8rem; color: var(--muted-lt); font-weight: 500; }
+
+/* Tabs */
 .tabs {
-  display: flex;
-  background: #f1f1f1;
-  border-radius: 50px;
-  padding: 5px;
-  margin-bottom: 25px;
+  display: flex; background: #f8f7ff; border: 1.5px solid var(--border);
+  border-radius: 14px; padding: 5px; gap: 5px; margin-bottom: 18px; position: relative; z-index: 2;
 }
-
-.tab {
-  flex: 1;
-  text-align: center;
-  padding: 10px;
-  border-radius: 50px;
-  cursor: pointer;
-  font-weight: 500;
-  transition: 0.3s;
+.tab-btn {
+  flex: 1; padding: 10px 14px; border-radius: 10px; border: none;
+  background: transparent; font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.88rem; font-weight: 700; color: var(--muted);
+  cursor: pointer; transition: all .22s; display: flex; align-items: center; justify-content: center; gap: 7px;
 }
+.tab-btn:hover { color: var(--purple); background: rgba(124,58,237,.06); }
+.tab-btn.active { background: linear-gradient(135deg, var(--purple), var(--pink)); color: white; box-shadow: 0 4px 14px rgba(124,58,237,.3); }
 
-.tab.active {
-  background: #2a5298;
-  color: white;
+/* Form panels */
+.form-panel { display: none; position: relative; z-index: 2; }
+.form-panel.active { display: block; animation: fadeUp .28s ease both; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+/* Alert */
+.form-alert {
+  display: flex; align-items: flex-start; gap: 10px;
+  background: #fef2f2; border: 1.5px solid #fecaca;
+  border-radius: 12px; padding: 11px 14px;
+  margin-bottom: 12px; font-size: 0.8rem; color: #991b1b; font-weight: 600;
 }
+.form-alert i { color: #ef4444; flex-shrink: 0; margin-top: 1px; }
 
-.form { display: none; }
-.form.active { display: block; }
-
-h3 {
-  margin-bottom: 15px;
-  color: #1e3c72;
+/* Fields */
+.fields-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; margin-bottom: 4px; }
+.field-full { grid-column: 1 / -1; }
+.field-group { display: flex; flex-direction: column; gap: 5px; }
+.field-label {
+  font-size: 0.68rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--muted); font-family: 'DM Mono', monospace;
 }
-
-.name-row {
-  display: flex;
-  gap: 15px;
+.field-wrap { position: relative; }
+.field-wrap .f-icon {
+  position: absolute; left: 13px; top: 50%; transform: translateY(-50%);
+  color: var(--muted-lt); font-size: 0.8rem; pointer-events: none; transition: color .2s;
 }
-
-.name-row .input-group {
-  flex: 1;
+.field-wrap:focus-within .f-icon { color: var(--purple); }
+.field-input {
+  width: 100%; height: 42px; padding: 0 40px 0 36px;
+  border: 1.5px solid var(--border); border-radius: 11px;
+  background: #fafafa; color: var(--text);
+  font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.88rem; font-weight: 500;
+  outline: none; transition: border-color .2s, background .2s, box-shadow .2s;
 }
+.field-input::placeholder { color: var(--muted-lt); }
+.field-input:focus { border-color: var(--purple); background: var(--white); box-shadow: 0 0 0 3px rgba(124,58,237,.1); }
 
-.input-group {
-  margin-bottom: 15px;
+.eye-btn {
+  position: absolute; right: 11px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; cursor: pointer;
+  color: var(--muted-lt); font-size: 0.8rem; padding: 3px;
+  display: flex; align-items: center; z-index: 2; transition: color .2s;
 }
+.eye-btn:hover { color: var(--purple); }
+.field-error { font-size: 0.68rem; color: #ef4444; font-weight: 700; }
 
-.input-group input,
-.input-group select {
-  width: 100%;
-  padding: 12px 14px;
-  border-radius: 10px;
-  border: 1px solid #ddd;
-  background: #f7f7f7;
-  transition: 0.3s;
+/* Submit */
+.btn-signup {
+  width: 100%; height: 46px; border: none; border-radius: 12px;
+  background: linear-gradient(135deg, var(--purple), var(--pink));
+  color: white; font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.95rem; font-weight: 700;
+  cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 9px;
+  box-shadow: 0 6px 22px rgba(124,58,237,.38); transition: all .22s;
+  margin-top: 14px; margin-bottom: 12px; position: relative; overflow: hidden;
 }
+.btn-signup::after { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg,rgba(255,255,255,.16),transparent); pointer-events: none; }
+.btn-signup:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(124,58,237,.48); }
+.btn-signup:active { transform: translateY(0); }
 
-.input-group input:focus,
-.input-group select:focus {
-  background: white;
-  border-color: #2a5298;
-  outline: none;
-}
+/* Divider */
+.divider { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; position: relative; z-index: 2; }
+.divider hr { flex: 1; border: none; border-top: 1.5px solid #f0eeff; }
+.divider span { font-size: 0.65rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--muted-lt); font-family: 'DM Mono', monospace; white-space: nowrap; }
 
-.btn-primary {
-  width: 100%;
-  padding: 13px;
-  border-radius: 10px;
-  border: none;
-  background: #2a5298;
-  color: white;
-  font-weight: 600;
-  cursor: pointer;
-  transition: 0.3s;
-}
-
-.btn-primary:hover {
-  background: #1e3c72;
-}
-
-.divider {
-  text-align: center;
-  margin: 20px 0;
-  position: relative;
-  font-weight: 600;
-  color: #555;
-}
-
-.divider::before,
-.divider::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  width: 40%;
-  height: 1px;
-  background: #ddd;
-}
-
-.divider::before { left: 0; }
-.divider::after { right: 0; }
-
-.divider span {
-  background: white;
-  padding: 0 10px;
-  position: relative;
-}
-
-.password-wrapper {
-  position: relative;
-}
-
-.password-wrapper input {
-  padding-right: 45px;
-}
-
-.toggle-password {
-  position: absolute;
-  right: 14px;
-  top: 50%;
-  transform: translateY(-50%);
-  cursor: pointer;
-  color: #666;
-  font-size: 16px;
-}
-
-.toggle-password:hover {
-  color: #2a5298;
-}
-
+/* Google */
 .btn-google {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  width: 100%;
-  padding: 12px;
-  border-radius: 10px;
-  background: #ffffff;
-  border: 1px solid #ddd;
-  font-weight: 500;
-  color: #444;
-  text-decoration: none;
-  transition: 0.3s;
+  width: 100%; height: 42px; border-radius: 12px;
+  border: 1.5px solid var(--border); background: var(--white);
+  color: var(--text); font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.88rem; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  text-decoration: none; transition: all .22s; position: relative; z-index: 2; margin-bottom: 12px;
 }
+.btn-google:hover { border-color: #ea4335; background: #fff5f5; transform: translateY(-2px); box-shadow: 0 8px 22px rgba(234,67,53,.14); }
+.g-icon { width: 18px; height: 18px; flex-shrink: 0; }
 
-.btn-google i {
-  color: #DB4437;
-  font-size: 18px;
-}
+/* Login link */
+.login-link { text-align: center; font-size: 0.82rem; color: var(--muted); font-weight: 500; position: relative; z-index: 2; }
+.login-link a { color: var(--purple); font-weight: 700; text-decoration: none; }
+.login-link a:hover { color: var(--pink); }
 
-.btn-google:hover {
-  background: #f5f5f5;
-  box-shadow: 0 5px 12px rgba(0,0,0,0.08);
-}
-
-.login-link {
-  margin-top: 12px;
-  text-align: center;
-}
-
-.login-link a {
-  color: #2a5298;
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.login-link a:hover {
-  text-decoration: underline;
-}
-
-@media (max-width: 900px) {
-  .signup-container {
-    flex-direction: column;
-  }
-
-  .name-row {
-    flex-direction: column;
-  }
+@media (max-width: 760px) {
+  html, body { padding: 0; align-items: flex-start; }
+  .container { grid-template-columns: 1fr; border-radius: 0; }
+  .left { display: none; }
+  .right { padding: 32px 20px; }
+  .fields-grid { grid-template-columns: 1fr; }
 }
 </style>
 </head>
-
 <body>
 
-<div class="signup-container">
+<div class="rainbow-bar"></div>
 
-  <div class="welcome-section">
-    <h2>Welcome to Speshway</h2>
-    <p>Join thousands of learners and instructors.</p>
+<div class="scene">
+  <div class="blob b1"></div><div class="blob b2"></div>
+  <div class="blob b3"></div><div class="blob b4"></div>
+  <div class="ring ring-1"></div><div class="ring ring-2"></div><div class="ring ring-3"></div>
+  <div class="orb orb-1">📚</div>
+  <div class="orb orb-2">🏆</div>
+  <div class="orb orb-3">✨</div>
+  <div class="orb orb-4">🚀</div>
+  <div class="orb orb-5">💡</div>
+  <div class="sp sp1"></div><div class="sp sp2"></div><div class="sp sp3"></div>
+  <div class="sp sp4"></div><div class="sp sp5"></div><div class="sp sp6"></div>
+</div>
+
+<div class="container">
+
+  <!-- LEFT -->
+  <div class="left">
+
+    <a href="{% url 'smart_home' %}" class="brand-link">
+      <div class="brand">
+        <div class="brand-icon">🎓</div>
+        <div class="brand-name">Speshway</div>
+      </div>
+    </a>
+
+    <div class="emblem">
+      <div class="emblem-ring-wrap">
+        <div class="emblem-core">🎓</div>
+        <div class="oi oi-1"><i class="fas fa-book" style="color:var(--blue)"></i></div>
+        <div class="oi oi-2"><i class="fas fa-check" style="color:var(--green)"></i></div>
+        <div class="oi oi-3"><i class="fas fa-star" style="color:var(--yellow)"></i></div>
+        <div class="oi oi-4"><i class="fas fa-bolt" style="color:var(--teal)"></i></div>
+      </div>
+      <div class="emblem-title">Join <span class="grad">thousands</span><br>of learners</div>
+      <div class="emblem-sub">Unlock expert-led courses and grow your skills every single day.</div>
+    </div>
 
     <div class="features">
-      <div class="feature"><i class="fas fa-graduation-cap"></i><h4>Learn</h4></div>
-      <div class="feature"><i class="fas fa-chalkboard-teacher"></i><h4>Teach</h4></div>
-      <div class="feature"><i class="fas fa-certificate"></i><h4>Certify</h4></div>
-      <div class="feature"><i class="fas fa-users"></i><h4>Connect</h4></div>
+      <div class="feat">
+        <div class="feat-icon" style="background:var(--blue-lt);color:var(--blue)"><i class="fas fa-infinity"></i></div>
+        <div class="feat-text"><div class="feat-title">Unlimited Course Access</div><div class="feat-sub">Learn at your own pace, anytime</div></div>
+      </div>
+      <div class="feat">
+        <div class="feat-icon" style="background:var(--purple-lt);color:var(--purple)"><i class="fas fa-robot"></i></div>
+        <div class="feat-text"><div class="feat-title">AI Study Assistant</div><div class="feat-sub">Personalized help when you need it</div></div>
+      </div>
+      <div class="feat">
+        <div class="feat-icon" style="background:var(--yellow-lt);color:var(--yellow)"><i class="fas fa-certificate"></i></div>
+        <div class="feat-text"><div class="feat-title">Verified Certificates</div><div class="feat-sub">Showcase your achievements</div></div>
+      </div>
+
     </div>
+
   </div>
 
-  <div class="form-section">
+  <!-- RIGHT -->
+  <div class="right">
+
+    <div class="r-head">
+      <h2>Create your account</h2>
+      <p>Choose your role and fill in the details below.</p>
+    </div>
 
     <div class="tabs">
-      <div class="tab active" data-tab="student">Student</div>
-      <div class="tab" data-tab="instructor">Instructor</div>
+      <button class="tab-btn active" data-tab="student"><i class="fas fa-user-graduate"></i> Student</button>
+      <button class="tab-btn" data-tab="instructor"><i class="fas fa-chalkboard-teacher"></i> Instructor</button>
     </div>
 
-    <div class="form active" id="student-form">
-      <h3>Student Sign Up</h3>
-
+    <!-- STUDENT FORM -->
+    <div class="form-panel active" id="tab-student">
       <form method="POST" action="{% url 'student_signup' %}">
         {% csrf_token %}
-
-        <div class="name-row">
-            <div class="input-group">
-                {{ student_form.first_name }}
+        {% if student_form.non_field_errors %}
+        <div class="form-alert"><i class="fas fa-circle-exclamation"></i><div>{{ student_form.non_field_errors }}</div></div>
+        {% endif %}
+        <div class="fields-grid">
+          <div class="field-group">
+            <label class="field-label" for="{{ student_form.first_name.id_for_label }}">First Name</label>
+            <div class="field-wrap">
+              <i class="fas fa-user f-icon"></i>
+              <input type="text" name="{{ student_form.first_name.html_name }}" id="{{ student_form.first_name.id_for_label }}" class="field-input" placeholder="" value="{{ student_form.first_name.value|default:'' }}">
             </div>
-            <div class="input-group">
-                {{ student_form.last_name }}
+            {% if student_form.first_name.errors %}<span class="field-error">{{ student_form.first_name.errors.0 }}</span>{% endif %}
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="{{ student_form.last_name.id_for_label }}">Last Name</label>
+            <div class="field-wrap">
+              <i class="fas fa-user f-icon"></i>
+              <input type="text" name="{{ student_form.last_name.html_name }}" id="{{ student_form.last_name.id_for_label }}" class="field-input" placeholder="" value="{{ student_form.last_name.value|default:'' }}">
             </div>
+            {% if student_form.last_name.errors %}<span class="field-error">{{ student_form.last_name.errors.0 }}</span>{% endif %}
+          </div>
+          <div class="field-group field-full">
+            <label class="field-label" for="{{ student_form.email.id_for_label }}">Email Address</label>
+            <div class="field-wrap">
+              <i class="fas fa-envelope f-icon"></i>
+              <input type="email" name="{{ student_form.email.html_name }}" id="{{ student_form.email.id_for_label }}" class="field-input" placeholder="" value="{{ student_form.email.value|default:'' }}">
+            </div>
+            {% if student_form.email.errors %}<span class="field-error">{{ student_form.email.errors.0 }}</span>{% endif %}
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="{{ student_form.password1.id_for_label }}">Password</label>
+            <div class="field-wrap">
+              <i class="fas fa-lock f-icon"></i>
+              <input type="password" name="{{ student_form.password1.html_name }}" id="{{ student_form.password1.id_for_label }}" class="field-input" placeholder="Min. 8 chars">
+              <button type="button" class="eye-btn" data-target="{{ student_form.password1.id_for_label }}"><i class="fas fa-eye"></i></button>
+            </div>
+            {% if student_form.password1.errors %}<span class="field-error">{{ student_form.password1.errors.0 }}</span>{% endif %}
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="{{ student_form.password2.id_for_label }}">Confirm</label>
+            <div class="field-wrap">
+              <i class="fas fa-lock f-icon"></i>
+              <input type="password" name="{{ student_form.password2.html_name }}" id="{{ student_form.password2.id_for_label }}" class="field-input" placeholder="Repeat">
+              <button type="button" class="eye-btn" data-target="{{ student_form.password2.id_for_label }}"><i class="fas fa-eye"></i></button>
+            </div>
+            {% if student_form.password2.errors %}<span class="field-error">{{ student_form.password2.errors.0 }}</span>{% endif %}
+          </div>
         </div>
-        
-        <div class="input-group">{{ student_form.email }}</div>
-        <div class="input-group password-wrapper">
-            {{ student_form.password1 }}
-            <span class="toggle-password" onclick="togglePassword(this)">
-                <i class="fas fa-eye"></i>
-            </span>
-        </div>
-
-        <div class="input-group password-wrapper">
-            {{ student_form.password2 }}
-            <span class="toggle-password" onclick="togglePassword(this)">
-                <i class="fas fa-eye"></i>
-            </span>
-        </div>
-
-        <button type="submit" class="btn-primary">Create Account</button>
+        <button type="submit" class="btn-signup"><i class="fas fa-rocket"></i> Create Student Account</button>
       </form>
-
-      <div class="divider"><span>OR</span></div>
-
+      <div class="divider"><hr><span>or continue with</span><hr></div>
       <a href="{% url 'google_oauth_entry' %}?type=student" class="btn-google">
-        <i class="fab fa-google"></i> Continue with Google
+        <svg class="g-icon" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+        Continue with Google
       </a>
-
-      <div class="login-link">
-        Already have an account?
-        <a href="{% url 'student_login' %}">Login</a>
-      </div>
+      <div class="login-link">Already have an account? <a href="{% url 'student_login' %}">Sign in →</a></div>
     </div>
 
-    <div class="form" id="instructor-form">
-      <h3>Instructor Sign Up</h3>
-
+    <!-- INSTRUCTOR FORM -->
+    <div class="form-panel" id="tab-instructor">
       <form method="POST" action="{% url 'instructor_signup' %}">
         {% csrf_token %}
-
-        <div class="name-row">
-            <div class="input-group">
-                {{ instructor_form.first_name }}
+        {% if instructor_form.non_field_errors %}
+        <div class="form-alert"><i class="fas fa-circle-exclamation"></i><div>{{ instructor_form.non_field_errors }}</div></div>
+        {% endif %}
+        <div class="fields-grid">
+          <div class="field-group">
+            <label class="field-label" for="{{ instructor_form.first_name.id_for_label }}">First Name</label>
+            <div class="field-wrap">
+              <i class="fas fa-user f-icon"></i>
+              <input type="text" name="{{ instructor_form.first_name.html_name }}" id="{{ instructor_form.first_name.id_for_label }}" class="field-input" placeholder="" value="{{ instructor_form.first_name.value|default:'' }}">
             </div>
-            <div class="input-group">
-                {{ instructor_form.last_name }}
+            {% if instructor_form.first_name.errors %}<span class="field-error">{{ instructor_form.first_name.errors.0 }}</span>{% endif %}
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="{{ instructor_form.last_name.id_for_label }}">Last Name</label>
+            <div class="field-wrap">
+              <i class="fas fa-user f-icon"></i>
+              <input type="text" name="{{ instructor_form.last_name.html_name }}" id="{{ instructor_form.last_name.id_for_label }}" class="field-input" placeholder="" value="{{ instructor_form.last_name.value|default:'' }}">
             </div>
+            {% if instructor_form.last_name.errors %}<span class="field-error">{{ instructor_form.last_name.errors.0 }}</span>{% endif %}
+          </div>
+          <div class="field-group field-full">
+            <label class="field-label" for="{{ instructor_form.email.id_for_label }}">Email Address</label>
+            <div class="field-wrap">
+              <i class="fas fa-envelope f-icon"></i>
+              <input type="email" name="{{ instructor_form.email.html_name }}" id="{{ instructor_form.email.id_for_label }}" class="field-input" placeholder="" value="{{ instructor_form.email.value|default:'' }}">
+            </div>
+            {% if instructor_form.email.errors %}<span class="field-error">{{ instructor_form.email.errors.0 }}</span>{% endif %}
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="{{ instructor_form.password1.id_for_label }}">Password</label>
+            <div class="field-wrap">
+              <i class="fas fa-lock f-icon"></i>
+              <input type="password" name="{{ instructor_form.password1.html_name }}" id="{{ instructor_form.password1.id_for_label }}" class="field-input" placeholder="Min. 8 chars">
+              <button type="button" class="eye-btn" data-target="{{ instructor_form.password1.id_for_label }}"><i class="fas fa-eye"></i></button>
+            </div>
+            {% if instructor_form.password1.errors %}<span class="field-error">{{ instructor_form.password1.errors.0 }}</span>{% endif %}
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="{{ instructor_form.password2.id_for_label }}">Confirm</label>
+            <div class="field-wrap">
+              <i class="fas fa-lock f-icon"></i>
+              <input type="password" name="{{ instructor_form.password2.html_name }}" id="{{ instructor_form.password2.id_for_label }}" class="field-input" placeholder="Repeat">
+              <button type="button" class="eye-btn" data-target="{{ instructor_form.password2.id_for_label }}"><i class="fas fa-eye"></i></button>
+            </div>
+            {% if instructor_form.password2.errors %}<span class="field-error">{{ instructor_form.password2.errors.0 }}</span>{% endif %}
+          </div>
         </div>
-        <div class="input-group">{{ instructor_form.email }}</div>
-        <div class="input-group password-wrapper">
-            {{ instructor_form.password1 }}
-            <span class="toggle-password" onclick="togglePassword(this)">
-                <i class="fas fa-eye"></i>
-            </span>
-        </div>
-
-        <div class="input-group password-wrapper">
-            {{ instructor_form.password2 }}
-            <span class="toggle-password" onclick="togglePassword(this)">
-                <i class="fas fa-eye"></i>
-            </span>
-        </div>
-
-        <button type="submit" class="btn-primary">Create Account</button>
+        <button type="submit" class="btn-signup"><i class="fas fa-chalkboard-teacher"></i> Create Instructor Account</button>
       </form>
-
-      <div class="divider"><span>OR</span></div>
-
+      <div class="divider"><hr><span>or continue with</span><hr></div>
       <a href="{% url 'google_oauth_entry' %}?type=instructor" class="btn-google">
-        <i class="fab fa-google"></i> Continue with Google
+        <svg class="g-icon" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+        Continue with Google
       </a>
-
-      <div class="login-link">
-        Already have an account?
-        <a href="{% url 'instructor_login' %}">Login</a>
-      </div>
+      <div class="login-link">Already have an account? <a href="{% url 'instructor_login' %}">Sign in →</a></div>
     </div>
 
   </div>
-
 </div>
 
 <script>
-document.querySelectorAll('.tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.form').forEach(f => f.classList.remove('active'));
-    tab.classList.add('active');
-    document.getElementById(tab.dataset.tab + '-form').classList.add('active');
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.form-panel').forEach(p => p.classList.remove('active'));
+      this.classList.add('active');
+      document.getElementById('tab-' + this.dataset.tab).classList.add('active');
+    });
   });
-});
 
-
-function togglePassword(element) {
-    const input = element.previousElementSibling;
-    const icon = element.querySelector("i");
-
-    if (input.type === "password") {
-        input.type = "text";
-        icon.classList.remove("fa-eye");
-        icon.classList.add("fa-eye-slash");
-    } else {
-        input.type = "password";
-        icon.classList.remove("fa-eye-slash");
-        icon.classList.add("fa-eye");
-    }
-}
+  document.querySelectorAll('.eye-btn').forEach(btn => {
+    btn.addEventListener('click', function () {
+      const input = document.getElementById(this.dataset.target);
+      const icon  = this.querySelector('i');
+      const show  = input.type === 'password';
+      input.type  = show ? 'text' : 'password';
+      icon.classList.toggle('fa-eye',       !show);
+      icon.classList.toggle('fa-eye-slash',  show);
+    });
+  });
 </script>
 
 </body>

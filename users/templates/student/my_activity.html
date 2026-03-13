@@ -1,358 +1,806 @@
-{% load static %}
+ 
+ {% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Activity </title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Activity — Speshway</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" type="text/css" href="{% static 'student_my_activity/style.css' %}">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 
+  <style>
+  :root {
+    --amber:    #d97706;
+    --amber-lt: #fef3c7;
+    --rust:     #b45309;
+    --cream:    #fffbf5;
+    --ink:      #1c1412;
+    --muted:    #7c6f67;
+    --border:   #e8ddd4;
+    --glass:    rgba(255,251,245,0.82);
+    --shadow:   0 8px 40px rgba(28,20,18,0.10);
+
+    /* Tab accent colours */
+    --teal:     #0d9488;
+    --teal-lt:  #ccfbf1;
+    --violet:   #7c3aed;
+    --violet-lt:#ede9fe;
+    --rose:     #e11d48;
+    --rose-lt:  #ffe4e6;
+    --sky:      #0284c7;
+    --sky-lt:   #e0f2fe;
+    --green:    #16a34a;
+    --green-lt: #dcfce7;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: Franklin Gothic Medium;
+    background: var(--cream);
+    color: var(--ink);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 85% 10%, #fde68a55 0%, transparent 60%),
+      radial-gradient(ellipse 40% 60% at 5% 90%,  #fcd34d33 0%, transparent 55%),
+      radial-gradient(ellipse 50% 40% at 50% 50%, #fff7ed   0%, transparent 80%);
+    pointer-events: none; z-index: 0;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    top: -120px; right: -120px;
+    width: 420px; height: 420px;
+    border: 1.5px solid rgba(217,119,6,0.18);
+    border-radius: 50%;
+    pointer-events: none; z-index: 0;
+    animation: spin 40s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ════════ HEADER ════════ */
+  .topbar {
+    position: sticky; top: 0; z-index: 999;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 48px;
+    background: var(--glass);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .brand {
+    font-family: Franklin Gothic Medium;
+    font-weight: 700; font-size: 26px;
+      color: var(--ink);
+    text-decoration: none;
+    display: flex; align-items: center; gap: 10px;
+  }
+
+  .brand .dot {
+    width: 9px; height: 9px; border-radius: 50%;
+    background: var(--amber); flex-shrink: 0;
+    box-shadow: 0 0 0 3px rgba(217,119,6,.2);
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%,100% { box-shadow: 0 0 0 3px rgba(217,119,6,.2); }
+    50%      { box-shadow: 0 0 0 7px rgba(217,119,6,.07); }
+  }
+
+  .topbar-right { display: flex; align-items: center; gap: 16px; }
+
+  .topbar-greeting {
+    font-size: 14px; font-weight: 500; color: var(--muted);
+  }
+
+  .topbar-greeting strong { color: var(--ink); }
+
+  .avatar-btn {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--amber), var(--rust));
+    color: white; font-family: 'Cormorant Garamond', serif;
+    font-size: 18px; font-weight: 700;
+    border: none; cursor: pointer;
+    box-shadow: 0 4px 14px rgba(180,83,9,.35);
+    transition: transform .2s, box-shadow .2s;
+  }
+
+  .avatar-btn:hover { transform: scale(1.07); box-shadow: 0 6px 20px rgba(180,83,9,.45); }
+
+  .dropdown-menu {
+    border: 1px solid var(--border); border-radius: 16px;
+    padding: 10px; min-width: 230px;
+    box-shadow: 0 24px 60px rgba(28,20,18,0.12);
+    background: white; animation: dropIn .18s ease;
+  }
+
+  @keyframes dropIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .dropdown-item {
+    border-radius: 10px; padding: 10px 14px;
+    font-size: 13.5px; font-weight: 500; color: var(--ink);
+    transition: background .2s, color .2s, transform .2s;
+  }
+
+  .dropdown-item:hover { background: var(--amber-lt); color: var(--rust); transform: translateX(4px); }
+  .dropdown-item.logout-item { color: #dc2626; }
+  .dropdown-item.logout-item:hover { background: #fef2f2; color: #b91c1c; }
+  .dropdown-divider { border-color: var(--border); margin: 6px 0; }
+
+  /* ════════ PAGE WRAP ════════ */
+  .page-wrap {
+    position: relative; z-index: 1;
+    max-width: 1060px;
+    margin: 52px auto 80px;
+    padding: 0 24px;
+    animation: fadeUp .55s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(22px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── Hero banner ── */
+  .activity-hero {
+    background: linear-gradient(135deg, var(--amber) 0%, var(--rust) 100%);
+    border-radius: 24px;
+    padding: 40px 44px;
+    margin-bottom: 36px;
+    position: relative; overflow: hidden;
+    color: white;
+  }
+
+  .activity-hero::before {
+    content: '';
+    position: absolute; top: -60px; right: -60px;
+    width: 260px; height: 260px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+  }
+
+  .activity-hero::after {
+    content: '';
+    position: absolute; bottom: -40px; right: 80px;
+    width: 140px; height: 140px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.06);
+  }
+
+  .activity-hero h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 34px; font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  .activity-hero p {
+    font-size: 15px; opacity: .85; margin: 0;
+  }
+
+  /* ── Stat cards ── */
+  .stats-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 18px; margin-bottom: 36px; }
+
+  .stat-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 24px 20px;
+    box-shadow: var(--shadow);
+    text-align: center;
+    transition: transform .3s, box-shadow .3s;
+    position: relative; overflow: hidden;
+  }
+
+  .stat-card::before {
+    content: ''; display: block; height: 4px;
+    position: absolute; top: 0; left: 0; right: 0;
+  }
+
+  .stat-card:nth-child(1)::before { background: linear-gradient(90deg, var(--amber), #f59e0b); }
+  .stat-card:nth-child(2)::before { background: linear-gradient(90deg, var(--teal), #14b8a6); }
+  .stat-card:nth-child(3)::before { background: linear-gradient(90deg, var(--violet), #a855f7); }
+  .stat-card:nth-child(4)::before { background: linear-gradient(90deg, var(--sky), #38bdf8); }
+
+  .stat-card:hover { transform: translateY(-5px); box-shadow: 0 20px 48px rgba(28,20,18,0.13); }
+
+  .stat-card .stat-icon {
+    font-size: 26px; margin-bottom: 10px;
+  }
+
+  .stat-card:nth-child(1) .stat-icon { color: var(--amber); }
+  .stat-card:nth-child(2) .stat-icon { color: var(--teal); }
+  .stat-card:nth-child(3) .stat-icon { color: var(--violet); }
+  .stat-card:nth-child(4) .stat-icon { color: var(--sky); }
+
+  .stat-card h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 36px; font-weight: 700; color: var(--ink);
+    margin-bottom: 4px; line-height: 1;
+  }
+
+  .stat-card p {
+    font-size: 12.5px; font-weight: 600;
+    letter-spacing: .08em; text-transform: uppercase;
+    color: var(--muted); margin: 0;
+  }
+
+  /* ── Tab bar ── */
+  .tab-bar {
+    display: flex; gap: 8px; flex-wrap: wrap;
+    margin-bottom: 28px;
+    padding: 6px;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    box-shadow: var(--shadow);
+  }
+
+  .tab-btn {
+    flex: 1; min-width: 110px;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    padding: 10px 14px;
+    border: none; border-radius: 12px;
+    background: transparent;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px; font-weight: 600;
+    color: var(--muted);
+    cursor: pointer;
+    transition: background .2s, color .2s, transform .15s;
+    white-space: nowrap;
+  }
+
+  .tab-btn:hover { background: var(--amber-lt); color: var(--rust); }
+
+  /* Active states — each tab gets its own accent */
+  .tab-btn.active[data-tab="courses-tab"]    { background: var(--amber-lt);  color: var(--rust);   }
+  .tab-btn.active[data-tab="quizzes-tab"]    { background: var(--violet-lt); color: var(--violet); }
+  .tab-btn.active[data-tab="attendance-tab"] { background: var(--teal-lt);   color: var(--teal);   }
+  .tab-btn.active[data-tab="history-tab"]    { background: var(--sky-lt);    color: var(--sky);    }
+  .tab-btn.active[data-tab="videos-tab"]     { background: var(--green-lt);  color: var(--green);  }
+  .tab-btn.active[data-tab="qna-tab"]        { background: var(--rose-lt);   color: var(--rose);   }
+
+  /* ── Content panel ── */
+  .tab-panel { display: none; animation: fadeUp .35s ease; }
+  .tab-panel.active { display: block; }
+
+  .panel-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+
+  .panel-card::before {
+    content: ''; display: block; height: 4px;
+  }
+
+  /* Panel stripe colours per tab */
+  #courses-tab    .panel-card::before { background: linear-gradient(90deg, var(--amber), #f59e0b, var(--rust)); }
+  #quizzes-tab    .panel-card::before { background: linear-gradient(90deg, var(--violet), #a855f7); }
+  #attendance-tab .panel-card::before { background: linear-gradient(90deg, var(--teal), #14b8a6); }
+  #history-tab    .panel-card::before { background: linear-gradient(90deg, var(--sky), #38bdf8); }
+  #videos-tab     .panel-card::before { background: linear-gradient(90deg, var(--green), #4ade80); }
+  #qna-tab        .panel-card::before { background: linear-gradient(90deg, var(--rose), #fb7185); }
+
+  .panel-body { padding: 32px 36px; }
+
+  .panel-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 26px; font-weight: 700; color: var(--ink);
+    margin-bottom: 24px;
+  }
+
+  /* ── Course progress item ── */
+  .course-item {
+    display: flex; align-items: center; gap: 20px;
+    padding: 18px 20px;
+    border: 1px solid var(--border);
+    border-radius: 16px; background: #fffbf2;
+    margin-bottom: 14px;
+    transition: box-shadow .2s;
+  }
+
+  .course-item:hover { box-shadow: 0 6px 24px rgba(180,83,9,.10); }
+
+  .course-item h4 {
+    font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 4px;
+  }
+
+  .course-item p { font-size: 13px; color: var(--muted); margin: 0; }
+
+  .progress-wrap { width: 180px; flex-shrink: 0; }
+
+  .progress-track {
+    height: 8px; background: var(--border);
+    border-radius: 99px; overflow: hidden; margin-bottom: 6px;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--amber), var(--rust));
+    border-radius: 99px;
+    transition: width .6s ease;
+  }
+
+  .progress-label {
+    font-size: 12px; font-weight: 600; color: var(--muted); text-align: right;
+  }
+
+  /* ── Tables ── */
+  .activity-table {
+    width: 100%; border-collapse: collapse; font-size: 14px;
+  }
+
+  .activity-table thead tr {
+    background: #fffbf2;
+    border-bottom: 2px solid var(--border);
+  }
+
+  .activity-table thead th {
+    padding: 12px 16px;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: .1em; text-transform: uppercase;
+    color: var(--muted); text-align: left;
+  }
+
+  .activity-table tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background .15s;
+  }
+
+  .activity-table tbody tr:last-child { border-bottom: none; }
+  .activity-table tbody tr:hover { background: #fffbf2; }
+
+  .activity-table td {
+    padding: 13px 16px; color: var(--ink); vertical-align: middle;
+  }
+
+  /* Status badges */
+  .badge-success {
+    background: var(--green-lt); color: var(--green);
+    font-size: 11.5px; font-weight: 700;
+    padding: 4px 10px; border-radius: 99px;
+    letter-spacing: .04em;
+  }
+
+  .badge-fail {
+    background: var(--rose-lt); color: var(--rose);
+    font-size: 11.5px; font-weight: 700;
+    padding: 4px 10px; border-radius: 99px;
+  }
+
+  .badge-active {
+    background: var(--amber-lt); color: var(--rust);
+    font-size: 11.5px; font-weight: 700;
+    padding: 4px 10px; border-radius: 99px;
+  }
+
+  /* ── Attendance mini stats ── */
+  .attend-stats {
+    display: grid; grid-template-columns: repeat(4,1fr); gap: 14px;
+    margin-bottom: 28px;
+  }
+
+  .attend-stat {
+    background: #fffbf2;
+    border: 1px solid var(--border);
+    border-radius: 16px; padding: 20px 16px; text-align: center;
+  }
+
+  .attend-stat h4 {
+    font-size: 11px; font-weight: 700;
+    letter-spacing: .1em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 8px;
+  }
+
+  .attend-stat .big-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 34px; font-weight: 700; color: var(--ink); line-height: 1;
+  }
+
+  /* ── Q&A items ── */
+  .qna-item {
+    padding: 20px;
+    border: 1px solid var(--border);
+    border-radius: 16px; background: #fffbf2;
+    margin-bottom: 14px;
+  }
+
+  .qna-question {
+    font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 6px;
+  }
+
+  .qna-meta {
+    font-size: 12.5px; color: var(--muted); margin-bottom: 12px;
+  }
+
+  .qna-replies {
+    padding-left: 16px;
+    border-left: 3px solid var(--amber);
+    margin-top: 10px;
+  }
+
+  .qna-reply-author {
+    font-size: 13px; font-weight: 700; color: var(--rust); margin-bottom: 2px;
+  }
+
+  .qna-reply-text { font-size: 14px; color: var(--ink); margin-bottom: 2px; }
+  .qna-reply-date { font-size: 11.5px; color: var(--muted); }
+
+  /* ── Empty state ── */
+  .empty-state {
+    text-align: center; padding: 48px 20px;
+    color: var(--muted);
+  }
+
+  .empty-state i { font-size: 42px; color: var(--amber); opacity: .5; margin-bottom: 14px; }
+  .empty-state p { font-size: 15px; margin-bottom: 14px; }
+
+  .btn-browse {
+    background: linear-gradient(135deg, var(--amber), var(--rust));
+    color: white; border: none;
+    padding: 10px 24px; border-radius: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px; font-weight: 600;
+    text-decoration: none;
+    display: inline-block;
+    box-shadow: 0 4px 14px rgba(180,83,9,.28);
+    transition: transform .2s, box-shadow .2s;
+  }
+
+  .btn-browse:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(180,83,9,.38); color: white; }
+
+  /* ── Footer ── */
+  .site-footer {
+    position: relative; z-index: 1;
+    border-top: 1px solid var(--border);
+    background: var(--glass);
+    backdrop-filter: blur(12px);
+    text-align: center;
+    padding: 22px;
+    font-size: 13px; color: var(--muted);
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 768px) {
+    .topbar { padding: 12px 20px; }
+    .stats-row { grid-template-columns: 1fr 1fr; }
+    .attend-stats { grid-template-columns: 1fr 1fr; }
+    .panel-body { padding: 20px 16px; }
+    .tab-btn { font-size: 12px; padding: 9px 10px; }
+  }
+
+  @media (max-width: 500px) {
+    .stats-row { grid-template-columns: 1fr; }
+    .attend-stats { grid-template-columns: 1fr; }
+  }
+  </style>
 </head>
+
 <body>
 
-<div class="dashboard-header d-flex justify-content-between align-items-center">
-    <a href="{% url 'student_dashboard' %}" class="text-decoration-none text-dark">
-        <h3 class="m-0 fw-bold">Speshway</h3>
-    </a>
+<!-- ════════ HEADER ════════ -->
+<nav class="topbar">
+  <a href="{% url 'student_dashboard' %}" class="brand">
+    <span class="dot"></span>
+    Speshway
+  </a>
 
-    <div class="d-flex align-items-center gap-3">
+  <div class="topbar-right">
 
-        <div class="dropdown">
-            <button class="btn rounded-circle shadow" style="background:gray;color:white;width:45px;height:45px;" type="button" data-bs-toggle="dropdown">
-                {{ request.user.username|first|upper }}
-            </button>
-            <ul class="dropdown-menu dropdown-menu-end">
-                <li><a class="dropdown-item" href="{% url 'profile_view' %}">Profile</a></li>
-                <li><a class="dropdown-item" href="{% url 'student:my_courses' %}">My Courses</a></li>
-                <li><a class="dropdown-item" href="{% url 'student:student_upcoming_classes' %}">My Schedules</a></li>
-                <li><a class="dropdown-item" href="{% url 'student_my_activity' %}">My activity</a></li>
-                <li><a class="dropdown-item" href="{% url 'student:my_certificates' %}">My Certificates</a></li>
-                <li><a class="dropdown-item" href="{% url 'student_notifications' %}">Notifications</a></li>
-                <li><a class="dropdown-item" href="#">Payments</a></li>
-                <li><a class="dropdown-item" href="#">Help & Support</a></li>
-                <li><a class="dropdown-item" href="{% url 'account_settings' %}">Account Settings</a></li>
-                <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item text-danger" href="{% url 'logout_view' %}">Logout</a></li>
-            </ul>
-        </div>
+    <div class="dropdown">
+      <button class="avatar-btn" data-bs-toggle="dropdown" aria-expanded="false">
+        {{ request.user.username|first|upper }}
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end">
+        <li><a class="dropdown-item" href="{% url 'profile_view' %}"><i class="fas fa-user fa-fw me-2" style="color:var(--amber)"></i>Profile</a></li>
+        <li><a class="dropdown-item" href="{% url 'student:my_courses' %}"><i class="fas fa-book fa-fw me-2" style="color:var(--amber)"></i>My Courses</a></li>
+        <li><a class="dropdown-item" href="{% url 'student:student_upcoming_classes' %}"><i class="fas fa-calendar fa-fw me-2" style="color:var(--amber)"></i>My Schedules</a></li>
+        <li><a class="dropdown-item" href="{% url 'student_my_activity' %}"><i class="fas fa-chart-line fa-fw me-2" style="color:var(--amber)"></i>My Activity</a></li>
+        <li><a class="dropdown-item" href="{% url 'student:my_certificates' %}"><i class="fas fa-certificate fa-fw me-2" style="color:var(--amber)"></i>My Certificates</a></li>
+        <li><a class="dropdown-item" href="{% url 'student_notifications' %}"><i class="fas fa-bell fa-fw me-2" style="color:var(--amber)"></i>Notifications</a></li>
+        <li><a class="dropdown-item" href="#"><i class="fas fa-credit-card fa-fw me-2" style="color:var(--amber)"></i>Payments</a></li>
+        <li><a class="dropdown-item" href="#"><i class="fas fa-circle-question fa-fw me-2" style="color:var(--amber)"></i>Help & Support</a></li>
+        <li><a class="dropdown-item" href="{% url 'account_settings' %}"><i class="fas fa-gear fa-fw me-2" style="color:var(--amber)"></i>Account Settings</a></li>
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item logout-item" href="{% url 'logout_view' %}"><i class="fas fa-arrow-right-from-bracket fa-fw me-2"></i>Sign Out</a></li>
+      </ul>
     </div>
-</div>
+  </div>
+</nav>
 
-<div class="activity-header">
-    <div class="container text-center">
-        <h1><i class="fas fa-chart-line me-2"></i>My Learning Activity</h1>
-        <p class="lead">Track your progress, attendance, and learning journey</p>
+<!-- ════════ PAGE ════════ -->
+<div class="page-wrap">
+
+  <!-- Hero -->
+  <div class="activity-hero">
+    <h1><i class="fas fa-chart-line me-2"></i>My Learning Activity</h1>
+    <p>Track your progress, attendance, and learning journey</p>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-icon"><i class="fas fa-book-open"></i></div>
+      <h3>{{ total_enrolled_courses }}</h3>
+      <p>Enrolled Courses</p>
     </div>
-</div>
-
-<div class="container mb-5">
-
-    <form method="get" class="mb-4">
-        <select name="course" class="form-select course-filter" onchange="this.form.submit()">
-            <option value="">All Courses</option>
-            {% for enroll in enrollments %}
-                <option value="{{ enroll.course.id }}"
-                    {% if selected_course and selected_course.id == enroll.course.id %}selected{% endif %}>
-                    {{ enroll.course.title }}
-                </option>
-            {% endfor %}
-        </select>
-    </form>
-
-    <div class="row mb-4">
-        <div class="col-md-3 mb-3">
-            <div class="stat-card">
-                <i class="fas fa-book-open"></i>
-                <h3>{{ total_enrolled_courses }}</h3>
-                <p>Enrolled Courses</p>
-            </div>
-        </div>
-
-        <div class="col-md-3 mb-3">
-            <div class="stat-card">
-                <i class="fas fa-check-circle"></i>
-                <h3>{{ total_completed_lectures }}</h3>
-                <p>Completed Lectures</p>
-            </div>
-        </div>
-
-        <div class="col-md-3 mb-3">
-            <div class="stat-card">
-                <i class="fas fa-chart-line"></i>
-                <h3>{{ overall_progress }}%</h3>
-                <p>Overall Progress</p>
-            </div>
-        </div>
-
-        <div class="col-md-3 mb-3">
-            <div class="stat-card">
-                <i class="fas fa-clock"></i>
-                <h3>12h</h3>
-                <p>Study Time</p>
-            </div>
-        </div>
+    <div class="stat-card">
+      <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+      <h3>{{ total_completed_lectures }}</h3>
+      <p>Completed Lectures</p>
     </div>
-
-    <div class="tab-buttons">
-        <button class="tab-button active" onclick="openTab(event, 'courses-tab')"><i class="fas fa-book me-2"></i>Courses & Progress</button>
-        <button class="tab-button" onclick="openTab(event, 'quizzes-tab')"><i class="fas fa-list-check me-2"></i>Quizzes</button>
-        <button class="tab-button" onclick="openTab(event, 'attendance-tab')"><i class="fas fa-user-check me-2"></i>Attendance</button>
-        <button class="tab-button" onclick="openTab(event, 'history-tab')"><i class="fas fa-history me-2"></i>Login History</button>
-        <button class="tab-button" onclick="openTab(event, 'qna-tab')"><i class="fas fa-question-circle me-2"></i>Q&A Activity</button>
-        <button class="tab-button" onclick="openTab(event, 'feedback-tab')"><i class="fas fa-comment-dots me-2"></i>Feedback</button>
-      
+    <div class="stat-card">
+      <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
+      <h3>{{ overall_progress }}%</h3>
+      <p>Overall Progress</p>
     </div>
+    <div class="stat-card">
+      <div class="stat-icon"><i class="fas fa-clock"></i></div>
+      <h3>12h</h3>
+      <p>Study Time</p>
+    </div>
+  </div>
 
-    <div id="courses-tab" class="tab-content active">
-        <h3>Enrolled Courses & Progress</h3>
+  <!-- Tab bar -->
+  <div class="tab-bar">
+    <button class="tab-btn active" data-tab="courses-tab">
+      <i class="fas fa-book"></i> Courses
+    </button>
+    <button class="tab-btn" data-tab="quizzes-tab">
+      <i class="fas fa-list-check"></i> Quizzes
+    </button>
+    <button class="tab-btn" data-tab="attendance-tab">
+      <i class="fas fa-user-check"></i> Attendance
+    </button>
+    <button class="tab-btn" data-tab="history-tab">
+      <i class="fas fa-history"></i> Login History
+    </button>
+    <button class="tab-btn" data-tab="videos-tab">
+      <i class="fas fa-play-circle"></i> Videos
+    </button>
+    <button class="tab-btn" data-tab="qna-tab">
+      <i class="fas fa-comments"></i> Q&A
+    </button>
+    <button class="tab-btn" data-tab="feedback-tab"><i class="fas fa-comment-dots me-2"></i>Feedback</button>
+  </div>
+
+  <!-- ── COURSES TAB ── -->
+  <div id="courses-tab" class="tab-panel active">
+    <div class="panel-card">
+      <div class="panel-body">
+        <p class="panel-title">Enrolled Courses & Progress</p>
 
         {% for progress in course_progress %}
         <div class="course-item">
-            <div class="course-details flex-grow-1">
-                <h4>{{ progress.course.title }}</h4>
-                <p class="mb-1">Instructor: <strong>{{ progress.course.instructor.get_full_name }}</strong></p>
-                <p class="mb-0">Progress: <strong>{{ progress.completed_lectures }}/{{ progress.total_lectures }} lectures</strong></p>
+          <div class="flex-grow-1">
+            <h4>{{ progress.course.title }}</h4>
+            <p>Instructor: {{ progress.course.instructor.get_full_name }}</p>
+            <p>{{ progress.completed_lectures }} / {{ progress.total_lectures }} lectures</p>
+          </div>
+          <div class="progress-wrap">
+            <div class="progress-track">
+              <div class="progress-fill" style="width:{{ progress.progress_percent }}%"></div>
             </div>
-
-            <div class="progress-container" style="width: 200px;">
-                <div class="progress-bar" style="width: {{ progress.progress_percent }}%;"></div>
-                <span class="progress-text">{{ progress.progress_percent }}% Complete</span>
-            </div>
+            <div class="progress-label">{{ progress.progress_percent }}% complete</div>
+          </div>
         </div>
         {% empty %}
-        <div class="text-center py-4">
-            <i class="fas fa-book fa-3x text-muted mb-3"></i>
-            <p class="text-muted">You haven't enrolled in any courses yet.</p>
-            <a href="{% url 'courses:browse_courses' %}" class="btn btn-primary">Browse Courses</a>
+        <div class="empty-state">
+          <i class="fas fa-book-open"></i>
+          <p>You haven't enrolled in any courses yet.</p>
+          <a href="{% url 'courses:browse_courses' %}" class="btn-browse">Browse Courses</a>
         </div>
         {% endfor %}
 
-        <h3 class="mt-5">Recent Video Progress</h3>
-
         {% if recent_videos %}
-        <table class="activity-table">
+        <p class="panel-title mt-5">Recent Video Progress</p>
+        <div style="overflow-x:auto;">
+          <table class="activity-table">
             <thead>
-                <tr>
-                    <th>Video Title</th>
-                    <th>Course</th>
-                    <th>Status</th>
-                    <th>Last Watched</th>
-                </tr>
+              <tr>
+                <th>Video Title</th><th>Course</th><th>Status</th><th>Last Watched</th>
+              </tr>
             </thead>
             <tbody>
-                {% for video in recent_videos %}
-                <tr>
-                    <td>{{ video.lecture.title }}</td>
-                    <td>{{ video.lecture.module.course.title }}</td>
-                    <td class="status-success">Completed</td>
-                    <td>{{ video.updated_at|date:"Y-m-d" }}</td>
-                </tr>
-                {% endfor %}
+              {% for video in recent_videos %}
+              <tr>
+                <td>{{ video.lecture.title }}</td>
+                <td>{{ video.lecture.module.course.title }}</td>
+                <td><span class="badge-success">Completed</span></td>
+                <td>{{ video.updated_at|date:"Y-m-d" }}</td>
+              </tr>
+              {% endfor %}
             </tbody>
-        </table>
-        {% else %}
-        <div class="text-center py-4">
-            <i class="fas fa-play-circle fa-3x text-muted mb-3"></i>
-            <p class="text-muted">No video progress yet.</p>
+          </table>
         </div>
         {% endif %}
+      </div>
     </div>
+  </div>
 
-    <div id="quizzes-tab" class="tab-content">
-        <h3>Quiz Activity</h3>
+  <!-- ── QUIZZES TAB ── -->
+  <div id="quizzes-tab" class="tab-panel">
+    <div class="panel-card">
+      <div class="panel-body">
+        <p class="panel-title">Quiz Activity</p>
         {% if quiz_activity %}
-        <table class="activity-table">
+        <div style="overflow-x:auto;">
+          <table class="activity-table">
             <thead>
-                <tr>
-                    <th>Quiz</th>
-                    <th>Course</th>
-                    <th>Score</th>
-                    <th>Status</th>
-                    <th>Attempted On</th>
-                </tr>
+              <tr><th>Quiz</th><th>Course</th><th>Score</th><th>Status</th><th>Attempted On</th></tr>
             </thead>
             <tbody>
-                {% for q in quiz_activity %}
-                <tr>
-                    <td>{{ q.quiz.title }}</td>
-                    <td>{{ q.quiz.course.title }}</td>
-                    <td>
-                        {% if q.score is not None %}
-                        {{ q.score }}
-                        {% else %}
-                        —
-                        {% endif %}
-                    </td>
-                    <td class="status-success">
-                        {% if q.completed %}
-                        Completed
-                        {% else %}
-                        Attempted
-                        {% endif %}
-                    </td>
-                    <td>{{ q.submitted_at|date:"Y-m-d H:i" }}</td>
-                </tr>
-                {% endfor %}
+              {% for q in quiz_activity %}
+              <tr>
+                <td>{{ q.quiz.title }}</td>
+                <td>{{ q.quiz.course.title }}</td>
+                <td>{% if q.score is not None %}{{ q.score }}{% else %}—{% endif %}</td>
+                <td><span class="badge-success">{% if q.completed %}Completed{% else %}Attempted{% endif %}</span></td>
+                <td>{{ q.submitted_at|date:"Y-m-d H:i" }}</td>
+              </tr>
+              {% endfor %}
             </tbody>
-        </table>
+          </table>
+        </div>
         {% else %}
-        <div class="text-center py-4">
-            <i class="fas fa-list-check fa-3x text-muted mb-3"></i>
-            <p class="text-muted">You haven't attempted any quizzes yet.</p>
+        <div class="empty-state">
+          <i class="fas fa-list-check"></i>
+          <p>You haven't attempted any quizzes yet.</p>
         </div>
         {% endif %}
+      </div>
     </div>
+  </div>
 
-    <div id="attendance-tab" class="tab-content">
-        <h3>Attendance Overview</h3>
-
-        <div class="row mt-4">
-            <div class="col-md-3 mb-3">
-                <div class="stat-card">
-                    <h4>Total Classes</h4>
-                    <p class="big-number">{{ attendance_data.total_classes }}</p>
-                </div>
-            </div>
-
-            <div class="col-md-3 mb-3">
-                <div class="stat-card">
-                    <h4>Classes Attended</h4>
-                    <p class="big-number">{{ attendance_data.classes_attended }}</p>
-                </div>
-            </div>
-
-            <div class="col-md-3 mb-3">
-                <div class="stat-card">
-                    <h4>Attendance %</h4>
-                    <p class="big-number">{{ attendance_data.attendance_percentage }}%</p>
-                </div>
-            </div>
-
-            <div class="col-md-3 mb-3">
-                <div class="stat-card">
-                    <h4>Absences</h4>
-                    <p class="big-number">{{ attendance_data.absences }}</p>
-                </div>
-            </div>
+  <!-- ── ATTENDANCE TAB ── -->
+  <div id="attendance-tab" class="tab-panel">
+    <div class="panel-card">
+      <div class="panel-body">
+        <p class="panel-title">Attendance Overview</p>
+        <div class="attend-stats">
+          <div class="attend-stat">
+            <h4>Total Classes</h4>
+            <div class="big-num">{{ attendance_data.total_classes }}</div>
+          </div>
+          <div class="attend-stat">
+            <h4>Attended</h4>
+            <div class="big-num">{{ attendance_data.classes_attended }}</div>
+          </div>
+          <div class="attend-stat">
+            <h4>Attendance %</h4>
+            <div class="big-num">{{ attendance_data.attendance_percentage }}%</div>
+          </div>
+          <div class="attend-stat">
+            <h4>Absences</h4>
+            <div class="big-num">{{ attendance_data.absences }}</div>
+          </div>
         </div>
 
-        <h3 class="mt-4">Live Classes Joined</h3>
-
-        <table class="activity-table">
+        <p class="panel-title">Live Classes Joined</p>
+        <div style="overflow-x:auto;">
+          <table class="activity-table">
             <thead>
-                <tr>
-                    <th>Class Title</th>
-                    <th>Date & Time</th>
-                    <th>Status</th>
-                    <th>Duration</th>
-                </tr>
+              <tr><th>Class Title</th><th>Date & Time</th><th>Status</th><th>Duration</th></tr>
             </thead>
             <tbody>
-                {% for class in attendance_data.live_classes %}
-                <tr>
-                    <td>{{ class.title }}</td>
-                    <td>{{ class.date_time }}</td>
-                    <td class="{% if class.status == 'Joined' %}status-success{% else %}status-failure{% endif %}">
-                        {{ class.status }}
-                    </td>
-                    <td>{{ class.duration }}</td>
-                </tr>
-                {% endfor %}
+              {% for class in attendance_data.live_classes %}
+              <tr>
+                <td>{{ class.title }}</td>
+                <td>{{ class.date_time }}</td>
+                <td>
+                  {% if class.status == 'Joined' %}
+                    <span class="badge-success">Joined</span>
+                  {% else %}
+                    <span class="badge-fail">{{ class.status }}</span>
+                  {% endif %}
+                </td>
+                <td>{{ class.duration }}</td>
+              </tr>
+              {% endfor %}
             </tbody>
-        </table>
+          </table>
+        </div>
+      </div>
     </div>
+  </div>
 
-    <div id="history-tab" class="tab-content">
-    <h3>Login History</h3>
-
-    <table class="activity-table">
-        <thead>
-            <tr>
-                <th>Login Date</th>
-                <th>Login Time</th>
-                <th>Status</th>
-                <th>Device</th>
-                <th>Logout Time</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for login in login_history %}
-            <tr>
+  <!-- ── LOGIN HISTORY TAB ── -->
+  <div id="history-tab" class="tab-panel">
+    <div class="panel-card">
+      <div class="panel-body">
+        <p class="panel-title">Login History</p>
+        <div style="overflow-x:auto;">
+          <table class="activity-table">
+            <thead>
+              <tr><th>Date</th><th>Login</th><th>Status</th><th>Device</th><th>Logout</th></tr>
+            </thead>
+            <tbody>
+              {% for login in login_history %}
+              <tr>
                 <td>{{ login.login_time|date:"Y-m-d" }}</td>
                 <td>{{ login.login_time|date:"H:i" }}</td>
-
-                <td class="{% if login.status == 'Success' %}status-success{% else %}status-failure{% endif %}">
-                    {{ login.status }}
-                </td>
-
                 <td>
-                    {% if login.device %}
-                        {{ login.device }}
-                    {% else %}
-                        <span class="text-muted">Unknown Device</span>
-                    {% endif %}
+                  {% if login.status == 'Success' %}
+                    <span class="badge-success">Success</span>
+                  {% else %}
+                    <span class="badge-fail">{{ login.status }}</span>
+                  {% endif %}
                 </td>
-
+                <td>{{ login.device|default:"Unknown Device" }}</td>
                 <td>
-    {% if forloop.first and not login.logout_time %}
-        <span class="text-warning">Active</span>
-    {% elif login.logout_time %}
-        {{ login.logout_time|date:"H:i" }}
-    {% else %}
-        <span class="text-muted">—</span>
-    {% endif %}
-</td>
-
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="5" class="text-center text-muted p-3">
-                    No login history found.
+                  {% if forloop.first and not login.logout_time %}
+                    <span class="badge-active">Active</span>
+                  {% elif login.logout_time %}
+                    {{ login.logout_time|date:"H:i" }}
+                  {% else %}
+                    <span style="color:var(--muted)">—</span>
+                  {% endif %}
                 </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
+              </tr>
+              {% empty %}
+              <tr><td colspan="5" class="text-center" style="color:var(--muted);padding:24px;">No login history found.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
 
-    <div id="qna-tab" class="tab-content">
-    <h3>Q&A Activity</h3>
-
-    {% for qna in qna_activity %}
-    <div class="qna-item">
-        <p class="fw-bold">Q: {{ qna.question }}</p>
-        <p class="text-muted">
-            Course: {{ qna.lecture.module.course.title }} |
+  <!-- ── Q&A TAB ── -->
+  <div id="qna-tab" class="tab-panel">
+    <div class="panel-card">
+      <div class="panel-body">
+        <p class="panel-title">Q&A Activity</p>
+        {% for qna in qna_activity %}
+        <div class="qna-item">
+          <p class="qna-question">Q: {{ qna.question }}</p>
+          <p class="qna-meta">
+            Course: {{ qna.lecture.module.course.title }} &nbsp;·&nbsp;
             Posted: {{ qna.created_at|date:"Y-m-d" }}
-        </p>
-
-        {% if qna.replies.all %}
-            <div class="mt-2 ps-3 border-start border-2">
-                {% for reply in qna.replies.all %}
-                    <p class="text-primary fw-bold">
-                        {{ reply.user.get_full_name }} replied:
-                    </p>
-                    <p>{{ reply.reply }}</p>
-                    <p class="small text-muted">
-                        {{ reply.created_at|date:"Y-m-d H:i" }}
-                    </p>
-                {% endfor %}
-            </div>
-        {% endif %}
+          </p>
+          {% if qna.replies.all %}
+          <div class="qna-replies">
+            {% for reply in qna.replies.all %}
+            <p class="qna-reply-author">{{ reply.user.get_full_name }} replied:</p>
+            <p class="qna-reply-text">{{ reply.reply }}</p>
+            <p class="qna-reply-date">{{ reply.created_at|date:"Y-m-d H:i" }}</p>
+            {% endfor %}
+          </div>
+          {% endif %}
+        </div>
+        {% empty %}
+        <div class="empty-state">
+          <i class="fas fa-comments"></i>
+          <p>No Q&A activity yet.</p>
+        </div>
+        {% endfor %}
+      </div>
     </div>
-    {% empty %}
-    <div class="text-center py-4">
-        <i class="fas fa-question-circle fa-3x text-muted mb-3"></i>
-        <p class="text-muted">No Q&A activity yet.</p>
-    </div>
-    {% endfor %}
-</div>
+  </div>
 
-<div id="feedback-tab" class="tab-content">
-    <h3>Instructor Feedback</h3>
+
+    <div id="feedback-tab" class="tab-panel">
+    <div class="panel-card">
+      <div class="panel-body">
+    <p class="panel-title">Feedback</p>
 
     {% if feedback_activity %}
         {% for fb in feedback_activity %}
@@ -387,23 +835,19 @@
     {% endif %}
 </div>
 </div>
+</div>
 
-<footer class="bg-light py-4 mt-5">
-    <div class="container text-center">
-        <p class="mb-0">&copy; 2025 Speshway. All rights reserved.</p>
-    </div>
-</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
 <script>
-    function openTab(evt, tabName) {
-        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
-
-        document.getElementById(tabName).classList.add('active');
-        evt.currentTarget.classList.add('active');
-    }
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(btn.dataset.tab).classList.add('active');
+    });
+  });
 </script>
 
 </body>

@@ -3,747 +3,960 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Bildung - Home</title>
+  <title>Speshway — Learn Anything</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #fdfcff;
+  --surface:   #ffffff;
+  --border:    #e8e4f0;
+  --purple:    #7c3aed;
+  --purple-lt: #ede9fe;
+  --pink:      #ec4899;
+  --pink-lt:   #fce7f3;
+  --blue:      #3b82f6;
+  --blue-lt:   #dbeafe;
+  --teal:      #14b8a6;
+  --teal-lt:   #ccfbf1;
+  --orange:    #f97316;
+  --orange-lt: #ffedd5;
+  --yellow:    #f59e0b;
+  --yellow-lt: #fef3c7;
+  --green:     #22c55e;
+  --green-lt:  #dcfce7;
+  --text:      #1e1b2e;
+  --muted:     #6b7280;
+  --muted-lt:  #9ca3af;
+  --card-shadow: 0 4px 24px rgba(124,58,237,0.08);
+  --card-shadow-hover: 0 12px 40px rgba(124,58,237,0.18);
+}
+
+html { scroll-behavior: smooth; }
 
 body {
-  font-family: 'Poppins', sans-serif;
-  background: #f5f7fb;
-  scroll-behavior: smooth;
+  font-family: 'Nunito', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
 }
+
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 0; opacity: 0.5;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50%       { transform: translateY(-12px) rotate(3deg); }
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes bounce-in {
+  0%   { opacity: 0; transform: scale(0.7); }
+  70%  { transform: scale(1.05); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.navbar {
+  position: sticky; top: 0; z-index: 200;
+  background: rgba(253,252,255,0.88);
+  border-bottom: 2px solid var(--border);
+  backdrop-filter: blur(16px);
+  padding: 0 48px;
+  height: 68px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+
+.nav-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+
+.nav-brand-icon {
+  width: 38px; height: 38px;
+  background: linear-gradient(135deg, var(--purple), var(--pink));
+  border-radius: 12px; display: grid; place-items: center;
+  box-shadow: 0 4px 12px rgba(124,58,237,0.35);
+  font-size: 1.1rem;
+}
+
+.nav-brand-name {
+  font-size: 1.2rem; font-weight: 900;
+  background: linear-gradient(135deg, var(--purple), var(--pink));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.nav-actions { display: flex; align-items: center; gap: 10px; }
+
+.btn-nav-ghost {
+  height: 38px; padding: 0 18px; border-radius: 10px;
+  border: 2px solid var(--border); background: transparent;
+  color: var(--muted); font-family: 'Nunito', sans-serif;
+  font-size: 0.88rem; font-weight: 700; cursor: pointer;
+  text-decoration: none; display: inline-flex; align-items: center; gap: 6px;
+  transition: all 0.2s;
+}
+.btn-nav-ghost:hover { border-color: var(--purple); color: var(--purple); background: var(--purple-lt); }
+
+.btn-nav-primary {
+  height: 38px; padding: 0 20px; border-radius: 10px;
+  border: none; background: linear-gradient(135deg, var(--purple), var(--pink));
+  color: #fff; font-family: 'Nunito', sans-serif;
+  font-size: 0.88rem; font-weight: 800; cursor: pointer;
+  text-decoration: none; display: inline-flex; align-items: center; gap: 6px;
+  box-shadow: 0 4px 14px rgba(124,58,237,0.35);
+  transition: all 0.2s;
+}
+.btn-nav-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(124,58,237,0.45); }
+
+.btn-nav-danger {
+  height: 38px; padding: 0 18px; border-radius: 10px;
+  border: 2px solid #fecaca; background: #fef2f2;
+  color: #ef4444; font-family: 'Nunito', sans-serif;
+  font-size: 0.88rem; font-weight: 700; cursor: pointer;
+  text-decoration: none; display: inline-flex; align-items: center; gap: 6px;
+  transition: all 0.2s;
+}
+.btn-nav-danger:hover { background: #ef4444; color: #fff; border-color: #ef4444; }
 
 .hero {
-  position: relative;
-        background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),
-                  url("https://images.unsplash.com/photo-1522202176988-66273c2fd55f");
-  background-size: cover;
-  background-position: center;
-  color: white;
-  padding: 120px 20px;
-  text-align: center;
-}
-
-.hero h1 {
-  font-size: 3.2rem;
-  font-weight: 700;
-  margin-bottom: 20px;
-}
-
-.hero p {
-  font-size: 1.1rem;
-  opacity: 0.9;
-}
-
-.search-bar input {
-  width: 60%;
-  max-width: 520px;
-  border-radius: 50px;
-  padding: 12px 20px;
-}
-
-.search-bar .btn {
-  border-radius: 50px;
-  padding: 12px 25px;
-}
-
-section.container {
-  margin-top: 3rem !important;
-  margin-bottom: 3rem !important;
-}
-
-h2 {
-  font-weight: 700;
-  margin-bottom: 1.5rem;
-  color: #1e293b;
-}
-
-.course-card {
-  border-radius: 16px;
-  transition: all 0.3s ease;
-  border: none;
-}
-
-.course-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-}
-
-.card-img-top {
-  border-top-left-radius: 16px;
-  border-top-right-radius: 16px;
-}
-
-.category-btn {
-  border-radius: 30px;
-  font-weight: 500;
-  transition: all 0.3s ease;
-}
-
-.category-btn:hover {
-  transform: translateY(-3px);
-}
-
-.category-btn.active {
-  background-color: #2563eb;
-  color: #fff;
-  border-color: #2563eb;
-}
-
-.featured-scroll {
-  display: flex;
-  gap: 20px;
-  overflow-x: auto;
-  padding-bottom: 15px;
-  scroll-behavior: smooth;
-}
-
-.featured-scroll::-webkit-scrollbar {
-  height: 6px;
-}
-
-.featured-scroll::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 4px;
-}
-
-.featured-card {
-  min-width: 280px;
-  max-width: 280px;
-  flex-shrink: 0;
-}
-
-footer {
-  background: #111827;
-  color: #d1d5db;
-  padding: 30px 0;
-  text-align: center;
-  margin-top: 60px;
-}
-
-footer p {
-  margin: 0;
-  font-size: 14px;
-}
-
-.floating-btn {
-  position: fixed;
-  right: 25px;
-  width: 58px;
-  height: 58px;
-  background: linear-gradient(135deg, #4c6ef5, #2563eb);
-  color: white;
-  display: flex;
-  justify-content: center;
+  position: relative; z-index: 1;
+  padding: 90px 48px 80px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
   align-items: center;
-  border-radius: 50%;
-  cursor: pointer;
-  z-index: 9999;
-  font-size: 24px;
-  box-shadow: 0 10px 25px rgba(37,99,235,0.4);
-  transition: 0.3s ease;
-}
-
-.floating-btn:hover {
-  transform: scale(1.08);
-}
-
-#aiChatBtn { bottom: 25px; }
-#noteBtn { bottom: 100px; }
-
-.chatbox {
-  position: fixed;
-  right: 95px;
-  width: 340px;
-  background: white;
-  border-radius: 16px;
-  display: none;
-  flex-direction: column;
-  box-shadow: 0 25px 60px rgba(0,0,0,0.2);
-  z-index: 9998;
+  max-width: 1280px;
+  margin: 0 auto;
   overflow: hidden;
 }
 
-#aiChatBox { bottom: 90px; height: 420px; }
-#noteBox { bottom: 170px; height: 380px; }
+.blob {
+  position: absolute; border-radius: 50%;
+  filter: blur(70px); pointer-events: none; z-index: 0;
+}
+.blob-1 { width: 400px; height: 400px; background: rgba(124,58,237,0.12); top: -80px; left: -60px; animation: float 12s ease-in-out infinite; }
+.blob-2 { width: 320px; height: 320px; background: rgba(236,72,153,0.10); bottom: -60px; right: 30%; animation: float 10s ease-in-out infinite 3s; }
+.blob-3 { width: 280px; height: 280px; background: rgba(59,130,246,0.09); top: 30%; right: -40px; animation: float 14s ease-in-out infinite 6s; }
 
-.chatbox .chat-header {
-  background: linear-gradient(135deg, #4c6ef5, #2563eb);
-  color: white;
-  padding: 14px;
-  font-weight: 600;
-  font-size: 16px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.hero-left { position: relative; z-index: 2; animation: fadeUp 0.7s cubic-bezier(.22,1,.36,1) both; }
+
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--yellow-lt);
+  border: 2px solid #fde68a;
+  color: #92400e;
+  font-size: 0.8rem; font-weight: 800;
+  padding: 6px 16px; border-radius: 999px;
+  margin-bottom: 24px;
+  font-family: 'DM Mono', monospace;
+  letter-spacing: 0.06em;
 }
 
-.chatbox .chat-body {
-  padding: 12px;
-  height: 280px;
-  overflow-y: auto;
-  font-size: 14px;
+.hero-badge span { animation: spin-slow 4s linear infinite; display: inline-block; }
+
+.hero-title {
+  font-size: clamp(2.2rem, 4vw, 3.4rem);
+  font-weight: 900;
+  line-height: 1.15;
+  color: var(--text);
+  margin-bottom: 20px;
 }
 
-.chatbox .chat-footer {
-  display: flex;
-  padding: 12px;
-  gap: 8px;
-  border-top: 1px solid #eee;
+.hero-title .line-grad {
+  background: linear-gradient(135deg, var(--purple), var(--pink) 60%, var(--orange));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
-.chatbox .chat-footer input {
-  flex: 1;
-  padding: 8px 12px;
-  border-radius: 8px;
-  border: 1px solid #ddd;
-  outline: none;
+.hero-sub {
+  font-size: 1.05rem;
+  color: var(--muted);
+  line-height: 1.75;
+  font-weight: 500;
+  margin-bottom: 36px;
+  max-width: 460px;
 }
 
-.chatbox .chat-footer button {
-  background: #2563eb;
-  color: white;
-  padding: 7px 18px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
+.search-wrap {
+  display: flex; gap: 0;
+  background: #fff;
+  border: 2px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 30px rgba(124,58,237,0.12);
+  transition: box-shadow 0.2s;
+  max-width: 500px;
+}
+.search-wrap:focus-within { border-color: var(--purple); box-shadow: 0 8px 30px rgba(124,58,237,0.22); }
+.search-wrap i { padding: 0 16px; color: var(--muted-lt); font-size: 0.95rem; display: flex; align-items: center; }
+.search-input {
+  flex: 1; border: none; outline: none; padding: 14px 0;
+  font-family: 'Nunito', sans-serif; font-size: 0.95rem;
+  font-weight: 600; color: var(--text); background: transparent;
+}
+.search-input::placeholder { color: var(--muted-lt); font-weight: 500; }
+.search-btn {
+  background: linear-gradient(135deg, var(--purple), var(--pink));
+  border: none; color: #fff; padding: 0 22px;
+  font-family: 'Nunito', sans-serif; font-size: 0.9rem; font-weight: 800;
+  cursor: pointer; transition: all 0.2s;
+}
+.search-btn:hover { filter: brightness(1.1); }
+
+.hero-stats {
+  display: flex; gap: 28px; margin-top: 32px;
 }
 
-#noteBox .note-info {
-  padding: 8px 12px;
-  background: #f9fafb;
-  border-bottom: 1px solid #eee;
-  font-size: 12px;
-  color: #6b7280;
-  display: flex;
-  justify-content: space-between;
+.hero-stat .num { font-size: 1.4rem; font-weight: 900; color: var(--text); line-height: 1; }
+.hero-stat .lbl { font-size: 0.78rem; color: var(--muted); font-weight: 600; margin-top: 2px; }
+
+.stat-divider { width: 1px; background: var(--border); align-self: stretch; }
+
+
+.hero-right {
+  position: relative; z-index: 2;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+  animation: fadeUp 0.7s cubic-bezier(.22,1,.36,1) 0.1s both;
 }
 
-#noteBox .note-area {
-  width: 100%;
-  height: 220px;
-  padding: 12px;
-  border-radius: 10px;
-  border: 1px solid #ddd;
-  resize: none;
-  outline: none;
+.hero-float-card {
+  background: #fff; border: 2px solid var(--border);
+  border-radius: 20px; padding: 22px 18px;
+  box-shadow: var(--card-shadow);
+  transition: all 0.3s;
+  text-align: center;
+}
+.hero-float-card:nth-child(1) { animation: float 8s ease-in-out infinite; border-color: #ddd6fe; }
+.hero-float-card:nth-child(2) { animation: float 10s ease-in-out infinite 1.5s; border-color: #fbcfe8; margin-top: 28px; }
+.hero-float-card:nth-child(3) { animation: float 9s ease-in-out infinite 3s; border-color: #bae6fd; margin-top: -14px; }
+.hero-float-card:nth-child(4) { animation: float 11s ease-in-out infinite 0.8s; border-color: #bbf7d0; margin-top: 14px; }
+
+.hfc-icon {
+  width: 48px; height: 48px; border-radius: 14px; margin: 0 auto 12px;
+  display: grid; place-items: center; font-size: 1.4rem;
+}
+.hfc-icon.purple { background: var(--purple-lt); }
+.hfc-icon.pink   { background: var(--pink-lt); }
+.hfc-icon.blue   { background: var(--blue-lt); }
+.hfc-icon.green  { background: var(--green-lt); }
+.hfc-label { font-size: 0.82rem; font-weight: 800; color: var(--text); margin-bottom: 3px; }
+.hfc-sub   { font-size: 0.7rem; color: var(--muted); font-weight: 600; }
+
+
+.section {
+  max-width: 1280px; margin: 0 auto;
+  padding: 64px 48px;
+  position: relative; z-index: 1;
 }
 
-#noteBox .save-note-btn {
-  background: #2563eb;
-  color: white;
-  padding: 8px 18px;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
+.section-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.68rem; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--purple);
+  font-weight: 500; margin-bottom: 8px;
 }
 
-.bullet-btn {
-  margin: 5px 10px;
-  background: #198754;
-  color: white;
-  border-radius: 8px;
-  padding: 6px 16px;
+.section-title {
+  font-size: 1.75rem; font-weight: 900;
+  color: var(--text); margin-bottom: 8px;
 }
 
-#noteBox .storage-warning {
-  color: #dc2626;
-  font-size: 11px;
-  margin-top: 5px;
-  display: none;
-  padding: 0 10px;
+.section-sub {
+  font-size: 0.95rem; color: var(--muted);
+  font-weight: 500; margin-bottom: 36px;
+}
+
+.categories-wrap {
+  background: linear-gradient(135deg, #faf5ff, #fdf2f8);
+  border-top: 2px solid #f3e8ff;
+  border-bottom: 2px solid #f3e8ff;
+  padding: 60px 48px;
+  position: relative; z-index: 1;
+}
+
+.categories-inner { max-width: 1280px; margin: 0 auto; }
+
+.cat-grid {
+  display: flex; flex-wrap: wrap; gap: 12px;
+}
+
+.cat-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 20px; border-radius: 12px;
+  border: 2px solid var(--border);
+  background: #fff; color: var(--text);
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.9rem; font-weight: 700;
+  cursor: pointer; transition: all 0.25s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.cat-btn:hover {
+  border-color: var(--purple);
+  background: var(--purple-lt);
+  color: var(--purple);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(124,58,237,0.15);
+}
+
+.cat-btn.active {
+  background: linear-gradient(135deg, var(--purple), var(--pink));
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 6px 18px rgba(124,58,237,0.35);
+  transform: translateY(-2px);
+}
+
+.cat-ic { font-size: 1rem; }
+
+.popular-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 22px;
+}
+
+.course-card {
+  background: #fff;
+  border: 2px solid var(--border);
+  border-radius: 20px;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(.22,1,.36,1);
+  box-shadow: var(--card-shadow);
+  display: flex; flex-direction: column;
+  animation: fadeUp 0.5s cubic-bezier(.22,1,.36,1) both;
+}
+
+.course-card:nth-child(1) { animation-delay: 0.05s; }
+.course-card:nth-child(2) { animation-delay: 0.10s; }
+.course-card:nth-child(3) { animation-delay: 0.15s; }
+.course-card:nth-child(4) { animation-delay: 0.20s; }
+
+.course-card:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--card-shadow-hover);
+  border-color: #ddd6fe;
+}
+
+.course-card-img {
+  width: 100%; height: 160px;
+  object-fit: cover; display: block;
+}
+
+.course-card-img-placeholder {
+  height: 160px;
+  background: linear-gradient(135deg, var(--purple-lt), var(--pink-lt));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2.5rem;
+}
+
+.course-card-body {
+  padding: 18px 18px 20px;
+  flex: 1; display: flex; flex-direction: column;
+}
+
+.course-cat-tag {
+  display: inline-block;
+  font-size: 0.68rem; font-weight: 800;
+  font-family: 'DM Mono', monospace;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 3px 10px; border-radius: 999px;
+  margin-bottom: 10px;
+}
+
+.tag-purple { background: var(--purple-lt); color: var(--purple); }
+.tag-pink   { background: var(--pink-lt);   color: var(--pink); }
+.tag-blue   { background: var(--blue-lt);   color: var(--blue); }
+.tag-teal   { background: var(--teal-lt);   color: var(--teal); }
+.tag-orange { background: var(--orange-lt); color: var(--orange); }
+
+.course-card-title {
+  font-size: 1rem; font-weight: 800;
+  color: var(--text); line-height: 1.35;
+  margin-bottom: 14px; flex: 1;
+}
+
+.btn-view-course {
+  display: flex; align-items: center; justify-content: center; gap: 7px;
+  width: 100%; height: 40px; border-radius: 10px;
+  border: none; background: linear-gradient(135deg, var(--purple), var(--pink));
+  color: #fff; font-family: 'Nunito', sans-serif;
+  font-size: 0.88rem; font-weight: 800;
+  cursor: pointer; text-decoration: none;
+  transition: all 0.2s;
+}
+.btn-view-course:hover { filter: brightness(1.1); transform: translateY(-1px); box-shadow: 0 6px 18px rgba(124,58,237,0.3); }
+
+.featured-section {
+  background: linear-gradient(135deg, #eff6ff, #f0fdf4);
+  border-top: 2px solid #dbeafe;
+  border-bottom: 2px solid #dcfce7;
+  padding: 64px 0;
+  position: relative; z-index: 1;
+}
+
+.featured-inner { max-width: 1280px; margin: 0 auto; padding: 0 48px; }
+
+.featured-scroll {
+  display: flex; gap: 20px;
+  overflow-x: auto; padding-bottom: 16px;
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: #ddd6fe transparent;
+}
+.featured-scroll::-webkit-scrollbar { height: 5px; }
+.featured-scroll::-webkit-scrollbar-thumb { background: #ddd6fe; border-radius: 999px; }
+
+.featured-card {
+  min-width: 260px; max-width: 260px; flex-shrink: 0;
+  background: #fff; border: 2px solid var(--border);
+  border-radius: 20px; overflow: hidden;
+  transition: all 0.3s; box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+}
+.featured-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 14px 36px rgba(124,58,237,0.14);
+  border-color: #ddd6fe;
+}
+
+.featured-card-img { width: 100%; height: 150px; object-fit: cover; display: block; }
+.featured-img-ph {
+  height: 150px;
+  background: linear-gradient(135deg, var(--teal-lt), var(--blue-lt));
+  display: flex; align-items: center; justify-content: center; font-size: 2rem;
+}
+
+.featured-card-body { padding: 16px; }
+.featured-card-title { font-size: 0.92rem; font-weight: 800; color: var(--text); margin-bottom: 12px; line-height: 1.35; }
+
+.btn-view-sm {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  width: 100%; height: 36px; border-radius: 9px;
+  border: 2px solid #ddd6fe; background: var(--purple-lt);
+  color: var(--purple); font-family: 'Nunito', sans-serif;
+  font-size: 0.82rem; font-weight: 800; text-decoration: none;
+  transition: all 0.2s;
+}
+.btn-view-sm:hover { background: var(--purple); color: #fff; border-color: var(--purple); }
+
+
+.why-strip {
+  max-width: 1280px; margin: 0 auto;
+  padding: 64px 48px;
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 20px; position: relative; z-index: 1;
+}
+
+.why-card {
+  border-radius: 20px; padding: 28px 22px; text-align: center;
+  border: 2px solid; transition: all 0.3s;
+  animation: fadeUp 0.5s cubic-bezier(.22,1,.36,1) both;
+}
+.why-card:hover { transform: translateY(-6px); }
+
+.why-card.a { background: var(--purple-lt); border-color: #ddd6fe; animation-delay: 0.04s; }
+.why-card.b { background: var(--pink-lt);   border-color: #fbcfe8; animation-delay: 0.08s; }
+.why-card.c { background: var(--blue-lt);   border-color: #bae6fd; animation-delay: 0.12s; }
+.why-card.d { background: var(--yellow-lt); border-color: #fde68a; animation-delay: 0.16s; }
+
+.why-icon { font-size: 2rem; margin-bottom: 14px; }
+.why-title { font-size: 1rem; font-weight: 900; color: var(--text); margin-bottom: 6px; }
+.why-sub { font-size: 0.82rem; color: var(--muted); font-weight: 600; line-height: 1.55; }
+
+footer {
+  background: var(--text);
+  padding: 40px 48px;
+  text-align: center;
+  position: relative; z-index: 1;
+}
+
+.footer-brand { font-size: 1.3rem; font-weight: 900; color: #fff; margin-bottom: 8px; }
+.footer-brand span {
+  background: linear-gradient(135deg, #a78bfa, #f9a8d4);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+footer p { font-size: 0.82rem; color: #6b7280; margin: 0; }
+
+
+.floating-btn {
+  position: fixed; right: 24px;
+  width: 56px; height: 56px;
+  display: flex; justify-content: center; align-items: center;
+  border-radius: 50%; cursor: pointer; z-index: 9999;
+  font-size: 1.4rem;
+  border: none; outline: none;
+  transition: all 0.3s cubic-bezier(.22,1,.36,1);
+}
+#aiChatBtn { bottom: 24px; background: linear-gradient(135deg, var(--purple), var(--pink)); box-shadow: 0 8px 24px rgba(124,58,237,0.4); }
+#noteBtn   { bottom: 96px; background: linear-gradient(135deg, var(--teal), var(--blue)); box-shadow: 0 8px 24px rgba(14,165,233,0.35); }
+.floating-btn:hover { transform: scale(1.1) translateY(-2px); }
+
+.chatbox {
+  position: fixed; right: 90px;
+  width: 340px; background: #fff;
+  border-radius: 20px; display: none;
+  flex-direction: column;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.18);
+  z-index: 9998; overflow: hidden;
+  border: 2px solid var(--border);
+}
+#aiChatBox { bottom: 88px; height: 420px; }
+#noteBox   { bottom: 160px; height: 380px; }
+
+.chat-header {
+  padding: 14px 18px;
+  font-weight: 800; font-size: 0.95rem;
+  color: #fff; display: flex; justify-content: space-between; align-items: center;
+}
+#aiChatBox .chat-header { background: linear-gradient(135deg, var(--purple), var(--pink)); }
+#noteBox   .chat-header { background: linear-gradient(135deg, var(--teal), var(--blue)); }
+
+.close-btn { background: rgba(255,255,255,0.2); border: none; color: #fff; width: 26px; height: 26px; border-radius: 8px; cursor: pointer; font-size: 0.75rem; display: grid; place-items: center; transition: background 0.2s; }
+.close-btn:hover { background: rgba(255,255,255,0.35); }
+
+.chat-body { padding: 14px; flex: 1; overflow-y: auto; font-size: 0.86rem; line-height: 1.6; }
+.chat-body p { margin-bottom: 10px; }
+.chat-body b { color: var(--purple); }
+
+.chat-footer { display: flex; padding: 12px; gap: 8px; border-top: 2px solid var(--border); }
+.chat-footer input { flex: 1; padding: 8px 12px; border-radius: 10px; border: 2px solid var(--border); outline: none; font-family: 'Nunito', sans-serif; font-size: 0.86rem; font-weight: 600; transition: border-color 0.2s; }
+.chat-footer input:focus { border-color: var(--purple); }
+.chat-footer button { background: linear-gradient(135deg, var(--purple), var(--pink)); color: #fff; border: none; padding: 0 16px; border-radius: 10px; cursor: pointer; font-family: 'Nunito', sans-serif; font-size: 0.86rem; font-weight: 800; transition: filter 0.2s; }
+.chat-footer button:hover { filter: brightness(1.1); }
+
+.note-info { padding: 8px 14px; background: #f8f7ff; border-bottom: 2px solid var(--border); font-size: 0.75rem; color: var(--muted); font-weight: 600; display: flex; justify-content: space-between; }
+.note-area { width: 100%; height: 200px; padding: 12px 14px; border: none; border-bottom: 2px solid var(--border); resize: none; outline: none; font-family: 'Nunito', sans-serif; font-size: 0.86rem; font-weight: 600; color: var(--text); background: #fff; }
+.note-footer { padding: 10px 14px; display: flex; gap: 8px; align-items: center; }
+.save-note-btn { background: linear-gradient(135deg, var(--teal), var(--blue)); color: #fff; border: none; padding: 8px 18px; border-radius: 10px; cursor: pointer; font-family: 'Nunito', sans-serif; font-size: 0.86rem; font-weight: 800; }
+.bullet-btn { background: var(--green-lt); color: var(--green); border: 2px solid #bbf7d0; padding: 7px 14px; border-radius: 10px; cursor: pointer; font-family: 'Nunito', sans-serif; font-size: 0.82rem; font-weight: 800; }
+.storage-warning { color: #dc2626; font-size: 0.72rem; padding: 4px 14px; display: none; font-weight: 600; }
+
+
+@media (max-width: 1024px) {
+  .hero { grid-template-columns: 1fr; }
+  .hero-right { display: none; }
+  .popular-grid { grid-template-columns: repeat(2, 1fr); }
+  .why-strip { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 640px) {
+  .navbar { padding: 0 20px; }
+  .section { padding: 48px 20px; }
+  .popular-grid { grid-template-columns: 1fr; }
+  .why-strip { grid-template-columns: 1fr; padding: 40px 20px; }
+  .categories-wrap, .featured-inner { padding-left: 20px; padding-right: 20px; }
+  .hero { padding: 60px 20px; }
+  footer { padding: 32px 20px; }
 }
 </style>
 </head>
-
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top px-4 py-3">
-  <div class="container-fluid">
+<nav class="navbar">
+  <a href="{% url 'smart_home' %}" class="nav-brand">
+    <div class="nav-brand-icon">🎓</div>
+    <span class="nav-brand-name">Speshway</span>
+  </a>
 
-    <a href="{% url 'smart_home' %}" class="text-decoration-none">
-      <h4 class="m-0 fw-bold brand-logo">
-        <i class="fas fa-graduation-cap me-2 text-primary"></i>Speshway
-      </h4>
-    </a>
-
-    <div class="ms-auto d-flex align-items-center gap-2">
-      {% if user.is_authenticated %}
-        {% if user.role == "student" %}
-          <a href="{% url 'student_dashboard' %}" class="btn btn-outline-primary btn-sm">Dashboard</a>
-        {% elif user.role == "instructor" %}
-          <a href="{% url 'instructor_dashboard' %}" class="btn btn-outline-primary btn-sm">Dashboard</a>
-        {% elif user.role == "admin" %}
-          <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-primary btn-sm">Admin</a>
-        {% endif %}
-        <a href="{% url 'logout' %}" class="btn btn-danger btn-sm">Logout</a>
-      {% else %}
-        <a href="{% url 'auth_page' %}" class="btn btn-primary btn-sm px-3">Explore</a>
-        <a href="{% url 'signup_page' %}" class="btn btn-outline-secondary btn-sm px-3">Get Started</a>
+  <div class="nav-actions">
+    {% if user.is_authenticated %}
+      {% if user.role == "student" %}
+        <a href="{% url 'student_dashboard' %}" class="btn-nav-ghost"><i class="fa-solid fa-gauge-high"></i> Dashboard</a>
+      {% elif user.role == "instructor" %}
+        <a href="{% url 'instructor_dashboard' %}" class="btn-nav-ghost"><i class="fa-solid fa-gauge-high"></i> Dashboard</a>
+      {% elif user.role == "admin" %}
+        <a href="{% url 'admin_dashboard' %}" class="btn-nav-ghost"><i class="fa-solid fa-shield-halved"></i> Admin</a>
       {% endif %}
-    </div>
+      <a href="{% url 'logout' %}" class="btn-nav-danger"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</a>
+    {% else %}
+      <a href="{% url 'auth_page' %}" class="btn-nav-ghost">Login</a>
+      <a href="{% url 'signup_page' %}" class="btn-nav-primary"><i class="fa-solid fa-rocket"></i> Get Started</a>
+    {% endif %}
   </div>
 </nav>
 
-<section class="hero">
-  <h1>Learn Anything, Anytime, Anywhere</h1>
-  <p>Join thousands of learners and instructors on Bildung.</p>
+<section style="position:relative; overflow:hidden;">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
 
-  <div class="search-bar mt-4">
-    <form method="get" action="{% url 'courses:course_list' %}">
-      <div class="input-group justify-content-center">
-        <input type="text" class="form-control" name="q" placeholder="Search for courses...">
-        <button type="submit" class="btn btn-warning">Search</button>
+  <div class="hero">
+    <div class="hero-left">
+      <div class="hero-badge">
+        <span>✨</span> #1 Learning Platform for Students
       </div>
-    </form>
-  </div>
-</section>
 
-<section class="container">
-  <h2>Popular Categories</h2>
+      <h1 class="hero-title">
+        Learn Anything,<br>
+        <span class="line-grad">Grow Every Day.</span>
+      </h1>
 
-  <div class="row">
-    {% for cat in popular_categories %}
-      <div class="col-md-3 col-sm-6 mb-2">
-        <button
-          class="btn btn-outline-primary w-100 py-2 category-btn"
-          onclick="toggleCategory('{{ cat.category }}', this)">
-          {{ cat.category|title }}
-        </button>
-      </div>
-    {% endfor %}
-  </div>
-</section>
-<section class="container">
-  <h2>Top 4 Popular Courses</h2>
+      <p class="hero-sub">
+        Join thousands of curious learners on Speshway — explore courses, build skills, and unlock your potential at your own pace.
+      </p>
 
-  <div class="row g-4">
+      <form method="get" action="{% url 'courses:course_list' %}">
+        <div class="search-wrap">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" name="q" class="search-input" placeholder="What do you want to learn today?">
+          <button type="submit" class="search-btn">Search</button>
+        </div>
+      </form>
 
-  {% for course in popular_courses %}
-    <div class="col-md-3 col-sm-6 course-item"
-         data-category="{{ course.category }}">
-
-      <div class="card h-100 shadow-sm border-0 course-card">
-
-        {% if course.thumbnail %}
-          <img
-            src="{{ course.thumbnail.url }}"
-            class="card-img-top"
-            style="height:160px;object-fit:cover;"
-            alt="{{ course.title }}"
-          >
-        {% endif %}
-
-        <div class="card-body d-flex flex-column">
-          <h4 class="mb-2">{{ course.title }}</h4>
-          <p class="small mb-2">
-            <strong>Category:</strong> {{ course.category|title }}
-          </p>
-
-          <a href="{% url 'courses:view_course' course.id %}"
-             class="btn btn-primary btn-sm mt-auto">
-            View Course
-          </a>
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <div class="num">2k+</div>
+          <div class="lbl">Active Learners</div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="hero-stat">
+          <div class="num">100+</div>
+          <div class="lbl">Courses</div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="hero-stat">
+          <div class="num">98%</div>
+          <div class="lbl">Satisfaction</div>
         </div>
       </div>
     </div>
-  {% empty %}
-    <p>No popular courses found.</p>
-  {% endfor %}
 
+    <div class="hero-right">
+      <div class="hero-float-card">
+        <div class="hfc-icon purple">💻</div>
+        <div class="hfc-label">Web Dev</div>
+      </div>
+      <div class="hero-float-card">
+        <div class="hfc-icon pink">🎨</div>
+        <div class="hfc-label">Design</div>
+      </div>
+      <div class="hero-float-card">
+        <div class="hfc-icon blue">📊</div>
+        <div class="hfc-label">Data Science</div>
+      </div>
+      <div class="hero-float-card">
+        <div class="hfc-icon green">🚀</div>
+        <div class="hfc-label">Business</div>
+      </div>
+    </div>
   </div>
 </section>
-<section class="container">
-  <h2>Featured Courses</h2>
 
-  <div class="featured-scroll" id="featuredScroll">
-    {% for course in courses %}
-    <div class="featured-card course-item"
-         data-category="{{ course.category }}">
+<div class="categories-wrap">
+  <div class="categories-inner">
+    <div class="section-label">Browse by topic</div>
+    <h2 class="section-title" style="margin-bottom:24px;">Popular Categories</h2>
+    <div class="cat-grid">
+      {% for cat in popular_categories %}
+      <button class="cat-btn" onclick="toggleCategory('{{ cat.category }}', this)">
+        {{ cat.category|title }}
+      </button>
+      {% endfor %}
+    </div>
+  </div>
+</div>
 
-      <div class="card course-card h-100">
+<div class="section">
+  <div class="section-label">Trending now</div>
+  <h2 class="section-title">Top 4 Popular Courses</h2>
+  <p class="section-sub">Hand-picked by our community — start with the best.</p>
+
+  <div class="popular-grid">
+    {% for course in popular_courses %}
+    <div class="course-card course-item" data-category="{{ course.category }}">
+      {% if course.thumbnail %}
+        <img src="{{ course.thumbnail.url }}" class="course-card-img" alt="{{ course.title }}">
+      {% else %}
+        <div class="course-card-img-placeholder">📚</div>
+      {% endif %}
+
+      <div class="course-card-body">
+        {% cycle 'tag-purple' 'tag-pink' 'tag-blue' 'tag-teal' as tagcolor silent %}
+        <span class="course-cat-tag {% cycle tagcolor %}">{{ course.category|title }}</span>
+        <div class="course-card-title">{{ course.title }}</div>
+        <a href="{% url 'courses:view_course' course.id %}" class="btn-view-course">
+          View Course <i class="fa-solid fa-arrow-right"></i>
+        </a>
+      </div>
+    </div>
+    {% empty %}
+    <p style="color:var(--muted); grid-column: 1/-1;">No popular courses found.</p>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="why-strip">
+  <div class="why-card a">
+    <div class="why-icon">🎯</div>
+    <div class="why-title">Learn at Your Pace</div>
+    <div class="why-sub">Watch, pause, and replay. Your schedule, your rules.</div>
+  </div>
+  <div class="why-card b">
+    <div class="why-icon">🏆</div>
+    <div class="why-title">Expert Instructors</div>
+    <div class="why-sub">Learn from industry professionals with real experience.</div>
+  </div>
+  <div class="why-card c">
+    <div class="why-icon">📱</div>
+    <div class="why-title">Learn Anywhere</div>
+    <div class="why-sub">Access all your courses on any device, anytime.</div>
+  </div>
+  <div class="why-card d">
+    <div class="why-icon">💬</div>
+    <div class="why-title">AI-Powered Help</div>
+    <div class="why-sub">Stuck? Ask our AI assistant and get instant answers.</div>
+  </div>
+</div>
+
+<!-- ════════ FEATURED COURSES ════════ -->
+<div class="featured-section">
+  <div class="featured-inner">
+    <div class="section-label">Explore all</div>
+    <h2 class="section-title" style="margin-bottom:8px;">Featured Courses</h2>
+    <p class="section-sub">Scroll through our full catalog — something for every learner.</p>
+
+    <div class="featured-scroll" id="featuredScroll">
+      {% for course in courses %}
+      <div class="featured-card course-item" data-category="{{ course.category }}">
         {% if course.thumbnail %}
-          <img src="{{ course.thumbnail.url }}"
-               class="card-img-top"
-               style="height:180px;object-fit:cover;">
+          <img src="{{ course.thumbnail.url }}" class="featured-card-img" alt="{{ course.title }}">
+        {% else %}
+          <div class="featured-img-ph">📖</div>
         {% endif %}
-
-        <div class="card-body d-flex flex-column">
-          <h4 class="mb-2">{{ course.title }}</h4>
-          <p class="small mb-2">
-            <strong>Category:</strong> {{ course.category|title }}
-          </p>
-
-          <a href="{% url 'courses:view_course' course.id %}"
-             class="btn btn-primary mt-auto">
-            View Course
+        <div class="featured-card-body">
+          <div class="featured-card-title">{{ course.title }}</div>
+          <a href="{% url 'courses:view_course' course.id %}" class="btn-view-sm">
+            Explore <i class="fa-solid fa-arrow-right"></i>
           </a>
         </div>
       </div>
+      {% endfor %}
     </div>
-    {% endfor %}
   </div>
-</section>
+</div>
 
-
-</section>
-<footer class="bg-light py-4 mt-5">
-    <div class="container text-center">
-        <p class="mb-0">&copy; 2025 Speshway. All rights reserved.</p>
-    </div>
+<footer>
+  <p>© 2025 Speshway. All rights reserved.</p>
 </footer>
 
-<div id="aiChatBtn" class="floating-btn">🤖</div>
-<div id="noteBtn" class="floating-btn">📝</div>
- 
+<button id="aiChatBtn" class="floating-btn" title="AI Chatbot">🤖</button>
+<button id="noteBtn"   class="floating-btn" title="Quick Notes">📝</button>
+
 <div id="aiChatBox" class="chatbox">
-    <div class="chat-header">
-        <span>AI Chatbot</span>
-        <button class="close-btn" onclick="toggleAIChat()">✖</button>
-    </div>
-    <div class="chat-body" id="aiMessages">
-        <p><b>AI:</b> Hi! How can I help you today?</p>
-    </div>
-    <div class="chat-footer">
-        <input type="text" id="aiInput" placeholder="Type message..." />
-        <button id="askButton" onclick="sendAIMessage()">Send</button>
-    </div>
+  <div class="chat-header">
+    <span>🤖 AI Study Assistant</span>
+    <button class="close-btn" onclick="toggleAIChat()"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+  <div class="chat-body" id="aiMessages">
+    <p><b>AI:</b> Hi there! 👋 How can I help you learn today?</p>
+  </div>
+  <div class="chat-footer">
+    <input type="text" id="aiInput" placeholder="Ask me anything…">
+    <button id="askButton" onclick="sendAIMessage()">Send</button>
+  </div>
 </div>
- 
+
 <div id="noteBox" class="chatbox">
-    <div class="chat-header">
-        <span>Quick Notepad</span>
-        <button class="close-btn" onclick="toggleNote()">✖</button>
-    </div>
- 
-    <div class="note-info">
-        <span id="storageInfo">Storage: 0/200MB</span>
-        <span id="expiryInfo">Expires: -</span>
-    </div>
-   
-    <textarea id="noteArea" class="note-area" placeholder="Write notes here..."></textarea>
- 
-    <div id="storageWarning" class="storage-warning">
-        ⚠️ Approaching storage limit (200MB)
-    </div>
-   
-    <div class="note-footer">
-        <button class="save-note-btn" onclick="saveNote()">Save</button>
-    </div>
-
-    <div class="d-flex justify-content-center mt-2">
-    <button class="bullet-btn" onclick="addBullet()">• Add Bullet</button>
-</div>
-
-
+  <div class="chat-header">
+    <span>📝 Quick Notepad</span>
+    <button class="close-btn" onclick="toggleNote()"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+  <div class="note-info">
+    <span id="storageInfo">Storage: 0 / 200MB</span>
+    <span id="expiryInfo">Expires: —</span>
+  </div>
+  <textarea id="noteArea" class="note-area" placeholder="Jot down your thoughts…"></textarea>
+  <div id="storageWarning" class="storage-warning">⚠️ Approaching storage limit (200MB)</div>
+  <div class="note-footer">
+    <button class="save-note-btn" onclick="saveNote()">💾 Save</button>
+    <button class="bullet-btn" onclick="addBullet()">• Bullet</button>
+  </div>
 </div>
 
 <script>
+
 let activeCategory = null;
 
 function toggleCategory(category, btn) {
-  const cards = document.querySelectorAll('.course-item');
-  const buttons = document.querySelectorAll('.category-btn');
+  const cards   = document.querySelectorAll('.course-item');
+  const buttons = document.querySelectorAll('.cat-btn');
 
   if (activeCategory === category) {
     activeCategory = null;
     buttons.forEach(b => b.classList.remove('active'));
-    cards.forEach(card => card.style.display = 'block');
+    cards.forEach(c => c.style.display = '');
     return;
   }
 
   activeCategory = category;
   buttons.forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-
-  cards.forEach(card => {
-    card.style.display =
-      card.dataset.category === category ? 'block' : 'none';
+  cards.forEach(c => {
+    c.style.display = c.dataset.category === category ? '' : 'none';
   });
 }
 
-    const NOTEPAD_CONFIG = {
-        MAX_STORAGE: 200 * 1024 * 1024,
-        EXPIRY_DAYS: 14,
-        STORAGE_KEY: 'quickNoteData'
-    };
- 
-    function toggleAIChat() {
-        const box = document.getElementById('aiChatBox');
-        box.style.display = box.style.display === 'flex' ? 'none' : 'flex';
-    }
- 
-    function toggleNote() {
-        const box = document.getElementById('noteBox');
-        box.style.display = box.style.display === 'flex' ? 'none' : 'flex';
-        if (box.style.display === 'flex') {
-            updateStorageInfo();
-        }
-    }
- 
-    function saveNote() {
-        const text = document.getElementById("noteArea").value;
-        const textSize = new Blob([text]).size;
-       
-        if (textSize > NOTEPAD_CONFIG.MAX_STORAGE) {
-            alert(`Note too large! Maximum size is 200MB. Your note is ${formatBytes(textSize)}.`);
-            return;
-        }
-       
-        const noteData = {
-            text: text,
-            timestamp: new Date().toISOString(),
-            expiry: new Date(Date.now() + NOTEPAD_CONFIG.EXPIRY_DAYS * 24 * 60 * 60 * 1000).toISOString(),
-            size: textSize
-        };
-       
-        try {
-            localStorage.setItem(NOTEPAD_CONFIG.STORAGE_KEY, JSON.stringify(noteData));
-            updateStorageInfo();
-            showTemporaryMessage("Note Saved! (Expires in 14 days)");
-        } catch (e) {
-            if (e.name === 'QuotaExceededError') {
-                alert("Storage limit exceeded! Please reduce the note size.");
-            } else {
-                alert("Error saving note: " + e.message);
-            }
-        }
-    }
- 
-    function loadNote() {
-        try {
-            const saved = localStorage.getItem(NOTEPAD_CONFIG.STORAGE_KEY);
-            if (saved) {
-                const noteData = JSON.parse(saved);
-                const now = new Date();
-                const expiry = new Date(noteData.expiry);
- 
-                if (now > expiry) {
-                    localStorage.removeItem(NOTEPAD_CONFIG.STORAGE_KEY);
-                    document.getElementById("noteArea").value = "";
-                    updateStorageInfo();
-                    showTemporaryMessage("Previous note has expired and was cleared.");
-                    return;
-                }
-               
-                document.getElementById("noteArea").value = noteData.text;
-                updateStorageInfo();
-            }
-        } catch (e) {
-            console.error("Error loading note:", e);
-        }
-    }
- 
-    function updateStorageInfo() {
-        const saved = localStorage.getItem(NOTEPAD_CONFIG.STORAGE_KEY);
-        const storageInfo = document.getElementById("storageInfo");
-        const expiryInfo = document.getElementById("expiryInfo");
-        const warning = document.getElementById("storageWarning");
-       
-        if (saved) {
-            try {
-                const noteData = JSON.parse(saved);
-                const textSize = noteData.size;
-                const expiry = new Date(noteData.expiry);
- 
-                storageInfo.textContent = `Storage: ${formatBytes(textSize)}/200MB`;
- 
-                const daysLeft = Math.ceil((expiry - new Date()) / (1000 * 60 * 60 * 24));
-                expiryInfo.textContent = `Expires: ${daysLeft} day${daysLeft !== 1 ? 's' : ''}`;
- 
-                const usagePercent = (textSize / NOTEPAD_CONFIG.MAX_STORAGE) * 100;
-                if (usagePercent > 80) {
-                    warning.style.display = 'block';
-                } else {
-                    warning.style.display = 'none';
-                }
-               
-            } catch (e) {
-                console.error("Error parsing note data:", e);
-            }
-        } else {
-            storageInfo.textContent = "Storage: 0/200MB";
-            expiryInfo.textContent = "Expires: -";
-            warning.style.display = 'none';
-        }
-    }
- 
-    function formatBytes(bytes, decimals = 2) {
-        if (bytes === 0) return '0 Bytes';
-       
-        const k = 1024;
-        const dm = decimals < 0 ? 0 : decimals;
-        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-       
-        const i = Math.floor(Math.log(bytes) / Math.log(k));
-       
-        return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
-    }
- 
-    function showTemporaryMessage(message) {
-        const tempMsg = document.createElement('div');
-        tempMsg.textContent = message;
-        tempMsg.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: #28a745;
-            color: white;
-            padding: 10px 15px;
-            border-radius: 5px;
-            z-index: 10000;
-            font-size: 14px;
-        `;
-        document.body.appendChild(tempMsg);
-       
-        setTimeout(() => {
-            document.body.removeChild(tempMsg);
-        }, 3000);
-    }
- 
-    function cleanupExpiredNotes() {
-        const saved = localStorage.getItem(NOTEPAD_CONFIG.STORAGE_KEY);
-        if (saved) {
-            try {
-                const noteData = JSON.parse(saved);
-                const now = new Date();
-                const expiry = new Date(noteData.expiry);
-               
-                if (now > expiry) {
-                    localStorage.removeItem(NOTEPAD_CONFIG.STORAGE_KEY);
-                    console.log("Expired note cleaned up");
-                }
-            } catch (e) {
-                console.error("Error during cleanup:", e);
-            }
-        }
-    }
-   
-    function getCSRFToken() {
-      return document.cookie
-      .split("; ")
-      .find(row => row.startsWith("csrftoken="))
-      ?.split("=")[1];
-    }
-
-    document.getElementById('aiInput').addEventListener('keydown', function(event) {
-        if (event.key === 'Enter') {
-            event.preventDefault();
-            sendAIMessage();
-        }
-    });    
- 
-    async function sendAIMessage() {
-        let askButton = document.getElementById("askButton");
-        let input = document.getElementById("aiInput");
-        askButton.disabled = true;
-        input.disabled = true;
-        let messages = document.getElementById("aiMessages");
- 
-        if (input.value.trim() === "") return;
-
-        messages.innerHTML += `<p><b>You:</b> ${input.value}</p>`;
-        messages.innerHTML += `<p><b>AI:</b> Thinking...</p>`;
-        messages.scrollTop = messages.scrollHeight;
-
-        try {
-
-            const response = await fetch("/api/ai/ask", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRFToken": getCSRFToken()
-                },
-                body: JSON.stringify({
-                    question: input.value
-                }),
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const data = await response.json();
-            const formattedAnswer = formatAIResponse(data.answer);
-            askButton.disabled = false;
-            aiInput.disabled = false;
-            aiInput.focus = true;
-            askButton.disabled = false;
-            aiInput.disabled = false;
-
-            // Remove "Thinking..." and add the actual response
-            messages.innerHTML = messages.innerHTML.replace('<p><b>AI:</b> Thinking...</p>', '');
-            messages.innerHTML += `<p><b>AI:</b> ${formattedAnswer}</p>`;
-      
-        } catch (error) {
-            messages.innerHTML = messages.innerHTML.replace('<p><b>AI:</b> Thinking...</p>', '');
-            messages.innerHTML += `<p><b>AI:</b> Sorry, I couldn't process your request. Error: ${error.message}</p>`;
-        }
-
-        messages.scrollTop = messages.scrollHeight;
-        input.value = "";
-    }
-
-    function formatAIResponse(text) {
-      if (!text) return "";
-
-      let safeText = text.replace(/&/g, "&amp;")
-                        .replace(/</g, "&lt;")
-                        .replace(/>/g, "&gt;");
-
-      safeText = safeText.replace(/\\(.?)\\*/g, '<b>$1</b>');
-
-      safeText = safeText.replace(/\n(\|-)\s+(.)/g, '<br>• $2');
-
-      safeText = safeText.replace(/\n(\d+\.)\s+(.*)/g, '<br><b>$1</b> $2');
-
-      safeText = safeText.replace(/\n/g, '<br>');
-
-      return safeText;
+document.addEventListener('DOMContentLoaded', function () {
+  const slider = document.getElementById('featuredScroll');
+  if (slider) {
+    slider.addEventListener('wheel', function (e) {
+      if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+        e.preventDefault();
+        slider.scrollLeft += e.deltaY;
+      }
+    }, { passive: false });
   }
- 
-    function addBullet() {
-        const textarea = document.getElementById("noteArea");
- 
-        const start = textarea.selectionStart;
-        const end = textarea.selectionEnd;
- 
-        let text = textarea.value;
- 
-        const bullet = "• ";
- 
-        textarea.value = text.substring(0, start) + bullet + text.substring(end);
- 
-        textarea.selectionStart = textarea.selectionEnd = start + bullet.length;
- 
-        textarea.focus();
-    }
- 
-    document.addEventListener('DOMContentLoaded', function() {
-        cleanupExpiredNotes();
-        loadNote();
-       
-        document.getElementById("aiChatBtn").onclick = toggleAIChat;
-        document.getElementById("noteBtn").onclick = toggleNote;
-    });
 
-</script>
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-  const slider = document.getElementById("featuredScroll");
-  if (!slider) return;
-
-  slider.addEventListener("wheel", function (e) {
-    if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
-      e.preventDefault();
-      slider.scrollLeft += e.deltaY;
-    }
-  }, { passive: false });
+  cleanupExpiredNotes();
+  loadNote();
+  document.getElementById('aiChatBtn').onclick = toggleAIChat;
+  document.getElementById('noteBtn').onclick   = toggleNote;
 });
+
+function toggleAIChat() {
+  const box = document.getElementById('aiChatBox');
+  box.style.display = box.style.display === 'flex' ? 'none' : 'flex';
+}
+function toggleNote() {
+  const box = document.getElementById('noteBox');
+  box.style.display = box.style.display === 'flex' ? 'none' : 'flex';
+  if (box.style.display === 'flex') updateStorageInfo();
+}
+
+function getCSRFToken() {
+  return document.cookie.split('; ').find(r => r.startsWith('csrftoken='))?.split('=')[1];
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  const inp = document.getElementById('aiInput');
+  if (inp) inp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); sendAIMessage(); } });
+});
+
+async function sendAIMessage() {
+  const askButton = document.getElementById('askButton');
+  const input     = document.getElementById('aiInput');
+  const messages  = document.getElementById('aiMessages');
+  if (!input.value.trim()) return;
+
+  askButton.disabled = true; input.disabled = true;
+  messages.innerHTML += `<p><b style="color:#7c3aed;">You:</b> ${input.value}</p>`;
+  messages.innerHTML += `<p><b>AI:</b> Thinking…</p>`;
+  messages.scrollTop = messages.scrollHeight;
+
+  try {
+    const response = await fetch('/api/ai/ask', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() },
+      body: JSON.stringify({ question: input.value })
+    });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const data = await response.json();
+    messages.innerHTML = messages.innerHTML.replace('<p><b>AI:</b> Thinking…</p>', '');
+    messages.innerHTML += `<p><b>AI:</b> ${formatAIResponse(data.answer)}</p>`;
+  } catch (err) {
+    messages.innerHTML = messages.innerHTML.replace('<p><b>AI:</b> Thinking…</p>', '');
+    messages.innerHTML += `<p><b>AI:</b> Sorry, couldn't process that. ${err.message}</p>`;
+  }
+
+  askButton.disabled = false; input.disabled = false;
+  messages.scrollTop = messages.scrollHeight;
+  input.value = '';
+}
+
+function formatAIResponse(text) {
+  if (!text) return '';
+  let s = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  s = s.replace(/\n/g, '<br>');
+  return s;
+}
+
+const NOTEPAD_CONFIG = { MAX_STORAGE: 200*1024*1024, EXPIRY_DAYS: 14, STORAGE_KEY: 'quickNoteData' };
+
+function saveNote() {
+  const text = document.getElementById('noteArea').value;
+  const size = new Blob([text]).size;
+  if (size > NOTEPAD_CONFIG.MAX_STORAGE) { alert('Note too large!'); return; }
+  const data = { text, timestamp: new Date().toISOString(), expiry: new Date(Date.now() + NOTEPAD_CONFIG.EXPIRY_DAYS*86400000).toISOString(), size };
+  try {
+    localStorage.setItem(NOTEPAD_CONFIG.STORAGE_KEY, JSON.stringify(data));
+    updateStorageInfo();
+    showToast('✅ Note saved! Expires in 14 days.');
+  } catch(e) { alert('Could not save: ' + e.message); }
+}
+
+function loadNote() {
+  try {
+    const saved = localStorage.getItem(NOTEPAD_CONFIG.STORAGE_KEY);
+    if (!saved) return;
+    const data = JSON.parse(saved);
+    if (new Date() > new Date(data.expiry)) { localStorage.removeItem(NOTEPAD_CONFIG.STORAGE_KEY); return; }
+    document.getElementById('noteArea').value = data.text;
+    updateStorageInfo();
+  } catch(e) {}
+}
+
+function updateStorageInfo() {
+  const saved = localStorage.getItem(NOTEPAD_CONFIG.STORAGE_KEY);
+  const si = document.getElementById('storageInfo');
+  const ei = document.getElementById('expiryInfo');
+  const sw = document.getElementById('storageWarning');
+  if (saved) {
+    try {
+      const d = JSON.parse(saved);
+      si.textContent = `Storage: ${formatBytes(d.size)} / 200MB`;
+      const days = Math.ceil((new Date(d.expiry) - new Date()) / 86400000);
+      ei.textContent = `Expires: ${days} day${days !== 1 ? 's' : ''}`;
+      sw.style.display = (d.size / NOTEPAD_CONFIG.MAX_STORAGE) > 0.8 ? 'block' : 'none';
+    } catch(e) {}
+  } else { si.textContent = 'Storage: 0 / 200MB'; ei.textContent = 'Expires: —'; sw.style.display = 'none'; }
+}
+
+function formatBytes(b) {
+  if (!b) return '0 Bytes';
+  const k = 1024, s = ['Bytes','KB','MB','GB'], i = Math.floor(Math.log(b)/Math.log(k));
+  return parseFloat((b/Math.pow(k,i)).toFixed(2)) + ' ' + s[i];
+}
+
+function cleanupExpiredNotes() {
+  const saved = localStorage.getItem(NOTEPAD_CONFIG.STORAGE_KEY);
+  if (saved) { try { const d = JSON.parse(saved); if (new Date() > new Date(d.expiry)) localStorage.removeItem(NOTEPAD_CONFIG.STORAGE_KEY); } catch(e) {} }
+}
+
+function addBullet() {
+  const ta = document.getElementById('noteArea');
+  const s = ta.selectionStart, e = ta.selectionEnd;
+  ta.value = ta.value.substring(0,s) + '• ' + ta.value.substring(e);
+  ta.selectionStart = ta.selectionEnd = s + 2;
+  ta.focus();
+}
+
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.textContent = msg;
+  t.style.cssText = `position:fixed;top:20px;right:20px;background:linear-gradient(135deg,#7c3aed,#ec4899);color:#fff;padding:12px 20px;border-radius:12px;z-index:10000;font-family:'Nunito',sans-serif;font-weight:700;font-size:0.88rem;box-shadow:0 8px 24px rgba(124,58,237,0.35);`;
+  document.body.appendChild(t);
+  setTimeout(() => document.body.removeChild(t), 3000);
+}
 </script>
 
 </body>

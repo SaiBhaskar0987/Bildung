@@ -47,7 +47,7 @@ urlpatterns = [
     path("my-activity/", views.student_my_activity, name="student_my_activity"),
 
     # Student notifications
-    path("notifications/", views.student_notifications, name="student_notifications"),
+    path("students/notifications/", views.student_notifications, name="student_notifications"),
     path(
         "notifications/recent/",
         views.get_recent_notifications,
@@ -100,7 +100,7 @@ urlpatterns = [
     path("instructor/profile/", views.instructor_profile_view_or_edit, name="instructor_profile_view"),
     path("instructor/profile/<str:mode>/", views.instructor_profile_view_or_edit, name="instructor_profile_edit"),
      path("recent-notifications/", views.instructor_recent_notifications, name="instructor_recent_notifications"),
-    path("notifications/", views.instructor_notifications_page, name="instructor_notifications"),
+    path("instructor/notifications/", views.instructor_notifications_page, name="instructor_notifications"),
     path("mark-read/<int:notif_id>/", views.instructor_mark_read, name="mark_notification_read"),
     path("mark-all-read/", views.instructor_mark_all_read, name="mark_notifications_read"),
     path("settings/", views.instructor_account_settings, name="instructor_account_settings"),

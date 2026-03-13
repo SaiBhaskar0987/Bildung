@@ -101,7 +101,9 @@
 <!-- HEADER -->
 <div class="d-flex justify-content-between align-items-center p-3 bg-white shadow-sm">
     <a href="{% url 'instructor_dashboard' %}" class="text-decoration-none text-dark">
-        <h3 class="m-0 fw-bold">Bildung</h3>
+        <h3 class="m-0 fw-bold brand-title">
+                <i class="fas fa-graduation-cap"></i> Speshway
+            </h3>
     </a>
 
     <div class="d-flex align-items-center gap-3">
@@ -164,14 +166,6 @@
                     <div class="settings-section">
 
                         <h4 class="mb-4">Change Password</h4>
-                                {% if messages %}
-                                    {% for message in messages %}
-                                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
-                                            {{ message }}
-                                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                                        </div>
-                                    {% endfor %}
-                                {% endif %}
 
                         {% if step == "form" %}
 

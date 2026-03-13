@@ -1,22 +1,107 @@
-<div class="card card-body bg-light border mt-3">
+<div style="
+  background: #0d1117;
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 12px;
+  padding: 20px 22px;
+  font-family: 'Sora', sans-serif;
+">
 
-    {% for q in questions %}
-        <div class="mb-3">
-            <strong>{{ forloop.counter }}. {{ q.question_text }}</strong>
+  <div style="
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 18px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+  ">
+    <div style="
+      width: 28px; height: 28px; border-radius: 7px;
+      background: rgba(251,191,36,0.1);
+      display: grid; place-items: center;
+      color: #fbbf24; font-size: 0.75rem;
+    ">
+      <i class="fa-solid fa-circle-question"></i>
+    </div>
+    <span style="
+      font-family: 'DM Mono', monospace;
+      font-size: 0.68rem; letter-spacing: 0.14em;
+      text-transform: uppercase; color: #fbbf24; font-weight: 500;
+    ">Quiz Preview</span>
+  </div>
 
-            <ul class="mt-2">
-                {% for choice in q.choices.all %}
-                    <li>
-                        {{ choice.text }}
-                        {% if choice.is_correct %}
-                            <span class="text-success">✔</span>
-                        {% endif %}
-                    </li>
-                {% endfor %}
-            </ul>
+  {% for q in questions %}
+  <div style="margin-bottom: 20px; {% if not forloop.last %}padding-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.05);{% endif %}">
+
+    <div style="display: flex; gap: 10px; align-items: flex-start; margin-bottom: 12px;">
+      <span style="
+        font-family: 'DM Mono', monospace;
+        font-size: 0.68rem; font-weight: 700;
+        background: rgba(251,191,36,0.12);
+        color: #fbbf24;
+        border: 1px solid rgba(251,191,36,0.2);
+        border-radius: 6px;
+        padding: 2px 8px;
+        flex-shrink: 0;
+        margin-top: 1px;
+      ">Q{{ forloop.counter }}</span>
+      <p style="font-size: 0.9rem; font-weight: 600; color: #e8edf5; line-height: 1.5; margin: 0;">
+        {{ q.question_text }}
+      </p>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 7px; padding-left: 36px;">
+      {% for choice in q.choices.all %}
+      <div style="
+        display: flex; align-items: center; gap: 10px;
+        padding: 9px 14px; border-radius: 8px;
+        background: {% if choice.is_correct %}rgba(74,222,128,0.08){% else %}rgba(255,255,255,0.03){% endif %};
+        border: 1px solid {% if choice.is_correct %}rgba(74,222,128,0.25){% else %}rgba(255,255,255,0.06){% endif %};
+        transition: all 0.15s;
+      ">
+
+        <div style="
+          width: 18px; height: 18px; border-radius: 50%; flex-shrink: 0;
+          border: 2px solid {% if choice.is_correct %}#4ade80{% else %}rgba(255,255,255,0.15){% endif %};
+          background: {% if choice.is_correct %}rgba(74,222,128,0.2){% else %}transparent{% endif %};
+          display: grid; place-items: center;
+        ">
+          {% if choice.is_correct %}
+          <svg width="8" height="8" viewBox="0 0 10 8" fill="none">
+            <path d="M1 4L3.5 6.5L9 1" stroke="#4ade80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          {% endif %}
         </div>
-    {% empty %}
-        <p class="text-muted">No questions added.</p>
-    {% endfor %}
+
+        <span style="
+          font-size: 0.86rem;
+          color: {% if choice.is_correct %}#4ade80{% else %}#7a8699{% endif %};
+          font-weight: {% if choice.is_correct %}600{% else %}400{% endif %};
+        ">{{ choice.text }}</span>
+
+        {% if choice.is_correct %}
+        <span style="
+          margin-left: auto;
+          font-family: 'DM Mono', monospace;
+          font-size: 0.62rem; letter-spacing: 0.1em;
+          text-transform: uppercase;
+          background: rgba(74,222,128,0.12);
+          color: #4ade80;
+          border: 1px solid rgba(74,222,128,0.2);
+          padding: 2px 8px; border-radius: 999px;
+        ">Correct</span>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+
+  </div>
+  {% empty %}
+  <div style="text-align: center; padding: 28px 0;">
+    <div style="font-size: 1.6rem; color: #4e5a6e; margin-bottom: 8px;">
+      <i class="fa-solid fa-circle-question"></i>
+    </div>
+    <p style="font-size: 0.84rem; color: #7a8699; font-style: italic;">No questions added to this quiz yet.</p>
+  </div>
+  {% endfor %}
 
 </div>

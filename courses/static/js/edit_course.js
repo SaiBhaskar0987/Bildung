@@ -185,34 +185,44 @@ function deleteBlock(index) {
 }
 
 function saveCourse(callback = null) {
+
     const level = document.getElementById("courseLevel").value;
 
     if (!level) {
         alert("Please select a course level");
         return;
     }
-    const payload = {
-        course_id: courseId,
-        title: document.getElementById("courseTitle").value,
-        description: document.getElementById("courseDescription").value,
-        price: document.getElementById("coursePrice").value,
-        category: document.getElementById("courseCategory").value,
-        level: level,
-        structure: structure
-    };
+
+    let formData = new FormData();
+
+    formData.append("course_id", courseId);
+    formData.append("title", document.getElementById("courseTitle").value);
+    formData.append("description", document.getElementById("courseDescription").value);
+    formData.append("price", document.getElementById("coursePrice").value);
+    formData.append("category", document.getElementById("courseCategory").value);
+    formData.append("level", level);
+
+    formData.append("structure", JSON.stringify(structure));
+
+    const thumbnailInput = document.getElementById("courseThumbnail");
+
+    if (thumbnailInput && thumbnailInput.files.length > 0) {
+        formData.append("thumbnail", thumbnailInput.files[0]);
+    }
 
     fetch(`/accounts/instructor/save/`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
+        body: formData
     })
     .then(r => r.json())
     .then(data => {
+
         courseId = data.course_id;
         structure = data.structure;
 
         if (callback) callback();
         else alert("Course Saved!");
+
     });
 }
 
@@ -267,7 +277,6 @@ function openAssignment(index) {
         return;
     }
 
-    // If assignment already exists
     saveCourse(() => {
         window.location.href =
             `${BASE_URL}/courses/${courseId}/assignment/${item.assignment_id}/edit/`;

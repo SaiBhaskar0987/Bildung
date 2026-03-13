@@ -1,242 +1,473 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Speshway - Login</title>
+  <title>Speshway — Get Started</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 
 <style>
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap");
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: "Poppins", sans-serif;
+:root {
+  --bg:        #fdfcff;
+  --white:     #ffffff;
+  --border:    #e8e4f0;
+  --purple:    #7c3aed;
+  --purple-lt: #ede9fe;
+  --pink:      #ec4899;
+  --pink-lt:   #fce7f3;
+  --blue:      #3b82f6;
+  --blue-lt:   #dbeafe;
+  --teal:      #14b8a6;
+  --teal-lt:   #ccfbf1;
+  --orange:    #f97316;
+  --orange-lt: #ffedd5;
+  --yellow:    #f59e0b;
+  --yellow-lt: #fef3c7;
+  --green:     #22c55e;
+  --green-lt:  #dcfce7;
+  --text:      #1e1b2e;
+  --muted:     #6b7280;
+  --muted-lt:  #9ca3af;
 }
 
-body {
-  height: 100vh;
-  background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
-}
-
-.auth-wrapper {
-  height: 100vh;
+html, body {
+  height: 100%;
+  font-family: 'Nunito', sans-serif;
+  background: var(--bg);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px;
-}
-
-.main-container {
-  width: 100%;
-  max-width: 1100px;
-  height: 90vh;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  border-radius: 24px;
   overflow: hidden;
-  background: rgba(255,255,255,0.9);
-  backdrop-filter: blur(12px);
-  box-shadow: 0 30px 80px rgba(0,0,0,0.1);
 }
 
-.info-section {
-  padding: 60px 55px;
-  background: linear-gradient(135deg, #2563eb, #1e40af);
-  color: white;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+/* ── Animated background ── */
+.bg-wrap {
+  position: fixed; inset: 0; z-index: 0; overflow: hidden;
+  background: linear-gradient(135deg, #f5f3ff 0%, #fdf4ff 40%, #fff1f5 70%, #f0fdfa 100%);
 }
 
-.info-section h1 {
-  font-size: 36px;
-  font-weight: 700;
-  margin-bottom: 20px;
-  letter-spacing: -0.5px;
+.bg-grid {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(124,58,237,.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(124,58,237,.055) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse 85% 85% at 50% 50%, black 20%, transparent 100%);
 }
 
-.info-section p {
-  font-size: 15px;
-  line-height: 1.8;
-  margin-bottom: 35px;
-  opacity: 0.95;
+.blob {
+  position: absolute; border-radius: 50%; filter: blur(65px); pointer-events: none;
+  animation: blobFloat 14s ease-in-out infinite alternate;
+}
+.b1 { width: 500px; height: 500px; top: -160px; left: -120px; background: radial-gradient(circle, rgba(124,58,237,.2), transparent 65%); }
+.b2 { width: 420px; height: 420px; bottom: -130px; right: -80px; background: radial-gradient(circle, rgba(236,72,153,.17), transparent 65%); animation-delay: -7s; }
+.b3 { width: 280px; height: 280px; top: 35%; left: 55%; background: radial-gradient(circle, rgba(59,130,246,.14), transparent 65%); animation-delay: -4s; }
+.b4 { width: 220px; height: 220px; bottom: 20%; left: 8%; background: radial-gradient(circle, rgba(20,184,166,.13), transparent 65%); animation-delay: -10s; }
+
+@keyframes blobFloat {
+  from { transform: translate(0,0) scale(1); }
+  to   { transform: translate(22px, 18px) scale(1.06); }
 }
 
-.features div {
-  margin-bottom: 14px;
-  font-size: 14px;
-  opacity: 0.95;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+/* ── Rainbow top bar ── */
+.rainbow-bar {
+  position: fixed; top: 0; left: 0; right: 0; height: 4px; z-index: 100;
+  background: linear-gradient(90deg, #6366f1, #8b5cf6, #ec4899, #f59e0b, #10b981, #3b82f6);
+  background-size: 200% 100%;
+  animation: rainbowShift 6s linear infinite;
 }
 
-.login-card {
-  padding: 60px 55px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  text-align: center;
+@keyframes rainbowShift {
+  0%   { background-position: 0% 0%; }
+  100% { background-position: 200% 0%; }
 }
 
-.login-card h2 {
-  font-size: 28px;
-  color: #1e293b;
-  font-weight: 600;
-  margin-bottom: 10px;
+/* ── Card container ── */
+.container {
+  position: relative; z-index: 10;
+  width: 920px; max-width: 96vw;
+  height: 580px; max-height: 94vh;
+  background: var(--white);
+  border: 2px solid rgba(124,58,237,.12);
+  border-radius: 28px;
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  overflow: hidden;
+  box-shadow:
+    0 0 0 5px rgba(124,58,237,.05),
+    0 32px 80px rgba(124,58,237,.16),
+    0 8px 24px rgba(236,72,153,.08);
+  animation: cardIn .75s cubic-bezier(.22,1,.36,1) both;
 }
 
-.subtitle {
-  font-size: 14px;
-  color: #64748b;
-  margin-bottom: 35px;
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(28px) scale(.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-.btn-custom {
-  text-decoration: none;
-  padding: 14px;
+/* ══════════════════════════════
+   LEFT PANEL
+══════════════════════════════ */
+.left {
+  padding: 44px 48px;
+  display: flex; flex-direction: column; justify-content: space-between;
+  background: linear-gradient(150deg, #f5f3ff 0%, #fdf4ff 50%, #fff1f5 100%);
+  border-right: 2px solid rgba(124,58,237,.1);
+  position: relative; overflow: hidden;
+}
+
+/* Corner glow */
+.left::after {
+  content: '';
+  position: absolute; top: -70px; left: -70px;
+  width: 240px; height: 240px; border-radius: 50%;
+  background: conic-gradient(from 0deg, rgba(99,102,241,.28), rgba(168,85,247,.22), rgba(236,72,153,.18), rgba(99,102,241,.28));
+  filter: blur(48px); opacity: .55; pointer-events: none;
+}
+
+/* Decorative dots pattern */
+.left::before {
+  content: '';
+  position: absolute; bottom: -30px; right: -30px;
+  width: 180px; height: 180px;
+  background-image: radial-gradient(circle, rgba(124,58,237,.15) 1.5px, transparent 1.5px);
+  background-size: 16px 16px;
+  border-radius: 50%; pointer-events: none;
+}
+
+/* Brand */
+.brand-link { text-decoration: none; color: inherit; display: inline-block; }
+.brand { display: flex; align-items: center; gap: 12px; position: relative; z-index: 2; }
+
+.brand-icon {
+  width: 44px; height: 44px; border-radius: 14px;
+  background: linear-gradient(135deg, var(--purple), var(--pink));
+  display: grid; place-items: center; font-size: 1.2rem; color: white;
+  box-shadow: 0 8px 22px rgba(124,58,237,.38); flex-shrink: 0;
+}
+
+.brand-name {
+  font-size: 1.2rem; font-weight: 900;
+  background: linear-gradient(135deg, var(--purple), var(--pink));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.brand-tagline {
+  font-size: 0.62rem; font-weight: 700;
+  letter-spacing: .14em; text-transform: uppercase;
+  color: var(--muted-lt); margin-top: 1px;
+}
+
+/* Hero copy */
+.hero { position: relative; z-index: 2; }
+
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--yellow-lt); border: 2px solid #fde68a;
+  color: #92400e; font-size: 0.72rem; font-weight: 800;
+  letter-spacing: .1em; text-transform: uppercase;
+  padding: 5px 14px; border-radius: 999px;
   margin-bottom: 18px;
-  border-radius: 12px;
-  font-weight: 500;
-  transition: all 0.3s ease;
-  display: block;
+  font-family: 'DM Mono', monospace;
 }
 
-.student-btn {
-  background: linear-gradient(135deg, #2563eb, #1e40af);
-  color: white;
-  box-shadow: 0 10px 20px rgba(37,99,235,0.3);
+.hero h1 {
+  font-size: clamp(1.7rem, 2.8vw, 2.4rem);
+  font-weight: 900; line-height: 1.15;
+  color: var(--text); margin-bottom: 14px;
 }
 
-.student-btn:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 15px 30px rgba(37,99,235,0.4);
+.hero h1 .grad {
+  background: linear-gradient(135deg, var(--purple), var(--pink) 60%, var(--orange));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
-.instructor-btn {
-  background: #f1f5f9;
-  color: #1e293b;
-  border: 1px solid #e2e8f0;
+.hero p {
+  font-size: 0.88rem; color: var(--muted);
+  line-height: 1.7; font-weight: 500;
+  max-width: 300px; margin-bottom: 22px;
 }
 
-.instructor-btn:hover {
-  background: #e2e8f0;
-  transform: translateY(-3px);
+/* Feature list */
+.features { list-style: none; position: relative; z-index: 2; }
+.features li {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 0.82rem; color: var(--muted);
+  font-weight: 700; padding: 5px 0;
+}
+.features li .fi {
+  width: 26px; height: 26px; border-radius: 8px;
+  display: grid; place-items: center; font-size: 0.72rem; flex-shrink: 0;
+}
+.fi-1 { background: var(--blue-lt);   color: var(--blue); }
+.fi-2 { background: var(--purple-lt); color: var(--purple); }
+.fi-3 { background: var(--pink-lt);   color: var(--pink); }
+.fi-4 { background: var(--teal-lt);   color: var(--teal); }
+.fi-5 { background: var(--yellow-lt); color: var(--yellow); }
+
+/* ══════════════════════════════
+   RIGHT PANEL
+══════════════════════════════ */
+.right {
+  padding: 44px 42px;
+  display: flex; flex-direction: column; justify-content: center;
+  background: var(--white); position: relative; overflow: hidden;
 }
 
+.right::before {
+  content: '';
+  position: absolute; top: -50px; right: -50px;
+  width: 200px; height: 200px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(168,85,247,.12), transparent 70%);
+  filter: blur(35px); pointer-events: none;
+}
+.right::after {
+  content: '';
+  position: absolute; bottom: -40px; left: -20px;
+  width: 170px; height: 170px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(236,72,153,.10), transparent 70%);
+  filter: blur(30px); pointer-events: none;
+}
+
+/* Header */
+.r-head { text-align: center; margin-bottom: 28px; position: relative; z-index: 2; }
+
+.r-head-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--purple-lt); border: 2px solid #ddd6fe;
+  color: var(--purple); font-size: 0.68rem; font-weight: 800;
+  letter-spacing: .12em; text-transform: uppercase;
+  padding: 4px 12px; border-radius: 999px;
+  margin-bottom: 14px; font-family: 'DM Mono', monospace;
+}
+
+.r-head h2 {
+  font-size: 1.35rem; font-weight: 900;
+  color: var(--text); margin-bottom: 6px;
+}
+
+.r-head p { font-size: 0.82rem; color: var(--muted-lt); font-weight: 500; line-height: 1.55; }
+
+/* Role cards */
+.roles { display: flex; flex-direction: column; gap: 13px; margin-bottom: 20px; position: relative; z-index: 2; }
+
+.role-card {
+  display: flex; align-items: center; gap: 16px;
+  padding: 18px 20px; border-radius: 18px;
+  border: 2px solid transparent; text-decoration: none;
+  position: relative; overflow: hidden;
+  transition: transform .22s cubic-bezier(.22,1,.36,1), box-shadow .22s, border-color .22s;
+  animation: slideIn .65s cubic-bezier(.22,1,.36,1) both;
+}
+
+.role-card:nth-child(1) { animation-delay: .18s; }
+.role-card:nth-child(2) { animation-delay: .30s; }
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(22px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* Shimmer sweep */
+.role-card::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.65), transparent);
+  transform: translateX(-100%); transition: transform .5s;
+}
+.role-card:hover::before { transform: translateX(100%); }
+
+/* Student card */
+.role-student {
+  background: linear-gradient(135deg, #eff6ff, #eef2ff);
+  border-color: #bfdbfe;
+}
+.role-student:hover {
+  transform: translateY(-4px) scale(1.01);
+  border-color: var(--blue);
+  box-shadow: 0 14px 36px rgba(59,130,246,.22), 0 0 0 4px rgba(59,130,246,.08);
+}
+
+/* Instructor card */
+.role-instructor {
+  background: linear-gradient(135deg, #f5f3ff, #fdf4ff);
+  border-color: #ddd6fe;
+}
+.role-instructor:hover {
+  transform: translateY(-4px) scale(1.01);
+  border-color: var(--purple);
+  box-shadow: 0 14px 36px rgba(124,58,237,.22), 0 0 0 4px rgba(124,58,237,.08);
+}
+
+/* Role icon */
+.role-ic {
+  width: 50px; height: 50px; flex-shrink: 0;
+  border-radius: 15px; display: grid; place-items: center;
+  font-size: 1.25rem; position: relative; z-index: 1;
+}
+.student-ic {
+  background: linear-gradient(135deg, var(--blue), #6366f1);
+  color: white; box-shadow: 0 6px 18px rgba(59,130,246,.4);
+}
+.instructor-ic {
+  background: linear-gradient(135deg, var(--purple), var(--pink));
+  color: white; box-shadow: 0 6px 18px rgba(124,58,237,.4);
+}
+
+/* Role text */
+.role-text { flex: 1; position: relative; z-index: 1; }
+.role-text strong { display: block; font-size: 0.98rem; font-weight: 900; color: var(--text); margin-bottom: 3px; }
+.role-text span   { font-size: 0.75rem; color: var(--muted-lt); line-height: 1.4; font-weight: 600; }
+
+/* Arrow */
+.role-arrow {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: rgba(124,58,237,.1); display: grid;
+  place-items: center; font-size: 0.75rem; color: var(--purple);
+  transition: background .2s, color .2s, transform .2s;
+  flex-shrink: 0; position: relative; z-index: 1;
+}
+.role-card:hover .role-arrow { background: var(--purple); color: white; transform: translateX(3px); }
+
+/* Divider */
 .divider {
-  margin: 25px 0;
-  font-size: 13px;
-  color: #94a3b8;
-  position: relative;
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 16px; position: relative; z-index: 2;
+}
+.divider hr   { flex: 1; border: none; border-top: 2px solid #f3f0ff; }
+.divider span { font-size: 0.68rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--muted-lt); font-family: 'DM Mono', monospace; white-space: nowrap; }
+
+/* Signup button */
+.btn-free {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  width: 100%; padding: 14px;
+  background: linear-gradient(135deg, #f0fdf4, #f0f9ff);
+  border: 2px dashed #6ee7b7; border-radius: 16px;
+  text-decoration: none; font-family: 'Nunito', sans-serif;
+  font-size: 0.88rem; font-weight: 800; color: var(--muted);
+  transition: all .25s; position: relative; z-index: 2; overflow: hidden;
+  animation: slideIn .65s .42s cubic-bezier(.22,1,.36,1) both;
+}
+.btn-free:hover {
+  background: linear-gradient(135deg, #d1fae5, #dbeafe);
+  border-color: var(--teal); border-style: solid;
+  color: var(--text); transform: translateY(-3px);
+  box-shadow: 0 10px 28px rgba(20,184,166,.2);
 }
 
-.divider::before,
-.divider::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  width: 35%;
-  height: 1px;
-  background: #e2e8f0;
+.free-badge {
+  display: inline-flex; align-items: center;
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white; font-size: 0.58rem; font-weight: 900;
+  letter-spacing: .1em; text-transform: uppercase;
+  padding: 2px 8px; border-radius: 999px;
+  box-shadow: 0 3px 8px rgba(16,185,129,.38);
 }
 
-.divider::before { left: 0; }
-.divider::after { right: 0; }
-
-.register-link {
-  font-size: 14px;
-  color: #2563eb;
-  text-decoration: none;
-  margin-bottom: 15px;
-}
-
-.register-link:hover {
-  text-decoration: underline;
-}
-
-.home-btn {
-  margin-top: 10px;
-  background: transparent;
-  border: 1px solid #2563eb;
-  color: #2563eb;
-}
-
-.home-btn:hover {
-  background: #2563eb;
-  color: white;
-}
-
-@media (max-width: 900px) {
-  .main-container {
-    grid-template-columns: 1fr;
-    height: auto;
-  }
-
-  .info-section {
-    text-align: center;
-    padding: 40px;
-  }
-
-  .login-card {
-    padding: 40px;
-  }
+/* ── Responsive ── */
+@media (max-width: 700px) {
+  html, body { overflow: auto; align-items: flex-start; padding-top: 24px; }
+  .container { grid-template-columns: 1fr; height: auto; border-radius: 20px; }
+  .left { display: none; }
+  .right { padding: 36px 24px; }
 }
 </style>
-
 </head>
-
 <body>
 
-<div class="auth-wrapper">
-  <div class="main-container">
+<div class="rainbow-bar"></div>
 
-    <div class="info-section">
-      <h1>Welcome to Speshway</h1>
-      <p>
-        A smart digital learning platform designed to help students grow 
-        and instructors teach with impact. Access structured courses, 
-        interactive tools, and real-time learning experiences.
-      </p>
+<!-- Background -->
+<div class="bg-wrap">
+  <div class="bg-grid"></div>
+  <div class="blob b1"></div>
+  <div class="blob b2"></div>
+  <div class="blob b3"></div>
+  <div class="blob b4"></div>
+</div>
 
-      <div class="features">
-        <div>✔ Structured Learning Paths</div>
-        <div>✔ Live & Interactive Classes</div>
-        <div>✔ Progress Tracking</div>
-        <div>✔ Certification Programs</div>
+<!-- Card -->
+<div class="container">
+
+  <!-- ══ LEFT ══ -->
+  <div class="left">
+
+    <a href="{% url 'smart_home' %}" class="brand-link">
+      <div class="brand">
+        <div class="brand-icon">🎓</div>
+        <div>
+          <div class="brand-name">Speshway</div>
+          <div class="brand-tagline">Learning Platform</div>
+        </div>
       </div>
+    </a>
+
+    <div class="hero">
+      <div class="hero-eyebrow">✨ Education Redefined</div>
+      <h1>Learn anything.<br><span class="grad">Grow every day.</span></h1>
+      <p>Join a global community of curious learners and expert instructors. Build skills that matter, earn certificates that open doors.</p>
     </div>
 
-    <div class="login-card">
-      <h2>Login As</h2>
-      <p class="subtitle">Select your role to continue</p>
-
-      <a href="{% url 'student_login' %}" class="btn-custom student-btn">
-        Student
-      </a>
-
-      <a href="{% url 'instructor_login' %}" class="btn-custom instructor-btn">
-        Instructor
-      </a>
-
-      <div class="divider">OR</div>
-
-      <p class="register-text">
-          New User?
-          <a href="{% url 'signup_page' %}" class="register-link">
-              Register
-          </a>
-      </p>
-
-      <a href="/" class="btn-custom home-btn">
-        ← Back to Home
-      </a>
-
-    </div>
+    <ul class="features">
+      <li><span class="fi fi-1"><i class="fas fa-road"></i></span> Personalized AI learning paths</li>
+      <li><span class="fi fi-2"><i class="fas fa-pen-nib"></i></span> Interactive assignments &amp; projects</li>
+      <li><span class="fi fi-3"><i class="fas fa-chart-line"></i></span> Real-time progress tracking</li>
+      <li><span class="fi fi-4"><i class="fas fa-certificate"></i></span> Verified certificates on completion</li>
+      <li><span class="fi fi-5"><i class="fas fa-coins"></i></span> Instructors earn from their courses</li>
+    </ul>
 
   </div>
+
+  <!-- ══ RIGHT ══ -->
+  <div class="right">
+
+    <div class="r-head">
+      <div class="r-head-badge">👋 Welcome Back</div>
+      <h2>Choose your journey</h2>
+      <p>Select how you'd like to continue<br>to your Speshway account.</p>
+    </div>
+
+    <div class="roles">
+
+      <!-- Student -->
+      <a href="{% url 'student_login' %}" class="role-card role-student">
+        <div class="role-ic student-ic"><i class="fas fa-user-graduate"></i></div>
+        <div class="role-text">
+          <strong>Student Login</strong>
+          <span>Access your courses, assignments &amp; progress</span>
+        </div>
+        <div class="role-arrow"><i class="fas fa-arrow-right"></i></div>
+      </a>
+
+      <!-- Instructor -->
+      <a href="{% url 'instructor_login' %}" class="role-card role-instructor">
+        <div class="role-ic instructor-ic"><i class="fas fa-chalkboard-teacher"></i></div>
+        <div class="role-text">
+          <strong>Instructor Login</strong>
+          <span>Manage courses, students &amp; analytics</span>
+        </div>
+        <div class="role-arrow"><i class="fas fa-arrow-right"></i></div>
+      </a>
+
+    </div>
+
+    <div class="divider">
+      <hr><span>New here?</span><hr>
+    </div>
+
+    <a href="{% url 'signup_page' %}" class="btn-free">
+      <i class="fas fa-sparkles" style="color:#a78bfa;font-size:0.85rem;"></i>
+      Don't have an account? Create one
+    </a>
+
+  </div>
+
 </div>
 
 </body>

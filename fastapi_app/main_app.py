@@ -11,11 +11,11 @@ load_dotenv()
 print("API_KEY loaded:", bool(os.getenv("API_KEY")))
 
 
-app = FastAPI(title="Bildung API")
+app = FastAPI(title="Speshway API")
 
 @app.get("/")
 def root():
-    return {"message": "Bildung FastAPI is running"}
+    return {"message": "Speshway FastAPI is running"}
 
 app.add_middleware(
     CORSMiddleware,

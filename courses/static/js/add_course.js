@@ -8,9 +8,6 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 
-/* =========================
-   CSRF
-========================= */
 function getCSRFToken() {
     const name = "csrftoken=";
     const cookies = document.cookie.split(";");
@@ -201,9 +198,6 @@ function openQuiz(index) {
     });
 }
 
-/* =========================
-   ASSIGNMENT
-========================= */
 function openAssignment(index) {
     const item = structure[index];
 
@@ -244,48 +238,39 @@ function openAssignment(index) {
 }
 
 function saveCourse(callback = null) {
-    const level = document.getElementById("courseLevel").value;
 
-    if (!level) {
-        alert("Please select a course level");
-        return;
-    }
-    const payload = {
-        course_id: courseId,
-        title: document.getElementById("courseTitle").value,
-        description: document.getElementById("courseDescription").value,
-        price: document.getElementById("coursePrice").value,
-        category: document.getElementById("courseCategory").value,
-        level: level,
-        structure: structure
-    };
+let formData = new FormData();
 
-    fetch(`/accounts/instructor/save/`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": getCSRFToken()
-        },
-        credentials: "same-origin",
-        body: JSON.stringify(payload)
-    })
-    .then(res => {
-        if (!res.ok) throw new Error("Save failed");
-        return res.json();
-    })
-    .then(data => {
-        courseId = data.course_id;
-        structure = data.structure;
+formData.append("course_id", courseId);
+formData.append("title", document.getElementById("courseTitle").value);
+formData.append("description", document.getElementById("courseDescription").value);
+formData.append("price", document.getElementById("coursePrice").value);
+formData.append("category", document.getElementById("courseCategory").value);
+formData.append("level", document.getElementById("courseLevel").value);
 
-        if (callback) callback();
-        else alert("Course Saved!");
-        })
-    .catch(err => {
-        console.error(err);
-        alert("Save failed — check server logs");
-    });
+formData.append("structure", JSON.stringify(structure));
+
+const thumbnail = document.getElementById("courseThumbnail");
+
+if (thumbnail && thumbnail.files.length > 0) {
+    formData.append("thumbnail", thumbnail.files[0]);
 }
 
+fetch("/accounts/instructor/save/", {
+method: "POST",
+body: formData
+})
+.then(res => res.json())
+.then(data => {
+
+courseId = data.course_id;
+structure = data.structure;
+
+if (callback) callback();
+else alert("Course Saved!");
+
+});
+}
 
 function publishCourse() {
     if (!courseId) {

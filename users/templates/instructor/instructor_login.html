@@ -2,298 +2,528 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Instructor Login</title>
-
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <meta charset="UTF-8">
+  <title>Speshway — Instructor Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 
 <style>
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap");
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-  font-family:"Poppins",sans-serif;
-}
-
-html, body{
-  height:100%;
-  overflow:hidden; 
-}
-
-body{
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  background:linear-gradient(to right,#ffdde1,#ee9ca7);
-}
-
-.container-glass{
-  display:flex;
-  width:950px;
-  height:92vh;              
-  border-radius:20px;
-  overflow:hidden;         
-  background:rgba(255,255,255,0.18);
-  backdrop-filter:blur(12px);
-  box-shadow:0 25px 45px rgba(0,0,0,.25);
+:root {
+  --bg:        #fdfcff;
+  --white:     #ffffff;
+  --border:    #e8e4f0;
+  --purple:    #7c3aed;
+  --purple-lt: #ede9fe;
+  --pink:      #ec4899;
+  --pink-lt:   #fce7f3;
+  --blue:      #3b82f6;
+  --blue-lt:   #dbeafe;
+  --teal:      #14b8a6;
+  --teal-lt:   #ccfbf1;
+  --orange:    #f97316;
+  --yellow:    #f59e0b;
+  --yellow-lt: #fef3c7;
+  --green:     #22c55e;
+  --green-lt:  #dcfce7;
+  --text:      #1e1b2e;
+  --muted:     #6b7280;
+  --muted-lt:  #9ca3af;
 }
 
-.login-section{
-  flex:1;
-  padding:35px;             
-  background:white;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;   
+html, body {
+  height: 100%; overflow: hidden;
+  font-family: 'Nunito', sans-serif;
+  background: var(--bg);
+  display: flex; align-items: center; justify-content: center;
 }
 
-.logo{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  margin-bottom:20px;
+/* Background */
+.bg-wrap {
+  position: fixed; inset: 0; z-index: 0; overflow: hidden;
+  background: linear-gradient(135deg, #f5f3ff 0%, #fdf4ff 40%, #fff1f5 70%, #f0fdfa 100%);
 }
-.logo i{
-  font-size:26px;
-  color:#2a5298;
+.bg-grid {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(124,58,237,.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(124,58,237,.055) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse 85% 85% at 50% 50%, black 20%, transparent 100%);
 }
-.logo h1{
-  font-weight:600;
-}
-
-h2{
-  color:#1e3c72;
-}
-.subtitle{
-  margin:8px 0 20px;
-  color:#555;
-}
-
-.form-group{
-  margin-bottom:15px;
-}
-.form-group label{
-  display:block;
-  font-weight:500;
-  margin-bottom:6px;
-}
-.form-group input{
-  width:100%;
-  padding:10px 12px;
-  border-radius:8px;
-  border:1px solid #ccc;
-  outline:none;
-}
-.form-group input:focus{
-  border-color:#2a5298;
+.blob { position: absolute; border-radius: 50%; filter: blur(65px); pointer-events: none; animation: blobFloat 14s ease-in-out infinite alternate; }
+.b1 { width: 500px; height: 500px; top: -160px; left: -120px; background: radial-gradient(circle, rgba(124,58,237,.2), transparent 65%); }
+.b2 { width: 420px; height: 420px; bottom: -130px; right: -80px; background: radial-gradient(circle, rgba(236,72,153,.17), transparent 65%); animation-delay: -7s; }
+.b3 { width: 280px; height: 280px; top: 35%; left: 55%; background: radial-gradient(circle, rgba(59,130,246,.14), transparent 65%); animation-delay: -4s; }
+.b4 { width: 220px; height: 220px; bottom: 20%; left: 8%; background: radial-gradient(circle, rgba(20,184,166,.13), transparent 65%); animation-delay: -10s; }
+@keyframes blobFloat {
+  from { transform: translate(0,0) scale(1); }
+  to   { transform: translate(22px, 18px) scale(1.06); }
 }
 
-.password-box{
-  position:relative;
+/* Rainbow bar */
+.rainbow-bar {
+  position: fixed; top: 0; left: 0; right: 0; height: 4px; z-index: 100;
+  background: linear-gradient(90deg, #6366f1, #8b5cf6, #ec4899, #f59e0b, #10b981, #3b82f6);
+  background-size: 200% 100%;
+  animation: rainbowShift 6s linear infinite;
 }
-#togglePassword{
-  position:absolute;
-  right:12px;
-  top:50%;
-  transform:translateY(-50%);
-  cursor:pointer;
+@keyframes rainbowShift { 0% { background-position: 0%; } 100% { background-position: 200%; } }
+
+/* Card */
+.card {
+  position: relative; z-index: 10;
+  width: 900px; max-width: 96vw;
+  height: 750px; max-height: 94vh;
+  background: var(--white);
+  border: 2px solid rgba(124,58,237,.12);
+  border-radius: 28px;
+  display: grid;
+  grid-template-columns: 1fr 1.1fr;
+  overflow: hidden;
+  box-shadow:
+    0 0 0 5px rgba(124,58,237,.05),
+    0 32px 80px rgba(124,58,237,.16),
+    0 8px 24px rgba(236,72,153,.08);
+  animation: cardIn .75s cubic-bezier(.22,1,.36,1) both;
+}
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(28px) scale(.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-.options{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin:12px 0;
+/* ══ LEFT — FORM ══ */
+.pane-l {
+  padding: 44px 46px;
+  display: flex; flex-direction: column; justify-content: center;
+  background: var(--white); position: relative; overflow: hidden;
 }
-.forgot{
-  color:red;
-  text-decoration:none;
+.pane-l::before {
+  content: ''; position: absolute; top: -50px; right: -50px;
+  width: 200px; height: 200px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(168,85,247,.1), transparent 70%);
+  filter: blur(35px); pointer-events: none;
 }
-
-.login-btn{
-  width:100%;
-  padding:11px;
-  background:linear-gradient(90deg,#1e3c72,#2a5298);
-  border:none;
-  border-radius:8px;
-  color:white;
-  font-weight:600;
-  cursor:pointer;
-}
-.login-btn:hover{
-  opacity:.9;
+.pane-l::after {
+  content: ''; position: absolute; bottom: -40px; left: -20px;
+  width: 170px; height: 170px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(236,72,153,.08), transparent 70%);
+  filter: blur(30px); pointer-events: none;
 }
 
-.divider{
-  text-align:center;
-  margin:18px 0;
-  position:relative;
+/* Brand */
+.brand-link { text-decoration: none; color: inherit; display: inline-block; margin-bottom: 28px; }
+.brand { display: flex; align-items: center; gap: 12px; position: relative; z-index: 2; }
+.brand-icon {
+  width: 40px; height: 40px; border-radius: 13px;
+  background: linear-gradient(135deg, var(--purple), var(--pink));
+  display: grid; place-items: center; font-size: 1.1rem; color: white;
+  box-shadow: 0 6px 18px rgba(124,58,237,.38); flex-shrink: 0;
 }
-.divider span{
-  background:white;
-  padding:5px 15px;
-  font-weight:600;
+.brand-name {
+  font-size: 1.1rem; font-weight: 900;
+  background: linear-gradient(135deg, var(--purple), var(--pink));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
 }
-.divider:before,
-.divider:after{
-  content:"";
-  position:absolute;
-  top:50%;
-  width:40%;
-  height:1px;
-  background:#ccc;
-}
-.divider:before{left:0;}
-.divider:after{right:0;}
+.brand-tagline { font-size: 0.6rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--muted-lt); margin-top: 1px; }
 
-.google-btn{
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  width:48px;
-  height:48px;
-  margin:0 auto;
-  border-radius:50%;
-  background:#db4437;
-  color:white;
-  font-size:18px;
+/* Heading */
+.l-head { margin-bottom: 22px; position: relative; z-index: 2; }
+.l-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--purple-lt); border: 2px solid #ddd6fe;
+  color: var(--purple); font-size: 0.68rem; font-weight: 800;
+  letter-spacing: .12em; text-transform: uppercase;
+  padding: 4px 12px; border-radius: 999px;
+  margin-bottom: 12px; font-family: 'DM Mono', monospace;
+}
+.l-head h2 { font-size: 1.55rem; font-weight: 900; color: var(--text); margin-bottom: 5px; line-height: 1.2; }
+.l-head h2 .grad {
+  background: linear-gradient(135deg, var(--purple), var(--pink));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.l-head p { font-size: 0.82rem; color: var(--muted-lt); font-weight: 500; }
+
+/* Alert */
+.form-alert {
+  display: flex; align-items: flex-start; gap: 10px;
+  background: #fef2f2; border: 2px solid #fecaca;
+  border-radius: 12px; padding: 11px 14px;
+  margin-bottom: 14px; font-size: 0.8rem; color: #991b1b; font-weight: 600;
+  position: relative; z-index: 2;
+}
+.form-alert i { color: #ef4444; font-size: 0.82rem; margin-top: 1px; flex-shrink: 0; }
+
+/* Fields */
+.field { margin-bottom: 13px; position: relative; z-index: 2; }
+.field-label {
+  font-size: 0.7rem; font-weight: 800;
+  letter-spacing: .08em; text-transform: uppercase;
+  color: var(--muted); font-family: 'DM Mono', monospace;
+  display: block; margin-bottom: 6px;
+}
+.field-wrap { position: relative; }
+.field-wrap .f-icon {
+  position: absolute; left: 13px; top: 50%; transform: translateY(-50%);
+  color: var(--muted-lt); font-size: 0.82rem; pointer-events: none; transition: color .2s;
+}
+.field-wrap:focus-within .f-icon { color: var(--purple); }
+
+.field-wrap input {
+  width: 100%; height: 43px; padding: 0 42px 0 36px;
+  border: 2px solid var(--border); border-radius: 11px;
+  background: #fafafa; color: var(--text);
+  font-family: 'Nunito', sans-serif; font-size: 0.88rem; font-weight: 600;
+  outline: none; transition: border-color .2s, background .2s, box-shadow .2s;
+}
+.field-wrap input::placeholder { color: var(--muted-lt); font-weight: 500; }
+.field-wrap input:focus { border-color: var(--purple); background: var(--white); box-shadow: 0 0 0 3px rgba(124,58,237,.1); }
+
+/* Eye toggle */
+.eye-toggle {
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; cursor: pointer;
+  color: var(--muted-lt); font-size: 0.82rem;
+  padding: 0; display: flex; align-items: center; transition: color .2s;
+}
+.eye-toggle:hover { color: var(--purple); }
+
+/* Options */
+.opts {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 16px; position: relative; z-index: 2;
+}
+.chk { display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; font-size: 0.78rem; color: var(--muted); font-weight: 600; }
+.chk input { display: none; }
+.chk-box {
+  width: 16px; height: 16px; border: 2px solid var(--border);
+  border-radius: 5px; background: #fafafa;
+  display: grid; place-items: center; transition: all .2s; flex-shrink: 0;
+}
+.chk input:checked ~ .chk-box { background: var(--purple); border-color: var(--purple); }
+.chk input:checked ~ .chk-box::after { content: '✓'; font-size: 0.65rem; font-weight: 900; color: white; }
+
+.forgot { font-size: 0.78rem; font-weight: 700; color: var(--purple); text-decoration: none; transition: color .2s; }
+.forgot:hover { color: var(--pink); }
+
+/* Submit */
+.btn-login {
+  width: 100%; height: 44px; border: none; border-radius: 12px;
+  background: linear-gradient(135deg, var(--purple), var(--pink));
+  color: white; font-family: 'Nunito', sans-serif;
+  font-size: 0.95rem; font-weight: 900;
+  cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 9px;
+  box-shadow: 0 6px 20px rgba(124,58,237,.35);
+  transition: all .22s; position: relative; z-index: 2;
+}
+.btn-login:hover { transform: translateY(-3px); box-shadow: 0 12px 28px rgba(124,58,237,.45); filter: brightness(1.07); }
+.btn-login:active { transform: translateY(0); }
+
+/* Divider */
+.divider {
+  display: flex; align-items: center; gap: 10px;
+  margin: 12px 0; position: relative; z-index: 2;
+}
+.divider hr { flex: 1; border: none; border-top: 2px solid #f3f0ff; }
+.divider span { font-size: 0.67rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--muted-lt); font-family: 'DM Mono', monospace; white-space: nowrap; }
+
+/* Google */
+.btn-google {
+  width: 100%; height: 42px; border-radius: 12px;
+  border: 2px solid var(--border); background: var(--white);
+  color: var(--text); font-family: 'Nunito', sans-serif;
+  font-size: 0.88rem; font-weight: 800;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  text-decoration: none; transition: all .22s;
+  position: relative; z-index: 2;
+}
+.btn-google:hover { border-color: #ea4335; background: #fff5f5; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(234,67,53,.14); }
+.g-icon { width: 18px; height: 18px; flex-shrink: 0; }
+
+/* Signup link */
+.signup-link {
+  text-align: center; margin-top: 14px;
+  font-size: 0.8rem; color: var(--muted); font-weight: 600;
+  position: relative; z-index: 2;
+}
+.signup-link a { color: var(--purple); font-weight: 800; text-decoration: none; transition: color .2s; }
+.signup-link a:hover { color: var(--pink); }
+
+/* ══ RIGHT — HERO ══ */
+.pane-r {
+  background: linear-gradient(145deg, #1e1b2e 0%, #2d1b69 60%, #2d1040 100%);
+  display: flex; flex-direction: column; justify-content: space-between;
+  padding: 44px 40px; position: relative; overflow: hidden;
+}
+.pane-r::before {
+  content: ''; position: absolute; top: -60px; right: -60px;
+  width: 280px; height: 280px; border-radius: 50%;
+  background: conic-gradient(from 0deg, rgba(124,58,237,.5), rgba(236,72,153,.4), rgba(249,115,22,.3), rgba(124,58,237,.5));
+  filter: blur(55px); opacity: .6; pointer-events: none;
+}
+.pane-r::after {
+  content: ''; position: absolute; bottom: -40px; left: -40px;
+  width: 200px; height: 200px;
+  background: radial-gradient(circle, rgba(236,72,153,.2), transparent 70%);
+  filter: blur(40px); pointer-events: none;
 }
 
-.signup{
-  text-align:center;
-  margin-top:18px;
-}
-.signup a{
-  color:#2a5298;
-  font-weight:600;
-}
+.ring { position: absolute; border-radius: 50%; border: 1px solid rgba(255,255,255,.05); pointer-events: none; }
+.ring-1 { width: 380px; height: 380px; top: -120px; right: -130px; }
+.ring-2 { width: 240px; height: 240px; top: -60px; right: -60px; border-color: rgba(124,58,237,.1); }
+.ring-3 { width: 160px; height: 160px; bottom: -50px; left: -50px; border-color: rgba(236,72,153,.08); }
 
-.welcome-section{
-  flex:1;
-  background:url("https://images.unsplash.com/photo-1498243691581-b145c3f54a5a")
-  center/cover;
-  position:relative;
-  color:white;
-}
-.overlay{
-  position:absolute;
-  inset:0;
-  background:linear-gradient(rgba(30,60,114,.85),rgba(42,82,152,.85));
-}
-.content{
-  position:relative;
-  z-index:2;
-  padding:40px;  
-  text-align:center;
-}
-.features{
-  list-style:none;
-  padding:0;
-  margin-top:20px;
-}
-.features li{
-  margin-bottom:10px;
-}
+.dot { position: absolute; border-radius: 50%; animation: dotPulse 4s ease-in-out infinite; pointer-events: none; }
+.dot-1 { width: 6px; height: 6px; background: #d8b4fe; top: 22%; right: 18%; opacity: .5; }
+.dot-2 { width: 4px; height: 4px; background: #f9a8d4; bottom: 30%; left: 14%; opacity: .4; animation-delay: 1.5s; }
+.dot-3 { width: 8px; height: 8px; background: #fdba74; top: 60%; right: 10%; opacity: .3; animation-delay: 3s; }
+@keyframes dotPulse { 0%,100%{transform:scale(1);opacity:.4;} 50%{transform:scale(1.7);opacity:.8;} }
 
-@media(max-width:900px){
-  html,body{
-    overflow:auto; 
-  }
+.r-top { position: relative; z-index: 2; }
+.r-tag {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 0.67rem; letter-spacing: .18em; text-transform: uppercase;
+  color: #d8b4fe; font-weight: 700; margin-bottom: 14px;
+  font-family: 'DM Mono', monospace;
+}
+.r-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: #c084fc; box-shadow: 0 0 10px #c084fc;
+  animation: blink 2s ease-in-out infinite;
+}
+@keyframes blink { 0%,100%{opacity:1;} 50%{opacity:.2;} }
 
-  .container-glass{
-    flex-direction:column;
-    width:95%;
-    height:auto;
-  }
+.r-title { font-size: clamp(1.6rem, 2.8vw, 2.4rem); font-weight: 900; line-height: 1.15; color: white; margin-bottom: 10px; }
+.r-title .grad {
+  background: linear-gradient(135deg, #d8b4fe, #f9a8d4);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.r-sub { font-size: 0.82rem; color: rgba(255,255,255,.35); line-height: 1.7; font-weight: 500; max-width: 260px; margin-bottom: 24px; }
+
+/* Features */
+.feats { display: flex; flex-direction: column; gap: 9px; position: relative; z-index: 2; }
+.feat {
+  display: flex; align-items: center; gap: 13px;
+  padding: 11px 14px; border-radius: 13px;
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.08);
+  transition: background .2s, transform .2s;
+  animation: slideR .6s cubic-bezier(.22,1,.36,1) both;
+}
+.feat:hover { background: rgba(255,255,255,.09); transform: translateX(4px); }
+.feat:nth-child(1){animation-delay:.2s} .feat:nth-child(2){animation-delay:.3s}
+.feat:nth-child(3){animation-delay:.4s} .feat:nth-child(4){animation-delay:.5s}
+.feat:nth-child(5){animation-delay:.6s}
+@keyframes slideR { from{opacity:0;transform:translateX(16px)} to{opacity:1;transform:translateX(0)} }
+
+.feat-ic { width: 32px; height: 32px; flex-shrink: 0; border-radius: 9px; display: grid; place-items: center; font-size: 0.82rem; }
+.fi-1 { background: rgba(124,58,237,.3);  color: #d8b4fe; }
+.fi-2 { background: rgba(236,72,153,.25); color: #f9a8d4; }
+.fi-3 { background: rgba(249,115,22,.2);  color: #fdba74; }
+.fi-4 { background: rgba(245,158,11,.2);  color: #fcd34d; }
+.fi-5 { background: rgba(34,197,94,.2);   color: #86efac; }
+
+.feat-info strong { display: block; font-size: 0.82rem; font-weight: 800; color: rgba(255,255,255,.85); margin-bottom: 1px; }
+.feat-info span   { font-size: 0.72rem; color: rgba(255,255,255,.3); }
+
+/* Stat bar */
+.stat-bar {
+  display: flex; border: 1px solid rgba(255,255,255,.08);
+  border-radius: 14px; overflow: hidden;
+  background: rgba(255,255,255,.03);
+  position: relative; z-index: 2;
+}
+.sitem {
+  flex: 1; padding: 12px 8px; text-align: center;
+  border-right: 1px solid rgba(255,255,255,.06); transition: background .2s;
+}
+.sitem:last-child { border-right: none; }
+.sitem:hover { background: rgba(255,255,255,.06); }
+.sitem strong { display: block; font-size: 1.1rem; font-weight: 900; line-height: 1.1; }
+.sitem:nth-child(1) strong { color: #d8b4fe; }
+.sitem:nth-child(2) strong { color: #f9a8d4; }
+.sitem:nth-child(3) strong { color: #fdba74; }
+.sitem span { font-size: 0.62rem; color: rgba(255,255,255,.25); letter-spacing: .1em; text-transform: uppercase; font-family: 'DM Mono', monospace; }
+
+/* Responsive */
+@media (max-width: 680px) {
+  html, body { overflow: auto; align-items: flex-start; }
+  .card { grid-template-columns: 1fr; height: auto; border-radius: 0; }
+  .pane-r { display: none; }
+  .pane-l { padding: 32px 22px; }
 }
 </style>
 </head>
-
 <body>
 
-<div class="container-glass">
+<div class="rainbow-bar"></div>
 
-  <div class="login-section">
+<div class="bg-wrap">
+  <div class="bg-grid"></div>
+  <div class="blob b1"></div>
+  <div class="blob b2"></div>
+  <div class="blob b3"></div>
+  <div class="blob b4"></div>
+</div>
 
-    <div class="logo">
-      <i class="fas fa-chalkboard-teacher"></i>
-      <h1>SPESHWAY</h1>
+<div class="card">
+
+  <!-- ══ LEFT ══ -->
+  <div class="pane-l">
+
+    <a href="{% url 'smart_home' %}" class="brand-link">
+      <div class="brand">
+        <div class="brand-icon"><i class="fas fa-chalkboard-teacher"></i></div>
+        <div>
+          <div class="brand-name">Speshway</div>
+          <div class="brand-tagline">Learning Platform</div>
+        </div>
+      </div>
+    </a>
+
+    <div class="l-head">
+      <div class="l-badge">🏫 Instructor Portal</div>
+      <h2>Welcome back</h2>
+      <p>Login to manage your courses and inspire students.</p>
     </div>
 
-    <h2>Welcome Back, Instructor!</h2>
-    <p class="subtitle">Login to manage your courses and students</p>
+    {% if form.non_field_errors %}
+    <div class="form-alert">
+      <i class="fas fa-circle-exclamation"></i>
+      <div>{{ form.non_field_errors }}</div>
+    </div>
+    {% endif %}
 
-    <form method="post">
+    <form method="post" novalidate>
       {% csrf_token %}
 
-      <div class="form-group">
-        <label><i class="fas fa-user"></i> Email</label>
-        {{ form.username }}
-      </div>
-
-      <div class="form-group">
-        <label><i class="fas fa-lock"></i> Password</label>
-        <div class="password-box">
-          {{ form.password }}
-          <span id="togglePassword"><i class="fas fa-eye"></i></span>
+      <div class="field">
+        <label class="field-label">Username or Email</label>
+        <div class="field-wrap">
+          <i class="fas fa-at f-icon"></i>
+          {{ form.username }}
         </div>
       </div>
 
-      <div class="options">
-        <label><input type="checkbox" name="remember_me"> Remember me</label>
-        <a href="{% url 'forgot_password' %}" class="forgot">Forgot Password?</a>
+      <div class="field">
+        <label class="field-label">Password</label>
+        <div class="field-wrap">
+          <i class="fas fa-lock f-icon"></i>
+          {{ form.password }}
+          <button type="button" class="eye-toggle" id="togglePw">
+            <i class="fas fa-eye" id="eyeIc"></i>
+          </button>
+        </div>
       </div>
 
-      <button type="submit" class="login-btn">Login</button>
-
-      <div class="divider"><span>OR</span></div>
-
-      <a href="{% url 'google_oauth_entry' %}?type=instructor" class="google-btn">
-        <i class="fab fa-google"></i>
-      </a>
-
-      <div class="signup">
-        Don’t have an account?
-        <a href="{% url 'signup_page' %}">Signup</a>
+      <div class="opts">
+        <label class="chk">
+          <input type="checkbox" name="remember_me">
+          <div class="chk-box"></div>
+          Remember me
+        </label>
+        <a href="{% url 'forgot_password' %}" class="forgot">Forgot password?</a>
       </div>
 
+      <button type="submit" class="btn-login">
+        <i class="fas fa-arrow-right-to-bracket"></i> Sign In as Instructor
+      </button>
     </form>
+
+    <div class="divider"><hr><span>or continue with</span><hr></div>
+
+    <a href="{% url 'google_oauth_entry' %}?type=instructor" class="btn-google">
+      <svg class="g-icon" viewBox="0 0 48 48">
+        <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+        <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+        <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+        <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+      </svg>
+      Continue with Google
+    </a>
+
+    <div class="signup-link">
+      Don't have an account? <a href="{% url 'signup_page' %}">Sign up→</a>
+    </div>
+
   </div>
 
-  <div class="welcome-section">
-    <div class="overlay"></div>
-    <div class="content">
-      <h3>Teach. Inspire. Lead.</h3>
-      <p>Create impactful courses and grow globally.</p>
-      <ul class="features">
-        <li><i class="fas fa-check-circle"></i> Create & manage courses</li>
-        <li><i class="fas fa-check-circle"></i> Monitor student progress</li>
-        <li><i class="fas fa-check-circle"></i> Instructor analytics dashboard</li>
-        <li><i class="fas fa-check-circle"></i> Global reach</li>
-      </ul>
+  <!-- ══ RIGHT ══ -->
+  <div class="pane-r">
+    <div class="ring ring-1"></div>
+    <div class="ring ring-2"></div>
+    <div class="ring ring-3"></div>
+    <div class="dot dot-1"></div>
+    <div class="dot dot-2"></div>
+    <div class="dot dot-3"></div>
+
+    <div class="r-top">
+      <div class="r-tag"><div class="r-dot"></div> For Instructors</div>
+      <div class="r-title">Teach. Track.<br><span class="grad">Inspire.</span></div>
+      <p class="r-sub">Create impactful courses, monitor every student's journey, and grow your teaching career globally.</p>
     </div>
+
+    <div class="feats">
+      <div class="feat">
+        <div class="feat-ic fi-1"><i class="fas fa-book-open"></i></div>
+        <div class="feat-info">
+          <strong>Course Builder</strong>
+          <span>Create &amp; publish courses with ease</span>
+        </div>
+      </div>
+      <div class="feat">
+        <div class="feat-ic fi-2"><i class="fas fa-chart-bar"></i></div>
+        <div class="feat-info">
+          <strong>Analytics Dashboard</strong>
+          <span>Deep insights on student engagement</span>
+        </div>
+      </div>
+      <div class="feat">
+        <div class="feat-ic fi-3"><i class="fas fa-users"></i></div>
+        <div class="feat-info">
+          <strong>Student Management</strong>
+          <span>Track progress across all learners</span>
+        </div>
+      </div>
+      <div class="feat">
+        <div class="feat-ic fi-4"><i class="fas fa-globe"></i></div>
+        <div class="feat-info">
+          <strong>Global Reach</strong>
+          <span>Students in 50+ countries</span>
+        </div>
+      </div>
+      <div class="feat">
+        <div class="feat-ic fi-5"><i class="fas fa-coins"></i></div>
+        <div class="feat-info">
+          <strong>Earn &amp; Grow</strong>
+          <span>Monetise your expertise</span>
+        </div>
+      </div>
+    </div>
+
   </div>
 
 </div>
 
 <script>
-const toggle=document.getElementById("togglePassword");
-if(toggle){
-  toggle.addEventListener("click",function(){
-    const input=document.getElementById("id_password");
-    const icon=this.querySelector("i");
-    if(input.type==="password"){
-      input.type="text";
-      icon.classList.replace("fa-eye","fa-eye-slash");
-    }else{
-      input.type="password";
-      icon.classList.replace("fa-eye-slash","fa-eye");
-    }
+document.addEventListener("DOMContentLoaded", () => {
+  const btn = document.getElementById("togglePw");
+  const ic  = document.getElementById("eyeIc");
+  if (btn) {
+    btn.addEventListener("click", () => {
+      const pw = document.querySelector("[name='password'], #id_password");
+      if (!pw) return;
+      const show = pw.type === "password";
+      pw.type = show ? "text" : "password";
+      ic.className = show ? "fas fa-eye-slash" : "fas fa-eye";
+    });
+  }
+  document.querySelectorAll("input").forEach(el => {
+    el.style.fontFamily = "'Nunito', sans-serif";
   });
-}
+});
 </script>
 
 </body>

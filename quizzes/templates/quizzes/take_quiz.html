@@ -1,120 +1,524 @@
-{% load static %}
+ 
+ {% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>{{ quiz.title }} | Quiz</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ quiz.title }} — Take Quiz | SPESHWAY</title>
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 
-<style>
-    body {
-        background: #f4f6f9;
-    }
-    .quiz-card {
-        border-radius: 14px;
-    }
-    .question-card {
-        border-left: 5px solid #0d6efd;
-        transition: all 0.2s ease;
-    }
-    .question-card:hover {
-        background: #f8fbff;
-    }
-    .form-check-input:checked {
-        background-color: #0d6efd;
-        border-color: #0d6efd;
-    }
-</style>
+  <style>
+  :root {
+    --amber:    #d97706;
+    --amber-lt: #fef3c7;
+    --rust:     #b45309;
+    --cream:    #fffbf5;
+    --ink:      #1c1412;
+    --muted:    #7c6f67;
+    --border:   #e8ddd4;
+    --glass:    rgba(255,251,245,0.82);
+    --shadow:   0 8px 40px rgba(28,20,18,0.10);
+    --green:    #16a34a;
+    --green-lt: #dcfce7;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family:  Franklin Gothic Medium;
+    background: var(--cream);
+    color: var(--ink);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 85% 10%, #fde68a55 0%, transparent 60%),
+      radial-gradient(ellipse 40% 60% at 5% 90%,  #fcd34d33 0%, transparent 55%),
+      radial-gradient(ellipse 50% 40% at 50% 50%, #fff7ed   0%, transparent 80%);
+    pointer-events: none; z-index: 0;
+  }
+
+  body::after {
+    content: '';
+    position: fixed; top: -120px; right: -120px;
+    width: 420px; height: 420px;
+    border: 1.5px solid rgba(217,119,6,0.18);
+    border-radius: 50%;
+    pointer-events: none; z-index: 0;
+    animation: spin 40s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ════════ TOPBAR ════════ */
+  .topbar {
+    position: sticky; top: 0; z-index: 999;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 48px;
+    background: var(--glass);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .brand {
+    font-family:  Franklin Gothic Medium;
+    font-weight: 700; font-size: 26px;
+    letter-spacing: .06em; color: var(--ink);
+    text-decoration: none;
+    display: flex; align-items: center; gap: 10px;
+  }
+
+  .brand .dot {
+    width: 9px; height: 9px; border-radius: 50%;
+    background: var(--amber);
+    box-shadow: 0 0 0 3px rgba(217,119,6,.2);
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%,100% { box-shadow: 0 0 0 3px rgba(217,119,6,.2); }
+    50%      { box-shadow: 0 0 0 7px rgba(217,119,6,.07); }
+  }
+
+  /* progress bar in topbar */
+  .topbar-progress {
+    display: flex; align-items: center; gap: 12px;
+    font-size: 13px; font-weight: 600; color: var(--muted);
+  }
+
+  .topbar-prog-track {
+    width: 140px; height: 6px;
+    background: var(--border); border-radius: 99px; overflow: hidden;
+  }
+
+  .topbar-prog-fill {
+    height: 100%; border-radius: 99px;
+    background: linear-gradient(90deg, var(--amber), var(--rust));
+    transition: width .4s ease;
+  }
+
+  .topbar-right { display: flex; align-items: center; gap: 18px; }
+
+  .avatar-btn {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--amber), var(--rust));
+    color: white; font-family: 'Cormorant Garamond', serif;
+    font-size: 18px; font-weight: 700;
+    border: none; cursor: pointer;
+    box-shadow: 0 4px 14px rgba(180,83,9,.35);
+    transition: transform .2s, box-shadow .2s;
+  }
+
+  .avatar-btn:hover { transform: scale(1.07); box-shadow: 0 6px 20px rgba(180,83,9,.45); }
+
+  .dropdown-menu {
+    border: 1px solid var(--border); border-radius: 16px;
+    padding: 10px; min-width: 230px;
+    box-shadow: 0 24px 60px rgba(28,20,18,0.12);
+    background: white; animation: dropIn .18s ease;
+  }
+
+  @keyframes dropIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .dropdown-item {
+    border-radius: 10px; padding: 10px 14px;
+    font-family: Franklin Gothic Medium;
+    font-size: 13.5px; font-weight: 500; color: var(--ink);
+    transition: background .2s, color .2s, transform .2s;
+  }
+
+  .dropdown-item:hover { background: var(--amber-lt); color: var(--rust); transform: translateX(4px); }
+  .dropdown-item.logout-item { color: #dc2626; }
+  .dropdown-item.logout-item:hover { background: #fef2f2; color: #b91c1c; }
+  .dropdown-divider { border-color: var(--border); margin: 6px 0; }
+
+  /* ════════ PAGE ════════ */
+  .page-wrap {
+    position: relative; z-index: 1;
+    max-width: 760px;
+    margin: 52px auto 80px;
+    padding: 0 24px;
+    animation: fadeUp .55s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(22px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── Quiz header ── */
+  .quiz-header {
+    margin-bottom: 36px;
+  }
+
+  .quiz-tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 11px; font-weight: 600;
+    letter-spacing: .18em; text-transform: uppercase;
+    color: var(--amber); background: var(--amber-lt);
+    padding: 4px 12px; border-radius: 99px;
+    margin-bottom: 10px;
+  }
+
+  .quiz-main-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(26px, 3.5vw, 38px);
+    font-weight: 700; color: var(--ink);
+    line-height: 1.1; margin-bottom: 8px;
+  }
+
+  .quiz-meta-row {
+    display: flex; align-items: center; gap: 16px;
+    font-size: 13px; color: var(--muted); flex-wrap: wrap;
+  }
+
+  .quiz-meta-row i { color: var(--amber); }
+
+  /* answered counter badge */
+  .answered-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: white; border: 1px solid var(--border);
+    border-radius: 99px; padding: 5px 14px;
+    font-size: 12.5px; font-weight: 600; color: var(--ink);
+    transition: border-color .2s;
+  }
+
+  .answered-badge.all-done { border-color: var(--green); color: var(--green); }
+  .answered-badge i { color: var(--amber); }
+
+  /* ── Question cards ── */
+  .q-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 22px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    margin-bottom: 20px;
+    transition: box-shadow .25s, border-color .25s;
+    animation: fadeUp .45s ease both;
+  }
+
+  .q-card:nth-child(2) { animation-delay: .06s; }
+  .q-card:nth-child(3) { animation-delay: .12s; }
+  .q-card:nth-child(4) { animation-delay: .18s; }
+  .q-card:nth-child(5) { animation-delay: .24s; }
+  .q-card:nth-child(6) { animation-delay: .30s; }
+
+  .q-card::before {
+    content: ''; display: block; height: 4px;
+    background: linear-gradient(90deg, var(--amber), #f59e0b, var(--rust));
+  }
+
+  /* answered state */
+  .q-card.answered {
+    border-color: #86efac;
+  }
+
+  .q-card.answered::before {
+    background: linear-gradient(90deg, var(--green), #22c55e, #15803d);
+  }
+
+  .q-body { padding: 22px 26px 20px; }
+
+  /* question row */
+  .q-num-row {
+    display: flex; align-items: flex-start; gap: 14px;
+    margin-bottom: 20px;
+  }
+
+  .q-num {
+    width: 36px; height: 36px; flex-shrink: 0; border-radius: 50%;
+    background: linear-gradient(135deg, var(--amber), var(--rust));
+    color: white; font-family: 'Cormorant Garamond', serif;
+    font-size: 16px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 3px 10px rgba(180,83,9,.25);
+    transition: background .3s;
+  }
+
+  /* answered — green circle */
+  .q-card.answered .q-num {
+    background: linear-gradient(135deg, var(--green), #14532d);
+    box-shadow: 0 3px 10px rgba(22,163,74,.25);
+  }
+
+  .q-text {
+    font-size: 16px; font-weight: 600; color: var(--ink);
+    line-height: 1.45; flex: 1; padding-top: 4px;
+  }
+
+  /* ── Choice options ── */
+  .choices-list { display: flex; flex-direction: column; gap: 10px; }
+
+  .choice-label {
+    display: flex; align-items: center; gap: 12px;
+    border: 1.5px solid var(--border);
+    border-radius: 14px; padding: 13px 16px;
+    background: #fffbf2; cursor: pointer;
+    transition: border-color .2s, background .2s, transform .15s;
+    user-select: none;
+  }
+
+  .choice-label:hover {
+    border-color: var(--amber);
+    background: var(--amber-lt);
+    transform: translateX(3px);
+  }
+
+  /* hide native radio */
+  .choice-label input[type="radio"] { display: none; }
+
+  /* custom radio dot */
+  .choice-dot {
+    width: 20px; height: 20px; border-radius: 50%; flex-shrink: 0;
+    border: 2px solid var(--border);
+    background: white;
+    display: flex; align-items: center; justify-content: center;
+    transition: border-color .2s, background .2s;
+  }
+
+  .choice-dot::after {
+    content: '';
+    width: 8px; height: 8px; border-radius: 50%;
+    background: transparent; transition: background .2s;
+  }
+
+  /* checked state via JS class */
+  .choice-label.selected {
+    border-color: var(--amber);
+    background: var(--amber-lt);
+  }
+
+  .choice-label.selected .choice-dot {
+    border-color: var(--amber);
+    background: var(--amber);
+  }
+
+  .choice-label.selected .choice-dot::after {
+    background: white;
+  }
+
+  .choice-text { font-size: 14.5px; color: var(--ink); font-weight: 500; flex: 1; }
+
+  /* ── Submit bar ── */
+  .submit-bar {
+    background: white; border: 1px solid var(--border);
+    border-radius: 22px; padding: 22px 28px;
+    box-shadow: var(--shadow);
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 16px; flex-wrap: wrap;
+    margin-top: 32px;
+  }
+
+  .submit-info {
+    font-size: 13.5px; color: var(--muted); font-weight: 500;
+  }
+
+  .submit-info strong { color: var(--ink); }
+
+  .btn-submit {
+    background: linear-gradient(135deg, var(--green), #14532d);
+    color: white; border: none;
+    padding: 13px 32px; border-radius: 14px;
+    font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 700;
+    display: inline-flex; align-items: center; gap: 9px;
+    box-shadow: 0 6px 20px rgba(22,163,74,.30);
+    cursor: pointer; transition: transform .2s, box-shadow .2s;
+  }
+
+  .btn-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 28px rgba(22,163,74,.42);
+  }
+
+  /* disabled until all answered */
+  .btn-submit:disabled {
+    background: linear-gradient(135deg, #9ca3af, #6b7280);
+    box-shadow: none; cursor: not-allowed; transform: none;
+    opacity: .7;
+  }
+
+  @media (max-width: 640px) {
+    .topbar { padding: 12px 20px; }
+    .topbar-progress { display: none; }
+    .q-body { padding: 18px 16px 16px; }
+    .submit-bar { flex-direction: column; align-items: stretch; }
+    .btn-submit { justify-content: center; }
+    .page-wrap { margin-top: 36px; }
+  }
+  </style>
 </head>
 
 <body>
 
-<div class="d-flex justify-content-between align-items-center p-3 bg-white shadow-sm sticky-top">
-    <a href="{% url 'student_dashboard' %}" class="text-decoration-none text-dark">
-        <h3 class="m-0 fw-bold">Bildung</h3>
-    </a>
+<!-- ════════ TOPBAR ════════ -->
+<nav class="topbar">
+  <a href="{% url 'student_dashboard' %}" class="brand">
+    <span class="dot"></span>
+    SPESHWAY
+  </a>
 
-    <div class="d-flex align-items-center gap-3">
-        <h6 class="m-0 text-muted">
-            Hello, <strong>{{ user.first_name }} {{ user.last_name }}</strong>
-        </h6>
-
-        <div class="dropdown">
-            <button class="btn rounded-circle shadow-sm"
-                    style="background:#6c757d;color:white;width:45px;height:45px;"
-                    data-bs-toggle="dropdown">
-                {{ request.user.username|first|upper }}
-            </button>
-
-            <ul class="dropdown-menu dropdown-menu-end">
-            <li><a class="dropdown-item" href="{% url 'profile_view' %}">Profile</a></li>
-            <li><a class="dropdown-item" href="{% url 'student:my_courses' %}">My Courses</a></li>
-            <li><a class="dropdown-item" href="{% url 'student_my_activity' %}">My activity</a></li>
-            <li><a class="dropdown-item" href="{% url 'student:student_upcoming_classes' %}">My_schedules</a></li>
-            <li><a class="dropdown-item" href="{% url 'student:my_certificates' %}">My Certificates</a></li>
-            <li><a class="dropdown-item" href="{% url 'student_notifications' %}">Notifications</a></li>
-            <li><a class="dropdown-item" href="#">Payments</a></li>
-            <li><a class="dropdown-item" href="#">Help and Support</a></li>
-            <li><a class="dropdown-item" href="{% url 'account_settings' %}">Account Settings</a></li>
-            <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item text-danger" href="{% url 'logout_view' %}">Logout</a></li>
-            </ul>
-        </div>
+  <!-- Live progress in topbar -->
+  <div class="topbar-progress">
+    <span id="topbarLabel">0 / {{ questions|length }}</span>
+    <div class="topbar-prog-track">
+      <div class="topbar-prog-fill" id="topbarFill" style="width:0%"></div>
     </div>
+  </div>
+
+  <div class="topbar-right">
+    <div class="dropdown">
+      <button class="avatar-btn" data-bs-toggle="dropdown" aria-expanded="false">
+        {{ request.user.username|first|upper }}
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end">
+        <li><a class="dropdown-item" href="{% url 'profile_view' %}"><i class="fas fa-user fa-fw me-2" style="color:var(--amber)"></i>Profile</a></li>
+        <li><a class="dropdown-item" href="{% url 'student:my_courses' %}"><i class="fas fa-book fa-fw me-2" style="color:var(--amber)"></i>My Courses</a></li>
+        <li><a class="dropdown-item" href="{% url 'student:student_upcoming_classes' %}"><i class="fas fa-calendar fa-fw me-2" style="color:var(--amber)"></i>My Schedules</a></li>
+        <li><a class="dropdown-item" href="{% url 'student_my_activity' %}"><i class="fas fa-chart-line fa-fw me-2" style="color:var(--amber)"></i>My Activity</a></li>
+        <li><a class="dropdown-item" href="{% url 'student:my_certificates' %}"><i class="fas fa-certificate fa-fw me-2" style="color:var(--amber)"></i>My Certificates</a></li>
+        <li><a class="dropdown-item" href="{% url 'student_notifications' %}"><i class="fas fa-bell fa-fw me-2" style="color:var(--amber)"></i>Notifications</a></li>
+        <li><a class="dropdown-item" href="#"><i class="fas fa-credit-card fa-fw me-2" style="color:var(--amber)"></i>Payments</a></li>
+        <li><a class="dropdown-item" href="#"><i class="fas fa-circle-question fa-fw me-2" style="color:var(--amber)"></i>Help & Support</a></li>
+        <li><a class="dropdown-item" href="{% url 'account_settings' %}"><i class="fas fa-gear fa-fw me-2" style="color:var(--amber)"></i>Account Settings</a></li>
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item logout-item" href="{% url 'logout_view' %}"><i class="fas fa-arrow-right-from-bracket fa-fw me-2"></i>Sign Out</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- ════════ PAGE ════════ -->
+<div class="page-wrap">
+
+  <!-- Header -->
+  <div class="quiz-header">
+    <div class="quiz-tag"><i class="fas fa-clipboard-list"></i> Quiz</div>
+    <h1 class="quiz-main-title">{{ quiz.title }}</h1>
+    <div class="quiz-meta-row">
+      <span><i class="fas fa-circle-question"></i> {{ questions|length }} question{{ questions|length|pluralize }}</span>
+      <span><i class="fas fa-star"></i> Select one answer per question</span>
+      <span class="answered-badge" id="answeredBadge">
+        <i class="fas fa-check-circle"></i>
+        <span id="answeredCount">0</span> of {{ questions|length }} answered
+      </span>
+    </div>
+  </div>
+
+  <!-- Form -->
+  <form method="POST" id="quizForm">
+    {% csrf_token %}
+
+    {% for q in questions %}
+    <div class="q-card" id="qcard-{{ q.id }}">
+      <div class="q-body">
+
+        <div class="q-num-row">
+          <div class="q-num" id="qnum-{{ q.id }}">{{ forloop.counter }}</div>
+          <p class="q-text">{{ q.question_text }}</p>
+        </div>
+
+        <div class="choices-list">
+          {% for c in q.choices.all %}
+          <label class="choice-label" id="clabel-{{ c.id }}" data-qid="{{ q.id }}">
+            <input
+              type="radio"
+              name="q_{{ q.id }}"
+              value="{{ c.id }}"
+              required
+              onchange="onAnswer('{{ q.id }}', this, 'clabel-{{ c.id }}')"
+            >
+            <span class="choice-dot"></span>
+            <span class="choice-text">{{ c.text }}</span>
+          </label>
+          {% endfor %}
+        </div>
+
+      </div>
+    </div>
+    {% endfor %}
+
+    <!-- Submit bar -->
+    <div class="submit-bar">
+      <div class="submit-info">
+        <strong id="submitInfoText">Answer all questions</strong> to submit the quiz.
+      </div>
+      <button type="submit" class="btn-submit" id="submitBtn" disabled>
+        <i class="fas fa-paper-plane"></i> Submit Quiz
+      </button>
+    </div>
+
+  </form>
 </div>
 
-<div class="container mt-5 mb-5">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  const total     = {{ questions|length }};
+  const answered  = new Set();
 
-    <div class="card shadow-sm quiz-card mb-4">
-        <div class="card-body">
-            <h4 class="fw-bold mb-1">{{ quiz.title }}</h4>
-            <p class="text-muted mb-0">
-                Total Questions: {{ questions|length }}
-            </p>
-        </div>
-    </div>
-    <form method="POST">
-        {% csrf_token %}
+  // Track answered questions per q-group
+  const lastSelected = {}; // qid → label el
 
-        {% for q in questions %}
-        <div class="card shadow-sm mb-3 question-card">
-            <div class="card-body">
-                <h6 class="fw-bold mb-3">
-                    Q{{ forloop.counter }}. {{ q.question_text }}
-                </h6>
+  function onAnswer(qid, radio, labelId) {
+    // deselect previous choice for this question
+    if (lastSelected[qid]) {
+      lastSelected[qid].classList.remove('selected');
+    }
 
-                {% for c in q.shuffled_choices %}
-                <div class="form-check mb-2">
-                    <input type="radio"
-                           class="form-check-input"
-                           id="q{{ q.id }}_{{ c.id }}"
-                           name="q_{{ q.id }}"
-                           value="{{ c.id }}"
-                           required>
-                    <label class="form-check-label" for="q{{ q.id }}_{{ c.id }}">
-                        {{ c.text }}
-                    </label>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-        {% endfor %}
+    // select new choice
+    const label = document.getElementById(labelId);
+    label.classList.add('selected');
+    lastSelected[qid] = label;
 
-        <div class="d-flex justify-content-between align-items-center mt-4">
-            <a href="javascript:history.back()" class="btn btn-outline-secondary">
-                ← Back
-            </a>
+    // mark card as answered
+    const card = document.getElementById('qcard-' + qid);
+    if (card) card.classList.add('answered');
 
-            <button type="submit" class="btn btn-success btn-lg px-4 shadow-sm">
-                ✅ Submit Quiz
-            </button>
-        </div>
-    </form>
+    // track unique answered questions
+    answered.add(qid);
+    updateProgress();
+  }
 
-</div>
+  function updateProgress() {
+    const count = answered.size;
+    const pct   = Math.round((count / total) * 100);
+
+    // topbar
+    document.getElementById('topbarLabel').textContent = count + ' / ' + total;
+    document.getElementById('topbarFill').style.width  = pct + '%';
+
+    // answered badge
+    document.getElementById('answeredCount').textContent = count;
+    const badge = document.getElementById('answeredBadge');
+    if (count === total) {
+      badge.classList.add('all-done');
+    } else {
+      badge.classList.remove('all-done');
+    }
+
+    // submit button
+    const btn = document.getElementById('submitBtn');
+    if (count === total) {
+      btn.disabled = false;
+      document.getElementById('submitInfoText').textContent = 'All questions answered';
+    } else {
+      btn.disabled = true;
+      document.getElementById('submitInfoText').textContent =
+        (total - count) + ' question' + (total - count !== 1 ? 's' : '') + ' remaining';
+    }
+  }
+</script>
 
 </body>
 </html>

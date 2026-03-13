@@ -1,5 +1,5 @@
 [project]
-name = "bildung"
+name = "Speshway"
 version = "0.1.0"
 description = "AI-powered e-learning platform with Django, FastAPI, and RAG-based systems"
 readme = "README.md"

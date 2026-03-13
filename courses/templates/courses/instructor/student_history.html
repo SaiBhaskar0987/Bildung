@@ -1,369 +1,519 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student History</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student History – SPESHWAY</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 
-    <style>
-        :root {
-            --primary-color: #495486;
-            --secondary-color: #3f37c9;
-            --success-color: #4cc9f0;
-            --warning-color: #f72585;
-            --light-color: #f8f9fa;
-            --dark-color: #212529;
-        }
+<style>
+:root {
+  --ink:       #0F1117;
+  --ink-soft:  #2C2F3A;
+  --teal:      #0D9488;
+  --teal-mid:  #14B8A6;
+  --teal-glow: #5EEAD4;
+  --teal-pale: #CCFBF1;
+  --surface:   #F8FFFE;
+  --card-bg:   #FFFFFF;
+  --border:    #D1FAF6;
+  --muted:     #64748B;
+  --red:       #EF4444;
+  --green:     #10B981;
+  --amber:     #F59E0B;
+  --radius:    16px;
+  --radius-sm: 10px;
+}
 
-        body { background-color: #f5f7fb; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', sans-serif; background: var(--surface); color: var(--ink); min-height: 100vh; }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-thumb { background: var(--teal-glow); border-radius: 99px; }
 
-        .header {
-            background: linear-gradient(135deg, #4361ee, #3a0ca3);
-            color: white;
-            padding: 40px 0;
-            border-radius: 0 0 20px 20px;
-            margin-bottom: 30px;
-        }
+/* ─── TOPNAV ─── */
+.topnav {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 32px; height: 64px;
+  background: rgba(255,255,255,.92);
+  backdrop-filter: blur(18px);
+  border-bottom: 1px solid var(--border);
+}
+.brand { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.35rem; letter-spacing: -.5px; color: var(--teal); text-decoration: none; }
+.brand span { color: var(--ink); }
+.avatar-btn {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--teal), var(--teal-mid));
+  color: #fff; border: none; cursor: pointer;
+  font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1rem;
+  display: flex; align-items: center; justify-content: center;
+  transition: box-shadow .2s, transform .15s;
+}
+.avatar-btn:hover { box-shadow: 0 0 0 4px var(--teal-pale); transform: scale(1.05); }
+.dropdown-menu { border: 1px solid var(--border) !important; border-radius: var(--radius) !important; box-shadow: 0 12px 40px rgba(13,148,136,.12) !important; padding: 8px !important; min-width: 220px !important; }
+.dropdown-item { border-radius: var(--radius-sm); font-size: .875rem; color: var(--ink-soft); padding: 8px 12px; transition: background .15s, color .15s; }
+.dropdown-item:hover { background: var(--teal-pale); color: var(--teal); }
+.dropdown-item.text-danger:hover { background: #FEE2E2; color: var(--red); }
+.dropdown-divider { border-color: var(--border) !important; }
 
-        .tab-buttons {
-            display: flex;
-            gap: 10px;
-            margin: 20px 0;
-            flex-wrap: wrap;
-        }
+/* ─── HERO ─── */
+.hero {
+  background: linear-gradient(135deg, var(--teal) 0%, var(--teal-mid) 100%);
+  padding: 36px 32px; text-align: center; color: #fff;
+}
+.hero h1 { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.7rem; letter-spacing: -1px; margin-bottom: 8px; }
+.hero-meta { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+.hero-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(255,255,255,.2); border: 1px solid rgba(255,255,255,.35);
+  border-radius: 99px; padding: 4px 14px; font-size: .82rem; font-weight: 600;
+}
 
-        .tab-button {
-            padding: 12px 24px;
-            background: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-weight: 500;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
+/* ─── PAGE WRAP ─── */
+.page-wrap { max-width: 1100px; margin: 0 auto; padding: 36px 24px 80px; }
 
-        .tab-button.active { background: var(--primary-color); color: white; }
+/* ─── BACK LINK ─── */
+.back-link { display: inline-flex; align-items: center; gap: 7px; color: var(--teal); font-size: .85rem; font-weight: 600; text-decoration: none; margin-bottom: 28px; transition: gap .2s; }
+.back-link:hover { gap: 10px; }
 
-        .tab-content {
-            display: none;
-            padding: 25px;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            margin-top: 20px;
-        }
+/* ─── STAT CARDS ─── */
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
+@media (max-width: 768px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 420px) { .stats-grid { grid-template-columns: 1fr; } }
 
-        .tab-content.active { display: block; }
+.stat-card {
+  background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 20px 16px; text-align: center;
+  border-top: 4px solid transparent;
+  background-clip: padding-box;
+  position: relative; overflow: hidden;
+  box-shadow: 0 4px 20px rgba(13,148,136,.06);
+  animation: fadeUp .4s ease both;
+}
+.stat-card::before { content:''; position:absolute; top:0; left:0; right:0; height:4px; background: linear-gradient(90deg, var(--teal), var(--teal-glow)); }
+@keyframes fadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+.stat-card:nth-child(2) { animation-delay: .05s; }
+.stat-card:nth-child(3) { animation-delay: .1s; }
+.stat-card:nth-child(4) { animation-delay: .15s; }
 
-        .stat-card {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            text-align: center;
-        }
+.stat-icon { width: 40px; height: 40px; background: var(--teal-pale); color: var(--teal); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-size: 1rem; margin: 0 auto 10px; }
+.stat-value { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.6rem; color: var(--ink); }
+.stat-label { font-size: .78rem; color: var(--muted); margin-top: 3px; }
 
-        .stat-card i { font-size: 2rem; margin-bottom: 10px; color: var(--primary-color); }
+/* ─── TABS ─── */
+.tabs-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+.tab-btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 9px 18px; border: 1.5px solid var(--border);
+  background: var(--card-bg); color: var(--muted);
+  border-radius: var(--radius-sm); font-size: .83rem; font-weight: 600;
+  font-family: 'DM Sans', sans-serif; cursor: pointer;
+  transition: all .15s;
+}
+.tab-btn:hover { border-color: var(--teal-glow); color: var(--teal); background: var(--teal-pale); }
+.tab-btn.active { background: var(--teal-pale); border-color: var(--teal); color: var(--teal); }
+.tab-btn i { font-size: .82rem; }
 
-        .activity-table th { background: #f8f9fa; font-weight: 600; }
-        .activity-table td, .activity-table th { padding: 12px; border-bottom: 1px solid #e9ecef; }
-        .status-success { color: #28a745; font-weight: 600; }
-        .status-failure { color: #dc3545; font-weight: 600; }
-    </style>
+/* ─── CONTENT PANEL ─── */
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+.panel-card {
+  background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: var(--radius); overflow: hidden;
+  box-shadow: 0 4px 20px rgba(13,148,136,.06);
+  animation: fadeUp .3s ease both;
+}
+.panel-top-bar { height: 4px; background: linear-gradient(90deg, var(--teal), var(--teal-glow)); }
+.panel-header { display: flex; align-items: center; gap: 10px; padding: 16px 22px; border-bottom: 1px solid var(--border); }
+.panel-icon { width: 34px; height: 34px; background: var(--teal-pale); color: var(--teal); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-size: .85rem; flex-shrink: 0; }
+.panel-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: .95rem; color: var(--ink); }
+.panel-body { padding: 22px; }
+
+/* ─── PROGRESS BAR ─── */
+.progress-meta { font-size: .85rem; color: var(--muted); margin-bottom: 10px; }
+.progress-meta strong { color: var(--ink); }
+.prog-bar-wrap { background: #E2E8F0; border-radius: 99px; height: 10px; overflow: hidden; }
+.prog-bar-fill { height: 100%; border-radius: 99px; background: linear-gradient(90deg, var(--teal), var(--teal-glow)); transition: width .6s ease; }
+.prog-pct { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.1rem; color: var(--teal); margin-top: 8px; }
+
+/* ─── TABLES ─── */
+.data-table { width: 100%; border-collapse: collapse; font-size: .86rem; }
+.data-table th { background: var(--teal-pale); color: var(--teal); font-family: 'Syne', sans-serif; font-weight: 700; font-size: .72rem; text-transform: uppercase; letter-spacing: .5px; padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border); }
+.data-table td { padding: 11px 14px; border-bottom: 1px solid var(--border); color: var(--ink-soft); vertical-align: middle; }
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover td { background: #F8FFFE; }
+
+.badge-success { display: inline-flex; align-items: center; gap: 4px; background: #D1FAE5; color: #065F46; border-radius: 99px; padding: 3px 10px; font-size: .74rem; font-weight: 700; }
+.badge-progress { display: inline-flex; align-items: center; gap: 4px; background: #FEF3C7; color: #92400E; border-radius: 99px; padding: 3px 10px; font-size: .74rem; font-weight: 700; }
+.badge-active   { display: inline-flex; align-items: center; gap: 4px; background: var(--teal-pale); color: var(--teal); border-radius: 99px; padding: 3px 10px; font-size: .74rem; font-weight: 700; }
+
+.status-success { color: var(--green); font-weight: 700; }
+.status-failure { color: var(--red); font-weight: 700; }
+
+/* ─── Q&A CARDS ─── */
+.qna-card { border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; margin-bottom: 14px; }
+.qna-question { padding: 14px 16px; background: #F8FFFE; }
+.qna-q-label { font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: var(--teal); margin-bottom: 4px; }
+.qna-q-text { font-weight: 700; font-size: .9rem; color: var(--ink); }
+.qna-q-meta { font-size: .75rem; color: var(--muted); margin-top: 5px; }
+.qna-replies { border-top: 1px solid var(--border); }
+.qna-reply { padding: 12px 16px; border-bottom: 1px solid var(--border); border-left: 3px solid var(--teal-glow); }
+.qna-reply:last-child { border-bottom: none; }
+.qna-reply-author { font-weight: 700; font-size: .82rem; color: var(--teal); margin-bottom: 3px; }
+.qna-reply-text { font-size: .85rem; color: var(--ink-soft); }
+.qna-reply-date { font-size: .72rem; color: var(--muted); margin-top: 3px; }
+.qna-no-replies { padding: 12px 16px; font-size: .82rem; color: var(--muted); font-style: italic; }
+
+/* ─── EMPTY STATE ─── */
+.empty-state { text-align: center; padding: 40px 20px; }
+.empty-state i { font-size: 2.2rem; color: var(--teal-glow); margin-bottom: 12px; display: block; }
+.empty-state p { font-size: .85rem; color: var(--muted); }
+
+/* ─── ATTENDANCE SUMMARY ─── */
+.att-summary { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 18px; }
+.att-chip { display: flex; align-items: center; gap: 7px; padding: 8px 16px; border-radius: var(--radius-sm); font-size: .82rem; font-weight: 600; }
+.att-chip.total   { background: var(--teal-pale); color: var(--teal); }
+.att-chip.attended { background: #D1FAE5; color: #065F46; }
+.att-chip.missed  { background: #FEE2E2; color: var(--red); }
+
+@media (max-width: 640px) {
+  .topnav { padding: 0 16px; }
+  .page-wrap { padding: 24px 16px 60px; }
+  .tabs-bar { gap: 6px; }
+  .tab-btn { padding: 8px 13px; font-size: .78rem; }
+}
+</style>
 </head>
+<body>
 
-<body class="bg-light">
+<!-- ── TOPNAV ─── -->
+<nav class="topnav">
+  <a href="{% url 'instructor_dashboard' %}" class="brand">SPESH<span>WAY</span></a>
+  <div class="dropdown">
+    <button class="avatar-btn" type="button" data-bs-toggle="dropdown">
+      {{ request.user.username|first|upper }}
+    </button>
+    <ul class="dropdown-menu dropdown-menu-end">
+      <li><a class="dropdown-item" href="{% url 'instructor_profile_view' %}"><i class="fa-regular fa-user me-2"></i>Profile</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor:add_course' %}"><i class="fa-solid fa-plus me-2"></i>Create New Course</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor:students_list' %}"><i class="fa-solid fa-users me-2"></i>My Students</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor:calendar_view' %}"><i class="fa-regular fa-calendar me-2"></i>My Schedules</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor_notifications' %}"><i class="fa-regular fa-bell me-2"></i>Notifications</a></li>
+      <li><a class="dropdown-item" href="#"><i class="fa-solid fa-wallet me-2"></i>Earnings & Payments</a></li>
+      <li><a class="dropdown-item" href="#"><i class="fa-regular fa-circle-question me-2"></i>Help & Support</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor_account_settings' %}"><i class="fa-solid fa-gear me-2"></i>Account Settings</a></li>
+      <li><hr class="dropdown-divider"></li>
+      <li><a class="dropdown-item text-danger" href="{% url 'logout_view' %}"><i class="fa-solid fa-right-from-bracket me-2"></i>Logout</a></li>
+    </ul>
+  </div>
+</nav>
 
-<div class="d-flex justify-content-between align-items-center p-3 bg-white shadow-sm">
-    <a href="{% url 'instructor_dashboard' %}" class="text-decoration-none text-dark">
-        <h3 class="m-0 fw-bold">Bildung</h3>
-    </a>
-
-    <div class="dropdown">
-        <button class="btn rounded-circle shadow"
-                style="background:gray;color:white;width:45px;height:45px;"
-                type="button" data-bs-toggle="dropdown">
-            {{ request.user.username|first|upper }}
-        </button>
-
-        <ul class="dropdown-menu dropdown-menu-end">
-                <li><a class="dropdown-item" href="{% url 'instructor_profile_view' %}">Profile</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor:add_course' %}">Create New Course</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor:students_list' %}">My Students</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor:calendar_view' %}">My Schedules</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor_notifications' %}">Notifications</a></li>
-                <li><a class="dropdown-item" href="#">Earnings & Payments</a></li>
-                <li><a class="dropdown-item" href="#">Help & Support</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor_account_settings' %}">Account Settings</a></li>
-                <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item text-danger" href="{% url 'logout_view' %}">Logout</a></li>
-        </ul>
-    </div>
+<!-- ── HERO ─── -->
+<div class="hero">
+  <h1><i class="fa-solid fa-user-graduate me-2"></i>Student Learning History</h1>
+  <div class="hero-meta">
+    <div class="hero-pill"><i class="fa-solid fa-book-open"></i> {{ course.title }}</div>
+    <div class="hero-pill"><i class="fa-regular fa-user"></i> {{ student.get_full_name }}</div>
+  </div>
 </div>
 
-<div class="header">
-    <div class="container text-center">
-        <h1><i class="fas fa-user-graduate me-2"></i>Student Learning History</h1>
-        <p class="lead">Course: {{ course.title }} | Student: {{ student.get_full_name }}</p>
+<!-- ── PAGE ─── -->
+<div class="page-wrap">
+
+  
+
+  <!-- STATS -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon"><i class="fa-solid fa-book-open"></i></div>
+      <div class="stat-value">{{ total_lectures }}</div>
+      <div class="stat-label">Total Lectures</div>
     </div>
-</div>
-
-<div class="container">
-
-    <div class="row mb-4">
-        <div class="col-md-3 mb-3">
-            <div class="stat-card">
-                <i class="fas fa-book-open"></i>
-                <h3>{{ total_lectures }}</h3>
-                <p>Total Lectures</p>
-            </div>
-        </div>
-
-        <div class="col-md-3 mb-3">
-            <div class="stat-card">
-                <i class="fas fa-check-circle"></i>
-                <h3>{{ completed_lectures }}</h3>
-                <p>Completed Lectures</p>
-            </div>
-        </div>
-
-        <div class="col-md-3 mb-3">
-            <div class="stat-card">
-                <i class="fas fa-chart-line"></i>
-                <h3>{{ progress_percent }}%</h3>
-                <p>Course Progress</p>
-            </div>
-        </div>
-
-        <div class="col-md-3 mb-3">
-            <div class="stat-card">
-                <i class="fas fa-clock"></i>
-                <h3>{{ total_watch_time }}s</h3>
-                <p>Video Watch Time</p>
-            </div>
-        </div>
+    <div class="stat-card">
+      <div class="stat-icon"><i class="fa-solid fa-circle-check"></i></div>
+      <div class="stat-value">{{ completed_lectures }}</div>
+      <div class="stat-label">Completed Lectures</div>
     </div>
-
-    <div class="tab-buttons">
-        <button class="tab-button active" onclick="openTab(event,'progress-tab')">
-            <i class="fas fa-chart-bar me-2"></i>Progress
-        </button>
-
-        <button class="tab-button" onclick="openTab(event,'quiz-tab')">
-            <i class="fas fa-list-check me-2"></i>Quizzes
-        </button>
-
-        <button class="tab-button" onclick="openTab(event,'attendance-tab')">
-            <i class="fas fa-user-check me-2"></i>Attendance
-        </button>
-
-        <button class="tab-button" onclick="openTab(event,'videos-tab')">
-            <i class="fas fa-play-circle me-2"></i>Video Activity
-        </button>
-
-        <button class="tab-button" onclick="openTab(event,'qna-tab')">
-            <i class="fas fa-question-circle me-2"></i>Q&A
-        </button>
-
-        <button class="tab-button" onclick="openTab(event,'login-tab')">
-            <i class="fas fa-history me-2"></i>Login History
-        </button>
+    <div class="stat-card">
+      <div class="stat-icon"><i class="fa-solid fa-chart-line"></i></div>
+      <div class="stat-value">{{ progress_percent }}%</div>
+      <div class="stat-label">Course Progress</div>
     </div>
+    <div class="stat-card">
+      <div class="stat-icon"><i class="fa-regular fa-clock"></i></div>
+      <div class="stat-value">{{ total_watch_time }}s</div>
+      <div class="stat-label">Video Watch Time</div>
+    </div>
+  </div>
 
-    <div id="progress-tab" class="tab-content active">
-        <h3>Course Progress</h3>
-        <p>{{ completed_lectures }} / {{ total_lectures }} lectures completed</p>
+  <!-- TABS -->
+  <div class="tabs-bar">
+    <button class="tab-btn active" onclick="openTab(event, 'progress-tab')">
+      <i class="fa-solid fa-chart-bar"></i> Progress
+    </button>
+    <button class="tab-btn" onclick="openTab(event, 'quiz-tab')">
+      <i class="fa-solid fa-list-check"></i> Quizzes
+    </button>
+    <button class="tab-btn" onclick="openTab(event, 'attendance-tab')">
+      <i class="fa-solid fa-user-check"></i> Attendance
+    </button>
+    <button class="tab-btn" onclick="openTab(event, 'videos-tab')">
+      <i class="fa-solid fa-play-circle"></i> Video Activity
+    </button>
+    <button class="tab-btn" onclick="openTab(event, 'qna-tab')">
+      <i class="fa-regular fa-circle-question"></i> Q&amp;A
+    </button>
+    <button class="tab-btn" onclick="openTab(event, 'login-tab')">
+      <i class="fa-solid fa-clock-rotate-left"></i> Login History
+    </button>
+  </div>
 
-        <div class="progress mb-3">
-            <div class="progress-bar" style="width: {{ progress_percent }}%;">
-                {{ progress_percent }}%
-            </div>
+  <!-- ── PROGRESS ── -->
+  <div id="progress-tab" class="tab-panel active">
+    <div class="panel-card">
+      <div class="panel-top-bar"></div>
+      <div class="panel-header">
+        <div class="panel-icon"><i class="fa-solid fa-chart-bar"></i></div>
+        <div class="panel-title">Course Progress</div>
+      </div>
+      <div class="panel-body">
+        <div class="progress-meta">
+          <strong>{{ completed_lectures }}</strong> of <strong>{{ total_lectures }}</strong> lectures completed
         </div>
+        <div class="prog-bar-wrap">
+          <div class="prog-bar-fill" style="width: {{ progress_percent }}%;"></div>
+        </div>
+        <div class="prog-pct">{{ progress_percent }}%</div>
+      </div>
     </div>
+  </div>
 
-    <div id="quiz-tab" class="tab-content">
-        <h3>Quiz Performance</h3>
-
+  <!-- ── QUIZZES ── -->
+  <div id="quiz-tab" class="tab-panel">
+    <div class="panel-card">
+      <div class="panel-top-bar"></div>
+      <div class="panel-header">
+        <div class="panel-icon"><i class="fa-solid fa-list-check"></i></div>
+        <div class="panel-title">Quiz Performance</div>
+      </div>
+      <div class="panel-body" style="padding: 0;">
         {% if quiz_results %}
-        <table class="activity-table">
-            <thead>
-                <tr>
-                    <th>Quiz</th>
-                    <th>Score</th>
-                    <th>Attempted On</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for r in quiz_results %}
-                <tr>
-                    <td>{{ r.quiz.title }}</td>
-                    <td class="status-success">{{ r.score }}</td>
-                    <td>{{ r.submitted_at|date:"Y-m-d H:i" }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Quiz</th>
+              <th>Score</th>
+              <th>Attempted On</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in quiz_results %}
+            <tr>
+              <td>{{ r.quiz.title }}</td>
+              <td><span class="badge-success"><i class="fa-solid fa-star"></i> {{ r.score }}</span></td>
+              <td>{{ r.submitted_at|date:"Y-m-d H:i" }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
         </table>
         {% else %}
-        <p class="text-muted">No quiz attempts yet.</p>
+        <div class="empty-state">
+          <i class="fa-solid fa-list-check"></i>
+          <p>No quiz attempts yet.</p>
+        </div>
         {% endif %}
+      </div>
     </div>
+  </div>
 
-    <div id="attendance-tab" class="tab-content">
-        <h3>Live Class Attendance</h3>
-
-        <p>Total: {{ total_classes }} | Attended: {{ attended }} | Missed: {{ missed }}</p>
-
-        <table class="activity-table">
-            <thead>
-                <tr>
-                    <th>Class Title</th>
-                    <th>Joined At</th>
-                    <th>Duration</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for att in attendance_list %}
-                <tr>
-                    <td>{{ att.live_class.title }}</td>
-                    <td>{{ att.joined_at|date:"Y-m-d H:i" }}</td>
-                    <td>{{ att.duration }} mins</td>
-                </tr>
-                {% endfor %}
-            </tbody>
+  <!-- ── ATTENDANCE ── -->
+  <div id="attendance-tab" class="tab-panel">
+    <div class="panel-card">
+      <div class="panel-top-bar"></div>
+      <div class="panel-header">
+        <div class="panel-icon"><i class="fa-solid fa-user-check"></i></div>
+        <div class="panel-title">Live Class Attendance</div>
+      </div>
+      <div class="panel-body">
+        <div class="att-summary">
+          <div class="att-chip total"><i class="fa-solid fa-layer-group"></i> Total: {{ total_classes }}</div>
+          <div class="att-chip attended"><i class="fa-solid fa-circle-check"></i> Attended: {{ attended }}</div>
+          <div class="att-chip missed"><i class="fa-solid fa-circle-xmark"></i> Missed: {{ missed }}</div>
+        </div>
+      </div>
+      <div style="padding: 0 0 2px;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Class Title</th>
+              <th>Joined At</th>
+              <th>Duration</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for att in attendance_list %}
+            <tr>
+              <td>{{ att.live_class.title }}</td>
+              <td>{{ att.joined_at|date:"Y-m-d H:i" }}</td>
+              <td>{{ att.duration }} mins</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="3" class="text-center" style="color:var(--muted);padding:28px;">No attendance records.</td></tr>
+            {% endfor %}
+          </tbody>
         </table>
+      </div>
     </div>
+  </div>
 
-<div id="videos-tab" class="tab-content">
-    <h3>Video Lessons Watched</h3>
-
-    <div class="table-responsive">
-        <table class="table table-striped align-middle">
-            <thead class="table-light">
-                <tr>
-                    <th>Lecture</th>
-                    <th>Progress</th>
-                    <th>Status</th>
-                    <th>Last Updated</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for a in activity %}
-                <tr>
-                    <td class="text-wrap" style="max-width: 260px;">{{ a.lecture.title }}</td>
-
-                    <td>{{ a.last_position }}s</td>
-
-                    <td>
-                        {% if a.completed %}
-                            <span class="badge bg-success">Completed</span>
-                        {% else %}
-                            <span class="badge bg-warning text-dark">In Progress</span>
-                        {% endif %}
-                    </td>
-
-                    <td>{{ a.updated_at|date:"Y-m-d H:i" }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
+  <!-- ── VIDEO ACTIVITY ── -->
+  <div id="videos-tab" class="tab-panel">
+    <div class="panel-card">
+      <div class="panel-top-bar"></div>
+      <div class="panel-header">
+        <div class="panel-icon"><i class="fa-solid fa-play-circle"></i></div>
+        <div class="panel-title">Video Lessons Watched</div>
+      </div>
+      <div style="padding: 0 0 2px;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Lecture</th>
+              <th>Progress</th>
+              <th>Status</th>
+              <th>Last Updated</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for a in activity %}
+            <tr>
+              <td style="max-width:260px;">{{ a.lecture.title }}</td>
+              <td>{{ a.last_position }}s</td>
+              <td>
+                {% if a.completed %}
+                  <span class="badge-success"><i class="fa-solid fa-check"></i> Completed</span>
+                {% else %}
+                  <span class="badge-progress"><i class="fa-solid fa-spinner"></i> In Progress</span>
+                {% endif %}
+              </td>
+              <td>{{ a.updated_at|date:"Y-m-d H:i" }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" class="text-center" style="color:var(--muted);padding:28px;">No video activity yet.</td></tr>
+            {% endfor %}
+          </tbody>
         </table>
+      </div>
     </div>
-</div>
+  </div>
 
-<div id="qna-tab" class="tab-content">
-    <h3>Q&A Activity</h3>
-
-    {% if questions %}
-        {% for q in questions %}
-        <div class="p-3 border rounded mb-3 bg-light">
-
-            <h5 class="fw-bold">Q: {{ q.question }}</h5>
-
-            <p class="text-muted mb-1">
-                Lecture: {{ q.lecture.title }}
-                | Course: {{ q.lecture.module.course.title }}
-                | {{ q.created_at|date:"Y-m-d" }}
-            </p>
-
+  <!-- ── Q&A ── -->
+  <div id="qna-tab" class="tab-panel">
+    <div class="panel-card">
+      <div class="panel-top-bar"></div>
+      <div class="panel-header">
+        <div class="panel-icon"><i class="fa-regular fa-circle-question"></i></div>
+        <div class="panel-title">Q&amp;A Activity</div>
+      </div>
+      <div class="panel-body">
+        {% if questions %}
+          {% for q in questions %}
+          <div class="qna-card">
+            <div class="qna-question">
+              <div class="qna-q-label"><i class="fa-regular fa-circle-question me-1"></i> Question</div>
+              <div class="qna-q-text">{{ q.question }}</div>
+              <div class="qna-q-meta">
+                <i class="fa-solid fa-film me-1" style="color:var(--teal);"></i>{{ q.lecture.title }}
+                &nbsp;·&nbsp;
+                <i class="fa-solid fa-book-open me-1" style="color:var(--teal);"></i>{{ q.lecture.module.course.title }}
+                &nbsp;·&nbsp;{{ q.created_at|date:"Y-m-d" }}
+              </div>
+            </div>
             {% if q.replies.all %}
-            <div class="mt-3 ps-3 border-start border-3">
-                {% for reply in q.replies.all %}
-                <div class="mb-2">
-                    <strong>{{ reply.user.get_full_name }}</strong><br>
-                    {{ reply.reply }}
-                    <div class="small text-muted">{{ reply.created_at|date:"Y-m-d H:i" }}</div>
-                </div>
-                {% endfor %}
+            <div class="qna-replies">
+              {% for reply in q.replies.all %}
+              <div class="qna-reply">
+                <div class="qna-reply-author">{{ reply.user.get_full_name }}</div>
+                <div class="qna-reply-text">{{ reply.reply }}</div>
+                <div class="qna-reply-date">{{ reply.created_at|date:"Y-m-d H:i" }}</div>
+              </div>
+              {% endfor %}
             </div>
             {% else %}
-            <p class="text-muted mb-0 fst-italic">No replies yet.</p>
+            <div class="qna-no-replies">No replies yet.</div>
             {% endif %}
+          </div>
+          {% endfor %}
+        {% else %}
+        <div class="empty-state">
+          <i class="fa-regular fa-comment-dots"></i>
+          <p>No Q&amp;A activity found.</p>
         </div>
-        {% endfor %}
-    {% else %}
-        <p class="text-muted text-center">No Q&A activity found.</p>
-    {% endif %}
-
-</div>
-
-    <div id="login-tab" class="tab-content">
-        <h3>Login History</h3>
-
-        <table class="activity-table">
-            <thead>
-                <tr>
-                    <th>Login Date</th>
-                    <th>Login Time</th>
-                    <th>Status</th>
-                    <th>Device</th>
-                    <th>Logout Time</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for login in login_history %}
-                <tr>
-                    <td>{{ login.login_time|date:"Y-m-d" }}</td>
-                    <td>{{ login.login_time|date:"H:i" }}</td>
-
-                    <td class="{% if login.status == 'Success' %}status-success{% else %}status-failure{% endif %}">
-                        {{ login.status }}
-                    </td>
-
-                    <td>{{ login.device|default:"Unknown Device" }}</td>
-
-                    <td>
-                        {% if login.logout_time %}
-                            {{ login.logout_time|date:"Y-m-d H:i" }}
-                        {% else %}
-                            <span class="text-warning">Active</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="5" class="text-center text-muted p-3">No login history found.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        {% endif %}
+      </div>
     </div>
+  </div>
+
+  <!-- ── LOGIN HISTORY ── -->
+  <div id="login-tab" class="tab-panel">
+    <div class="panel-card">
+      <div class="panel-top-bar"></div>
+      <div class="panel-header">
+        <div class="panel-icon"><i class="fa-solid fa-clock-rotate-left"></i></div>
+        <div class="panel-title">Login History</div>
+      </div>
+      <div style="padding: 0 0 2px;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Login Time</th>
+              <th>Status</th>
+              <th>Device</th>
+              <th>Logout Time</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for login in login_history %}
+            <tr>
+              <td>{{ login.login_time|date:"Y-m-d" }}</td>
+              <td>{{ login.login_time|date:"H:i" }}</td>
+              <td class="{% if login.status == 'Success' %}status-success{% else %}status-failure{% endif %}">
+                {{ login.status }}
+              </td>
+              <td>{{ login.device|default:"Unknown Device" }}</td>
+              <td>
+                {% if login.logout_time %}
+                  {{ login.logout_time|date:"Y-m-d H:i" }}
+                {% else %}
+                  <span class="badge-active"><i class="fa-solid fa-circle" style="font-size:.5rem;"></i> Active</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5" class="text-center" style="color:var(--muted);padding:28px;">No login history found.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 
 </div>
 
 <script>
-    function openTab(evt, tabName) {
-        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
-
-        document.getElementById(tabName).classList.add('active');
-        evt.currentTarget.classList.add('active');
-    }
+function openTab(evt, tabName) {
+  document.querySelectorAll('.tab-panel').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(tabName).classList.add('active');
+  evt.currentTarget.classList.add('active');
+}
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
 </body>
 </html>

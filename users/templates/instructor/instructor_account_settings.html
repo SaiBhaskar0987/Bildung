@@ -2,324 +2,595 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Instructor Account Settings</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Account Settings — Speshway</title>
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<link rel="stylesheet" href="{% static 'instructor_profile/profile_style.css' %}">
- 
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
 
-<style>
-.settings-container { max-width: 1000px; margin: 0 auto; }
-.settings-card {
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    margin-bottom: 20px;
-    border: none;
-}
-.settings-header {
-    background: blue;
-    color: white;
-    padding: 30px 0;
-    border-radius: 10px 10px 0 0;
-}
-.nav-pills .nav-link {
-    color: #495057;
-    padding: 12px 20px;
-    margin: 5px 0;
-    border-radius: 8px;
-}
-.nav-pills .nav-link.active {
-    background: blue;
-    color: white;
-}
-.settings-section { padding: 30px; }
+  <style>
+  :root {
+    --ink:       #0F1117;
+    --ink-soft:  #2C2F3A;
+    --teal:      #0D9488;
+    --teal-mid:  #14B8A6;
+    --teal-glow: #5EEAD4;
+    --teal-pale: #CCFBF1;
+    --surface:   #F8FFFE;
+    --card-bg:   #FFFFFF;
+    --border:    #D1FAF6;
+    --muted:     #64748B;
+    --red:       #EF4444;
+    --green:     #10B981;
+    --violet:    #7C3AED;
+    --violet-lt: #EDE9FE;
+    --amber:     #F59E0B;
+    --radius:    16px;
+    --radius-sm: 10px;
+    --shadow:    0 4px 20px rgba(13,148,136,.07);
+  }
 
-/* ================= TOPBAR (Only Navbar Themed) ================= */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-:root{
-    --yellow-main: #f4c430;
-    --yellow-light: #fff8dc;
-    --brown-dark: #4b2e05;
-    --brown-medium: #6b3e0f;
-}
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--surface);
+    color: var(--ink);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
 
-/* Topbar Background */
-.topbar {
-    background: linear-gradient(135deg, var(--brown-dark), var(--brown-medium));
-    padding:12px 25px;
-    box-shadow:0 4px 15px rgba(0,0,0,0.08);
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-}
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-thumb { background: var(--teal-glow); border-radius: 99px; }
+  .topnav {
+    position: sticky; top: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 32px; height: 64px;
+    background: rgba(255,255,255,.92);
+    backdrop-filter: blur(18px);
+    border-bottom: 1px solid var(--border);
+  }
 
-/* Speshway Title */
-.topbar-title{
-    font-size:26px;
-    font-weight:700;
-    color: var(--yellow-main);
-    text-decoration:none;
-}
+  .brand {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: 1.45rem;
+    letter-spacing: -.5px; color: var(--teal);
+    text-decoration: none;
+  }
+  .brand span { color: var(--ink); }
 
-.topbar-title:hover{
-    color:white;
-}
+  .avatar-btn {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--teal), var(--teal-mid));
+    color: #fff; border: none; cursor: pointer;
+    font-family: 'Sora', sans-serif; font-weight: 700; font-size: 1rem;
+    display: flex; align-items: center; justify-content: center;
+    transition: box-shadow .2s, transform .15s;
+    overflow: hidden;
+  }
+  .avatar-btn img { width: 100%; height: 100%; object-fit: cover; }
+  .avatar-btn:hover { box-shadow: 0 0 0 4px var(--teal-pale); transform: scale(1.05); }
 
-/* Profile Circle Only */
-.topbar .btn.rounded-circle{
-    background: var(--yellow-light) !important;
-    color: var(--brown-dark) !important;
-    border:2px solid var(--yellow-main);
-    font-weight:600;
-}
+  .dropdown-menu {
+    border: 1px solid var(--border) !important;
+    border-radius: var(--radius) !important;
+    box-shadow: 0 12px 40px rgba(13,148,136,.12) !important;
+    padding: 8px !important; min-width: 220px !important;
+  }
+  .dropdown-item {
+    border-radius: var(--radius-sm);
+    font-size: .875rem; color: var(--ink-soft);
+    padding: 8px 12px;
+    transition: background .15s, color .15s;
+    display: flex; align-items: center;
+  }
+  .dropdown-item:hover { background: var(--teal-pale); color: var(--teal); }
+  .dropdown-item.text-danger { color: var(--red) !important; }
+  .dropdown-item.text-danger:hover { background: #FEE2E2; color: var(--red) !important; }
+  .dropdown-divider { border-color: var(--border) !important; }
+  .page-wrap {
+    flex: 1;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+    width: 100%;
+  }
+  .back-link {
+    display: inline-flex; align-items: center; gap: 7px;
+    color: var(--teal); font-size: .85rem; font-weight: 600;
+    text-decoration: none; margin-bottom: 24px;
+    transition: gap .2s;
+  }
+  .back-link:hover { gap: 10px; }
+  .page-header { margin-bottom: 32px; }
+  .page-header h2 {
+    font-family: 'Sora', sans-serif;
+    font-weight: 800; font-size: 1.9rem;
+    letter-spacing: -1px; color: var(--ink);
+  }
+  .page-header h2 span { color: var(--teal); }
+  .page-header p { color: var(--muted); margin-top: 5px; font-size: .88rem; }
+  .settings-layout {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 20px;
+    align-items: start;
+  }
+  .section-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    animation: fadeUp .4s ease both;
+  }
+  .section-card.delay-1 { animation-delay: .08s; }
+  .section-card.delay-2 { animation-delay: .14s; }
 
-.welcome-text{
-    color: white !important;
-}
- 
-.btn-primary { background: blue; border: none; }
-</style>
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .card-top-bar {
+    height: 4px;
+    background: linear-gradient(90deg, var(--teal), var(--teal-glow));
+  }
+  .card-top-bar.violet {
+    background: linear-gradient(90deg, var(--violet), #A78BFA);
+  }
+  .card-top-bar.amber {
+    background: linear-gradient(90deg, var(--amber), #FCD34D);
+  }
+  .nav-body { padding: 10px; }
+
+  .nav-btn {
+    display: flex; align-items: center; gap: 10px;
+    width: 100%; padding: 11px 14px;
+    border: none; background: none; border-radius: var(--radius-sm);
+    font-family: 'DM Sans', sans-serif; font-size: .875rem; font-weight: 500;
+    color: var(--ink-soft); cursor: pointer; text-align: left;
+    transition: background .15s, color .15s;
+    margin-bottom: 2px;
+  }
+  .nav-btn i { width: 16px; text-align: center; color: var(--muted); transition: color .15s; }
+  .nav-btn:hover { background: var(--teal-pale); color: var(--teal); }
+  .nav-btn:hover i { color: var(--teal); }
+  .nav-btn.active {
+    background: linear-gradient(135deg, var(--teal), var(--teal-mid));
+    color: #fff; font-weight: 600;
+  }
+  .nav-btn.active i { color: #fff; }
+  .card-header-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 16px 22px;
+    border-bottom: 1px solid var(--border);
+  }
+  .card-header-icon {
+    width: 36px; height: 36px;
+    background: var(--teal-pale); color: var(--teal);
+    border-radius: var(--radius-sm);
+    display: flex; align-items: center; justify-content: center;
+    font-size: .9rem; flex-shrink: 0;
+  }
+  .card-header-icon.violet { background: var(--violet-lt); color: var(--violet); }
+  .card-header-icon.amber  { background: #FEF3C7; color: var(--amber); }
+
+  .card-header-title {
+    font-family: 'Sora', sans-serif;
+    font-weight: 700; font-size: 1rem; color: var(--ink);
+  }
+  .form-body { padding: 22px 22px 8px; }
+
+  .field-wrap { display: flex; flex-direction: column; gap: 5px; margin-bottom: 18px; }
+  .field-wrap:last-of-type { margin-bottom: 0; }
+
+  .field-label {
+    font-size: .73rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .7px; color: var(--muted);
+  }
+
+  .field-input, .field-select {
+    width: 100%; padding: 10px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: 'DM Sans', sans-serif;
+    font-size: .9rem; color: var(--ink);
+    background: #fff; outline: none;
+    transition: border-color .2s, box-shadow .2s;
+    appearance: none;
+  }
+  .field-input:focus, .field-select:focus {
+    border-color: var(--teal);
+    box-shadow: 0 0 0 3px rgba(13,148,136,.12);
+  }
+  .field-input::placeholder { color: var(--muted); }
+  .toggle-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .toggle-row:last-child { border-bottom: none; }
+
+  .toggle-info { flex: 1; }
+  .toggle-label {
+    font-size: .9rem; font-weight: 600; color: var(--ink); display: block;
+  }
+  .toggle-hint { font-size: .78rem; color: var(--muted); margin-top: 2px; }
+
+  .toggle-switch {
+    position: relative; flex-shrink: 0;
+    width: 44px; height: 24px;
+  }
+  .toggle-switch input { opacity: 0; width: 0; height: 0; }
+  .toggle-slider {
+    position: absolute; inset: 0; cursor: pointer;
+    background: var(--border); border-radius: 99px;
+    transition: background .25s;
+  }
+  .toggle-slider::before {
+    content: ''; position: absolute;
+    width: 18px; height: 18px; border-radius: 50%; background: #fff;
+    left: 3px; top: 3px;
+    transition: transform .25s;
+    box-shadow: 0 1px 4px rgba(0,0,0,.2);
+  }
+  .toggle-switch input:checked + .toggle-slider { background: var(--teal); }
+  .toggle-switch input:checked + .toggle-slider::before { transform: translateX(20px); }
+  .radio-group { display: flex; flex-direction: column; gap: 10px; }
+  .radio-option {
+    display: flex; align-items: center; gap: 12px;
+    padding: 13px 16px;
+    border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+    cursor: pointer; transition: border-color .15s, background .15s;
+  }
+  .radio-option:hover { border-color: var(--teal-glow); background: var(--teal-pale); }
+  .radio-option.selected { border-color: var(--teal); background: var(--teal-pale); }
+  .radio-option input[type="radio"] { accent-color: var(--teal); width: 17px; height: 17px; cursor: pointer; flex-shrink: 0; }
+  .radio-option-info { flex: 1; }
+  .radio-option-label { font-size: .9rem; font-weight: 600; color: var(--ink); display: block; }
+  .radio-option-desc  { font-size: .78rem; color: var(--muted); margin-top: 1px; }
+  .status-block {
+    display: flex; flex-direction: column; align-items: center;
+    text-align: center; padding: 36px 24px; gap: 12px;
+  }
+  .status-icon-wrap {
+    width: 64px; height: 64px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; font-size: 1.6rem;
+    margin-bottom: 4px;
+  }
+  .si-blue   { background: #EFF6FF; color: #3B82F6; }
+  .si-green  { background: #D1FAE5; color: var(--green); }
+
+  .status-block h5 { font-family: 'Sora', sans-serif; font-weight: 700; font-size: 1.05rem; color: var(--ink); }
+  .status-block p  { font-size: .88rem; color: var(--muted); max-width: 340px; line-height: 1.6; }
+  .status-email { font-weight: 700; color: var(--teal); }
+  .btn-row {
+    display: flex; gap: 10px; flex-wrap: wrap;
+    padding: 18px 22px 22px;
+    border-top: 1px solid var(--border);
+  }
+
+  .btn-submit {
+    display: inline-flex; align-items: center; gap: 7px;
+    background: linear-gradient(135deg, var(--teal), var(--teal-mid));
+    color: #fff; border: none; border-radius: var(--radius-sm);
+    padding: 10px 26px; font-size: .88rem; font-weight: 700;
+    font-family: 'Sora', sans-serif; cursor: pointer;
+    transition: opacity .2s, transform .15s;
+    box-shadow: 0 4px 14px rgba(13,148,136,.25);
+  }
+  .btn-submit:hover { opacity: .88; transform: translateY(-1px); }
+
+  .btn-outline {
+    display: inline-flex; align-items: center; gap: 7px;
+    background: #fff; color: var(--muted);
+    border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+    padding: 10px 20px; font-size: .88rem; font-weight: 600;
+    text-decoration: none; cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: border-color .15s, color .15s;
+  }
+  .btn-outline:hover { border-color: var(--teal); color: var(--teal); }
+  .tab-content-custom > .tab-pane-custom { display: none; }
+  .tab-content-custom > .tab-pane-custom.active { display: block; }
+  .site-footer {
+    border-top: 1px solid var(--border);
+    text-align: center; padding: 18px;
+    font-size: .8rem; color: var(--muted);
+    background: rgba(255,255,255,.85);
+    backdrop-filter: blur(8px);
+  }
+  @media (max-width: 768px) {
+    .settings-layout { grid-template-columns: 1fr; }
+    .topnav { padding: 0 16px; }
+    .page-wrap { padding: 24px 16px 60px; }
+  }
+  </style>
 </head>
 
-<body class="bg-light">
- 
-<div class="topbar">
-    <a href="{% url 'instructor_dashboard' %}" class="topbar-title">
-        Speshway
-    </a>
+<body>
 
-    <div class="d-flex align-items-center gap-3">
 
-        <h5 class="mb-0 welcome-text">
-            Hello, {{ user.first_name }} {{ user.last_name }}
-        </h5>
+<nav class="topnav">
+  <a href="{% url 'instructor_dashboard' %}" class="brand">SPESH<span>WAY</span></a>
+  <div class="dropdown">
+    <button class="avatar-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+      {{ request.user.username|first|upper }}
+    </button>
+    <ul class="dropdown-menu dropdown-menu-end">
+      <li><a class="dropdown-item" href="{% url 'instructor_profile_view' %}"><i class="fas fa-user fa-fw me-2"></i>Profile</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor:add_course' %}"><i class="fas fa-plus fa-fw me-2"></i>Create New Course</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor:students_list' %}"><i class="fas fa-users fa-fw me-2"></i>My Students</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor:calendar_view' %}"><i class="fas fa-calendar fa-fw me-2"></i>My Schedules</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor_notifications' %}"><i class="fas fa-bell fa-fw me-2"></i>Notifications</a></li>
+      <li><a class="dropdown-item" href="#"><i class="fas fa-wallet fa-fw me-2"></i>Earnings &amp; Payments</a></li>
+      <li><a class="dropdown-item" href="#"><i class="fas fa-circle-question fa-fw me-2"></i>Help &amp; Support</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor_account_settings' %}"><i class="fas fa-gear fa-fw me-2"></i>Account Settings</a></li>
+      <li><hr class="dropdown-divider"></li>
+      <li><a class="dropdown-item text-danger" href="{% url 'logout_view' %}"><i class="fas fa-right-from-bracket fa-fw me-2"></i>Logout</a></li>
+    </ul>
+  </div>
+</nav>
 
-<!-- HEADER -->
-<div class="d-flex justify-content-between align-items-center p-3 bg-white shadow-sm">
-    <a href="{% url 'instructor_dashboard' %}" class="text-decoration-none text-dark">
-        <h3 class="m-0 fw-bold brand-title">
-                <i class="fas fa-graduation-cap"></i> Speshway
-            </h3>
-    </a>
 
-    <div class="d-flex align-items-center gap-3">
-        <h4 class="m-0">Hello, {{ user.first_name }} {{ user.last_name }}</h4>
 
-        <div class="dropdown">
-            <button class="btn rounded-circle shadow profile-btn"
-                    data-bs-toggle="dropdown">
-                {{ request.user.username|first|upper }}
-            </button>
+<div class="page-wrap">
 
-            <ul class="dropdown-menu dropdown-menu-end">
-                <li><a class="dropdown-item" href="{% url 'instructor_profile_view' %}">Profile</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor:add_course' %}">Create New Course</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor:students_list' %}">My Students</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor:calendar_view' %}">My Schedules</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor_notifications' %}">Notifications</a></li>
-                <li><a class="dropdown-item" href="#">Earnings & Payments</a></li>
-                <li><a class="dropdown-item" href="#">Help & Support</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor_account_settings' %}">Account Settings</a></li>
-                <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item text-danger" href="{% url 'logout_view' %}">Logout</a></li>
-            </ul>
-        </div>
+  <a href="{% url 'instructor_dashboard' %}" class="back-link">
+    <i class="fas fa-arrow-left"></i> Back to Dashboard
+  </a>
 
+  <div class="page-header">
+    <h2>Account <span>Settings</span></h2>
+    <p>Manage your security, notification preferences, and privacy options.</p>
+  </div>
+
+  <div class="settings-layout">
+
+    
+    <div class="section-card delay-1">
+      <div class="card-top-bar"></div>
+      <div class="nav-body">
+
+        <button class="nav-btn active" data-tab="security" onclick="switchTab(this, 'security')">
+          <i class="fas fa-shield-alt"></i> Security
+        </button>
+
+        <button class="nav-btn" data-tab="notifications" onclick="switchTab(this, 'notifications')">
+          <i class="fas fa-bell"></i> Notifications
+        </button>
+
+        <button class="nav-btn" data-tab="privacy" onclick="switchTab(this, 'privacy')">
+          <i class="fas fa-lock"></i> Privacy
+        </button>
+
+      </div>
     </div>
-</div>
 
-<div class="container py-4">
-    <div class="settings-header text-center">
-        <h1><i class="fas fa-cog me-2"></i>Instructor Account Settings</h1>
-        <p class="lead">Manage your account preferences</p>
-    </div>
+    
+    <div class="tab-content-custom">
 
-    <div class="container settings-container my-5">
-        <div class="row">
+      
+      <div id="tab-security" class="tab-pane-custom active">
+        <div class="section-card delay-2">
+          <div class="card-top-bar"></div>
 
-            <div class="col-md-3 mb-4">
-                <div class="settings-card">
-                    <div class="settings-section">
-                        <div class="nav flex-column nav-pills">
-                            <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#security">
-                                <i class="fas fa-shield-alt me-2"></i>Security
-                            </button>
-                            <button class="nav-link" data-bs-toggle="pill" data-bs-target="#notifications">
-                                <i class="fas fa-bell me-2"></i>Notifications
-                            </button>
-                            <button class="nav-link" data-bs-toggle="pill" data-bs-target="#privacy">
-                                <i class="fas fa-lock me-2"></i>Privacy
-                            </button>
-                        </div>
-                    </div>
-                </div>
+          <div class="card-header-row">
+            <div class="card-header-icon"><i class="fas fa-shield-alt"></i></div>
+            <div class="card-header-title">Change Password</div>
+          </div>
+
+          {% if step == "form" %}
+
+          <form method="post">
+            {% csrf_token %}
+            <div class="form-body">
+
+              <div class="field-wrap">
+                <label class="field-label">Old Password</label>
+                <input type="password" name="old_password" class="field-input"
+                       placeholder="Enter your current password" required>
+              </div>
+
+              <div class="field-wrap">
+                <label class="field-label">New Password</label>
+                <input type="password" name="new_password1" class="field-input"
+                       placeholder="Choose a strong new password" required>
+              </div>
+
+              <div class="field-wrap">
+                <label class="field-label">Confirm New Password</label>
+                <input type="password" name="new_password2" class="field-input"
+                       placeholder="Repeat your new password" required>
+              </div>
+
             </div>
-            <div class="col-md-9">
-                <div class="tab-content">
-
-            <div class="tab-pane fade show active" id="security">
-                <div class="settings-card">
-                    <div class="settings-section">
-
-                        <h4 class="mb-4">Change Password</h4>
-
-                        {% if step == "form" %}
-
-                        <form method="post">
-                            {% csrf_token %}
-
-                            <div class="mb-3">
-                                <label class="form-label">Old Password</label>
-                                <input type="password" name="old_password" class="form-control" required>
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label">New Password</label>
-                                <input type="password" name="new_password1" class="form-control" required>
-                            </div>
-
-                            <div class="mb-4">
-                                <label class="form-label">Confirm Password</label>
-                                <input type="password" name="new_password2" class="form-control" required>
-                            </div>
-
-                            <button type="submit" name="change_password" class="btn btn-primary">
-                                Update Password
-                            </button>
-                        </form>
-
-                        {% elif step == "email_sent" %}
-
-                        <div class="text-center py-4">
-
-                            <i class="fas fa-envelope-open-text fa-3x text-primary mb-3"></i>
-
-                            <h5>Check Your Email</h5>
-
-                            <p class="mt-3">
-                                A confirmation link has been sent to:
-                            </p>
-
-                            <p class="fw-bold text-primary">
-                                {{ request.user.email }}
-                            </p>
-
-                            <p>
-                                Please click the link in your email to complete the password update.
-                            </p>
-
-                            <a href="{% url 'instructor_account_settings' %}"
-                            class="btn btn-outline-primary mt-3">
-                                Back
-                            </a>
-                        </div>
-
-                        {% elif step == "success" %}
-
-                        <div class="text-center py-4">
-
-                            <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
-
-                            <h5>Password Updated Successfully</h5>
-
-                            <p class="mt-3">
-                                Your password has been securely changed.
-                            </p>
-
-                            <a href="{% url 'instructor_dashboard' %}"
-                            class="btn btn-success mt-3">
-                                Go to Dashboard
-                            </a>
-                        </div>
-
-                        {% endif %}
-
-                    </div>
-                </div>
+            <div class="btn-row">
+              <button type="submit" name="change_password" class="btn-submit">
+                <i class="fas fa-lock"></i> Update Password
+              </button>
             </div>
+          </form>
 
-            <div class="tab-pane fade" id="notifications">
-                <div class="settings-card">
-                    <div class="settings-section">
-                        <h4>Notification Preferences</h4>
+          {% elif step == "email_sent" %}
 
-                        <form method="post">
-                            {% csrf_token %}
-
-                            <div class="form-check form-switch mb-3">
-                                <input class="form-check-input"
-                                    type="checkbox"
-                                    name="email_notifications"
-                                    id="email_notifications"
-                                    {% if notification_settings.email_notifications %}checked{% endif %}>
-                                <label class="form-check-label" for="email_notifications">
-                                    Email Notifications
-                                </label>
-                            </div>
-
-                            <div class="form-check form-switch mb-3">
-                                <input class="form-check-input"
-                                    type="checkbox"
-                                    name="course_updates"
-                                    id="course_updates"
-                                    {% if notification_settings.course_updates %}checked{% endif %}>
-                                <label class="form-check-label" for="course_updates">
-                                    Course Updates
-                                </label>
-                            </div>
-
-                            <div class="form-check form-switch mb-3">
-                                <input class="form-check-input"
-                                    type="checkbox"
-                                    name="enroll_updates"
-                                    id="enroll_updates"
-                                    {% if notification_settings.enroll_updates %}checked{% endif %}>
-                                <label class="form-check-label" for="enroll_updates">
-                                    Enrollment Updates
-                                </label>
-                            </div>
-
-                            <button type="submit"
-                                    name="update_notifications"
-                                    class="btn btn-primary">
-                                Save Preferences
-                            </button>
-                        </form>
-                    </div>
-                </div>
+          <div class="status-block">
+            <div class="status-icon-wrap si-blue">
+              <i class="fas fa-envelope-open-text"></i>
             </div>
+            <h5>Check Your Email</h5>
+            <p>A confirmation link has been sent to</p>
+            <span class="status-email">{{ request.user.email }}</span>
+            <p>Click the link in your email to complete the password update.</p>
+            <a href="{% url 'instructor_account_settings' %}" class="btn-outline mt-2">
+              <i class="fas fa-arrow-left"></i> Back to Settings
+            </a>
+          </div>
 
-                    <div class="tab-pane fade" id="privacy">
-                        <div class="settings-card">
-                            <div class="settings-section">
-                                <h4>Privacy Settings</h4>
+          {% elif step == "success" %}
 
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" checked>
-                                    <label>Public Profile</label>
-                                </div>
-
-                                <div class="form-check mt-2 mb-4">
-                                    <input class="form-check-input" type="radio">
-                                    <label>Private Profile</label>
-                                </div>
-
-                                <button class="btn btn-primary">Save</button>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
+          <div class="status-block">
+            <div class="status-icon-wrap si-green">
+              <i class="fas fa-check-circle"></i>
             </div>
+            <h5>Password Updated</h5>
+            <p>Your password has been securely changed. You're all set!</p>
+            <a href="{% url 'instructor_dashboard' %}" class="btn-submit mt-2">
+              <i class="fas fa-arrow-right"></i> Go to Dashboard
+            </a>
+          </div>
+
+          {% endif %}
 
         </div>
+      </div>
+
+
+      
+      <div id="tab-notifications" class="tab-pane-custom">
+        <div class="section-card delay-2">
+          <div class="card-top-bar violet"></div>
+
+          <div class="card-header-row">
+            <div class="card-header-icon violet"><i class="fas fa-bell"></i></div>
+            <div class="card-header-title">Notification Preferences</div>
+          </div>
+
+          <form method="post">
+            {% csrf_token %}
+
+            <div class="form-body">
+
+              <div class="toggle-row">
+                <div class="toggle-info">
+                  <span class="toggle-label">Email Notifications</span>
+                  <span class="toggle-hint">Receive activity updates via email</span>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" name="email_notifications" id="email_notifications"
+                    {% if notification_settings.email_notifications %}checked{% endif %}>
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+
+              <div class="toggle-row">
+                <div class="toggle-info">
+                  <span class="toggle-label">Course Updates</span>
+                  <span class="toggle-hint">Get notified when course content changes</span>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" name="course_updates" id="course_updates"
+                    {% if notification_settings.course_updates %}checked{% endif %}>
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+
+              <div class="toggle-row">
+                <div class="toggle-info">
+                  <span class="toggle-label">Enrollment Updates</span>
+                  <span class="toggle-hint">Alert when students enroll or unenroll</span>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" name="enroll_updates" id="enroll_updates"
+                    {% if notification_settings.enroll_updates %}checked{% endif %}>
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+
+            </div>
+
+            <div class="btn-row">
+              <button type="submit" name="update_notifications" class="btn-submit">
+                <i class="fas fa-floppy-disk"></i> Save Preferences
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+
+      
+      <div id="tab-privacy" class="tab-pane-custom">
+        <div class="section-card delay-2">
+          <div class="card-top-bar amber"></div>
+
+          <div class="card-header-row">
+            <div class="card-header-icon amber"><i class="fas fa-lock"></i></div>
+            <div class="card-header-title">Privacy Settings</div>
+          </div>
+
+          <form method="post">
+            {% csrf_token %}
+
+            <div class="form-body">
+              <div class="field-wrap">
+                <label class="field-label">Profile Visibility</label>
+                <div class="radio-group">
+
+                  <label class="radio-option selected" id="opt-public" onclick="selectRadio('public')">
+                    <input type="radio" name="profile_visibility" value="public" checked>
+                    <div class="radio-option-info">
+                      <span class="radio-option-label"><i class="fas fa-globe me-1" style="color:var(--teal)"></i> Public Profile</span>
+                      <span class="radio-option-desc">Anyone can view your profile and course listings</span>
+                    </div>
+                  </label>
+
+                  <label class="radio-option" id="opt-private" onclick="selectRadio('private')">
+                    <input type="radio" name="profile_visibility" value="private">
+                    <div class="radio-option-info">
+                      <span class="radio-option-label"><i class="fas fa-lock me-1" style="color:var(--muted)"></i> Private Profile</span>
+                      <span class="radio-option-desc">Only enrolled students can view your profile</span>
+                    </div>
+                  </label>
+
+                </div>
+              </div>
+            </div>
+
+            <div class="btn-row">
+              <button type="submit" name="update_privacy" class="btn-submit">
+                <i class="fas fa-floppy-disk"></i> Save Settings
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
     </div>
+  </div>
+
 </div>
+
+<footer class="site-footer">&copy; 2025 Speshway. All rights reserved.</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  function switchTab(btn, tabId) {
+    // Deactivate all nav buttons
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    // Hide all panels
+    document.querySelectorAll('.tab-pane-custom').forEach(p => p.classList.remove('active'));
+
+    // Show target
+    const panel = document.getElementById('tab-' + tabId);
+    if (panel) panel.classList.add('active');
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    {% if step == "email_sent" or step == "success" %}
+    {% endif %}
+  });
+
+  function selectRadio(val) {
+    document.getElementById('opt-public').classList.toggle('selected',  val === 'public');
+    document.getElementById('opt-private').classList.toggle('selected', val === 'private');
+  }
+</script>
 </body>
 </html>

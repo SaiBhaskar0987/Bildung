@@ -2,270 +2,629 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Feedback</title>
- 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Give Feedback — Speshway</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+  :root {
+    --ink:       #0F1117;
+    --ink-soft:  #2C2F3A;
+    --teal:      #0D9488;
+    --teal-mid:  #14B8A6;
+    --teal-glow: #5EEAD4;
+    --teal-pale: #CCFBF1;
+    --surface:   #F8FFFE;
+    --card-bg:   #FFFFFF;
+    --border:    #D1FAF6;
+    --muted:     #64748B;
+    --red:       #EF4444;
+    --green:     #10B981;
+    --radius:    16px;
+    --radius-sm: 10px;
+    --shadow:    0 4px 20px rgba(13,148,136,.07);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--surface);
+    color: var(--ink);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-thumb { background: var(--teal-glow); border-radius: 99px; }
+  .topnav {
+    position: sticky; top: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 32px; height: 64px;
+    background: rgba(255,255,255,.92);
+    backdrop-filter: blur(18px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .brand {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: 1.35rem;
+    letter-spacing: -.5px; color: var(--teal);
+    text-decoration: none;
+  }
+
+  .brand span { color: var(--ink); }
+
+  .avatar-btn {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--teal), var(--teal-mid));
+    color: #fff; border: none; cursor: pointer;
+    font-family: 'Sora', sans-serif; font-weight: 700; font-size: 1rem;
+    display: flex; align-items: center; justify-content: center;
+    transition: box-shadow .2s, transform .15s;
+    overflow: hidden;
+  }
+
+  .avatar-btn img { width: 100%; height: 100%; object-fit: cover; }
+  .avatar-btn:hover { box-shadow: 0 0 0 4px var(--teal-pale); transform: scale(1.05); }
 
 
-<style>
-:root {
-  --ink:       #0F1117;
-  --ink-soft:  #2C2F3A;
-  --teal:      #0D9488;
-  --teal-mid:  #14B8A6;
-  --teal-glow: #5EEAD4;
-  --teal-pale: #CCFBF1;
-  --surface:   #F8FFFE;
-  --card-bg:   #FFFFFF;
-  --border:    #D1FAF6;
-  --muted:     #64748B;
-  --red:       #EF4444;
-  --radius:    16px;
-  --radius-sm: 10px;
-}
+  .dropdown-menu {
+    border: 1px solid var(--border) !important;
+    border-radius: var(--radius) !important;
+    box-shadow: 0 12px 40px rgba(13,148,136,.12) !important;
+    padding: 8px !important; min-width: 220px !important;
+  }
 
-.feedback-wrap {
-  max-width: 620px;
-  margin: 0 auto;
-  padding: 40px 24px 80px;
-}
+  .dropdown-item {
+    border-radius: var(--radius-sm);
+    font-size: .875rem; color: var(--ink-soft);
+    padding: 8px 12px;
+    transition: background .15s, color .15s;
+  }
 
-.back-link {
-  display: inline-flex; align-items: center; gap: 7px;
-  color: var(--teal); font-size: .85rem; font-weight: 600;
-  text-decoration: none; margin-bottom: 24px;
-  transition: gap .2s;
-}
-.back-link:hover { gap: 10px; }
+  .dropdown-item:hover { background: var(--teal-pale); color: var(--teal); }
+  .dropdown-item.text-danger { color: var(--red) !important; }
+  .dropdown-item.text-danger:hover { background: #FEE2E2; color: var(--red) !important; }
+  .dropdown-divider { border-color: var(--border) !important; }
+  .page-wrap {
+    flex: 1;
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+    width: 100%;
+  }
+  .back-link {
+    display: inline-flex; align-items: center; gap: 7px;
+    color: var(--teal); font-size: .85rem; font-weight: 600;
+    text-decoration: none; margin-bottom: 24px;
+    transition: gap .2s;
+  }
 
-.page-header { margin-bottom: 28px; }
-.page-header h2 {
-  font-family: 'Syne', sans-serif;
-  font-weight: 800; font-size: 1.9rem;
-  letter-spacing: -1px; color: var(--ink);
-}
-.page-header h2 span { color: var(--teal); }
-.page-header p { color: var(--muted); margin-top: 5px; font-size: .88rem; }
+  .back-link:hover { gap: 10px; }
+  .page-header { margin-bottom: 28px; }
 
-/* ─── FORM CARD ─── */
-.form-card {
-  background: var(--card-bg);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  overflow: hidden;
-  box-shadow: 0 6px 28px rgba(13,148,136,.08);
-  animation: fadeUp .4s ease both;
-}
-@keyframes fadeUp {
-  from { opacity:0; transform:translateY(14px); }
-  to   { opacity:1; transform:translateY(0); }
-}
-.card-top-bar {
-  height: 4px;
-  background: linear-gradient(90deg, var(--teal), var(--teal-glow));
-}
-.card-header-row {
-  display: flex; align-items: center; gap: 10px;
-  padding: 18px 24px;
-  border-bottom: 1px solid var(--border);
-}
-.card-header-icon {
-  width: 36px; height: 36px;
-  background: var(--teal-pale); color: var(--teal);
-  border-radius: var(--radius-sm);
-  display: flex; align-items: center; justify-content: center;
-  font-size: .9rem; flex-shrink: 0;
-}
-.card-header-title {
-  font-family: 'Syne', sans-serif;
-  font-weight: 700; font-size: 1rem; color: var(--ink);
-}
+  .page-header h2 {
+    font-family: 'Sora', sans-serif;
+    font-weight: 800; font-size: 1.9rem;
+    letter-spacing: -1px; color: var(--ink);
+  }
 
-/* Course context pill */
-.course-pill {
-  margin: 18px 24px 0;
-  display: inline-flex; align-items: center; gap: 7px;
-  background: var(--teal-pale); color: var(--teal);
-  border-radius: 99px; padding: 5px 14px;
-  font-size: .8rem; font-weight: 700;
-}
+  .page-header h2 span { color: var(--teal); }
+  .page-header p { color: var(--muted); margin-top: 5px; font-size: .88rem; }
+  .section-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    animation: fadeUp .4s ease both;
+  }
 
-/* ─── FORM BODY ─── */
-.form-body { padding: 20px 24px 6px; }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
 
-.field-wrap { display: flex; flex-direction: column; gap: 5px; margin-bottom: 18px; }
-.field-wrap:last-of-type { margin-bottom: 0; }
-.field-label {
-  font-size: .73rem; font-weight: 700;
-  text-transform: uppercase; letter-spacing: .7px; color: var(--muted);
-}
+  .card-top-bar {
+    height: 4px;
+    background: linear-gradient(90deg, var(--teal), var(--teal-glow));
+  }
 
-/* Auto-style Django form widgets */
-.form-body select,
-.form-body input[type="text"],
-.form-body input[type="email"],
-.form-body textarea {
-  width: 100%; padding: 10px 14px;
-  border: 1.5px solid var(--border);
-  border-radius: var(--radius-sm);
-  font-family: 'DM Sans', sans-serif;
-  font-size: .9rem; color: var(--ink);
-  background: #fff; outline: none;
-  transition: border-color .2s, box-shadow .2s;
-  appearance: none;
-}
-.form-body select:focus,
-.form-body input:focus,
-.form-body textarea:focus {
-  border-color: var(--teal);
-  box-shadow: 0 0 0 3px rgba(13,148,136,.12);
-}
-.form-body textarea { resize: vertical; min-height: 130px; line-height: 1.6; }
+  .card-header-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 16px 22px;
+    border-bottom: 1px solid var(--border);
+  }
 
-/* Select wrapper with chevron */
-.select-wrap { position: relative; }
-.select-wrap::after {
-  content: '\f107'; font-family: 'Font Awesome 6 Free'; font-weight: 900;
-  position: absolute; right: 13px; top: 50%; transform: translateY(-50%);
-  color: var(--muted); pointer-events: none; font-size: .85rem;
-}
+  .card-header-icon {
+    width: 36px; height: 36px;
+    background: var(--teal-pale); color: var(--teal);
+    border-radius: var(--radius-sm);
+    display: flex; align-items: center; justify-content: center;
+    font-size: .9rem; flex-shrink: 0;
+  }
 
-/* ─── BUTTONS ─── */
-.btn-row {
-  display: flex; gap: 10px; flex-wrap: wrap;
-  padding: 18px 24px 24px;
-  justify-content: flex-end;
-}
-.btn-submit {
-  display: inline-flex; align-items: center; gap: 7px;
-  background: linear-gradient(135deg, var(--teal), var(--teal-mid));
-  color: #fff; border: none; border-radius: var(--radius-sm);
-  padding: 10px 26px; font-size: .9rem; font-weight: 700;
-  font-family: 'Syne', sans-serif; cursor: pointer;
-  transition: opacity .2s, transform .15s;
-}
-.btn-submit:hover { opacity: .88; transform: translateY(-1px); }
+  .card-header-title {
+    font-family: 'Sora', sans-serif;
+    font-weight: 700; font-size: 1rem; color: var(--ink);
+  }
+  .course-pill {
+    margin: 18px 22px 0;
+    display: inline-flex; align-items: center; gap: 7px;
+    background: var(--teal-pale); color: var(--teal);
+    border-radius: 99px; padding: 5px 14px;
+    font-size: .8rem; font-weight: 700;
+  }
+  .form-body { padding: 20px 22px 8px; }
 
-.btn-cancel {
-  display: inline-flex; align-items: center; gap: 7px;
-  background: #fff; color: var(--muted);
-  border: 1.5px solid var(--border); border-radius: var(--radius-sm);
-  padding: 10px 20px; font-size: .9rem; font-weight: 600;
-  text-decoration: none; transition: border-color .15s, color .15s;
-}
-.btn-cancel:hover { border-color: var(--muted); color: var(--ink); }
+  .field-wrap { display: flex; flex-direction: column; gap: 5px; margin-bottom: 18px; }
+  .field-wrap:last-of-type { margin-bottom: 0; }
 
-@media (max-width: 480px) {
-  .feedback-wrap { padding: 24px 16px 60px; }
-  .btn-row { flex-direction: column-reverse; }
-}
-</style>
+  .field-label {
+    font-size: .73rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .7px; color: var(--muted);
+  }
+
+  .field-input, .field-select, .field-textarea {
+    width: 100%; padding: 10px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: 'DM Sans', sans-serif;
+    font-size: .9rem; color: var(--ink);
+    background: #fff; outline: none;
+    transition: border-color .2s, box-shadow .2s;
+    appearance: none;
+  }
+
+  .field-input:focus, .field-select:focus, .field-textarea:focus {
+    border-color: var(--teal);
+    box-shadow: 0 0 0 3px rgba(13,148,136,.12);
+  }
+
+  .field-textarea { resize: vertical; min-height: 130px; line-height: 1.6; }
+  .dropdown-picker {
+    position: relative;
+  }
+
+  .picker-trigger {
+    width: 100%; padding: 10px 40px 10px 14px;
+    border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+    background: #fff; cursor: pointer;
+    display: flex; align-items: center; justify-content: space-between;
+    font-family: 'DM Sans', sans-serif; font-size: .9rem; color: var(--ink);
+    transition: border-color .2s, box-shadow .2s;
+    user-select: none;
+  }
+
+  .picker-trigger:hover, .picker-trigger.open {
+    border-color: var(--teal);
+    box-shadow: 0 0 0 3px rgba(13,148,136,.12);
+  }
+
+  .picker-trigger .trigger-label { flex: 1; text-align: left; color: var(--muted); }
+  .picker-trigger .trigger-label.has-selection { color: var(--ink); font-weight: 600; }
+  .picker-trigger .trigger-arrow { color: var(--muted); transition: transform .2s; }
+  .picker-trigger.open .trigger-arrow { transform: rotate(180deg); }
+
+  .picker-dropdown {
+    position: absolute; top: calc(100% + 6px); left: 0; right: 0;
+    background: #fff; border: 1.5px solid var(--teal);
+    border-radius: var(--radius-sm);
+    box-shadow: 0 12px 40px rgba(13,148,136,.15);
+    z-index: 200;
+    display: none;
+    animation: dropIn .15s ease;
+    overflow: hidden;
+  }
+
+  @keyframes dropIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .picker-dropdown.open { display: block; }
+  .picker-search-wrap {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+  }
+
+  .picker-search-wrap i {
+    position: absolute; left: 22px; top: 50%; transform: translateY(-50%);
+    color: var(--muted); font-size: .82rem; pointer-events: none;
+  }
+
+  .picker-search {
+    width: 100%; padding: 8px 10px 8px 32px;
+    border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+    font-family: 'DM Sans', sans-serif; font-size: .85rem; color: var(--ink);
+    background: var(--surface); outline: none;
+    transition: border-color .2s;
+  }
+
+  .picker-search:focus { border-color: var(--teal); }
+  .picker-select-all {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px;
+    background: var(--teal-pale);
+    border-bottom: 1px solid var(--border);
+    cursor: pointer; user-select: none;
+    font-size: .85rem; font-weight: 700; color: var(--teal);
+    transition: background .15s;
+  }
+
+  .picker-select-all:hover { background: #B2F5EA; }
+  .picker-select-all input[type="checkbox"] {
+    accent-color: var(--teal); width: 16px; height: 16px; cursor: pointer;
+  }
+  .picker-options {
+    max-height: 220px; overflow-y: auto;
+  }
+
+  .picker-options::-webkit-scrollbar { width: 5px; }
+  .picker-options::-webkit-scrollbar-thumb { background: var(--teal-glow); border-radius: 99px; }
+
+  .picker-option {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 14px;
+    cursor: pointer; transition: background .12s;
+    border-bottom: 1px solid #f0fcfa;
+  }
+
+  .picker-option:last-child { border-bottom: none; }
+  .picker-option:hover { background: var(--teal-pale); }
+  .picker-option.selected { background: var(--teal-pale); }
+
+  .picker-option input[type="checkbox"] {
+    accent-color: var(--teal); width: 16px; height: 16px; cursor: pointer; flex-shrink: 0;
+  }
+
+  .picker-option-avatar {
+    width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
+    background: linear-gradient(135deg, var(--teal), var(--teal-mid));
+    color: #fff; font-family: 'Sora', sans-serif;
+    font-size: .78rem; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .picker-option-name { font-size: .88rem; font-weight: 500; color: var(--ink); flex: 1; }
+  .picker-option.selected .picker-option-name { font-weight: 700; color: var(--teal); }
+
+  .picker-no-results {
+    padding: 18px 14px; text-align: center;
+    font-size: .85rem; color: var(--muted); display: none;
+  }
+  .picker-tags {
+    display: flex; flex-wrap: wrap; gap: 6px;
+    margin-top: 8px; min-height: 0;
+  }
+
+  .picker-tag {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: var(--teal-pale); color: var(--teal);
+    border: 1px solid var(--border-md);
+    border-radius: 99px; padding: 3px 10px;
+    font-size: .78rem; font-weight: 700;
+  }
+
+  .picker-tag-remove {
+    background: none; border: none; cursor: pointer;
+    color: var(--teal); font-size: .7rem; padding: 0; line-height: 1;
+    display: flex; align-items: center;
+    transition: color .15s;
+  }
+
+  .picker-tag-remove:hover { color: var(--red); }
+
+  .picker-empty-state {
+    padding: 18px 14px; text-align: center;
+    font-size: .85rem; color: var(--muted);
+  }
+  .btn-row {
+    display: flex; gap: 10px; flex-wrap: wrap;
+    padding: 18px 22px 24px;
+    justify-content: flex-end;
+    border-top: 1px solid var(--border);
+  }
+
+  .btn-submit {
+    display: inline-flex; align-items: center; gap: 7px;
+    background: linear-gradient(135deg, var(--teal), var(--teal-mid));
+    color: #fff; border: none; border-radius: var(--radius-sm);
+    padding: 10px 26px; font-size: .9rem; font-weight: 700;
+    font-family: 'Sora', sans-serif; cursor: pointer;
+    transition: opacity .2s, transform .15s;
+    box-shadow: 0 4px 14px rgba(13,148,136,.25);
+  }
+
+  .btn-submit:hover { opacity: .88; transform: translateY(-1px); }
+
+  .btn-cancel {
+    display: inline-flex; align-items: center; gap: 7px;
+    background: #fff; color: var(--muted);
+    border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+    padding: 10px 20px; font-size: .9rem; font-weight: 600;
+    text-decoration: none; transition: border-color .15s, color .15s;
+  }
+
+  .btn-cancel:hover { border-color: var(--muted); color: var(--ink); }
+  .site-footer {
+    border-top: 1px solid var(--border);
+    text-align: center; padding: 18px;
+    font-size: .8rem; color: var(--muted);
+    background: rgba(255,255,255,.85);
+    backdrop-filter: blur(8px);
+  }
+
+  @media (max-width: 480px) {
+    .topnav { padding: 0 16px; }
+    .page-wrap { padding: 24px 16px 60px; }
+    .btn-row { flex-direction: column-reverse; }
+    .btn-submit, .btn-cancel { justify-content: center; }
+  }
+  </style>
 </head>
- 
-  <body style="background: var(--surface);"></body>
- 
-<div class="d-flex justify-content-between align-items-center p-3 bg-white shadow-sm">
-    <a href="{% url 'instructor_dashboard' %}" class="text-decoration-none text-dark">
 
-        <h3 class="m-0 fw-bold brand-text">Speshway</h3>
-    </a>
+<body>
 
- 
-    <div class="d-flex align-items-center gap-3">
- 
-        <div class="dropdown">
-            <button class="btn rounded-circle shadow"
-                    style="background:gray;color:white;width:45px;height:45px;"
-                    data-bs-toggle="dropdown">
-                {{ request.user.username|first|upper }}
-            </button>
- 
-            <ul class="dropdown-menu dropdown-menu-end">
-            <li><a class="dropdown-item" href="{% url 'instructor_profile_view' %}">Profile</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor:add_course' %}">Create New Course</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor:students_list' %}">My Students</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor:calendar_view' %}">My Schedules</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor_notifications' %}">Notifications</a></li>
-                <li><a class="dropdown-item" href="#">Earnings & Payments</a></li>
-                <li><a class="dropdown-item" href="#">Help & Support</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor_account_settings' %}">Account Settings</a></li>
-                <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item text-danger" href="{% url 'logout_view' %}">Logout</a></li>
-            </ul>
-        </div>
-    </div>
-</div>
 
-<div class="feedback-wrap">
+<nav class="topnav">
+  <a href="{% url 'instructor_dashboard' %}" class="brand">SPESH<span>WAY</span></a>
+  <div class="dropdown">
+    <button class="avatar-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+      {% if profile.profile_picture %}
+        <img src="{{ profile.profile_picture.url }}" alt="avatar">
+      {% else %}
+        {{ request.user.username|first|upper }}
+      {% endif %}
+    </button>
+    <ul class="dropdown-menu dropdown-menu-end">
+      <li><a class="dropdown-item" href="{% url 'instructor_profile_view' %}"><i class="fas fa-user fa-fw me-2"></i>Profile</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor:add_course' %}"><i class="fas fa-plus fa-fw me-2"></i>Create New Course</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor:students_list' %}"><i class="fas fa-users fa-fw me-2"></i>My Students</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor:calendar_view' %}"><i class="fas fa-calendar fa-fw me-2"></i>My Schedules</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor_notifications' %}"><i class="fas fa-bell fa-fw me-2"></i>Notifications</a></li>
+      <li><a class="dropdown-item" href="#"><i class="fas fa-wallet fa-fw me-2"></i>Earnings & Payments</a></li>
+      <li><a class="dropdown-item" href="#"><i class="fas fa-circle-question fa-fw me-2"></i>Help & Support</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor_account_settings' %}"><i class="fas fa-gear fa-fw me-2"></i>Account Settings</a></li>
+      <li><hr class="dropdown-divider"></li>
+      <li><a class="dropdown-item text-danger" href="{% url 'logout_view' %}"><i class="fas fa-right-from-bracket fa-fw me-2"></i>Logout</a></li>
+    </ul>
+  </div>
+</nav>
+
+
+<div class="page-wrap">
 
   <a href="{% url 'instructor:course_detail' course.id %}" class="back-link">
-      <i class="fas fa-arrow-left"></i> Back to Course
+    <i class="fas fa-arrow-left"></i> Back to Course
   </a>
 
   <div class="page-header">
-      <h2>Give <span>Feedback</span></h2>
-      <p>Share feedback for the student in this course.</p>
+    <h2>Give <span>Feedback</span></h2>
+    <p>Share feedback with one or more students in this course.</p>
   </div>
 
-  <div class="form-card">
+  <div class="section-card">
+    <div class="card-top-bar"></div>
 
-      <div class="card-top-bar"></div>
+    <div class="card-header-row">
+      <div class="card-header-icon"><i class="fas fa-comment-dots"></i></div>
+      <div class="card-header-title">Student Feedback</div>
+    </div>
 
-      <div class="card-header-row">
-          <div class="card-header-icon">
-              <i class="fas fa-comment-dots"></i>
-          </div>
-          <div class="card-header-title">
-              Student Feedback
-          </div>
-      </div>
+    <span class="course-pill">
+      <i class="fas fa-book"></i>{{ course.title }}
+    </span>
 
-      <div class="course-pill">
-          <i class="fas fa-book"></i>
-          {{ course.title }}
-      </div>
+    <form method="post">
+      {% csrf_token %}
 
-      <form method="post">
-          {% csrf_token %}
+      <div class="form-body">
 
-          <div class="form-body">
+        
+        <div class="field-wrap">
+          <label class="field-label">Select Students</label>
 
-              <div class="field-wrap">
-                  <label class="field-label">Select Student</label>
-                  <div class="select-wrap">
-                      {{ form.student }}
+          <div class="dropdown-picker" id="studentPicker">
+
+            
+            <div class="picker-trigger" id="pickerTrigger" onclick="togglePicker()">
+              <span class="trigger-label" id="triggerLabel">Choose students…</span>
+              <i class="fas fa-chevron-down trigger-arrow" id="triggerArrow"></i>
+            </div>
+
+            
+            <div class="picker-dropdown" id="pickerDropdown">
+
+              
+              <div class="picker-search-wrap">
+                <i class="fas fa-magnifying-glass"></i>
+                <input type="text" class="picker-search" id="pickerSearch"
+                       placeholder="Search students…"
+                       oninput="filterStudents(this.value)">
+              </div>
+
+              
+              <label class="picker-select-all">
+                <input type="checkbox" id="selectAll" onchange="toggleAll(this)">
+                <i class="fas fa-users"></i>
+                Select All Students
+              </label>
+
+              
+              <div class="picker-options" id="pickerOptions">
+                {% for student in form.student.field.queryset %}
+                <label class="picker-option"
+                       data-name="{{ student.get_full_name|default:student.username|lower }}"
+                       data-id="{{ student.id }}">
+                  <input type="checkbox"
+                         name="students"
+                         value="{{ student.id }}"
+                         onchange="onStudentChange(this, '{{ student.get_full_name|default:student.username }}')">
+                  <div class="picker-option-avatar">
+                    {{ student.username|first|upper }}
                   </div>
+                  <span class="picker-option-name">
+                    {{ student.get_full_name|default:student.username }}
+                  </span>
+                </label>
+                {% empty %}
+                <div class="picker-empty-state">
+                  <i class="fas fa-user-slash" style="margin-right:6px;"></i>
+                  No enrolled students found.
+                </div>
+                {% endfor %}
+                <div class="picker-no-results" id="noResults">
+                  <i class="fas fa-magnifying-glass" style="margin-right:6px;"></i>
+                  No students match your search.
+                </div>
               </div>
 
-              <div class="field-wrap">
-                  <label class="field-label">Feedback</label>
-                  {{ form.text }}
-              </div>
-
+            </div>
           </div>
 
-          <div class="btn-row">
-              <a href="{% url 'instructor:course_detail' course.id %}" class="btn-cancel">
-                  <i class="fas fa-arrow-left"></i>
-                  Cancel
-              </a>
+          
+          <div class="picker-tags" id="pickerTags"></div>
 
-              <button type="submit" class="btn-submit">
-                  <i class="fas fa-paper-plane"></i>
-                  Submit Feedback
-              </button>
-          </div>
+        </div>
 
-      </form>
+        
+        <div class="field-wrap">
+          <label class="field-label">Feedback</label>
+          <textarea name="text" class="field-textarea"
+                    placeholder="Write your feedback here…"
+                    required>{{ form.text.value|default:'' }}</textarea>
+        </div>
 
+      </div>
+
+      <div class="btn-row">
+        <a href="{% url 'instructor:course_detail' course.id %}" class="btn-cancel">
+          <i class="fas fa-xmark"></i> Cancel
+        </a>
+        <button type="submit" class="btn-submit">
+          <i class="fas fa-paper-plane"></i> Submit Feedback
+        </button>
+      </div>
+
+    </form>
   </div>
 
 </div>
 
+<footer class="site-footer">&copy; 2025 Speshway. All rights reserved.</footer>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  const selected = new Map(); // id → name
+  function togglePicker() {
+    const trigger  = document.getElementById('pickerTrigger');
+    const dropdown = document.getElementById('pickerDropdown');
+    const open     = dropdown.classList.toggle('open');
+    trigger.classList.toggle('open', open);
+    if (open) document.getElementById('pickerSearch').focus();
+  }
+  document.addEventListener('click', e => {
+    const picker = document.getElementById('studentPicker');
+    if (!picker.contains(e.target)) {
+      document.getElementById('pickerDropdown').classList.remove('open');
+      document.getElementById('pickerTrigger').classList.remove('open');
+    }
+  });
+  function onStudentChange(cb, name) {
+    const row = cb.closest('.picker-option');
+    if (cb.checked) {
+      selected.set(cb.value, name);
+      row.classList.add('selected');
+    } else {
+      selected.delete(cb.value);
+      row.classList.remove('selected');
+    }
+    syncSelectAll();
+    renderTags();
+    updateTrigger();
+  }
+  function toggleAll(master) {
+    document.querySelectorAll('.picker-option:not([style*="display: none"]):not([style*="display:none"]) input[type="checkbox"]').forEach(cb => {
+      cb.checked = master.checked;
+      const row  = cb.closest('.picker-option');
+      const name = row.querySelector('.picker-option-name').textContent.trim();
+      if (master.checked) {
+        selected.set(cb.value, name);
+        row.classList.add('selected');
+      } else {
+        selected.delete(cb.value);
+        row.classList.remove('selected');
+      }
+    });
+    renderTags();
+    updateTrigger();
+  }
+  function syncSelectAll() {
+    const all     = document.querySelectorAll('.picker-options input[type="checkbox"]');
+    const checked = document.querySelectorAll('.picker-options input[type="checkbox"]:checked');
+    const master  = document.getElementById('selectAll');
+    master.checked       = all.length > 0 && checked.length === all.length;
+    master.indeterminate = checked.length > 0 && checked.length < all.length;
+  }
+  function renderTags() {
+    const container = document.getElementById('pickerTags');
+    container.innerHTML = '';
+    selected.forEach((name, id) => {
+      const tag = document.createElement('span');
+      tag.className = 'picker-tag';
+      tag.innerHTML = `
+        ${name}
+        <button type="button" class="picker-tag-remove" onclick="removeStudent('${id}')">
+          <i class="fas fa-xmark"></i>
+        </button>
+      `;
+      container.appendChild(tag);
+    });
+  }
+  function removeStudent(id) {
+    selected.delete(id);
+    const cb = document.querySelector(`.picker-options input[value="${id}"]`);
+    if (cb) {
+      cb.checked = false;
+      cb.closest('.picker-option').classList.remove('selected');
+    }
+    syncSelectAll();
+    renderTags();
+    updateTrigger();
+  }
+  function updateTrigger() {
+    const label = document.getElementById('triggerLabel');
+    const n     = selected.size;
+    if (n === 0) {
+      label.textContent = 'Choose students…';
+      label.classList.remove('has-selection');
+    } else {
+      label.textContent = `${n} student${n === 1 ? '' : 's'} selected`;
+      label.classList.add('has-selection');
+    }
+  }
+  function filterStudents(q) {
+    const term    = q.toLowerCase().trim();
+    const options = document.querySelectorAll('.picker-option');
+    let   visible = 0;
+
+    options.forEach(opt => {
+      const name    = opt.dataset.name || '';
+      const matches = name.includes(term);
+      opt.style.display = matches ? '' : 'none';
+      if (matches) visible++;
+    });
+
+    document.getElementById('noResults').style.display = visible === 0 && term ? 'block' : 'none';
+  }
+</script>
 </body>
 </html>
- 

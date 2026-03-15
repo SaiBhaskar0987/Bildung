@@ -120,7 +120,7 @@
 <body class="bg-light">
 
 <div class="topbar">
-    <a href="{% url 'instructor_dashboard' %}" class="topbar-title">Bildung</a>
+    <a href="{% url 'instructor_dashboard' %}" class="topbar-title">Speshway</a>
 
     <div class="dropdown">
         <button class="btn rounded-circle shadow"
@@ -153,6 +153,21 @@
 
     <label class="label">Description</label>
     <textarea id="courseDescription" class="input-box">{{ course.description }}</textarea>
+
+    <label class="label">Course Thumbnail</label>
+
+    <div style="margin-bottom:20px">
+
+    {% if course.thumbnail %}
+    <img src="{{ course.thumbnail.url }}"
+        style="width:220px;height:130px;object-fit:cover;border-radius:10px;margin-bottom:10px;">
+    {% endif %}
+
+    <input type="file"
+        id="courseThumbnail"
+        class="form-control">
+
+    </div>
 
     <label class="label">Price (₹)</label>
     <input id="coursePrice" type="number" class="input-box" value="{{ course.price }}">

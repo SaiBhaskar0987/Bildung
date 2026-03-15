@@ -23,14 +23,12 @@
     font-family: 'Segoe UI', sans-serif;
 }
 
-/* PAGE BACKGROUND */
 body{
     margin:0;
     background: linear-gradient(135deg,#ffffff,#fff7cc,#ffffff);
     min-height:100vh;
 }
 
-/* TOP BAR */
 .topbar{
     background: linear-gradient(135deg,#3a2a1a,#5a3d1f);
     padding:12px 25px;
@@ -47,7 +45,6 @@ body{
     color:#facc15;
 }
 
-/* PROFILE ICON */
 .topbar .btn.rounded-circle{
     background: linear-gradient(135deg,#facc15,#fde68a);
     color:#3a2a1a;
@@ -55,7 +52,6 @@ body{
     box-shadow:0 4px 10px rgba(250,204,21,0.6);
 }
 
-/* MAIN CARD */
 .paper{
     width:100%;
     max-width:1200px;
@@ -66,7 +62,6 @@ body{
     box-shadow:0 25px 60px rgba(0,0,0,0.15);
 }
 
-/* TITLES */
 .title{
     text-align:center;
     font-size:40px;
@@ -74,13 +69,11 @@ body{
     margin-bottom:30px;
 }
 
-/* LABELS */
 .label{
     font-weight:600;
     color:#3a2a1a;
 }
 
-/* INPUTS */
 .input-box{
     width:100%;
     padding:14px 16px;
@@ -95,12 +88,10 @@ body{
     box-shadow:0 0 0 4px rgba(250,204,21,0.35);
 }
 
-/* DIVIDER */
 .divider{
     margin:60px 0;
 }
 
-/* MODULE ROW */
 #topRow{
     display:flex;
     flex-wrap:wrap;
@@ -109,7 +100,6 @@ body{
     margin-top:25px;
 }
 
-/* BUILDER CARD */
 .builder-card{
     width:200px;
     height:170px;
@@ -128,7 +118,6 @@ body{
     transform:scale(1.06);
 }
 
-/* PLUS BOX */
 .drop-zone{
     width:220px;
     height:200px;
@@ -149,7 +138,6 @@ body{
     transform:scale(1.08);
 }
 
-/* DRAG BUTTONS */
 .drag-row{
     display:flex;
     justify-content:center;
@@ -168,7 +156,6 @@ body{
     cursor:grab;
 }
 
-/* ACTION BUTTONS */
 .actions{
     display:flex;
     justify-content:center;
@@ -193,16 +180,12 @@ body{
     transform:translateY(-3px);
 }
 
-/* NOTE */
 .note{
     text-align:center;
     margin-top:18px;
     color:#3a2a1a;
 }
 
-/* ======================================
-   PROFILE LOGO BADGE (YELLOW)
-====================================== */
 
 .topbar .btn.rounded-circle{
     background: linear-gradient(135deg,#fde047,#facc15) !important;
@@ -214,9 +197,6 @@ body{
                0 4px 12px rgba(0,0,0,0.3);
 }
 
-/* ===============================
-   STEP INDICATOR
-================================ */
 
 .stepper {
     display:flex;
@@ -252,8 +232,6 @@ body{
     background:linear-gradient(135deg,#fde047,#facc15);
     box-shadow:0 0 15px rgba(250,204,21,0.6);
 }
-
-
 
 
 </style>
@@ -296,6 +274,13 @@ body{
 
     <label class="label">Course Title</label>
     <input id="courseTitle" class="input-box" value="{{ course_title }}">
+
+    <label class="label">Course Thumbnail</label>
+
+    <input type="file"
+    id="courseThumbnail"
+    class="input-box"
+    accept="image/*">
 
     <label class="label">Description</label>
     <textarea id="courseDescription" class="input-box" style="height:80px;">{{ course_description }}</textarea>

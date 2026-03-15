@@ -2,460 +2,801 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Add Quiz</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Add Quiz</title>
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 
-<style>
+  <style>
+  :root {
+    --ink:       #0F1117;
+    --ink-soft:  #2C2F3A;
+    --teal:      #0D9488;
+    --teal-mid:  #14B8A6;
+    --teal-glow: #5EEAD4;
+    --teal-pale: #CCFBF1;
+    --surface:   #F8FFFE;
+    --card-bg:   #FFFFFF;
+    --border:    #D1FAF6;
+    --muted:     #64748B;
+    --red:       #EF4444;
+    --green:     #10B981;
+    --blue:      #3B82F6;
+    --violet:    #7C3AED;
+    --violet-lt: #EDE9FE;
+    --radius:    16px;
+    --radius-sm: 10px;
+    --shadow:    0 4px 20px rgba(13,148,136,.07);
+  }
 
-/* ===== THEME COLORS ===== */
-:root{
-  --yellow:#facc15;
-  --brown:#3a2a1a;
-  --brown-dark:#5a3d1f;
-}
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* ===== BACKGROUND ===== */
-body{
-    background: linear-gradient(135deg,#fffdf2,#fff7cc) !important;
-    font-family: 'Segoe UI', sans-serif;
-}
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--surface);
+    color: var(--ink);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
 
-/* ===== TOPBAR ===== */
-.d-flex.bg-white{
-    box-shadow:0 5px 20px rgba(58,42,26,0.15);
-}
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-thumb { background: var(--teal-glow); border-radius: 99px; }
+  .topnav {
+    position: sticky; top: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 32px; height: 64px;
+    background: rgba(255,255,255,.92);
+    backdrop-filter: blur(18px);
+    border-bottom: 1px solid var(--border);
+  }
 
-h3{
-    font-weight:700;
-}
+  .brand {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: 1.35rem;
+    letter-spacing: -.5px; color: var(--teal);
+    text-decoration: none;
+  }
 
-/* Profile circle */
-.rounded-circle{
-    background:linear-gradient(135deg,var(--yellow),#fde68a) !important;
-    color:var(--brown) !important;
-    border:none !important;
-}
+  .brand span { color: var(--ink); }
 
-/* ===== HEADINGS ===== */
-h3{
-    color:var(--brown);
-    font-weight:800;
-}
+  .avatar-btn {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--teal), var(--teal-mid));
+    color: #fff; border: none; cursor: pointer;
+    font-family: 'Sora', sans-serif; font-weight: 700; font-size: 1rem;
+    display: flex; align-items: center; justify-content: center;
+    transition: box-shadow .2s, transform .15s;
+  }
 
-h5{
-    color:var(--brown-dark);
-    font-weight:700;
-}
+  .avatar-btn:hover { box-shadow: 0 0 0 4px var(--teal-pale); transform: scale(1.05); }
 
-/* ===== INPUTS ===== */
-.form-control,
-.form-select{
-    border-radius:14px;
-    border:2px solid var(--yellow);
-}
+  .dropdown-menu {
+    border: 1px solid var(--border) !important;
+    border-radius: var(--radius) !important;
+    box-shadow: 0 12px 40px rgba(13,148,136,.12) !important;
+    padding: 8px !important; min-width: 220px !important;
+  }
 
-.form-control:focus,
-.form-select:focus{
-    border-color:var(--brown);
-    box-shadow:0 0 0 4px rgba(250,204,21,0.35);
-}
+  .dropdown-item {
+    border-radius: var(--radius-sm);
+    font-size: .875rem; color: var(--ink-soft);
+    padding: 8px 12px;
+    transition: background .15s, color .15s;
+  }
 
-/* ===== MAIN BUTTONS ===== */
-.btn-primary{
-    background:linear-gradient(135deg,var(--brown),var(--brown-dark));
-    border:none;
-}
+  .dropdown-item:hover { background: var(--teal-pale); color: var(--teal); }
+  .dropdown-item.text-danger { color: var(--red) !important; }
+  .dropdown-item.text-danger:hover { background: #FEE2E2; color: var(--red) !important; }
+  .dropdown-divider { border-color: var(--border) !important; }
+  .page-wrap {
+    flex: 1;
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+    width: 100%;
+  }
+  .back-link {
+    display: inline-flex; align-items: center; gap: 7px;
+    color: var(--teal); font-size: .85rem; font-weight: 600;
+    text-decoration: none; margin-bottom: 24px;
+    transition: gap .2s;
+  }
 
-.btn-primary:hover{
-    box-shadow:0 10px 25px rgba(58,42,26,0.3);
-}
+  .back-link:hover { gap: 10px; }
+  .page-header { margin-bottom: 28px; }
 
-.btn-success{
-    background:linear-gradient(135deg,var(--yellow),#fde68a);
-    color:var(--brown);
-    border:none;
-}
+  .page-header h2 {
+    font-family: 'Sora', sans-serif;
+    font-weight: 800; font-size: 1.9rem;
+    letter-spacing: -1px; color: var(--ink);
+  }
 
-.btn-outline-primary{
-    border:2px solid var(--brown);
-    color:var(--brown);
-}
+  .page-header h2 span { color: var(--teal); }
+  .page-header p { color: var(--muted); margin-top: 5px; font-size: .88rem; }
+  .section-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
+    animation: fadeUp .4s ease both;
+  }
 
-.btn-outline-primary:hover{
-    background:var(--brown);
-    color:white;
-}
+  .section-card.delay  { animation-delay: .08s; }
+  .section-card.delay2 { animation-delay: .16s; }
 
-.btn-outline-secondary{
-    border:2px solid var(--yellow);
-    color:var(--brown);
-}
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
 
-.btn-outline-secondary:hover{
-    background:var(--yellow);
-}
+  .card-top-bar {
+    height: 4px;
+    background: linear-gradient(90deg, var(--teal), var(--teal-glow));
+  }
 
-/* ===== QUESTION CARDS ===== */
-#aiOutput > div{
-    border-left:5px solid var(--yellow) !important;
-    border-radius:15px;
-    box-shadow:0 8px 25px rgba(58,42,26,0.1);
-}
+  .card-top-bar.violet {
+    background: linear-gradient(90deg, var(--violet), #A78BFA);
+  }
 
-/* ===== MODALS ===== */
-.modal-content{
-    border-radius:20px;
-}
+  .section-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 22px;
+    border-bottom: 1px solid var(--border);
+  }
 
-.modal-header{
-    background:linear-gradient(135deg,var(--brown),var(--brown-dark));
-    color:white;
-}
+  .section-header-left { display: flex; align-items: center; gap: 10px; }
 
-</style>
+  .section-icon {
+    width: 36px; height: 36px;
+    background: var(--teal-pale); color: var(--teal);
+    border-radius: var(--radius-sm);
+    display: flex; align-items: center; justify-content: center;
+    font-size: .9rem; flex-shrink: 0;
+  }
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  .section-icon.violet { background: var(--violet-lt); color: var(--violet); }
+
+  .section-title {
+    font-family: 'Sora', sans-serif;
+    font-weight: 700; font-size: 1rem; color: var(--ink);
+  }
+
+  .section-body { padding: 20px 22px 24px; }
+  .field-wrap { display: flex; flex-direction: column; gap: 5px; margin-bottom: 16px; }
+  .field-wrap:last-child { margin-bottom: 0; }
+
+  .field-label {
+    font-size: .73rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .7px; color: var(--muted);
+  }
+
+  .field-input, .field-select {
+    width: 100%; padding: 10px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: 'DM Sans', sans-serif;
+    font-size: .9rem; color: var(--ink);
+    background: #fff; outline: none;
+    transition: border-color .2s, box-shadow .2s;
+    appearance: none;
+  }
+
+  .field-input:focus, .field-select:focus {
+    border-color: var(--teal);
+    box-shadow: 0 0 0 3px rgba(13,148,136,.12);
+  }
+
+  .select-wrap { position: relative; }
+
+  .select-wrap::after {
+    content: '\f107'; font-family: 'Font Awesome 6 Free'; font-weight: 900;
+    position: absolute; right: 13px; top: 50%; transform: translateY(-50%);
+    color: var(--muted); pointer-events: none; font-size: .85rem;
+  }
+
+  .field-hint { font-size: .75rem; color: var(--muted); margin-top: 3px; }
+  .existing-alert {
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 12px;
+    background: var(--teal-pale);
+    border: 1px solid var(--teal-glow);
+    border-radius: var(--radius-sm);
+    padding: 14px 18px;
+  }
+
+  .existing-alert-text {
+    display: flex; align-items: center; gap: 8px;
+    font-size: .88rem; font-weight: 600; color: var(--teal);
+  }
+  #aiStatus {
+    font-size: .84rem; font-weight: 500;
+    padding: 8px 14px; border-radius: var(--radius-sm);
+    margin-top: 10px; display: none;
+  }
+
+  #aiStatus.thinking { background: #FFF7ED; color: #C2410C; display: block; }
+  #aiStatus.success  { background: #D1FAE5; color: #065F46; display: block; }
+  #aiStatus.error    { background: #FEE2E2; color: #991B1B; display: block; }
+  .question-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--teal);
+    border-radius: var(--radius-sm);
+    padding: 18px 20px;
+    margin-bottom: 14px;
+    transition: box-shadow .2s;
+    animation: fadeUp .3s ease both;
+  }
+
+  .question-card:hover { box-shadow: 0 6px 20px rgba(13,148,136,.1); }
+
+  .question-card-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  .q-label {
+    display: flex; align-items: center; gap: 8px;
+    font-family: 'Sora', sans-serif; font-weight: 700;
+    font-size: .85rem; color: var(--teal);
+  }
+
+  .q-badge {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: var(--teal-pale); color: var(--teal);
+    display: flex; align-items: center; justify-content: center;
+    font-size: .75rem; font-weight: 800;
+  }
+
+  .q-source-tag {
+    font-size: .68rem; font-weight: 700; padding: 2px 8px;
+    border-radius: 99px; text-transform: uppercase; letter-spacing: .4px;
+  }
+
+  .q-source-tag.ai     { background: var(--violet-lt); color: var(--violet); }
+  .q-source-tag.manual { background: var(--teal-pale);  color: var(--teal); }
+
+  .q-textarea {
+    width: 100%; padding: 9px 13px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: 'DM Sans', sans-serif;
+    font-size: .88rem; color: var(--ink);
+    background: #fff; outline: none; resize: vertical; min-height: 60px;
+    transition: border-color .2s, box-shadow .2s;
+    margin-bottom: 10px;
+  }
+
+  .q-textarea:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(13,148,136,.1); }
+
+  .option-row {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 7px;
+  }
+
+  .option-letter {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--teal-pale); color: var(--teal);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Sora', sans-serif; font-weight: 800;
+    font-size: .75rem; flex-shrink: 0;
+  }
+
+  .option-input {
+    flex: 1; padding: 8px 12px;
+    border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+    font-family: 'DM Sans', sans-serif; font-size: .85rem; color: var(--ink);
+    background: #fff; outline: none;
+    transition: border-color .2s;
+  }
+
+  .option-input:focus { border-color: var(--teal); }
+  .option-radio { accent-color: var(--teal); width: 16px; height: 16px; cursor: pointer; }
+
+  .btn-delete-q {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: #FEE2E2; color: var(--red);
+    border: none; border-radius: var(--radius-sm);
+    padding: 5px 11px; font-size: .76rem; font-weight: 600;
+    cursor: pointer; transition: background .15s;
+  }
+
+  .btn-delete-q:hover { background: var(--red); color: #fff; }
+  .btn-teal {
+    display: inline-flex; align-items: center; gap: 7px;
+    background: linear-gradient(135deg, var(--teal), var(--teal-mid));
+    color: #fff; border: none; border-radius: var(--radius-sm);
+    padding: 10px 22px; font-size: .88rem; font-weight: 700;
+    font-family: 'Sora', sans-serif; cursor: pointer;
+    transition: opacity .2s, transform .15s; text-decoration: none;
+  }
+
+  .btn-teal:hover { opacity: .88; transform: translateY(-1px); color: #fff; }
+
+  .btn-outline-teal {
+    display: inline-flex; align-items: center; gap: 7px;
+    background: none; color: var(--teal);
+    border: 1.5px solid var(--teal-glow); border-radius: var(--radius-sm);
+    padding: 9px 20px; font-size: .88rem; font-weight: 700;
+    font-family: 'Sora', sans-serif; cursor: pointer;
+    transition: background .15s; text-decoration: none;
+  }
+
+  .btn-outline-teal:hover { background: var(--teal-pale); color: var(--teal); }
+
+  .btn-ai {
+    display: inline-flex; align-items: center; gap: 7px;
+    background: linear-gradient(135deg, var(--violet), #6D28D9);
+    color: #fff; border: none; border-radius: var(--radius-sm);
+    padding: 10px 22px; font-size: .88rem; font-weight: 700;
+    font-family: 'Sora', sans-serif; cursor: pointer;
+    transition: opacity .2s, transform .15s;
+  }
+
+  .btn-ai:hover { opacity: .88; transform: translateY(-1px); }
+
+  .btn-add-q {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    width: 100%; padding: 11px;
+    background: var(--teal-pale); color: var(--teal);
+    border: 2px dashed var(--teal-glow); border-radius: var(--radius-sm);
+    font-family: 'Sora', sans-serif; font-weight: 700; font-size: .88rem;
+    cursor: pointer; transition: background .15s, border-color .15s, transform .15s;
+    margin-top: 4px;
+  }
+
+  .btn-add-q:hover { background: #B2F5EA; border-color: var(--teal); transform: translateY(-1px); }
+
+  .q-count-badge {
+    background: var(--teal-pale); color: var(--teal);
+    font-size: .72rem; font-weight: 700;
+    padding: 2px 8px; border-radius: 99px;
+  }
+  .actions-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 12px;
+    padding: 18px 22px;
+    background: var(--card-bg);
+    border: 1px solid var(--border); border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    animation: fadeUp .4s ease both; animation-delay: .24s;
+  }
+
+  .action-btns { display: flex; gap: 10px; flex-wrap: wrap; }
+  .modal-content {
+    border: 1px solid var(--border) !important;
+    border-radius: var(--radius) !important;
+    box-shadow: 0 20px 60px rgba(13,148,136,.15) !important;
+    overflow: hidden;
+  }
+
+  .modal-header {
+    background: linear-gradient(135deg, var(--teal), var(--teal-mid)) !important;
+    color: #fff !important; border: none !important;
+    padding: 16px 20px !important;
+  }
+
+  .modal-title {
+    font-family: 'Sora', sans-serif !important;
+    font-weight: 700 !important; font-size: 1rem !important; color: #fff !important;
+  }
+
+  .modal-header .btn-close { filter: invert(1); }
+  .modal-body { padding: 22px 20px !important; background: #fff; }
+
+  .mode-option-btn {
+    display: flex; align-items: center; gap: 12px;
+    width: 100%; padding: 14px 18px;
+    background: var(--surface); color: var(--ink-soft);
+    border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+    font-family: 'DM Sans', sans-serif; font-size: .9rem; font-weight: 600;
+    cursor: pointer; transition: all .15s; text-align: left;
+    margin-bottom: 10px;
+  }
+
+  .mode-option-btn:last-child { margin-bottom: 0; }
+  .mode-option-btn:hover { border-color: var(--teal); background: var(--teal-pale); color: var(--teal); }
+
+  .mode-icon {
+    width: 38px; height: 38px; border-radius: var(--radius-sm);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem; flex-shrink: 0;
+  }
+
+  .mode-option-btn.manual .mode-icon { background: #EFF6FF; color: var(--blue); }
+  .mode-option-btn.auto   .mode-icon { background: var(--violet-lt); color: var(--violet); }
+  .mode-option-btn-text strong { display: block; font-size: .9rem; }
+  .mode-option-btn-text small  { font-size: .76rem; color: var(--muted); }
+  .site-footer {
+    border-top: 1px solid var(--border);
+    text-align: center; padding: 18px;
+    font-size: .8rem; color: var(--muted);
+    background: rgba(255,255,255,.85);
+    backdrop-filter: blur(8px);
+  }
+  @media (max-width: 640px) {
+    .topnav { padding: 0 16px; }
+    .page-wrap { padding: 24px 16px 60px; }
+    .actions-bar { flex-direction: column; align-items: stretch; }
+  }
+  </style>
 </head>
 
-<body class="bg-light">
+<body>
 
-<div class="d-flex justify-content-between align-items-center p-3 bg-white shadow-sm">
-  <a href="{% url 'instructor_dashboard' %}" class="text-decoration-none text-dark">
-    <h3 class="m-0 fw-bold">Speshway</h3>
-  </a>
 
+<nav class="topnav">
+  <a href="{% url 'instructor_dashboard' %}" class="brand">SPESH<span>WAY</span></a>
   <div class="dropdown">
-    <button class="btn rounded-circle shadow"
-            style="background:gray;color:white;width:45px;height:45px;"
-            data-bs-toggle="dropdown">
+    <button class="avatar-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false">
       {{ request.user.username|first|upper }}
     </button>
-
     <ul class="dropdown-menu dropdown-menu-end">
-              <li><a class="dropdown-item" href="{% url 'instructor_profile_view' %}">Profile</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor:add_course' %}">Create New Course</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor:students_list' %}">My Students</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor:calendar_view' %}">My Schedules</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor_notifications' %}">Notifications</a></li>
-                <li><a class="dropdown-item" href="#">Earnings & Payments</a></li>
-                <li><a class="dropdown-item" href="#">Help & Support</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor_account_settings' %}">Account Settings</a></li>
-                <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item text-danger" href="{% url 'logout_view' %}">Logout</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor_profile_view' %}"><i class="fas fa-user fa-fw me-2"></i>Profile</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor:add_course' %}"><i class="fas fa-plus fa-fw me-2"></i>Create New Course</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor:students_list' %}"><i class="fas fa-users fa-fw me-2"></i>My Students</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor:calendar_view' %}"><i class="fas fa-calendar fa-fw me-2"></i>My Schedules</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor_notifications' %}"><i class="fas fa-bell fa-fw me-2"></i>Notifications</a></li>
+      <li><a class="dropdown-item" href="#"><i class="fas fa-wallet fa-fw me-2"></i>Earnings & Payments</a></li>
+      <li><a class="dropdown-item" href="#"><i class="fas fa-circle-question fa-fw me-2"></i>Help & Support</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor_account_settings' %}"><i class="fas fa-gear fa-fw me-2"></i>Account Settings</a></li>
+      <li><hr class="dropdown-divider"></li>
+      <li><a class="dropdown-item text-danger" href="{% url 'logout_view' %}"><i class="fas fa-right-from-bracket fa-fw me-2"></i>Logout</a></li>
     </ul>
   </div>
-</div>
+</nav>
 
 <input type="hidden" id="csrfToken" value="{{ csrf_token }}">
 
-<div class="container py-4">
 
-  <h3>Add Quiz</h3>
+<div class="page-wrap">
 
-  <label class="form-label">Quiz Title</label>
-  <input id="quizTitle" class="form-control mb-3">
-
-  <hr>
-  
-  <div id="existingQuestionsBox" class="alert alert-info d-none">
-    <strong>Questions already exist for this quiz.</strong>
-
-    <div class="mt-2 d-flex gap-2">
-      <a href="{% url 'quiz_preview' course_id quiz_id %}"
-         class="btn btn-sm btn-primary">
-         👀 Preview & Manage
-      </a>
-    </div>
-  </div>
-
-  <div id="ragSection" class="d-none">
-    <h5>AI Generated Questions</h5>
-
-    <div class="mb-3">
-  <label for="question_source" class="form-label">
-    <strong>Question Source</strong>
-  </label>
-
-  <select id="question_source" class="form-select">
-    <option value="both">PDFs + Videos</option>
-    <option value="pdf">PDFs only</option>
-    <option value="video">Videos only</option>
-  </select>
-
-    <small class="text-muted">
-      Choose where questions should be generated from.
-    </small>
-  </div>
-
-
-    <div class="mb-3">
-      <label class="form-label fw-bold">Number of Questions</label>
-      <input type="number" id="questionCount"
-             class="form-control" min="1" max="50" value="5">
-    </div>
-
-    <button class="btn btn-success mb-2" onclick="openScopeModal()">
-      🚀 Generate Questions
-    </button>
-
-
-    <p id="aiStatus" class="text-muted"></p>
-  </div>
-
-  <div id="questionsSection" class="mt-4 d-none">
-    <h5> Manual Questions</h5>
-
-    <button class="btn btn-outline-primary mb-3" onclick="addManualQuestion()">
-      ➕ Add Question
-    </button>
-
-    <div id="aiOutput"></div>
-  </div>
-
-  <hr>
-
-  <button class="btn btn-primary" onclick="saveQuiz()">Save Quiz</button>
-
-  <a class="btn btn-outline-secondary ms-2"
-     href="{% url 'quiz_preview' course_id quiz_id %}">
-    👀 Preview Quiz
+  <a href="{% url 'instructor_dashboard' %}" class="back-link">
+    <i class="fas fa-arrow-left"></i> Back to Dashboard
   </a>
 
+  <div class="page-header">
+    <h2>Add <span>Quiz</span></h2>
+    <p>Create a quiz manually or let AI generate questions from your course content.</p>
+  </div>
+
+  
+  <div class="section-card">
+    <div class="card-top-bar"></div>
+    <div class="section-header">
+      <div class="section-header-left">
+        <div class="section-icon"><i class="fas fa-circle-question"></i></div>
+        <span class="section-title">Quiz Details</span>
+      </div>
+    </div>
+    <div class="section-body">
+
+      <div class="field-wrap">
+        <label class="field-label">Quiz Title</label>
+        <input id="quizTitle" class="field-input" placeholder="Enter quiz title">
+      </div>
+
+      <div id="existingQuestionsBox" class="existing-alert d-none">
+        <div class="existing-alert-text">
+          <i class="fas fa-circle-info"></i>
+          Questions already exist for this quiz.
+        </div>
+        <a href="{% url 'quiz_preview' course_id quiz_id %}" class="btn-outline-teal" style="padding:6px 14px;font-size:.8rem;">
+          <i class="fas fa-eye"></i> Preview & Manage
+        </a>
+      </div>
+
+    </div>
+  </div>
+
+  
+  <div class="section-card delay d-none" id="ragSection">
+    <div class="card-top-bar violet"></div>
+    <div class="section-header">
+      <div class="section-header-left">
+        <div class="section-icon violet"><i class="fas fa-wand-magic-sparkles"></i></div>
+        <span class="section-title">AI Question Generator</span>
+      </div>
+    </div>
+    <div class="section-body">
+
+      <div class="field-wrap">
+        <label class="field-label">Question Source</label>
+        <div class="select-wrap">
+          <select id="question_source" class="field-select">
+            <option value="both">PDFs + Videos</option>
+            <option value="pdf">PDFs only</option>
+            <option value="video">Videos only</option>
+          </select>
+        </div>
+        <div class="field-hint">Choose where questions should be generated from.</div>
+      </div>
+
+      <div class="field-wrap" style="margin-bottom:0;">
+        <label class="field-label">Number of Questions</label>
+        <input type="number" id="questionCount" class="field-input"
+               min="1" max="50" value="5" style="max-width:180px;">
+      </div>
+
+      <div style="margin-top:18px;">
+        <button class="btn-ai" onclick="openScopeModal()">
+          <i class="fas fa-wand-magic-sparkles"></i> Generate Questions
+        </button>
+      </div>
+
+      <div id="aiStatus"></div>
+
+    </div>
+  </div>
+
+  
+  <div class="section-card delay2 d-none" id="questionsSection">
+    <div class="card-top-bar"></div>
+    <div class="section-header">
+      <div class="section-header-left">
+        <div class="section-icon"><i class="fas fa-list-check"></i></div>
+        <span class="section-title">Questions</span>
+        <span class="q-count-badge" id="qCountBadge">0</span>
+      </div>
+    </div>
+    <div class="section-body">
+      <div id="aiOutput"></div>
+      <button class="btn-add-q" onclick="addManualQuestion()">
+        <i class="fas fa-plus"></i> Add Question Manually
+      </button>
+    </div>
+  </div>
+
+  
+  <div class="actions-bar">
+    <div style="font-size:.82rem;color:var(--muted);display:flex;align-items:center;gap:6px;">
+      <i class="fas fa-lightbulb" style="color:var(--teal);"></i>
+      Save the quiz when you're done adding questions
+    </div>
+    <div class="action-btns">
+      <a href="{% url 'quiz_preview' course_id quiz_id %}" class="btn-outline-teal">
+        <i class="fas fa-eye"></i> Preview Quiz
+      </a>
+      <button class="btn-teal" onclick="saveQuiz()">
+        <i class="fas fa-floppy-disk"></i> Save Quiz
+      </button>
+    </div>
+  </div>
+
 </div>
+
+<footer class="site-footer">&copy; 2025 Speshway. All rights reserved.</footer>
+
 
 <div class="modal fade" id="quizModeModal" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">Choose Quiz Creation Mode</h5>
-         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
-      <div class="modal-body d-grid gap-3">
-        <button class="btn btn-outline-primary" onclick="selectQuizMode('manual')">
-          ✍️ Create Manually
+      <div class="modal-body">
+        <button class="mode-option-btn manual" onclick="selectQuizMode('manual')">
+          <div class="mode-icon"><i class="fas fa-pen-to-square"></i></div>
+          <div class="mode-option-btn-text">
+            <strong>Create Manually</strong>
+            <small>Write your own questions and answer options</small>
+          </div>
         </button>
-        <button class="btn btn-outline-success" onclick="selectQuizMode('auto')">
-          🤖 Auto-generate using AI
+        <button class="mode-option-btn auto" onclick="selectQuizMode('auto')">
+          <div class="mode-icon"><i class="fas fa-wand-magic-sparkles"></i></div>
+          <div class="mode-option-btn-text">
+            <strong>Auto-generate with AI</strong>
+            <small>Generate questions from your course PDFs and videos</small>
+          </div>
         </button>
       </div>
     </div>
   </div>
 </div>
+
 
 <div class="modal fade" id="quizScopeModal" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
-
       <div class="modal-header">
-        <h5 class="modal-title">Lecture Accessibility</h5>
+        <h5 class="modal-title">Lecture Scope for Generation</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
-
       <div class="modal-body">
-        <select id="quizScope" class="form-select">
-          <option value="all_before">All lectures before this quiz</option>
-          <option value="since_last_quiz">Lectures since last quiz</option>
-        </select>
-
-        <button class="btn btn-primary w-100 mt-3"
-                onclick="confirmScopeAndGenerate()">
-          Continue
+        <div style="margin-bottom:16px;">
+          <label class="field-label" style="display:block;margin-bottom:6px;">Generate from</label>
+          <div class="select-wrap">
+            <select id="quizScope" class="field-select">
+              <option value="all_before">All lectures before this quiz</option>
+              <option value="since_last_quiz">Lectures since last quiz</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn-teal" style="width:100%;" onclick="confirmScopeAndGenerate()">
+          <i class="fas fa-play"></i> Continue & Generate
         </button>
       </div>
-
     </div>
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-const COURSE_ID = "{{ course_id }}";
-const QUIZ_ID = "{{ quiz_id }}";
-const QUIZ_BLOCK = {{ quiz_block|default:"null"|safe }};
-let EXISTING_QUESTIONS = {{ question_count|default:0 }} > 0;
+  const COURSE_ID = "{{ course_id }}";
+  const QUIZ_ID   = "{{ quiz_id }}";
+  const QUIZ_BLOCK = {{ quiz_block|default:"null"|safe }};
+  let EXISTING_QUESTIONS = {{ question_count|default:0 }} > 0;
 
-let QUIZ_MODE = QUIZ_BLOCK?.quiz_mode || null;
-let QUIZ_SCOPE = QUIZ_BLOCK?.scope || "all_before";
-let QUESTION_SOURCE = QUIZ_BLOCK?.source || "both";
-let ALL_QUESTIONS = [];
+  let QUIZ_MODE      = QUIZ_BLOCK?.quiz_mode || null;
+  let QUIZ_SCOPE     = QUIZ_BLOCK?.scope     || "all_before";
+  let QUESTION_SOURCE = QUIZ_BLOCK?.source   || "both";
+  let ALL_QUESTIONS  = [];
 
-document.addEventListener("DOMContentLoaded", () => {
-  {% if quiz.title %}
-    quizTitle.value = "{{ quiz.title|escapejs }}";
-  {% endif %}
+  document.addEventListener("DOMContentLoaded", () => {
+    {% if quiz.title %}
+      document.getElementById("quizTitle").value = "{{ quiz.title|escapejs }}";
+    {% endif %}
 
-  const sourceSelect = document.getElementById("question_source");
-  if (sourceSelect) {
-    sourceSelect.value = QUESTION_SOURCE;
-  }
-  
-  if (EXISTING_QUESTIONS) {
-    document.getElementById("existingQuestionsBox").classList.remove("d-none");
-  }
-  
-  if (!QUIZ_MODE) {
-    new bootstrap.Modal(quizModeModal, { backdrop: "static" }).show();
-  } else {
-    applyQuizMode(QUIZ_MODE);
-  }
-});
+    const src = document.getElementById("question_source");
+    if (src) src.value = QUESTION_SOURCE;
 
-function selectQuizMode(mode) {
-  QUIZ_MODE = mode;
-  applyQuizMode(mode);
-  bootstrap.Modal.getInstance(quizModeModal)?.hide();
-}
+    if (EXISTING_QUESTIONS) {
+      document.getElementById("existingQuestionsBox").classList.remove("d-none");
+    }
 
-function applyQuizMode(mode) {
-  ragSection.classList.toggle("d-none", mode !== "auto");
-  questionsSection.classList.remove("d-none");
-}
-
-function addManualQuestion() {
-  ALL_QUESTIONS.push({
-    question: "",
-    options: { A: "", B: "", C: "", D: "" },
-    correct_answer: "A",
-    source: "manual"
+    if (!QUIZ_MODE) {
+      new bootstrap.Modal(document.getElementById("quizModeModal"), { backdrop: "static" }).show();
+    } else {
+      applyQuizMode(QUIZ_MODE);
+    }
   });
-  renderAllQuestions();
-}
 
-function getCSRFToken() {
-  return document.cookie
-    .split("; ")
-    .find(row => row.startsWith("csrftoken="))
-    ?.split("=")[1];
-}
+  function selectQuizMode(mode) {
+    QUIZ_MODE = mode;
+    applyQuizMode(mode);
+    bootstrap.Modal.getInstance(document.getElementById("quizModeModal"))?.hide();
+  }
 
+  function applyQuizMode(mode) {
+    document.getElementById("ragSection").classList.toggle("d-none", mode !== "auto");
+    document.getElementById("questionsSection").classList.remove("d-none");
+  }
 
-function openScopeModal() {
-  new bootstrap.Modal(quizScopeModal).show();
-}
+  function addManualQuestion() {
+    ALL_QUESTIONS.push({
+      question: "",
+      options: { A: "", B: "", C: "", D: "" },
+      correct_answer: "A",
+      source: "manual"
+    });
+    renderAllQuestions();
+  }
 
-function confirmScopeAndGenerate() {
-  QUIZ_SCOPE = quizScope.value;
-  bootstrap.Modal.getInstance(quizScopeModal)?.hide();
-  generateAIQuestions();
-}
+  function getCSRFToken() {
+    return document.cookie
+      .split("; ")
+      .find(r => r.startsWith("csrftoken="))
+      ?.split("=")[1];
+  }
 
-function generateAIQuestions() {
-  let count = parseInt(questionCount.value) || 5;
+  function openScopeModal() {
+    new bootstrap.Modal(document.getElementById("quizScopeModal")).show();
+  }
 
-  const QUESTION_SOURCE = document.getElementById("question_source").value;
+  function confirmScopeAndGenerate() {
+    QUIZ_SCOPE = document.getElementById("quizScope").value;
+    bootstrap.Modal.getInstance(document.getElementById("quizScopeModal"))?.hide();
+    generateAIQuestions();
+  }
 
-  aiStatus.innerText = "⏳ Generating questions...";
+  function generateAIQuestions() {
+    const count  = parseInt(document.getElementById("questionCount").value) || 5;
+    const source = document.getElementById("question_source").value;
+    const status = document.getElementById("aiStatus");
 
-  fetch(
-    `/api/quiz/${QUIZ_ID}/generate` +
-    `?scope=${QUIZ_SCOPE}&source=${QUESTION_SOURCE}&mode=auto`,
-    {
+    status.className = "thinking";
+    status.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Generating questions…';
+
+    fetch(`/api/quiz/${QUIZ_ID}/generate?scope=${QUIZ_SCOPE}&source=${source}&mode=auto`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-CSRFToken": getCSRFToken(),  
+        "X-CSRFToken": getCSRFToken()
       },
       body: JSON.stringify({ num_questions: count })
-    }
-  )
-  .then(res => {
-    if (!res.ok) throw new Error("API error");
-    return res.json();
-  })
-  .then(data => {
-    if (!Array.isArray(data.questions) || data.questions.length === 0) {
-      aiStatus.innerText = "⚠️ No questions generated";
-      return;
-    }
+    })
+    .then(r => { if (!r.ok) throw new Error(); return r.json(); })
+    .then(data => {
+      if (!Array.isArray(data.questions) || !data.questions.length) {
+        status.className = "error";
+        status.innerHTML = '<i class="fas fa-triangle-exclamation me-2"></i>No questions generated.';
+        return;
+      }
+      data.questions.forEach(q => { q.source = "ai"; ALL_QUESTIONS.push(q); });
+      renderAllQuestions();
+      status.className = "success";
+      status.innerHTML = `<i class="fas fa-circle-check me-2"></i>${data.questions.length} questions generated successfully.`;
+    })
+    .catch(() => {
+      status.className = "error";
+      status.innerHTML = '<i class="fas fa-circle-xmark me-2"></i>Failed to generate questions.';
+    });
+  }
 
-    data.questions.forEach(q => {
-      q.source = "ai";
-      ALL_QUESTIONS.push(q);
+  function renderAllQuestions() {
+    const out = document.getElementById("aiOutput");
+    out.innerHTML = "";
+
+    ALL_QUESTIONS.forEach((q, i) => {
+      const tag = q.source === "ai" ? "ai" : "manual";
+      out.innerHTML += `
+        <div class="question-card">
+          <div class="question-card-header">
+            <div class="q-label">
+              <div class="q-badge">${i + 1}</div>
+              Question ${i + 1}
+              <span class="q-source-tag ${tag}">${q.source === "ai" ? "AI" : "Manual"}</span>
+            </div>
+            <button class="btn-delete-q"
+              onclick="ALL_QUESTIONS.splice(${i},1);renderAllQuestions()">
+              <i class="fas fa-xmark"></i> Remove
+            </button>
+          </div>
+
+          <textarea class="q-textarea"
+            onchange="ALL_QUESTIONS[${i}].question=this.value"
+            placeholder="Enter question text…">${q.question}</textarea>
+
+          ${["A","B","C","D"].map(l => `
+            <div class="option-row">
+              <div class="option-letter">${l}</div>
+              <input class="option-input" value="${q.options[l]}"
+                placeholder="Option ${l}"
+                onchange="ALL_QUESTIONS[${i}].options['${l}']=this.value">
+              <input type="radio" class="option-radio" name="c_${i}"
+                ${q.correct_answer === l ? "checked" : ""}
+                onclick="ALL_QUESTIONS[${i}].correct_answer='${l}'"
+                title="Mark as correct answer">
+            </div>
+          `).join("")}
+        </div>
+      `;
     });
 
-    renderAllQuestions();
-    aiStatus.innerText = `✅ ${data.questions.length} questions generated`;
-  })
-  .catch(err => {
-    console.error(err);
-    aiStatus.innerText = "❌ Failed to generate questions";
-  });
-}
-
-
-function renderAllQuestions() {
-  aiOutput.innerHTML = "";
-
-  ALL_QUESTIONS.forEach((q, i) => {
-    aiOutput.innerHTML += `
-      <div class="border rounded p-3 mb-3 bg-white">
-        <div class="d-flex justify-content-between">
-          <strong>Q${i + 1} (${q.source})</strong>
-          <button class="btn btn-sm btn-danger"
-            onclick="ALL_QUESTIONS.splice(${i},1);renderAllQuestions()">🗑</button>
-        </div>
-
-        <textarea class="form-control mt-2"
-          onchange="ALL_QUESTIONS[${i}].question=this.value">${q.question}</textarea>
-
-        ${["A","B","C","D"].map(l => `
-          <div class="input-group mt-1">
-            <span class="input-group-text">${l}</span>
-            <input class="form-control" value="${q.options[l]}"
-              onchange="ALL_QUESTIONS[${i}].options['${l}']=this.value">
-            <span class="input-group-text">
-              <input type="radio" name="c_${i}"
-                ${q.correct_answer === l ? "checked" : ""}
-                onclick="ALL_QUESTIONS[${i}].correct_answer='${l}'">
-            </span>
-          </div>
-        `).join("")}
-      </div>
-    `;
-  });
-}
-
-
-function saveQuiz() {
-  if (!quizTitle.value.trim()) {
-    alert("Quiz title is required");
-    return;
+    document.getElementById("qCountBadge").textContent = ALL_QUESTIONS.length;
   }
 
-  const payload = {
-    title: quizTitle.value,
-    quiz_mode: QUIZ_MODE,
-    scope: QUIZ_SCOPE,
-    question_source: document.getElementById("question_source").value
-  };
-  
-  if (ALL_QUESTIONS.length > 0) {
-    payload.questions = ALL_QUESTIONS;
+  function saveQuiz() {
+    const title = document.getElementById("quizTitle").value.trim();
+    if (!title) { alert("Quiz title is required"); return; }
+
+    const payload = {
+      title,
+      quiz_mode: QUIZ_MODE,
+      scope: QUIZ_SCOPE,
+      question_source: document.getElementById("question_source").value
+    };
+    if (ALL_QUESTIONS.length) payload.questions = ALL_QUESTIONS;
+
+    fetch(`/accounts/instructor/course/${COURSE_ID}/quiz/${QUIZ_ID}/save/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": document.getElementById("csrfToken").value
+      },
+      body: JSON.stringify(payload)
+    })
+    .then(r => { if (!r.ok) throw new Error(); return r.json(); })
+    .then(() => alert("Quiz saved ✔"))
+    .catch(() => alert("Save failed ❌"));
   }
-  fetch(`/accounts/instructor/course/${COURSE_ID}/quiz/${QUIZ_ID}/save/`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "X-CSRFToken": csrfToken.value
-    },
-    body: JSON.stringify(payload)
-  })
-  .then(res => {
-    console.log("SAVE STATUS:", res.status);
-    if (!res.ok) throw new Error("Save failed");
-    return res.json();
-  })
-  .then(data => {
-    console.log("SAVE RESPONSE:", data);
-    alert("Quiz saved ✔");
-  })
-  .catch(err => {
-    console.error("SAVE ERROR:", err);
-    alert("Save failed ❌");
-  });
-}
 </script>
 <script src="{% static 'js/add_quiz.js' %}"></script>
 </body>

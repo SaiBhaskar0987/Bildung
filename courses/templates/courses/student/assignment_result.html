@@ -1,104 +1,428 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Assignment Result</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Assignment Result | Speshway</title>
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 
-<style>
-body {
-    background: #f4f6f9;
-}
+  <style>
+  :root {
+    --amber:    #d97706;
+    --amber-lt: #fef3c7;
+    --rust:     #b45309;
+    --cream:    #fffbf5;
+    --parchment:#fef9f0;
+    --ink:      #1c1412;
+    --muted:    #7c6f67;
+    --border:   #e8ddd4;
+    --border-lt:#f3ede6;
+    --glass:    rgba(255,251,245,0.88);
+    --shadow:   0 8px 40px rgba(28,20,18,0.10);
+    --shadow-sm:0 4px 18px rgba(28,20,18,0.07);
+    --green:    #16a34a;
+    --green-lt: #dcfce7;
+    --green-dk: #15803d;
+    --rose:     #e11d48;
+    --rose-lt:  #ffe4e6;
+    --violet:   #7c3aed;
+    --violet-lt:#ede9fe;
+  }
 
-.result-card {
-    max-width: 720px;
-    margin: auto;
-    border-radius: 20px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-}
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-.score-box {
-    font-size: 48px;
-    font-weight: 800;
-    color: #0d6efd;
-}
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: var(--cream); color: var(--ink);
+    min-height: 100vh; overflow-x: hidden;
+    display: flex; flex-direction: column;
+  }
 
-.question-box {
-    background: #f8f9fa;
-    border-radius: 12px;
-    padding: 15px;
-    margin-bottom: 12px;
-    text-align: left;
-}
-</style>
+  .page-wrap { flex: 1; }
+
+  body::before {
+    content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 85% 10%, #fde68a55 0%, transparent 60%),
+      radial-gradient(ellipse 40% 60% at 5%  90%, #fcd34d33 0%, transparent 55%),
+      radial-gradient(ellipse 50% 40% at 50% 50%, #fff7ed   0%, transparent 80%);
+  }
+
+  body::after {
+    content: ''; position: fixed; top: -120px; right: -120px;
+    width: 420px; height: 420px;
+    border: 1.5px solid rgba(217,119,6,0.14); border-radius: 50%;
+    pointer-events: none; z-index: 0; animation: spin 50s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .topbar {
+    position: sticky; top: 0; z-index: 999;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 48px; background: var(--glass);
+    backdrop-filter: blur(16px); border-bottom: 1px solid var(--border);
+  }
+
+  .brand {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 800; font-size: 24px; letter-spacing: .04em; color: var(--ink);
+    text-decoration: none; display: flex; align-items: center; gap: 10px;
+  }
+
+  .brand .dot {
+    width: 9px; height: 9px; border-radius: 50%; background: var(--amber);
+    box-shadow: 0 0 0 3px rgba(217,119,6,.2); animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%,100% { box-shadow: 0 0 0 3px rgba(217,119,6,.2); }
+    50%      { box-shadow: 0 0 0 7px rgba(217,119,6,.07); }
+  }
+
+  .topbar-right { display: flex; align-items: center; gap: 18px; }
+
+  .avatar-btn {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--amber), var(--rust));
+    color: white; font-size: 18px; font-weight: 700;
+    border: none; cursor: pointer; box-shadow: 0 4px 14px rgba(180,83,9,.35);
+    transition: transform .2s;
+  }
+
+  .avatar-btn:hover { transform: scale(1.07); }
+
+  .dropdown-menu {
+    border: 1px solid var(--border) !important; border-radius: 16px !important;
+    padding: 10px !important; min-width: 230px;
+    box-shadow: 0 24px 60px rgba(28,20,18,.12) !important; background: white !important;
+  }
+
+  .dropdown-item {
+    border-radius: 10px; padding: 10px 14px;
+    font-size: 13.5px; font-weight: 500; color: var(--ink);
+    transition: background .2s, color .2s, transform .2s;
+  }
+
+  .dropdown-item:hover { background: var(--amber-lt); color: var(--rust); transform: translateX(4px); }
+  .dropdown-item.logout-item { color: #dc2626; }
+  .dropdown-item.logout-item:hover { background: #fef2f2; color: #b91c1c; }
+  .dropdown-divider { border-color: var(--border) !important; margin: 6px 0 !important; }
+
+  .page-wrap {
+    position: relative; z-index: 1;
+    max-width: 740px; margin: 48px auto 80px; padding: 0 24px;
+    animation: fadeUp .55s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(22px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .score-hero {
+    background: white; border: 1px solid var(--border);
+    border-radius: 28px; overflow: hidden;
+    box-shadow: var(--shadow); margin-bottom: 28px;
+    text-align: center;
+  }
+
+  .score-hero-ribbon {
+    height: 5px;
+    background: linear-gradient(90deg, var(--amber), #f59e0b, var(--rust));
+  }
+
+  .score-hero-body { padding: 40px 36px; }
+  .score-ring-wrap {
+    position: relative; width: 140px; height: 140px;
+    margin: 0 auto 22px;
+  }
+
+  .score-ring-wrap svg { transform: rotate(-90deg); }
+  .ring-bg   { fill: none; stroke: var(--border); stroke-width: 10; }
+  .ring-fill {
+    fill: none; stroke-width: 10; stroke-linecap: round;
+    transition: stroke-dashoffset 1.4s cubic-bezier(.4,0,.2,1);
+  }
+
+  .score-ring-label {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+  }
+
+  .score-big {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 34px; font-weight: 800; line-height: 1;
+  }
+
+  .score-denom {
+    font-size: 12px; font-weight: 600; color: var(--muted);
+    letter-spacing: .1em; text-transform: uppercase;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .result-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 24px; font-weight: 800; color: var(--ink);
+    margin-bottom: 6px;
+  }
+
+  .result-sub { font-size: 14px; color: var(--muted); margin-bottom: 20px; }
+
+  .status-pill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 18px; border-radius: 99px;
+    font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .status-pill.completed {
+    background: var(--green-lt); color: var(--green-dk);
+    border: 1px solid #86efac;
+  }
+
+  .status-pill.in-progress {
+    background: var(--amber-lt); color: var(--rust);
+    border: 1px solid var(--amber);
+  }
+  .section-header {
+    display: flex; align-items: center; gap: 14px; margin-bottom: 20px;
+  }
+
+  .section-tag {
+    font-size: 10px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase;
+    color: var(--amber); background: var(--amber-lt);
+    padding: 4px 12px; border-radius: 99px; font-family: 'DM Mono', monospace;
+  }
+
+  .section-title {
+    font-size: 22px; font-weight: 800; color: var(--ink);
+  }
+  .answer-card {
+    background: white; border: 1px solid var(--border);
+    border-radius: 20px; overflow: hidden; box-shadow: var(--shadow-sm);
+    margin-bottom: 16px;
+    animation: fadeUp .4s ease both;
+  }
+
+  .answer-card:nth-child(2) { animation-delay: .06s; }
+  .answer-card:nth-child(3) { animation-delay: .12s; }
+
+  .answer-card-top { height: 3px; }
+  .answer-card-top.high   { background: linear-gradient(90deg, var(--green), #4ade80); }
+  .answer-card-top.medium { background: linear-gradient(90deg, var(--amber), #f59e0b); }
+  .answer-card-top.low    { background: linear-gradient(90deg, var(--rose), #fb7185); }
+
+  .answer-card-body { padding: 22px 26px; }
+
+  .answer-q-header {
+    display: flex; align-items: flex-start; gap: 12px; margin-bottom: 14px;
+  }
+
+  .answer-q-num {
+    width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
+    background: var(--amber-lt); color: var(--rust);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 800;
+  }
+
+  .answer-q-text {
+    font-size: 15px; font-weight: 700; color: var(--ink); line-height: 1.4;
+  }
+
+  .answer-meta-row {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 12px; flex-wrap: wrap;
+  }
+
+  .score-chip {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 4px 12px; border-radius: 99px;
+    font-size: 12px; font-weight: 700; font-family: 'DM Mono', monospace;
+  }
+
+  .score-chip.high   { background: var(--green-lt); color: var(--green-dk); border: 1px solid #86efac; }
+  .score-chip.medium { background: var(--amber-lt); color: var(--rust);     border: 1px solid #fde68a; }
+  .score-chip.low    { background: var(--rose-lt);  color: var(--rose);     border: 1px solid #fecaca; }
+
+  .feedback-box {
+    background: var(--parchment); border: 1px solid var(--border-lt);
+    border-radius: 12px; padding: 14px 16px;
+    border-left: 3px solid var(--amber);
+    font-size: 14px; color: var(--ink); line-height: 1.65;
+  }
+
+  .feedback-label {
+    font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 6px;
+    font-family: 'DM Mono', monospace;
+  }
+  .back-btn {
+    display: inline-flex; align-items: center; gap: 9px;
+    background: linear-gradient(135deg, var(--amber), var(--rust));
+    color: white; border: none;
+    padding: 14px 32px; border-radius: 14px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 15px; font-weight: 700; text-decoration: none;
+    box-shadow: 0 6px 20px rgba(180,83,9,.30);
+    transition: transform .2s, box-shadow .2s;
+    margin-top: 8px;
+  }
+
+  .back-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 28px rgba(180,83,9,.42);
+    color: white;
+  }
+
+  .no-answers {
+    background: white; border: 1.5px dashed var(--border);
+    border-radius: 20px; padding: 48px; text-align: center; color: var(--muted);
+  }
+
+  .site-footer {
+    position: relative; z-index: 1; border-top: 1px solid var(--border);
+    text-align: center; padding: 20px; font-size: 13px; color: var(--muted);
+    background: var(--glass); backdrop-filter: blur(12px);
+  }
+
+  @media (max-width: 600px) {
+    .topbar { padding: 12px 20px; }
+    .page-wrap { margin-top: 32px; }
+    .score-hero-body { padding: 28px 20px; }
+    .answer-card-body { padding: 18px 18px; }
+  }
+  </style>
 </head>
 
 <body>
 
-<div class="container py-5">
-
-<div class="card result-card border-0 p-4 text-center">
-
-<!-- ICON -->
-<div class="mb-3" style="font-size:60px;">🎉</div>
-
-<!-- TITLE -->
-<h2 class="fw-bold mb-2">Assignment Completed</h2>
-<p class="text-muted mb-4">Your submission has been evaluated</p>
-
-<!-- SCORE -->
-<div class="mb-4">
-    <div class="score-box">
-        {{ attempt.score }} %
+<nav class="topbar">
+  <a href="{% url 'student_dashboard' %}" class="brand">
+    <span class="dot"></span>Speshway
+  </a>
+  <div class="topbar-right">
+    <div class="dropdown">
+      <button class="avatar-btn" data-bs-toggle="dropdown" aria-expanded="false">
+        {{ request.user.username|first|upper }}
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end">
+        <li><a class="dropdown-item" href="{% url 'profile_view' %}"><i class="fas fa-user fa-fw me-2" style="color:var(--amber)"></i>Profile</a></li>
+        <li><a class="dropdown-item" href="{% url 'student:my_courses' %}"><i class="fas fa-book fa-fw me-2" style="color:var(--amber)"></i>My Courses</a></li>
+        <li><a class="dropdown-item" href="{% url 'student:student_upcoming_classes' %}"><i class="fas fa-calendar fa-fw me-2" style="color:var(--amber)"></i>My Schedules</a></li>
+        <li><a class="dropdown-item" href="{% url 'student_my_activity' %}"><i class="fas fa-chart-line fa-fw me-2" style="color:var(--amber)"></i>My Activity</a></li>
+        <li><a class="dropdown-item" href="{% url 'student:my_certificates' %}"><i class="fas fa-certificate fa-fw me-2" style="color:var(--amber)"></i>My Certificates</a></li>
+        <li><a class="dropdown-item" href="{% url 'student_notifications' %}"><i class="fas fa-bell fa-fw me-2" style="color:var(--amber)"></i>Notifications</a></li>
+        <li><a class="dropdown-item" href="#"><i class="fas fa-credit-card fa-fw me-2" style="color:var(--amber)"></i>Payments</a></li>
+        <li><a class="dropdown-item" href="#"><i class="fas fa-circle-question fa-fw me-2" style="color:var(--amber)"></i>Help & Support</a></li>
+        <li><a class="dropdown-item" href="{% url 'account_settings' %}"><i class="fas fa-gear fa-fw me-2" style="color:var(--amber)"></i>Account Settings</a></li>
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item logout-item" href="{% url 'logout_view' %}"><i class="fas fa-arrow-right-from-bracket fa-fw me-2"></i>Sign Out</a></li>
+      </ul>
     </div>
-    <div class="text-muted">Total Score</div>
+  </div>
+</nav>
+
+<div class="page-wrap">
+
+  
+  <div class="score-hero">
+    <div class="score-hero-ribbon"></div>
+    <div class="score-hero-body">
+
+      <div class="score-ring-wrap">
+        <svg viewBox="0 0 140 140" width="140" height="140">
+          <circle class="ring-bg"   cx="70" cy="70" r="56"/>
+          <circle class="ring-fill" cx="70" cy="70" r="56"
+            id="scoreRing"
+            stroke-dasharray="352"
+            stroke-dashoffset="352"
+            stroke="#d97706"/>
+        </svg>
+        <div class="score-ring-label">
+          <span class="score-big" id="scoreBig">{{ attempt.score }}</span>
+          <span class="score-denom">Score %</span>
+        </div>
+      </div>
+
+      <h1 class="result-title">Assignment Completed</h1>
+      <p class="result-sub">Your submission has been evaluated</p>
+
+      {% if attempt.status == "COMPLETED" %}
+      <span class="status-pill completed"><i class="fas fa-check-circle"></i> Completed</span>
+      {% else %}
+      <span class="status-pill in-progress"><i class="fas fa-clock"></i> In Progress</span>
+      {% endif %}
+
+    </div>
+  </div>
+
+  
+  <div class="section-header">
+    <span class="section-tag">Evaluation</span>
+    <h2 class="section-title">Question-wise Results</h2>
+  </div>
+
+  {% for ans in attempt.studentanswer_set.all %}
+  {% with score=ans.score|default:0 %}
+  <div class="answer-card">
+    <div class="answer-card-top {% if score >= 70 %}high{% elif score >= 40 %}medium{% else %}low{% endif %}"></div>
+    <div class="answer-card-body">
+
+      <div class="answer-q-header">
+        <div class="answer-q-num">{{ forloop.counter }}</div>
+        <p class="answer-q-text">{{ ans.question.question_text }}</p>
+      </div>
+
+      <div class="answer-meta-row">
+        <span class="score-chip {% if score >= 70 %}high{% elif score >= 40 %}medium{% else %}low{% endif %}">
+          <i class="fas fa-chart-simple"></i> Score: {{ ans.score }}
+        </span>
+      </div>
+
+      {% if ans.feedback %}
+      <div class="feedback-label">Feedback</div>
+      <div class="feedback-box">{{ ans.feedback }}</div>
+      {% endif %}
+
+    </div>
+  </div>
+  {% endwith %}
+  {% empty %}
+  <div class="no-answers">
+    <i class="fas fa-file-slash" style="font-size:36px;color:var(--amber);opacity:.4;display:block;margin-bottom:12px;"></i>
+    <p style="font-size:14px;">No answers found.</p>
+  </div>
+  {% endfor %}
+
+  <div style="text-align:center;margin-top:32px;">
+    <a href="{% url 'student:my_courses' %}" class="back-btn">
+      <i class="fas fa-arrow-left"></i> Back to My Courses
+    </a>
+  </div>
+
 </div>
 
-<!-- STATUS -->
-<div class="mb-4">
-{% if attempt.status == "COMPLETED" %}
-    <span class="badge bg-success px-4 py-2">COMPLETED</span>
-{% else %}
-    <span class="badge bg-warning px-4 py-2">IN PROGRESS</span>
-{% endif %}
-</div>
+<footer class="site-footer">&copy; 2025 Speshway. All rights reserved.</footer>
 
-<!-- ============================== -->
-<!-- QUESTION WISE RESULT (NEW) -->
-<!-- ============================== -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  const score  = {{ attempt.score|default:0 }};
+  const circ   = 352;
+  const offset = circ - (circ * score / 100);
+  const ring   = document.getElementById('scoreRing');
 
-<div class="mb-4">
+  ring.setAttribute('stroke',
+    score >= 70 ? '#16a34a' : score >= 40 ? '#d97706' : '#e11d48'
+  );
 
-<h4 class="fw-bold mb-3">Question Wise Evaluation</h4>
-
-{% for ans in attempt.studentanswer_set.all %}
-<div class="question-box">
-
-    <p><strong>Question:</strong><br>
-       {{ ans.question.question_text }}</p>
-
-    <p><strong>Score:</strong> {{ ans.score }}</p>
-
-    <p><strong>Feedback:</strong><br>
-       {{ ans.feedback }}</p>
-
-</div>
-{% empty %}
-<p>No answers found.</p>
-{% endfor %}
-
-</div>
-
-<!-- ACTION -->
-<a href="{% url 'student:my_courses' %}"
-   class="btn btn-primary btn-lg px-5 rounded-pill shadow-sm">
-⬅ Back to My Courses
-</a>
-
-</div>
-
-</div>
-
+  window.addEventListener('load', () => {
+    setTimeout(() => { ring.style.strokeDashoffset = offset; }, 150);
+  });
+</script>
 </body>
 </html>

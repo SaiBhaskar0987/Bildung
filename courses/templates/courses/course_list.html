@@ -1,15 +1,14 @@
- 
- {% load static %}
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <title>All Courses  </title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% if query %}Results for "{{ query }}"{% else %}All Courses{% endif %} — Speshway</title>
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 
   <style>
   :root {
@@ -22,14 +21,12 @@
     --border:   #e8ddd4;
     --glass:    rgba(255,251,245,0.82);
     --shadow:   0 8px 40px rgba(28,20,18,0.10);
-    --violet:   #7c3aed;
-    --violet-lt:#ede9fe;
   }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
-    font-family:  Franklin Gothic Medium;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     background: var(--cream);
     color: var(--ink);
     min-height: 100vh;
@@ -57,8 +54,6 @@
   }
 
   @keyframes spin { to { transform: rotate(360deg); } }
-
-  /* ════════ TOPBAR ════════ */
   .topbar {
     position: sticky; top: 0; z-index: 999;
     display: flex; align-items: center; justify-content: space-between;
@@ -69,9 +64,9 @@
   }
 
   .brand {
-    font-family:  Franklin Gothic Medium;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 700; font-size: 26px;
-      color: var(--ink);
+    letter-spacing: .06em; color: var(--ink);
     text-decoration: none;
     display: flex; align-items: center; gap: 10px;
   }
@@ -90,44 +85,33 @@
 
   .topbar-right { display: flex; align-items: center; gap: 18px; }
 
-  .topbar-greeting { font-size: 14px; font-weight: 500; color: var(--muted); }
-  .topbar-greeting strong { color: var(--ink); }
-
-  /* avatar — student: amber, instructor: violet */
   .avatar-btn {
     width: 44px; height: 44px; border-radius: 50%;
-    color: white; font-family: 'Cormorant Garamond', serif;
+    background: linear-gradient(135deg, var(--amber), var(--rust));
+    color: white; font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 18px; font-weight: 700;
     border: none; cursor: pointer;
+    box-shadow: 0 4px 14px rgba(180,83,9,.35);
     transition: transform .2s, box-shadow .2s;
   }
 
-  .avatar-btn.student {
-    background: linear-gradient(135deg, var(--amber), var(--rust));
-    box-shadow: 0 4px 14px rgba(180,83,9,.35);
-  }
+  .avatar-btn:hover { transform: scale(1.07); box-shadow: 0 6px 20px rgba(180,83,9,.45); }
 
-  .avatar-btn.student:hover { transform: scale(1.07); box-shadow: 0 6px 20px rgba(180,83,9,.45); }
-
-  .avatar-btn.instructor {
-    background: linear-gradient(135deg, var(--violet), #6d28d9);
-    box-shadow: 0 4px 14px rgba(124,58,237,.32);
-  }
-
-  .avatar-btn.instructor:hover { transform: scale(1.07); box-shadow: 0 6px 20px rgba(124,58,237,.42); }
-
-  /* sign up button for guests */
   .btn-signup {
     background: linear-gradient(135deg, var(--amber), var(--rust));
     color: white; border: none;
-    padding: 10px 24px; border-radius: 12px;
-    font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 700;
-    text-decoration: none; display: inline-flex; align-items: center; gap: 7px;
+    padding: 10px 26px; border-radius: 12px;
+    font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; font-weight: 700;
+    text-decoration: none;
     box-shadow: 0 4px 14px rgba(180,83,9,.28);
     transition: transform .2s, box-shadow .2s;
   }
 
-  .btn-signup:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(180,83,9,.38); color: white; }
+  .btn-signup:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 7px 20px rgba(180,83,9,.40);
+    color: white;
+  }
 
   .dropdown-menu {
     border: 1px solid var(--border); border-radius: 16px;
@@ -143,24 +127,19 @@
 
   .dropdown-item {
     border-radius: 10px; padding: 10px 14px;
-    font-family: Franklin Gothic Medium;
     font-size: 13.5px; font-weight: 500; color: var(--ink);
     transition: background .2s, color .2s, transform .2s;
   }
 
   .dropdown-item:hover { background: var(--amber-lt); color: var(--rust); transform: translateX(4px); }
-  .dropdown-item.instructor-item:hover { background: var(--violet-lt); color: var(--violet); }
   .dropdown-item.logout-item { color: #dc2626; }
   .dropdown-item.logout-item:hover { background: #fef2f2; color: #b91c1c; }
   .dropdown-divider { border-color: var(--border); margin: 6px 0; }
-
-  /* ════════ PAGE ════════ */
-  .page-wrap {
+  .page-hero {
     position: relative; z-index: 1;
-    max-width: 1100px;
-    margin: 52px auto 80px;
-    padding: 0 24px;
-    animation: fadeUp .55s ease both;
+    text-align: center;
+    padding: 56px 24px 44px;
+    animation: fadeUp .5s ease both;
   }
 
   @keyframes fadeUp {
@@ -168,298 +147,181 @@
     to   { opacity: 1; transform: translateY(0); }
   }
 
-  /* ── Hero banner ── */
-  .page-hero {
-    background: linear-gradient(135deg, var(--amber) 0%, var(--rust) 100%);
-    border-radius: 24px; padding: 40px 48px;
-    margin-bottom: 40px; position: relative; overflow: hidden;
-    color: white;
-    display: flex; align-items: center; justify-content: space-between; gap: 24px;
-  }
-
-  .page-hero::before {
-    content: '';
-    position: absolute; top: -70px; right: -70px;
-    width: 280px; height: 280px; border-radius: 50%;
-    background: rgba(255,255,255,0.08); pointer-events: none;
-  }
-
-  .page-hero::after {
-    content: '';
-    position: absolute; bottom: -50px; right: 160px;
-    width: 160px; height: 160px; border-radius: 50%;
-    background: rgba(255,255,255,0.06); pointer-events: none;
-  }
-
-  .hero-text { position: relative; z-index: 1; }
-
-  .page-hero h1 {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 34px; font-weight: 700; line-height: 1.15; margin-bottom: 5px;
-  }
-
-  .page-hero p { font-size: 15px; opacity: .85; margin: 0; }
-
-  .hero-badge {
-    position: relative; z-index: 1;
-    background: rgba(255,255,255,0.18);
-    border: 1.5px solid rgba(255,255,255,0.3);
-    border-radius: 18px; padding: 18px 28px;
-    text-align: center; flex-shrink: 0;
-  }
-
-  .hero-badge .num {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 40px; font-weight: 700; line-height: 1; display: block;
-  }
-
-  .hero-badge .lbl {
-    font-size: 12px; font-weight: 600;
-    letter-spacing: .12em; text-transform: uppercase; opacity: .85;
-  }
-
-  /* ── Top row ── */
-  .list-toprow {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 28px; gap: 14px; flex-wrap: wrap;
-  }
-
-  .page-heading { display: flex; align-items: center; gap: 14px; }
-
-  .page-heading .tag {
-    font-size: 11px; font-weight: 600;
-    letter-spacing: .18em; text-transform: uppercase;
+  .hero-tag {
+    display: inline-block;
+    font-size: 11px; font-weight: 600; letter-spacing: .18em; text-transform: uppercase;
     color: var(--amber); background: var(--amber-lt);
-    padding: 4px 12px; border-radius: 99px;
+    padding: 5px 14px; border-radius: 99px;
+    margin-bottom: 14px;
   }
 
-  .page-heading h2 {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 30px; font-weight: 700; color: var(--ink);
+  .hero-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: clamp(34px, 5vw, 52px); font-weight: 700;
+    color: var(--ink); line-height: 1.1;
+    margin-bottom: 12px;
   }
 
-  /* ── Search bar (guest / unauthenticated) ── */
-  .search-wrap { position: relative; }
+  .hero-title em { font-style: italic; color: var(--amber); }
 
-  .search-input {
-    border: 1.5px solid var(--border); border-radius: 12px;
-    padding: 9px 16px 9px 38px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13.5px; background: white; color: var(--ink);
-    width: 230px; outline: none;
-    transition: border-color .2s, box-shadow .2s;
+  .hero-sub {
+    font-size: 15px; color: var(--muted); max-width: 500px; margin: 0 auto;
+  }
+  .courses-wrap {
+    position: relative; z-index: 1;
+    max-width: 1200px; margin: 0 auto 80px;
+    padding: 0 28px;
   }
 
-  .search-input:focus { border-color: var(--amber); box-shadow: 0 0 0 3px rgba(217,119,6,.14); }
-
-  .search-icon {
-    position: absolute; left: 12px; top: 50%;
-    transform: translateY(-50%); color: var(--muted); font-size: 13px; pointer-events: none;
-  }
-
-  /* query pill */
-  .query-bar {
-    background: var(--amber-lt); border: 1px solid #fde68a;
-    border-radius: 12px; padding: 10px 16px;
-    font-size: 13.5px; color: var(--rust); font-weight: 500;
-    display: flex; align-items: center; gap: 10px;
-    margin-bottom: 22px;
-  }
-
-  .query-bar a {
-    margin-left: auto; color: var(--rust);
-    font-weight: 700; text-decoration: none; font-size: 13px;
-  }
-
-  .query-bar a:hover { text-decoration: underline; }
-
-  /* ════════ COURSE CARDS ════════ */
   .course-card {
-    background: white; border: 1px solid var(--border);
-    border-radius: 22px; overflow: hidden;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 22px;
+    height: 400px;
+    overflow: hidden;
     box-shadow: var(--shadow);
-    display: flex; flex-direction: column; height: 100%;
-    transition: transform .3s, box-shadow .3s;
-    animation: fadeUp .5s ease both;
+    transition: transform .28s, box-shadow .28s;
+    height: 100%;
+    display: flex; flex-direction: column;
+    animation: fadeUp .45s ease both;
   }
 
-  .course-card:nth-child(2) { animation-delay:.07s; }
-  .course-card:nth-child(3) { animation-delay:.14s; }
-  .course-card:nth-child(4) { animation-delay:.21s; }
-  .course-card:nth-child(5) { animation-delay:.28s; }
-  .course-card:nth-child(6) { animation-delay:.35s; }
-
-  .course-card:hover { transform: translateY(-7px); box-shadow: 0 24px 56px rgba(180,83,9,.14); }
-
-  .course-card::before {
-    content: ''; display: block; height: 4px;
-    background: linear-gradient(90deg, var(--amber), #f59e0b, var(--rust));
+  .course-card:hover {
+    transform: translateY(-7px);
+    box-shadow: 0 22px 52px rgba(180,83,9,.13);
   }
 
-  /* enrolled variant — green stripe */
-  .course-card.enrolled::before {
-    background: linear-gradient(90deg, #16a34a, #22c55e, #15803d);
-  }
+  .course-card:nth-child(2) { animation-delay:.06s; }
+  .course-card:nth-child(3) { animation-delay:.12s; }
+  .course-card:nth-child(4) { animation-delay:.18s; }
+  .course-card:nth-child(5) { animation-delay:.24s; }
+  .course-card:nth-child(6) { animation-delay:.30s; }
 
   .course-thumb {
-    width: 100%; height: 180px; object-fit: cover; display: block;
+    width: 100%; height: 200px;
+    object-fit: cover;
+    transition: transform .4s ease;
   }
 
-  .course-card-body {
-    padding: 20px 22px 16px; flex: 1; display: flex; flex-direction: column;
+  .course-card:hover .course-thumb { transform: scale(1.05); }
+
+  .thumb-placeholder {
+    width: 100%; height: 200px;
+    background: linear-gradient(135deg, var(--amber-lt), #fde68a);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 40px; color: var(--amber);
   }
 
-  .course-top-row {
-    display: flex; align-items: flex-start; justify-content: space-between;
-    gap: 10px; margin-bottom: 10px;
+  .course-body {
+    padding: 22px 22px 20px;
+    display: flex; flex-direction: column; flex: 1;
   }
 
-  .course-title {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 19px; font-weight: 700; color: var(--ink);
-    line-height: 1.25; flex: 1;
-  }
-
-  .enrolled-pill {
-    display: inline-flex; align-items: center; gap: 4px;
-    background: #dcfce7; color: #16a34a;
-    font-size: 10.5px; font-weight: 700; letter-spacing: .08em;
-    padding: 3px 10px; border-radius: 99px; flex-shrink: 0; margin-top: 2px;
-  }
-
-  .course-desc {
-    font-size: 13px; color: var(--muted); line-height: 1.65; flex: 1;
+  .cat-badge {
+    display: inline-block;
+    font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--amber); background: var(--amber-lt);
+    padding: 3px 11px; border-radius: 99px;
     margin-bottom: 10px;
   }
 
-  .course-category {
-    font-size: 12px; font-weight: 600; color: var(--muted);
-    display: flex; align-items: center; gap: 5px;
-    margin-bottom: 0;
+  .course-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 20px; font-weight: 700; color: var(--ink);
+    margin-bottom: 8px; line-height: 1.25;
   }
 
-  .course-category i { color: var(--amber); }
-
-  .course-card-footer {
-    padding: 14px 22px;
-    border-top: 1px solid var(--border);
-    background: #fffbf2;
+  .course-desc {
+    font-size: 13.5px; color: var(--muted);
+    line-height: 1.55; flex: 1; margin-bottom: 18px;
   }
 
-  /* CTA buttons */
-  .btn-view-enrolled {
-    display: flex; align-items: center; justify-content: center; gap: 7px;
-    width: 100%; background: linear-gradient(135deg, #16a34a, #14532d);
-    color: white; border: none; padding: 10px 16px; border-radius: 12px;
-    font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 700;
+  .btn-card-primary {
+    display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+    background: linear-gradient(135deg, var(--amber), var(--rust));
+    color: white; border: none;
+    padding: 10px 0; border-radius: 12px; width: 100%;
+    font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13.5px; font-weight: 700;
     text-decoration: none;
-    box-shadow: 0 4px 14px rgba(22,163,74,.26);
+    box-shadow: 0 4px 12px rgba(180,83,9,.25);
     transition: transform .2s, box-shadow .2s;
   }
 
-  .btn-view-enrolled:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(22,163,74,.38); color: white; }
-
-  .btn-enroll-cta {
-    display: flex; align-items: center; justify-content: center; gap: 7px;
-    width: 100%; background: linear-gradient(135deg, var(--amber), var(--rust));
-    color: white; border: none; padding: 10px 16px; border-radius: 12px;
-    font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 700;
-    text-decoration: none;
-    box-shadow: 0 4px 14px rgba(180,83,9,.26);
-    transition: transform .2s, box-shadow .2s;
+  .btn-card-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(180,83,9,.38);
+    color: white;
   }
 
-  .btn-enroll-cta:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(180,83,9,.38); color: white; }
-
-  .btn-instructor-view {
-    display: flex; align-items: center; justify-content: center; gap: 7px;
-    width: 100%; background: white;
-    border: 1.5px solid var(--violet); color: var(--violet);
-    padding: 10px 16px; border-radius: 12px;
-    font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 700;
+  .btn-card-outline {
+    display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+    background: white;
+    color: var(--rust); border: 1.5px solid var(--amber);
+    padding: 10px 0; border-radius: 12px; width: 100%;
+    font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13.5px; font-weight: 700;
     text-decoration: none;
-    transition: background .2s, transform .2s;
+    transition: background .2s, color .2s, transform .2s;
   }
 
-  .btn-instructor-view:hover { background: var(--violet-lt); transform: translateY(-2px); color: var(--violet); }
-
-  .btn-guest-view {
-    display: flex; align-items: center; justify-content: center; gap: 7px;
-    width: 100%; background: white;
-    border: 1.5px solid var(--border); color: var(--ink);
-    padding: 10px 16px; border-radius: 12px;
-    font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 700;
-    text-decoration: none;
-    transition: border-color .2s, background .2s, transform .2s;
+  .btn-card-outline:hover {
+    background: var(--amber-lt); color: var(--rust);
+    transform: translateY(-2px);
   }
-
-  .btn-guest-view:hover { border-color: var(--amber); background: var(--amber-lt); color: var(--rust); transform: translateY(-2px); }
-
-  /* ── Empty state ── */
   .empty-state {
+    text-align: center; padding: 80px 40px;
     background: white; border: 1.5px dashed var(--border);
-    border-radius: 24px; padding: 72px 40px; text-align: center;
+    border-radius: 24px;
   }
 
   .empty-icon {
-    width: 78px; height: 78px; background: var(--amber-lt); border-radius: 50%;
+    width: 80px; height: 80px; border-radius: 50%;
+    background: var(--amber-lt); color: var(--amber);
+    font-size: 34px; display: flex; align-items: center; justify-content: center;
     margin: 0 auto 18px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 32px; color: var(--amber);
   }
 
   .empty-state h3 {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 26px; font-weight: 700; color: var(--ink); margin-bottom: 8px;
   }
 
-  .empty-state p { font-size: 15px; color: var(--muted); margin: 0 0 20px; }
+  .empty-state p { font-size: 15px; color: var(--muted); }
 
-  .btn-clear {
-    display: inline-flex; align-items: center; gap: 7px;
-    background: white; border: 1.5px solid var(--amber); color: var(--rust);
-    padding: 10px 22px; border-radius: 12px;
-    font-size: 13.5px; font-weight: 600; text-decoration: none;
-    transition: background .2s;
-  }
-
-  .btn-clear:hover { background: var(--amber-lt); color: var(--rust); }
-
-  /* ── Responsive ── */
-  @media (max-width: 768px) {
+  @media (max-width: 600px) {
     .topbar { padding: 12px 20px; }
-    .page-hero { flex-direction: column; padding: 28px 22px; }
-    .hero-badge { align-self: flex-start; }
-    .page-wrap { margin-top: 36px; }
-    .search-input { width: 100%; }
-    .list-toprow { flex-direction: column; align-items: flex-start; }
   }
   </style>
 </head>
 
 <body>
 
-<!-- ════════ TOPBAR ════════ -->
+
 <nav class="topbar">
-  <a href="{% url 'student_dashboard' %}" class="brand">
-    <span class="dot"></span>
-    Speshway
-  </a>
+  {% if user.is_authenticated %}
+    {% if user.role == "student" %}
+      <a href="{% url 'student_dashboard' %}" class="brand"><span class="dot"></span>Speshway</a>
+    {% elif user.role == "instructor" %}
+      <a href="{% url 'instructor_dashboard' %}" class="brand"><span class="dot"></span>Speshway</a>
+    {% else %}
+      <a href="{% url 'smart_home' %}" class="brand"><span class="dot"></span>Speshway</a>
+    {% endif %}
+  {% else %}
+    <a href="{% url 'smart_home' %}" class="brand"><span class="dot"></span>Speshway</a>
+  {% endif %}
 
   <div class="topbar-right">
-
     {% if user.is_authenticated %}
 
       {% if user.role == "student" %}
       <div class="dropdown">
-        <button class="avatar-btn student" data-bs-toggle="dropdown" aria-expanded="false">
+        <button class="avatar-btn" data-bs-toggle="dropdown" aria-expanded="false">
           {{ request.user.username|first|upper }}
         </button>
         <ul class="dropdown-menu dropdown-menu-end">
           <li><a class="dropdown-item" href="{% url 'profile_view' %}"><i class="fas fa-user fa-fw me-2" style="color:var(--amber)"></i>Profile</a></li>
           <li><a class="dropdown-item" href="{% url 'student:my_courses' %}"><i class="fas fa-book fa-fw me-2" style="color:var(--amber)"></i>My Courses</a></li>
-          <li><a class="dropdown-item" href="{% url 'student_my_activity' %}"><i class="fas fa-chart-line fa-fw me-2" style="color:var(--amber)"></i>My Activity</a></li>
           <li><a class="dropdown-item" href="{% url 'student:student_upcoming_classes' %}"><i class="fas fa-calendar fa-fw me-2" style="color:var(--amber)"></i>My Schedules</a></li>
+          <li><a class="dropdown-item" href="{% url 'student_my_activity' %}"><i class="fas fa-chart-line fa-fw me-2" style="color:var(--amber)"></i>My Activity</a></li>
           <li><a class="dropdown-item" href="{% url 'student:my_certificates' %}"><i class="fas fa-certificate fa-fw me-2" style="color:var(--amber)"></i>My Certificates</a></li>
           <li><a class="dropdown-item" href="{% url 'student_notifications' %}"><i class="fas fa-bell fa-fw me-2" style="color:var(--amber)"></i>Notifications</a></li>
           <li><a class="dropdown-item" href="#"><i class="fas fa-credit-card fa-fw me-2" style="color:var(--amber)"></i>Payments</a></li>
@@ -472,20 +334,19 @@
       {% endif %}
 
       {% if user.role == "instructor" %}
-      <span class="topbar-greeting d-none d-md-block">Hello, <strong>{{ user.first_name }}</strong></span>
       <div class="dropdown">
-        <button class="avatar-btn instructor" data-bs-toggle="dropdown" aria-expanded="false">
+        <button class="avatar-btn" data-bs-toggle="dropdown" aria-expanded="false">
           {{ request.user.username|first|upper }}
         </button>
         <ul class="dropdown-menu dropdown-menu-end">
-          <li><a class="dropdown-item instructor-item" href="{% url 'instructor_profile_view' %}"><i class="fas fa-user fa-fw me-2" style="color:var(--violet)"></i>Profile</a></li>
-          <li><a class="dropdown-item instructor-item" href="{% url 'instructor:add_course' %}"><i class="fas fa-plus-circle fa-fw me-2" style="color:var(--violet)"></i>Create New Course</a></li>
-          <li><a class="dropdown-item instructor-item" href="{% url 'instructor:students_list' %}"><i class="fas fa-users fa-fw me-2" style="color:var(--violet)"></i>My Students</a></li>
-          <li><a class="dropdown-item instructor-item" href="{% url 'instructor:calendar_view' %}"><i class="fas fa-calendar fa-fw me-2" style="color:var(--violet)"></i>My Schedules</a></li>
-          <li><a class="dropdown-item instructor-item" href="{% url 'instructor_notifications' %}"><i class="fas fa-bell fa-fw me-2" style="color:var(--violet)"></i>Notifications</a></li>
-          <li><a class="dropdown-item instructor-item" href="#"><i class="fas fa-wallet fa-fw me-2" style="color:var(--violet)"></i>Earnings & Payments</a></li>
-          <li><a class="dropdown-item instructor-item" href="#"><i class="fas fa-circle-question fa-fw me-2" style="color:var(--violet)"></i>Help & Support</a></li>
-          <li><a class="dropdown-item instructor-item" href="{% url 'instructor_account_settings' %}"><i class="fas fa-gear fa-fw me-2" style="color:var(--violet)"></i>Account Settings</a></li>
+          <li><a class="dropdown-item" href="{% url 'instructor_profile_view' %}"><i class="fas fa-user fa-fw me-2" style="color:var(--amber)"></i>Profile</a></li>
+          <li><a class="dropdown-item" href="{% url 'instructor:add_course' %}"><i class="fas fa-plus fa-fw me-2" style="color:var(--amber)"></i>Create New Course</a></li>
+          <li><a class="dropdown-item" href="{% url 'instructor:students_list' %}"><i class="fas fa-users fa-fw me-2" style="color:var(--amber)"></i>My Students</a></li>
+          <li><a class="dropdown-item" href="{% url 'instructor:calendar_view' %}"><i class="fas fa-calendar fa-fw me-2" style="color:var(--amber)"></i>My Schedules</a></li>
+          <li><a class="dropdown-item" href="{% url 'instructor_notifications' %}"><i class="fas fa-bell fa-fw me-2" style="color:var(--amber)"></i>Notifications</a></li>
+          <li><a class="dropdown-item" href="#"><i class="fas fa-credit-card fa-fw me-2" style="color:var(--amber)"></i>Earnings & Payments</a></li>
+          <li><a class="dropdown-item" href="#"><i class="fas fa-circle-question fa-fw me-2" style="color:var(--amber)"></i>Help & Support</a></li>
+          <li><a class="dropdown-item" href="{% url 'instructor_account_settings' %}"><i class="fas fa-gear fa-fw me-2" style="color:var(--amber)"></i>Account Settings</a></li>
           <li><hr class="dropdown-divider"></li>
           <li><a class="dropdown-item logout-item" href="{% url 'logout_view' %}"><i class="fas fa-arrow-right-from-bracket fa-fw me-2"></i>Sign Out</a></li>
         </ul>
@@ -493,91 +354,60 @@
       {% endif %}
 
     {% else %}
-      <a href="{% url 'auth_page' %}" class="btn-signup">
-        <i class="fas fa-user-plus"></i> Sign Up
-      </a>
+      <a href="{% url 'signup_page' %}" class="btn-signup">Sign Up</a>
     {% endif %}
-
   </div>
 </nav>
 
-<!-- ════════ PAGE ════════ -->
-<div class="page-wrap">
 
-  <!-- Hero -->
-  <div class="page-hero">
-    <div class="hero-text">
-      <h1>{% if query %}Search Results{% else %}All Courses{% endif %}</h1>
-      <p>{% if query %}Showing results for &ldquo;{{ query }}&rdquo;{% else %}Discover courses and start learning today.{% endif %}</p>
-    </div>
-    {% if courses %}
-    <div class="hero-badge">
-      <span class="num">{{ courses|length }}</span>
-      <span class="lbl">{% if query %}Results{% else %}Courses{% endif %}</span>
-    </div>
-    {% endif %}
-  </div>
-
-  <!-- Top row -->
-  <div class="list-toprow">
-    <div class="page-heading">
-      <span class="tag">{% if query %}Results{% else %}Browse{% endif %}</span>
-      <h2>{% if query %}Found for &ldquo;{{ query }}&rdquo;{% else %}All Courses{% endif %}</h2>
-    </div>
-  </div>
-
+<div class="page-hero">
+  <span class="hero-tag">
+    {% if query %}Search Results{% else %}Catalogue{% endif %}
+  </span>
   {% if query %}
-  <div class="query-bar">
-    <i class="fas fa-filter" style="color:var(--amber)"></i>
-    Filtered by <strong>&ldquo;{{ query }}&rdquo;</strong>
-    <a href="?">Clear <i class="fas fa-xmark ms-1"></i></a>
-  </div>
+    <h1 class="hero-title">Results for <em>"{{ query }}"</em></h1>
+  {% else %}
+    <h1 class="hero-title">Explore <em>All Courses</em></h1>
   {% endif %}
+  <p class="hero-sub">Discover expert-led courses and start learning today.</p>
+</div>
 
-  <!-- Cards -->
-  {% if courses %}
+
+<div class="courses-wrap">
   <div class="row g-4">
     {% for course in courses %}
-    <div class="col-md-6 col-xl-4">
-      <div class="course-card {% if user.is_authenticated and user.role == 'student' and course.id in enrolled_course_ids %}enrolled{% endif %}">
+    <div class="col-lg-4 col-md-6">
+      <div class="course-card">
 
         {% if course.thumbnail %}
-        <img src="{{ course.thumbnail.url }}" class="course-thumb" alt="{{ course.title }}">
+          <img src="{{ course.thumbnail.url }}" class="course-thumb" alt="{{ course.title }}">
+        {% else %}
+          <div class="thumb-placeholder"><i class="fas fa-book-open"></i></div>
         {% endif %}
 
-        <div class="course-card-body">
-          <div class="course-top-row">
-            <h5 class="course-title">{{ course.title }}</h5>
-            {% if user.is_authenticated and user.role == 'student' and course.id in enrolled_course_ids %}
-            <span class="enrolled-pill"><i class="fas fa-check"></i> Enrolled</span>
-            {% endif %}
-          </div>
+        <div class="course-body">
+          <span class="cat-badge">{{ course.category|title }}</span>
+          <h3 class="course-title">{{ course.title }}</h3>
           <p class="course-desc">{{ course.description|truncatewords:18 }}</p>
-          <p class="course-category">
-            <i class="fas fa-tag"></i>
-            {{ course.category|title }}
-          </p>
-        </div>
 
-        <div class="course-card-footer">
           {% if user.is_authenticated and user.role == 'instructor' %}
-            <a href="{% url 'instructor:course_detail' course.id %}" class="btn-instructor-view">
+            <a href="{% url 'instructor:course_detail' course.id %}" class="btn-card-outline">
               <i class="fas fa-eye"></i> View Course
             </a>
 
           {% elif user.is_authenticated and user.role == 'student' %}
             {% if course.id in enrolled_course_ids %}
-              <a href="{% url 'student:student_course_detail' course.id %}" class="btn-view-enrolled">
+              <a href="{% url 'student:student_course_detail' course.id %}" class="btn-card-primary">
                 <i class="fas fa-play-circle"></i> Continue Learning
               </a>
             {% else %}
-              <a href="{% url 'courses:view_course' course.id %}" class="btn-enroll-cta">
+              <a href="{% url 'courses:view_course' course.id %}" class="btn-card-primary">
                 <i class="fas fa-bolt"></i> Enroll Now
               </a>
             {% endif %}
 
           {% else %}
-            <a href="{% url 'courses:view_course' course.id %}" class="btn-guest-view">
+            <a href="{% url 'courses:view_course' course.id %}" class="btn-card-primary">
               <i class="fas fa-arrow-right"></i> View Details
             </a>
           {% endif %}
@@ -585,33 +415,18 @@
 
       </div>
     </div>
+    {% empty %}
+    <div class="col-12">
+      <div class="empty-state">
+        <div class="empty-icon"><i class="fas fa-book-open"></i></div>
+        <h3>No Courses Found</h3>
+        <p>Try a different search term or browse all available courses.</p>
+      </div>
+    </div>
     {% endfor %}
   </div>
-
-  {% else %}
-  <div class="empty-state">
-    <div class="empty-icon">
-      <i class="fas fa-{% if query %}magnifying-glass{% else %}book-open{% endif %}"></i>
-    </div>
-    <h3>{% if query %}No Results Found{% else %}No Courses Yet{% endif %}</h3>
-    <p>
-      {% if query %}
-        No courses match &ldquo;{{ query }}&rdquo;. Try a different keyword.
-      {% else %}
-        New courses are being added. Check back soon!
-      {% endif %}
-    </p>
-    {% if query %}
-    <a href="?" class="btn-clear">
-      <i class="fas fa-arrow-left"></i> View All Courses
-    </a>
-    {% endif %}
-  </div>
-  {% endif %}
-
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
 </body>
 </html>

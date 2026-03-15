@@ -2,184 +2,651 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>My Profile</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% if is_editing %}Edit Profile{% else %}My Profile{% endif %} — Speshway</title>
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" type="text/css" href="{% static 'student_profile/style.css' %}">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 
+  <style>
+  :root {
+    --amber:    #d97706;
+    --amber-lt: #fef3c7;
+    --amber-md: #fde68a;
+    --rust:     #b45309;
+    --cream:    #fffbf5;
+    --parchment:#fef9f0;
+    --ink:      #1c1412;
+    --muted:    #7c6f67;
+    --border:   #e8ddd4;
+    --border-lt:#f3ede6;
+    --glass:    rgba(255,251,245,0.88);
+    --shadow:   0 8px 40px rgba(28,20,18,0.10);
+    --shadow-sm:0 4px 18px rgba(28,20,18,0.07);
+    --green:    #16a34a;
+    --green-lt: #dcfce7;
+    --red:      #dc2626;
+    --red-lt:   #fee2e2;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 85% 10%, #fde68a55 0%, transparent 60%),
+      radial-gradient(ellipse 40% 60% at 5%  90%, #fcd34d33 0%, transparent 55%),
+      radial-gradient(ellipse 50% 40% at 50% 50%, #fff7ed   0%, transparent 80%);
+  }
+
+  body::after {
+    content: '';
+    position: fixed; top: -120px; right: -120px;
+    width: 420px; height: 420px;
+    border: 1.5px solid rgba(217,119,6,0.14);
+    border-radius: 50%;
+    pointer-events: none; z-index: 0;
+    animation: spin 50s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .topbar {
+    position: sticky; top: 0; z-index: 999;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 48px;
+    background: var(--glass);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .brand {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 800; font-size: 24px;
+    letter-spacing: .04em; color: var(--ink);
+    text-decoration: none;
+    display: flex; align-items: center; gap: 10px;
+  }
+
+  .brand .dot {
+    width: 9px; height: 9px; border-radius: 50%;
+    background: var(--amber);
+    box-shadow: 0 0 0 3px rgba(217,119,6,.2);
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%,100% { box-shadow: 0 0 0 3px rgba(217,119,6,.2); }
+    50%      { box-shadow: 0 0 0 7px rgba(217,119,6,.07); }
+  }
+
+  .topbar-right { display: flex; align-items: center; gap: 18px; }
+
+  .avatar-btn {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--amber), var(--rust));
+    color: white; font-size: 18px; font-weight: 700;
+    border: none; cursor: pointer;
+    box-shadow: 0 4px 14px rgba(180,83,9,.35);
+    transition: transform .2s;
+    overflow: hidden; display: flex; align-items: center; justify-content: center;
+  }
+
+  .avatar-btn img { width: 100%; height: 100%; object-fit: cover; }
+  .avatar-btn:hover { transform: scale(1.07); }
+
+  .dropdown-menu {
+    border: 1px solid var(--border) !important; border-radius: 16px !important;
+    padding: 10px !important; min-width: 230px;
+    box-shadow: 0 24px 60px rgba(28,20,18,.12) !important;
+    background: white !important;
+  }
+
+  .dropdown-item {
+    border-radius: 10px; padding: 10px 14px;
+    font-size: 13.5px; font-weight: 500; color: var(--ink);
+    transition: background .2s, color .2s, transform .2s;
+  }
+
+  .dropdown-item:hover { background: var(--amber-lt); color: var(--rust); transform: translateX(4px); }
+  .dropdown-item.logout-item { color: var(--red); }
+  .dropdown-item.logout-item:hover { background: var(--red-lt); color: #b91c1c; }
+  .dropdown-divider { border-color: var(--border) !important; margin: 6px 0 !important; }
+  .page-wrap {
+    position: relative; z-index: 1;
+    max-width: 780px;
+    margin: 48px auto 80px;
+    padding: 0 24px;
+    animation: fadeUp .55s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(22px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .profile-hero {
+    background: linear-gradient(135deg, var(--amber) 0%, var(--rust) 100%);
+    border-radius: 26px; padding: 36px 40px;
+    margin-bottom: 24px;
+    display: flex; align-items: center; gap: 28px;
+    position: relative; overflow: hidden;
+    color: white;
+  }
+
+  .profile-hero::before {
+    content: '';
+    position: absolute; top: -60px; right: -60px;
+    width: 240px; height: 240px; border-radius: 50%;
+    background: rgba(255,255,255,.08); pointer-events: none;
+  }
+
+  .profile-hero::after {
+    content: '';
+    position: absolute; bottom: -30px; left: 60px;
+    width: 100px; height: 100px; border-radius: 50%;
+    background: rgba(255,255,255,.05); pointer-events: none;
+  }
+
+  .profile-avatar {
+    width: 90px; height: 90px; border-radius: 50%;
+    border: 3px solid rgba(255,255,255,.4);
+    object-fit: cover; flex-shrink: 0;
+    position: relative; z-index: 1;
+    box-shadow: 0 8px 24px rgba(0,0,0,.2);
+  }
+
+  .profile-avatar-placeholder {
+    width: 90px; height: 90px; border-radius: 50%;
+    background: rgba(255,255,255,.2);
+    border: 3px solid rgba(255,255,255,.4);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 32px; font-weight: 800; color: white;
+    flex-shrink: 0; position: relative; z-index: 1;
+    box-shadow: 0 8px 24px rgba(0,0,0,.2);
+  }
+
+  .profile-hero-info { position: relative; z-index: 1; }
+
+  .profile-hero-name {
+    font-size: 22px; font-weight: 800; color: white; margin-bottom: 4px;
+  }
+
+  .profile-hero-email {
+    font-size: 14px; color: rgba(255,255,255,.8); margin-bottom: 10px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .profile-hero-tag {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.25);
+    padding: 4px 12px; border-radius: 99px;
+    font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+    color: white;
+  }
+  .profile-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 26px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+
+  .profile-card-ribbon {
+    height: 5px;
+    background: linear-gradient(90deg, var(--amber), #f59e0b, var(--rust));
+  }
+
+  .profile-card-body { padding: 32px 36px; }
+  .profile-row {
+    display: flex; align-items: flex-start; gap: 16px;
+    padding: 16px 0; border-bottom: 1px solid var(--border-lt);
+  }
+
+  .profile-row:last-of-type { border-bottom: none; }
+
+  .profile-row-icon {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: var(--amber-lt); color: var(--rust);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; flex-shrink: 0;
+  }
+
+  .profile-row-content { flex: 1; }
+
+  .profile-row-label {
+    font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 3px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .profile-row-value {
+    font-size: 15px; font-weight: 600; color: var(--ink);
+  }
+
+  .profile-about {
+    font-size: 14px; color: var(--muted); line-height: 1.7;
+    background: var(--parchment); border: 1px solid var(--border-lt);
+    border-radius: 12px; padding: 14px 16px;
+    border-left: 3px solid var(--amber);
+  }
+  .field-group { margin-bottom: 20px; }
+
+  .field-label {
+    display: block; font-size: 10px; font-weight: 700;
+    letter-spacing: .12em; text-transform: uppercase;
+    color: var(--muted); font-family: 'DM Mono', monospace;
+    margin-bottom: 7px;
+  }
+
+  .field-wrap { position: relative; }
+
+  .field-wrap .f-icon {
+    position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+    color: #c5bdb4; font-size: 13px; pointer-events: none; transition: color .2s;
+  }
+
+  .field-wrap:focus-within .f-icon { color: var(--amber); }
+
+  .field-input {
+    width: 100%; height: 46px; padding: 0 14px 0 40px;
+    border: 1.5px solid var(--border); border-radius: 12px;
+    background: var(--parchment); color: var(--ink);
+    font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; font-weight: 500;
+    outline: none; transition: border-color .2s, box-shadow .2s, background .2s;
+  }
+
+  .field-input.no-icon { padding-left: 14px; }
+
+  .field-input:focus {
+    border-color: var(--amber); background: white;
+    box-shadow: 0 0 0 3px rgba(217,119,6,.12);
+  }
+
+  textarea.field-input {
+    height: auto; padding: 12px 14px; resize: vertical; min-height: 100px;
+  }
+
+  select.field-input { cursor: pointer; appearance: none; }
+  .photo-upload {
+    display: flex; align-items: center; gap: 20px;
+    padding: 20px; background: var(--parchment);
+    border: 1.5px dashed var(--border); border-radius: 16px;
+    margin-bottom: 24px;
+  }
+
+  .photo-preview {
+    width: 72px; height: 72px; border-radius: 50%;
+    object-fit: cover; flex-shrink: 0;
+    border: 3px solid var(--amber-md);
+    box-shadow: 0 4px 14px rgba(180,83,9,.18);
+  }
+
+  .photo-preview-placeholder {
+    width: 72px; height: 72px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--amber), var(--rust));
+    color: white; font-size: 24px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; border: 3px solid var(--amber-md);
+  }
+
+  .photo-upload-label {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 9px 18px; border-radius: 11px;
+    border: 1.5px solid var(--amber); background: var(--amber-lt);
+    color: var(--rust); font-size: 13px; font-weight: 700;
+    cursor: pointer; transition: all .2s;
+  }
+
+  .photo-upload-label:hover { background: var(--amber-md); }
+  .btn-save {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 12px 28px; border-radius: 13px; border: none;
+    background: linear-gradient(135deg, var(--amber), var(--rust));
+    color: white; font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 14px; font-weight: 700; cursor: pointer;
+    box-shadow: 0 4px 16px rgba(180,83,9,.30);
+    transition: transform .2s, box-shadow .2s;
+  }
+
+  .btn-save:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(180,83,9,.42); }
+
+  .btn-cancel {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 11px 24px; border-radius: 13px;
+    border: 1.5px solid var(--border);
+    background: white; color: var(--muted);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 14px; font-weight: 600; text-decoration: none;
+    transition: all .2s;
+  }
+
+  .btn-cancel:hover { border-color: var(--border); background: var(--parchment); color: var(--ink); }
+
+  .btn-edit-profile {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 12px 28px; border-radius: 13px;
+    background: linear-gradient(135deg, var(--amber), var(--rust));
+    color: white; border: none;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 14px; font-weight: 700; text-decoration: none;
+    box-shadow: 0 4px 16px rgba(180,83,9,.28);
+    transition: transform .2s, box-shadow .2s;
+  }
+
+  .btn-edit-profile:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(180,83,9,.40);
+    color: white;
+  }
+
+  .btn-resume {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 9px 20px; border-radius: 11px;
+    border: 1.5px solid var(--green); background: var(--green-lt);
+    color: var(--green); font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 13px; font-weight: 700; text-decoration: none;
+    transition: all .2s;
+  }
+
+  .btn-resume:hover { background: var(--green); color: white; }
+
+  .profile-footer {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; padding-top: 24px;
+    border-top: 1px solid var(--border-lt);
+    margin-top: 24px; flex-wrap: wrap;
+  }
+
+  .site-footer {
+    position: relative; z-index: 1;
+    border-top: 1px solid var(--border);
+    text-align: center; padding: 20px;
+    font-size: 13px; color: var(--muted);
+    background: var(--glass); backdrop-filter: blur(12px);
+  }
+
+  @media (max-width: 600px) {
+    .topbar { padding: 12px 20px; }
+    .page-wrap { margin-top: 32px; }
+    .profile-hero { flex-direction: column; text-align: center; padding: 28px 24px; }
+    .profile-card-body { padding: 22px 20px; }
+  }
+  </style>
 </head>
 
 <body>
 
-<!-- ===== HEADER ===== -->
-<div class="d-flex justify-content-between align-items-center p-3 bg-white shadow-sm">
-    <a href="{% url 'student_dashboard' %}" class="text-decoration-none text-dark">
-        <h3 class="m-0 fw-bold">Speshway</h3>
-    </a>
 
-    <div class="d-flex align-items-center gap-3">
-        <h5 class="m-0">Hello, {{ user.first_name }} {{ user.last_name }}</h5>
-
-        <div class="dropdown">
-            <button class="btn p-0 border-0 bg-transparent" data-bs-toggle="dropdown">
-                {% if profile.profile_picture %}
-                    <img src="{{ profile.profile_picture.url }}"
-                         class="rounded-circle shadow"
-                         style="width:45px;height:45px;object-fit:cover;border:2px solid #4f46e5;">
-                {% else %}
-                    <div class="rounded-circle shadow d-flex align-items-center justify-content-center"
-                         style="background:#6b7280;color:white;width:45px;height:45px;">
-                        {{ request.user.username|first|upper }}
-                    </div>
-                {% endif %}
-            </button>
-            <ul class="dropdown-menu dropdown-menu-end">
-               <li><a class="dropdown-item" href="{% url 'profile_view' %}">Profile</a></li>
-                <li><a class="dropdown-item" href="{% url 'student:my_courses' %}">My Courses</a></li>
-                <li><a class="dropdown-item" href="{% url 'student_my_activity' %}">My activity</a></li>
-                <li><a class="dropdown-item" href="{% url 'student:student_upcoming_classes' %}">My_schedules</a></li>
-                <li><a class="dropdown-item" href="{% url 'student:my_certificates' %}">My Certificates</a></li>
-                <li><a class="dropdown-item" href="{% url 'student_notifications' %}">Notifications</a></li>
-                <li><a class="dropdown-item" href="#">Payments</a></li>
-                <li><a class="dropdown-item" href="#">Help and Support</a></li>
-                <li><a class="dropdown-item" href="{% url 'account_settings' %}">Account Settings</a></li>
-                <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item text-danger" href="{% url 'logout_view' %}">Logout</a></li>
-            </ul>
-        </div>
+<nav class="topbar">
+  <a href="{% url 'student_dashboard' %}" class="brand">
+    <span class="dot"></span>Speshway
+  </a>
+  <div class="topbar-right">
+    <div class="dropdown">
+      <button class="avatar-btn" data-bs-toggle="dropdown" aria-expanded="false">
+        {% if profile.profile_picture %}
+          <img src="{{ profile.profile_picture.url }}" alt="avatar">
+        {% else %}
+          {{ request.user.username|first|upper }}
+        {% endif %}
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end">
+        <li><a class="dropdown-item" href="{% url 'profile_view' %}"><i class="fas fa-user fa-fw me-2" style="color:var(--amber)"></i>Profile</a></li>
+        <li><a class="dropdown-item" href="{% url 'student:my_courses' %}"><i class="fas fa-book fa-fw me-2" style="color:var(--amber)"></i>My Courses</a></li>
+        <li><a class="dropdown-item" href="{% url 'student:student_upcoming_classes' %}"><i class="fas fa-calendar fa-fw me-2" style="color:var(--amber)"></i>My Schedules</a></li>
+        <li><a class="dropdown-item" href="{% url 'student_my_activity' %}"><i class="fas fa-chart-line fa-fw me-2" style="color:var(--amber)"></i>My Activity</a></li>
+        <li><a class="dropdown-item" href="{% url 'student:my_certificates' %}"><i class="fas fa-certificate fa-fw me-2" style="color:var(--amber)"></i>My Certificates</a></li>
+        <li><a class="dropdown-item" href="{% url 'student_notifications' %}"><i class="fas fa-bell fa-fw me-2" style="color:var(--amber)"></i>Notifications</a></li>
+        <li><a class="dropdown-item" href="#"><i class="fas fa-credit-card fa-fw me-2" style="color:var(--amber)"></i>Payments</a></li>
+        <li><a class="dropdown-item" href="#"><i class="fas fa-circle-question fa-fw me-2" style="color:var(--amber)"></i>Help & Support</a></li>
+        <li><a class="dropdown-item" href="{% url 'account_settings' %}"><i class="fas fa-gear fa-fw me-2" style="color:var(--amber)"></i>Account Settings</a></li>
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item logout-item" href="{% url 'logout_view' %}"><i class="fas fa-arrow-right-from-bracket fa-fw me-2"></i>Sign Out</a></li>
+      </ul>
     </div>
+  </div>
+</nav>
+
+
+<div class="page-wrap">
+
+  
+  <div class="profile-hero">
+    {% if profile.profile_picture %}
+      <img src="{{ profile.profile_picture.url }}" class="profile-avatar" alt="avatar">
+    {% else %}
+      <div class="profile-avatar-placeholder">{{ user.username|first|upper }}</div>
+    {% endif %}
+    <div class="profile-hero-info">
+      <div class="profile-hero-name">{{ profile.user.first_name }} {{ profile.user.last_name }}</div>
+      <div class="profile-hero-email">{{ profile.user.email }}</div>
+      <span class="profile-hero-tag">
+        <i class="fas fa-graduation-cap"></i>
+        {% if is_editing %}Editing Profile{% else %}Student{% endif %}
+      </span>
+    </div>
+  </div>
+
+  
+  <div class="profile-card">
+    <div class="profile-card-ribbon"></div>
+    <div class="profile-card-body">
+
+      <form method="post" {% if is_editing %}enctype="multipart/form-data"{% endif %}>
+        {% csrf_token %}
+
+        {% if is_editing %}
+        
+
+        <div class="photo-upload">
+          {% if profile.profile_picture %}
+            <img src="{{ profile.profile_picture.url }}" class="photo-preview" alt="current photo">
+          {% else %}
+            <div class="photo-preview-placeholder">{{ user.username|first|upper }}</div>
+          {% endif %}
+          <div>
+            <p style="font-size:14px;font-weight:600;color:var(--ink);margin-bottom:8px;">Profile Photo</p>
+            <label class="photo-upload-label">
+              <i class="fas fa-camera"></i> Change Photo
+              <input type="file" name="profile_picture" hidden accept="image/*">
+            </label>
+          </div>
+        </div>
+
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="field-group">
+              <label class="field-label">First Name</label>
+              <div class="field-wrap">
+                <i class="fas fa-user f-icon"></i>
+                {{ user_form.first_name }}
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="field-group">
+              <label class="field-label">Last Name</label>
+              <div class="field-wrap">
+                <i class="fas fa-user f-icon"></i>
+                {{ user_form.last_name }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Email</label>
+          <div class="field-wrap">
+            <i class="fas fa-envelope f-icon"></i>
+            {{ user_form.email }}
+          </div>
+        </div>
+
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="field-group">
+              <label class="field-label">Phone</label>
+              <div class="field-wrap">
+                <i class="fas fa-phone f-icon"></i>
+                {{ profile_form.phone }}
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="field-group">
+              <label class="field-label">Gender</label>
+              <div class="field-wrap">
+                <i class="fas fa-venus-mars f-icon"></i>
+                {{ profile_form.gender }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="field-group">
+              <label class="field-label">Date of Birth</label>
+              <div class="field-wrap">
+                <i class="fas fa-cake-candles f-icon"></i>
+                {{ profile_form.date_of_birth }}
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="field-group">
+              <label class="field-label">Qualification</label>
+              <div class="field-wrap">
+                <i class="fas fa-graduation-cap f-icon"></i>
+                {{ profile_form.qualification }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">About Me</label>
+          {{ profile_form.about_me }}
+        </div>
+
+        <div class="field-group">
+          <label class="field-label">Resume (PDF)</label>
+          <div class="field-wrap">
+            <i class="fas fa-file-pdf f-icon"></i>
+            {{ profile_form.resume }}
+          </div>
+        </div>
+
+        <div class="profile-footer">
+          <button type="submit" class="btn-save">
+            <i class="fas fa-check"></i> Save Changes
+          </button>
+          <a href="{% url 'profile_view' %}" class="btn-cancel">
+            <i class="fas fa-xmark"></i> Cancel
+          </a>
+        </div>
+
+        {% else %}
+        
+
+        <div class="profile-row">
+          <div class="profile-row-icon"><i class="fas fa-user"></i></div>
+          <div class="profile-row-content">
+            <div class="profile-row-label">Full Name</div>
+            <div class="profile-row-value">{{ profile.user.first_name }} {{ profile.user.last_name }}</div>
+          </div>
+        </div>
+
+        <div class="profile-row">
+          <div class="profile-row-icon"><i class="fas fa-envelope"></i></div>
+          <div class="profile-row-content">
+            <div class="profile-row-label">Email</div>
+            <div class="profile-row-value">{{ profile.user.email }}</div>
+          </div>
+        </div>
+
+        <div class="profile-row">
+          <div class="profile-row-icon"><i class="fas fa-phone"></i></div>
+          <div class="profile-row-content">
+            <div class="profile-row-label">Phone</div>
+            <div class="profile-row-value">{{ profile.phone|default:"—" }}</div>
+          </div>
+        </div>
+
+        <div class="profile-row">
+          <div class="profile-row-icon"><i class="fas fa-venus-mars"></i></div>
+          <div class="profile-row-content">
+            <div class="profile-row-label">Gender</div>
+            <div class="profile-row-value">{{ profile.get_gender_display|default:"—" }}</div>
+          </div>
+        </div>
+
+        <div class="profile-row">
+          <div class="profile-row-icon"><i class="fas fa-cake-candles"></i></div>
+          <div class="profile-row-content">
+            <div class="profile-row-label">Date of Birth</div>
+            <div class="profile-row-value">{{ profile.date_of_birth|default:"—" }}</div>
+          </div>
+        </div>
+
+        <div class="profile-row">
+          <div class="profile-row-icon"><i class="fas fa-graduation-cap"></i></div>
+          <div class="profile-row-content">
+            <div class="profile-row-label">Qualification</div>
+            <div class="profile-row-value">{{ profile.qualification|default:"—" }}</div>
+          </div>
+        </div>
+
+        {% if profile.about_me %}
+        <div class="profile-row">
+          <div class="profile-row-icon"><i class="fas fa-align-left"></i></div>
+          <div class="profile-row-content">
+            <div class="profile-row-label">About Me</div>
+            <div class="profile-about">{{ profile.about_me }}</div>
+          </div>
+        </div>
+        {% endif %}
+
+        <div class="profile-footer">
+          <a href="{% url 'profile_edit' %}" class="btn-edit-profile">
+            <i class="fas fa-pen"></i> Edit Profile
+          </a>
+          {% if profile.resume %}
+          <a href="{{ profile.resume.url }}" target="_blank" class="btn-resume">
+            <i class="fas fa-file-pdf"></i> View Resume
+          </a>
+          {% endif %}
+        </div>
+
+        {% endif %}
+
+      </form>
+    </div>
+  </div>
+
 </div>
+
+<footer class="site-footer">&copy; 2025 Speshway. All rights reserved.</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-<!-- ===== PROFILE SECTION ===== -->
-<div class="container mt-5">
-
-<h3 class="text-center mb-4">
-{% if is_editing %} ✏️ Edit Profile {% else %} 👤 My Profile {% endif %}
-</h3>
-
-<form method="post" {% if is_editing %}enctype="multipart/form-data"{% endif %}>
-{% csrf_token %}
-
-<div class="profile-card">
-
-{% if is_editing %}
-
-<!-- ===== EDIT PROFILE IMAGE ===== -->
-<div class="text-center mb-4">
-    {% if profile.profile_picture %}
-        <img src="{{ profile.profile_picture.url }}" class="profile-avatar-edit">
-    {% else %}
-        <img src="https://via.placeholder.com/150?text=Edit+Photo" class="profile-avatar-edit">
-    {% endif %}
-    <br>
-    <label class="btn btn-outline-success btn-sm mt-3">
-        Change Photo
-        <input type="file" name="profile_picture" hidden>
-    </label>
-</div>
-
-<div class="row">
-    <div class="col-md-6 mb-3">
-        <label>First Name</label>
-        {{ user_form.first_name }}
-    </div>
-    <div class="col-md-6 mb-3">
-        <label>Last Name</label>
-        {{ user_form.last_name }}
-    </div>
-</div>
-
-<div class="mb-3">
-    <label>Email</label>
-    {{ user_form.email }}
-</div>
-
-<div class="mb-3">
-    <label>Phone</label>
-    {{ profile_form.phone }}
-</div>
-
-<div class="mb-3">
-    <label>Gender</label>
-    {{ profile_form.gender }}
-</div>
-
-<div class="mb-3">
-    <label>Date of Birth</label>
-    {{ profile_form.date_of_birth }}
-</div>
-
-<div class="mb-3">
-    <label>Qualification</label>
-    {{ profile_form.qualification }}
-</div>
-
-<div class="mb-3">
-    <label>About Me</label>
-    {{ profile_form.about_me }}
-</div>
-
-<div class="mb-3">
-    <label>Resume (PDF)</label>
-    {{ profile_form.resume }}
-</div>
-
-{% else %}
-
-<!-- ===== VIEW PROFILE IMAGE ===== -->
-<div class="text-center mb-4">
-    {% if profile.profile_picture %}
-        <img src="{{ profile.profile_picture.url }}" class="profile-avatar-view">
-    {% else %}
-        <img src="https://via.placeholder.com/120?text=Profile" class="profile-avatar-view">
-    {% endif %}
-</div>
-
-<p><span class="profile-label">Name:</span>
-<span class="profile-value">{{ profile.user.first_name }} {{ profile.user.last_name }}</span></p>
-
-<p><span class="profile-label">Email:</span>
-<span class="profile-value">{{ profile.user.email }}</span></p>
-
-<p><span class="profile-label">Phone:</span>
-<span class="profile-value">{{ profile.phone|default:"-" }}</span></p>
-
-<p><span class="profile-label">Gender:</span>
-<span class="profile-value">{{ profile.get_gender_display|default:"-" }}</span></p>
-
-<p><span class="profile-label">DOB:</span>
-<span class="profile-value">{{ profile.date_of_birth|default:"-" }}</span></p>
-
-<p><span class="profile-label">Qualification:</span>
-<span class="profile-value">{{ profile.qualification|default:"-" }}</span></p>
-
-<p><span class="profile-label">About:</span>
-<span class="profile-value">{{ profile.about_me|default:"-" }}</span></p>
-
-{% if profile.resume %}
-<a href="{{ profile.resume.url }}" target="_blank" class="btn btn-outline-success btn-sm mt-2">View Resume</a>
-{% endif %}
-
-{% endif %}
-
-<div class="profile-divider"></div>
-
-<div class="d-flex justify-content-between">
-{% if is_editing %}
-    <button type="submit" class="btn-save">Save Changes</button>
-    <a href="{% url 'profile_view' %}" class="btn-cancel">Cancel</a>
-{% else %}
-    <a href="{% url 'profile_edit' %}" class="btn btn-primary btn-edit">Edit Profile</a>
-{% endif %}
-</div>
-
-</div>
-</form>
-</div>
-
+<script>
+  document.querySelectorAll('input, select, textarea').forEach(el => {
+    if (!el.classList.contains('field-input') && el.type !== 'file' && el.type !== 'submit') {
+      el.classList.add('field-input');
+      if (el.tagName === 'TEXTAREA') el.classList.add('no-icon');
+      if (el.tagName === 'SELECT')   el.classList.add('no-icon');
+    }
+  });
+</script>
 </body>
 </html>

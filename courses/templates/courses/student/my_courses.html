@@ -1,153 +1,416 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>My Enrolled Courses</title>
+  <meta charset="UTF-8">
+  <title>My Courses | Speshway</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<style>
-.recommend-scroll {
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <style>
+  :root {
+    --amber:    #d97706;
+    --amber-lt: #fef3c7;
+    --rust:     #b45309;
+    --cream:    #fffbf5;
+    --ink:      #1c1412;
+    --muted:    #7c6f67;
+    --border:   #e8ddd4;
+    --glass:    rgba(255,251,245,0.82);
+    --shadow:   0 8px 40px rgba(28,20,18,0.10);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    min-height: 100vh;
+    overflow-x: hidden;
     display: flex;
-    gap: 16px;
-    overflow-x: auto;
-    overflow-y: hidden;
-    padding-bottom: 10px;
+    flex-direction: column;
+  }
+
+  .page-wrap { flex: 1; }
+
+  .site-footer {
+    position: relative; z-index: 1;
+    border-top: 1px solid var(--border);
+    background: var(--glass);
+    backdrop-filter: blur(12px);
+    text-align: center;
+    padding: 20px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 85% 10%, #fde68a55 0%, transparent 60%),
+      radial-gradient(ellipse 40% 60% at 5% 90%,  #fcd34d33 0%, transparent 55%),
+      radial-gradient(ellipse 50% 40% at 50% 50%, #fff7ed   0%, transparent 80%);
+    pointer-events: none; z-index: 0;
+  }
+
+  body::after {
+    content: '';
+    position: fixed; top: -120px; right: -120px;
+    width: 420px; height: 420px;
+    border: 1.5px solid rgba(217,119,6,0.18);
+    border-radius: 50%;
+    pointer-events: none; z-index: 0;
+    animation: spin 40s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .topbar {
+    position: sticky; top: 0; z-index: 999;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 48px;
+    background: var(--glass);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .brand {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700; font-size: 26px;
+    color: var(--ink); text-decoration: none;
+    display: flex; align-items: center; gap: 10px;
+  }
+
+  .brand .dot {
+    width: 9px; height: 9px; border-radius: 50%;
+    background: var(--amber);
+    box-shadow: 0 0 0 3px rgba(217,119,6,.2);
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%,100% { box-shadow: 0 0 0 3px rgba(217,119,6,.2); }
+    50%      { box-shadow: 0 0 0 7px rgba(217,119,6,.07); }
+  }
+
+  .topbar-right { display: flex; align-items: center; gap: 18px; }
+
+  .avatar-btn {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--amber), var(--rust));
+    color: white; font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 18px; font-weight: 700;
+    border: none; cursor: pointer;
+    box-shadow: 0 4px 14px rgba(180,83,9,.35);
+    transition: transform .2s, box-shadow .2s;
+  }
+
+  .avatar-btn:hover { transform: scale(1.07); }
+
+  .dropdown-menu {
+    border: 1px solid var(--border); border-radius: 16px;
+    padding: 10px; min-width: 230px;
+    box-shadow: 0 24px 60px rgba(28,20,18,0.12);
+    background: white; animation: dropIn .18s ease;
+  }
+
+  @keyframes dropIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .dropdown-item {
+    border-radius: 10px; padding: 10px 14px;
+    font-size: 13.5px; font-weight: 500; color: var(--ink);
+    transition: background .2s, color .2s, transform .2s;
+  }
+
+  .dropdown-item:hover { background: var(--amber-lt); color: var(--rust); transform: translateX(4px); }
+  .dropdown-item.logout-item { color: #dc2626; }
+  .dropdown-item.logout-item:hover { background: #fef2f2; color: #b91c1c; }
+  .dropdown-divider { border-color: var(--border); margin: 6px 0; }
+  .page-wrap {
+    position: relative; z-index: 1;
+    max-width: 1100px;
+    margin: 52px auto 80px;
+    padding: 0 28px;
+    animation: fadeUp .55s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(22px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .page-toprow {
+    display: flex; align-items: center; gap: 14px;
+    margin-bottom: 32px; flex-wrap: wrap;
+  }
+
+  .page-tag {
+    font-size: 11px; font-weight: 600; letter-spacing: .18em; text-transform: uppercase;
+    color: var(--amber); background: var(--amber-lt);
+    padding: 4px 12px; border-radius: 99px;
+  }
+
+  .page-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 36px; font-weight: 700; color: var(--ink);
+  }
+  .course-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 22px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    height: 100%;
+    display: flex; flex-direction: column;
+    transition: transform .26s, box-shadow .26s;
+    animation: fadeUp .4s ease both;
+  }
+
+  .course-card:nth-child(2) { animation-delay:.06s; }
+  .course-card:nth-child(3) { animation-delay:.12s; }
+  .course-card:nth-child(4) { animation-delay:.18s; }
+
+  .course-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 50px rgba(180,83,9,.12);
+  }
+
+  .card-accent {
+    height: 5px;
+    background: linear-gradient(90deg, var(--amber), #f59e0b, var(--rust));
+  }
+
+  .card-body-inner {
+    padding: 22px 22px 20px;
+    flex: 1; display: flex; flex-direction: column;
+  }
+
+  .course-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 21px; font-weight: 700; color: var(--ink);
+    margin-bottom: 18px; line-height: 1.25;
+  }
+
+  .card-actions { display: flex; flex-direction: column; gap: 9px; margin-top: auto; }
+
+  .btn-primary-amber {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    background: linear-gradient(135deg, var(--amber), var(--rust));
+    color: white; border: none;
+    padding: 10px; border-radius: 12px;
+    font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13.5px; font-weight: 700;
+    text-decoration: none;
+    box-shadow: 0 4px 12px rgba(180,83,9,.22);
+    transition: transform .2s, box-shadow .2s;
+  }
+
+  .btn-primary-amber:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(180,83,9,.35);
+    color: white;
+  }
+
+  .btn-outline-amber {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    background: white; color: var(--rust);
+    border: 1.5px solid var(--border);
+    padding: 9px; border-radius: 12px;
+    font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px; font-weight: 600;
+    text-decoration: none;
+    transition: border-color .2s, background .2s, color .2s;
+  }
+
+  .btn-outline-amber:hover {
+    border-color: var(--amber);
+    background: var(--amber-lt); color: var(--rust);
+  }
+  .empty-state {
+    text-align: center; padding: 80px 40px;
+    background: white; border: 1.5px dashed var(--border);
+    border-radius: 24px;
+  }
+
+  .empty-icon {
+    width: 80px; height: 80px; border-radius: 50%;
+    background: var(--amber-lt); color: var(--amber);
+    font-size: 34px; display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 18px;
+  }
+
+  .empty-state h3 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 26px; font-weight: 700; color: var(--ink); margin-bottom: 8px;
+  }
+
+  .empty-state p { font-size: 15px; color: var(--muted); }
+  .section-divider {
+    height: 1px; background: var(--border);
+    margin: 56px 0 40px;
+  }
+
+  .recommend-heading {
+    display: flex; align-items: center; gap: 14px;
+    margin-bottom: 24px;
+  }
+
+  .recommend-scroll {
+    display: flex; gap: 18px;
+    overflow-x: auto; overflow-y: hidden;
+    padding-bottom: 14px;
     scroll-behavior: smooth;
-}
+  }
 
-.recommend-scroll::-webkit-scrollbar {
-    height: 6px;
-}
+  .recommend-scroll::-webkit-scrollbar { height: 5px; }
+  .recommend-scroll::-webkit-scrollbar-thumb {
+    background: var(--border); border-radius: 99px;
+  }
 
-.recommend-scroll::-webkit-scrollbar-thumb {
-    background: #ccc;
-    border-radius: 4px;
-}
+  .recommend-card {
+    min-width: 270px; max-width: 270px; flex-shrink: 0;
+    background: white; border: 1px solid var(--border);
+    border-radius: 18px; overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: transform .25s;
+  }
 
-.recommend-card {
-    min-width: 260px;
-    max-width: 260px;
-    flex-shrink: 0;
-}
-</style>
+  .recommend-card:hover { transform: translateY(-4px); }
 
+  .rec-card-body { padding: 20px 20px 18px; }
+
+  .rec-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 18px; font-weight: 700; color: var(--ink);
+    margin-bottom: 8px; line-height: 1.3;
+  }
+
+  .rec-desc { font-size: 13px; color: var(--muted); margin-bottom: 16px; }
+
+  @media (max-width: 600px) {
+    .topbar { padding: 12px 20px; }
+    .page-wrap { margin-top: 36px; }
+  }
+  </style>
 </head>
 
-<body class="bg-light">
+<body>
 
-<div class="d-flex justify-content-between align-items-center p-3 bg-white shadow-sm">
-    <a href="{% url 'student_dashboard' %}" class="text-decoration-none text-dark">
-        <h3 class="m-0 fw-bold">Bildung</h3>
-    </a>
 
-    <div class="d-flex align-items-center gap-3">
-        <h5 class="m-0">Hello, {{ user.first_name }} {{ user.last_name }}</h5>
-
-        <div class="dropdown">
-            <button class="btn rounded-circle shadow"
-                    style="background:gray;color:white;width:45px;height:45px;"
-                    data-bs-toggle="dropdown">
-                {{ request.user.username|first|upper }}
-            </button>
-
-            <ul class="dropdown-menu dropdown-menu-end">
-                <li><a class="dropdown-item" href="{% url 'profile_view' %}">Profile</a></li>
-                <li><a class="dropdown-item" href="{% url 'student:my_courses' %}">My Courses</a></li>
-                <li><a class="dropdown-item" href="{% url 'student:student_upcoming_classes' %}">My_schedules</a></li>
-                <li><a class="dropdown-item" href="{% url 'student_my_activity' %}">My activity</a></li>
-                <li><a class="dropdown-item" href="{% url 'student:my_certificates' %}">My Certificates</a></li>
-                <li><a class="dropdown-item" href="{% url 'student_notifications' %}">Notifications</a></li>
-                <li><a class="dropdown-item" href="#">Payments</a></li>
-                <li><a class="dropdown-item" href="#">Help and Support</a></li>
-                <li><a class="dropdown-item" href="{% url 'account_settings' %}">Account Settings</a></li>
-                <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item text-danger" href="{% url 'logout_view' %}">Logout</a></li>
-            </ul>
-        </div>
+<nav class="topbar">
+  <a href="{% url 'student_dashboard' %}" class="brand">
+    <span class="dot"></span>Speshway
+  </a>
+  <div class="topbar-right">
+    <div class="dropdown">
+      <button class="avatar-btn" data-bs-toggle="dropdown" aria-expanded="false">
+        {{ request.user.username|first|upper }}
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end">
+        <li><a class="dropdown-item" href="{% url 'profile_view' %}"><i class="fas fa-user fa-fw me-2" style="color:var(--amber)"></i>Profile</a></li>
+        <li><a class="dropdown-item" href="{% url 'student:my_courses' %}"><i class="fas fa-book fa-fw me-2" style="color:var(--amber)"></i>My Courses</a></li>
+        <li><a class="dropdown-item" href="{% url 'student:student_upcoming_classes' %}"><i class="fas fa-calendar fa-fw me-2" style="color:var(--amber)"></i>My Schedules</a></li>
+        <li><a class="dropdown-item" href="{% url 'student_my_activity' %}"><i class="fas fa-chart-line fa-fw me-2" style="color:var(--amber)"></i>My Activity</a></li>
+        <li><a class="dropdown-item" href="{% url 'student:my_certificates' %}"><i class="fas fa-certificate fa-fw me-2" style="color:var(--amber)"></i>My Certificates</a></li>
+        <li><a class="dropdown-item" href="{% url 'student_notifications' %}"><i class="fas fa-bell fa-fw me-2" style="color:var(--amber)"></i>Notifications</a></li>
+        <li><a class="dropdown-item" href="#"><i class="fas fa-credit-card fa-fw me-2" style="color:var(--amber)"></i>Payments</a></li>
+        <li><a class="dropdown-item" href="#"><i class="fas fa-circle-question fa-fw me-2" style="color:var(--amber)"></i>Help & Support</a></li>
+        <li><a class="dropdown-item" href="{% url 'account_settings' %}"><i class="fas fa-gear fa-fw me-2" style="color:var(--amber)"></i>Account Settings</a></li>
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item logout-item" href="{% url 'logout_view' %}"><i class="fas fa-arrow-right-from-bracket fa-fw me-2"></i>Sign Out</a></li>
+      </ul>
     </div>
-</div>
+  </div>
+</nav>
 
-<div class="container mt-4">
-    <h2 class="mb-4">My Enrolled Courses</h2>
 
-    {% if has_enrollments %}
-        <div class="row">
-            {% for enrollment in enrollments %}
-                <div class="col-md-4 mb-4">
-                    <div class="card shadow-sm h-100">
-                        <div class="card-body d-flex flex-column">
-                            <h5 class="fw-bold">{{ enrollment.course.title }}</h5>
+<div class="page-wrap">
 
-                            <a href="{% url 'student:student_course_detail' enrollment.course.id %}"
-                               class="btn btn-primary mb-2">
-                                View Details
-                            </a>
+  <div class="page-toprow">
+    <span class="page-tag">Learning</span>
+    <h1 class="page-title">My Enrolled Courses</h1>
+  </div>
 
-                            <a href="{% url 'student:student_progress' enrollment.course.id %}"
-                               class="btn btn-outline-primary mb-2">
-                                View Progress
-                            </a>
-
-                            <a href="{% url 'student:course_qna' enrollment.course.id %}"
-                               class="btn btn-outline-secondary">
-                                Q & A
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
+  {% if has_enrollments %}
+  <div class="row g-4">
+    {% for enrollment in enrollments %}
+    <div class="col-lg-4 col-md-6">
+      <div class="course-card">
+        <div class="card-accent"></div>
+        <div class="card-body-inner">
+          <h3 class="course-title">{{ enrollment.course.title }}</h3>
+          <div class="card-actions">
+            <a href="{% url 'student:student_course_detail' enrollment.course.id %}" class="btn-primary-amber">
+              <i class="fas fa-play-circle"></i> Continue Learning
+            </a>
+            <a href="{% url 'student:student_progress' enrollment.course.id %}" class="btn-outline-amber">
+              <i class="fas fa-chart-line"></i> View Progress
+            </a>
+            <a href="{% url 'student:course_qna' enrollment.course.id %}" class="btn-outline-amber">
+              <i class="fas fa-comments"></i> Q & A
+            </a>
+          </div>
         </div>
-    {% else %}
-        <p class="text-muted">You have not enrolled in any courses yet.</p>
-    {% endif %}
-</div>
-
-{% if recommended_courses %}
-<div class="container mt-5">
-    <hr class="my-5">
-
-    <h3 class="fw-bold mb-4">
-        🚀 Recommended Next
-    </h3>
-
-    <div class="recommend-scroll" id="recommendScroll">
-        {% for course in recommended_courses %}
-        <div class="recommend-card">
-            <div class="card shadow-sm h-100">
-                <div class="card-body d-flex flex-column">
-                    <h5 class="fw-bold">{{ course.title }}</h5>
-                    <p class="text-muted small">
-                        {{ course.description|truncatewords:14 }}
-                    </p>
-
-                    <a href="{% url 'courses:view_course' course.id %}"
-                       class="btn btn-outline-primary mt-auto">
-                        View Course
-                    </a>
-                </div>
-            </div>
-        </div>
-        {% endfor %}
+      </div>
     </div>
+    {% endfor %}
+  </div>
+
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-icon"><i class="fas fa-book-open"></i></div>
+    <h3>No Courses Yet</h3>
+    <p>You haven't enrolled in any courses. Browse our catalogue to get started!</p>
+  </div>
+  {% endif %}
+
+  
+  {% if recommended_courses %}
+  <div class="section-divider"></div>
+
+  <div class="recommend-heading">
+    <span class="page-tag">Discover</span>
+    <h2 style="font-family:'Plus Jakarta Sans',sans-serif;font-size:28px;font-weight:700;color:var(--ink);">
+      Recommended Next
+    </h2>
+  </div>
+
+  <div class="recommend-scroll" id="recommendScroll">
+    {% for course in recommended_courses %}
+    <div class="recommend-card">
+      <div class="card-accent"></div>
+      <div class="rec-card-body">
+        <h4 class="rec-title">{{ course.title }}</h4>
+        <p class="rec-desc">{{ course.description|truncatewords:14 }}</p>
+        <a href="{% url 'courses:view_course' course.id %}" class="btn-primary-amber" style="font-size:13px;padding:9px 0;">
+          <i class="fas fa-bolt"></i> View Course
+        </a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
 </div>
-{% endif %}
+
+<footer class="site-footer">&copy; 2025 Speshway. All rights reserved.</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-    const slider = document.getElementById("recommendScroll");
-
-    if (!slider) return;
-
-    slider.addEventListener("wheel", function (e) {
-        if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
-            e.preventDefault();
-            slider.scrollLeft += e.deltaY;
-        }
+  const slider = document.getElementById('recommendScroll');
+  if (slider) {
+    slider.addEventListener('wheel', e => {
+      if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+        e.preventDefault();
+        slider.scrollLeft += e.deltaY;
+      }
     }, { passive: false });
-});
+  }
 </script>
-
 </body>
 </html>

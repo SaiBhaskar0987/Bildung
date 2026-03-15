@@ -43,8 +43,6 @@ html, body {
   justify-content: center;
   overflow: hidden;
 }
-
-/* ── Animated background ── */
 .bg-wrap {
   position: fixed; inset: 0; z-index: 0; overflow: hidden;
   background: linear-gradient(135deg, #f5f3ff 0%, #fdf4ff 40%, #fff1f5 70%, #f0fdfa 100%);
@@ -72,8 +70,6 @@ html, body {
   from { transform: translate(0,0) scale(1); }
   to   { transform: translate(22px, 18px) scale(1.06); }
 }
-
-/* ── Rainbow top bar ── */
 .rainbow-bar {
   position: fixed; top: 0; left: 0; right: 0; height: 4px; z-index: 100;
   background: linear-gradient(90deg, #6366f1, #8b5cf6, #ec4899, #f59e0b, #10b981, #3b82f6);
@@ -85,8 +81,6 @@ html, body {
   0%   { background-position: 0% 0%; }
   100% { background-position: 200% 0%; }
 }
-
-/* ── Card container ── */
 .container {
   position: relative; z-index: 10;
   width: 920px; max-width: 96vw;
@@ -119,8 +113,6 @@ html, body {
   border-right: 2px solid rgba(124,58,237,.1);
   position: relative; overflow: hidden;
 }
-
-/* Corner glow */
 .left::after {
   content: '';
   position: absolute; top: -70px; left: -70px;
@@ -128,8 +120,6 @@ html, body {
   background: conic-gradient(from 0deg, rgba(99,102,241,.28), rgba(168,85,247,.22), rgba(236,72,153,.18), rgba(99,102,241,.28));
   filter: blur(48px); opacity: .55; pointer-events: none;
 }
-
-/* Decorative dots pattern */
 .left::before {
   content: '';
   position: absolute; bottom: -30px; right: -30px;
@@ -138,8 +128,6 @@ html, body {
   background-size: 16px 16px;
   border-radius: 50%; pointer-events: none;
 }
-
-/* Brand */
 .brand-link { text-decoration: none; color: inherit; display: inline-block; }
 .brand { display: flex; align-items: center; gap: 12px; position: relative; z-index: 2; }
 
@@ -162,8 +150,6 @@ html, body {
   letter-spacing: .14em; text-transform: uppercase;
   color: var(--muted-lt); margin-top: 1px;
 }
-
-/* Hero copy */
 .hero { position: relative; z-index: 2; }
 
 .hero-eyebrow {
@@ -193,8 +179,6 @@ html, body {
   line-height: 1.7; font-weight: 500;
   max-width: 300px; margin-bottom: 22px;
 }
-
-/* Feature list */
 .features { list-style: none; position: relative; z-index: 2; }
 .features li {
   display: flex; align-items: center; gap: 10px;
@@ -234,8 +218,6 @@ html, body {
   background: radial-gradient(circle, rgba(236,72,153,.10), transparent 70%);
   filter: blur(30px); pointer-events: none;
 }
-
-/* Header */
 .r-head { text-align: center; margin-bottom: 28px; position: relative; z-index: 2; }
 
 .r-head-badge {
@@ -253,8 +235,6 @@ html, body {
 }
 
 .r-head p { font-size: 0.82rem; color: var(--muted-lt); font-weight: 500; line-height: 1.55; }
-
-/* Role cards */
 .roles { display: flex; flex-direction: column; gap: 13px; margin-bottom: 20px; position: relative; z-index: 2; }
 
 .role-card {
@@ -273,8 +253,6 @@ html, body {
   from { opacity: 0; transform: translateX(22px); }
   to   { opacity: 1; transform: translateX(0); }
 }
-
-/* Shimmer sweep */
 .role-card::before {
   content: '';
   position: absolute; inset: 0;
@@ -282,8 +260,6 @@ html, body {
   transform: translateX(-100%); transition: transform .5s;
 }
 .role-card:hover::before { transform: translateX(100%); }
-
-/* Student card */
 .role-student {
   background: linear-gradient(135deg, #eff6ff, #eef2ff);
   border-color: #bfdbfe;
@@ -293,8 +269,6 @@ html, body {
   border-color: var(--blue);
   box-shadow: 0 14px 36px rgba(59,130,246,.22), 0 0 0 4px rgba(59,130,246,.08);
 }
-
-/* Instructor card */
 .role-instructor {
   background: linear-gradient(135deg, #f5f3ff, #fdf4ff);
   border-color: #ddd6fe;
@@ -304,8 +278,6 @@ html, body {
   border-color: var(--purple);
   box-shadow: 0 14px 36px rgba(124,58,237,.22), 0 0 0 4px rgba(124,58,237,.08);
 }
-
-/* Role icon */
 .role-ic {
   width: 50px; height: 50px; flex-shrink: 0;
   border-radius: 15px; display: grid; place-items: center;
@@ -319,13 +291,9 @@ html, body {
   background: linear-gradient(135deg, var(--purple), var(--pink));
   color: white; box-shadow: 0 6px 18px rgba(124,58,237,.4);
 }
-
-/* Role text */
 .role-text { flex: 1; position: relative; z-index: 1; }
 .role-text strong { display: block; font-size: 0.98rem; font-weight: 900; color: var(--text); margin-bottom: 3px; }
 .role-text span   { font-size: 0.75rem; color: var(--muted-lt); line-height: 1.4; font-weight: 600; }
-
-/* Arrow */
 .role-arrow {
   width: 32px; height: 32px; border-radius: 50%;
   background: rgba(124,58,237,.1); display: grid;
@@ -334,16 +302,12 @@ html, body {
   flex-shrink: 0; position: relative; z-index: 1;
 }
 .role-card:hover .role-arrow { background: var(--purple); color: white; transform: translateX(3px); }
-
-/* Divider */
 .divider {
   display: flex; align-items: center; gap: 10px;
   margin-bottom: 16px; position: relative; z-index: 2;
 }
 .divider hr   { flex: 1; border: none; border-top: 2px solid #f3f0ff; }
 .divider span { font-size: 0.68rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--muted-lt); font-family: 'DM Mono', monospace; white-space: nowrap; }
-
-/* Signup button */
 .btn-free {
   display: flex; align-items: center; justify-content: center; gap: 10px;
   width: 100%; padding: 14px;
@@ -369,8 +333,6 @@ html, body {
   padding: 2px 8px; border-radius: 999px;
   box-shadow: 0 3px 8px rgba(16,185,129,.38);
 }
-
-/* ── Responsive ── */
 @media (max-width: 700px) {
   html, body { overflow: auto; align-items: flex-start; padding-top: 24px; }
   .container { grid-template-columns: 1fr; height: auto; border-radius: 20px; }
@@ -383,7 +345,7 @@ html, body {
 
 <div class="rainbow-bar"></div>
 
-<!-- Background -->
+
 <div class="bg-wrap">
   <div class="bg-grid"></div>
   <div class="blob b1"></div>
@@ -392,10 +354,10 @@ html, body {
   <div class="blob b4"></div>
 </div>
 
-<!-- Card -->
+
 <div class="container">
 
-  <!-- ══ LEFT ══ -->
+  
   <div class="left">
 
     <a href="{% url 'smart_home' %}" class="brand-link">
@@ -424,7 +386,7 @@ html, body {
 
   </div>
 
-  <!-- ══ RIGHT ══ -->
+  
   <div class="right">
 
     <div class="r-head">
@@ -435,7 +397,7 @@ html, body {
 
     <div class="roles">
 
-      <!-- Student -->
+      
       <a href="{% url 'student_login' %}" class="role-card role-student">
         <div class="role-ic student-ic"><i class="fas fa-user-graduate"></i></div>
         <div class="role-text">
@@ -445,7 +407,7 @@ html, body {
         <div class="role-arrow"><i class="fas fa-arrow-right"></i></div>
       </a>
 
-      <!-- Instructor -->
+      
       <a href="{% url 'instructor_login' %}" class="role-card role-instructor">
         <div class="role-ic instructor-ic"><i class="fas fa-chalkboard-teacher"></i></div>
         <div class="role-text">

@@ -1,19 +1,152 @@
-<div class="mt-3 p-3 border rounded bg-light">
+ {% comment %}
+  Quiz preview partial — drop-in replacement.
+  Context vars required: quiz, questions (each with q.question_text, q.choices.all, c.text, c.is_correct)
 
-  <h5 class="fw-bold">{{ quiz.title }}</h5>
+  FIX: Removed {{ forloop.counter|add:64|chr }} — Django has NO built-in "chr" filter.
+       A–D letters are generated automatically by CSS counters instead. Zero Python/Django changes needed.
+{% endcomment %}
 
-  {% for q in questions %}
-    <div class="mb-3">
-      <strong>Q{{ forloop.counter }}.</strong> {{ q.question_text }}
+<style>
+/* ── Quiz Preview Panel ── */
+.quiz-preview-panel {
+  border: 1px solid var(--border, #D1FAF6);
+  border-radius: var(--radius, 16px);
+  overflow: hidden;
+  background: var(--card-bg, #FFFFFF);
+  box-shadow: 0 4px 18px rgba(13,148,136,.07);
+}
 
-      <ul class="mt-1">
+.quiz-preview-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 14px 18px;
+  background: var(--teal-pale, #CCFBF1);
+  border-bottom: 1px solid var(--border, #D1FAF6);
+}
+.quiz-preview-icon {
+  width: 32px; height: 32px;
+  background: var(--teal, #0D9488); color: #fff;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .82rem; flex-shrink: 0;
+}
+.quiz-preview-title {
+  font-family: 'sora', sans-serif;
+  font-weight: 700; font-size: .95rem;
+  color: var(--teal, #0D9488);
+}
+
+.quiz-preview-body { padding: 18px; }
+
+/* ── Question card ── */
+.quiz-question-card {
+  border: 1px solid var(--border, #D1FAF6);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+.quiz-question-card:last-child { margin-bottom: 0; }
+
+.quiz-q-header {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 12px 14px;
+  background: var(--surface, #F8FFFE);
+  border-bottom: 1px solid var(--border, #D1FAF6);
+}
+.quiz-q-num {
+  width: 24px; height: 24px; border-radius: 50%;
+  background: var(--teal, #0D9488); color: #fff;
+  font-family: 'sora', sans-serif;
+  font-weight: 800; font-size: .72rem;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; margin-top: 1px;
+}
+.quiz-q-text {
+  font-size: .88rem; font-weight: 600;
+  color: var(--ink, #0F1117); line-height: 1.5;
+}
+
+/* ── Choices ──
+   CSS counter auto-generates A, B, C, D …
+   No Django template filter or custom tag needed.
+   Each .quiz-choices block resets the counter so every
+   question independently counts from A.
+── */
+.quiz-choices {
+  padding: 10px 14px;
+  display: flex; flex-direction: column; gap: 6px;
+  counter-reset: choice-counter;       /* ← resets to A for every question */
+}
+
+.quiz-choice {
+  display: flex; align-items: center; gap: 9px;
+  padding: 7px 12px;
+  border-radius: 8px;
+  border: 1.5px solid var(--border, #D1FAF6);
+  font-size: .84rem; color: var(--ink-soft, #2C2F3A);
+  background: #fff;
+  counter-increment: choice-counter;   /* ← tick A → B → C → D */
+}
+
+/* The ::before pseudo-element renders the letter badge — no HTML div needed */
+.quiz-choice::before {
+  content: counter(choice-counter, upper-alpha);  /* A, B, C, D … */
+  width: 22px; height: 22px; border-radius: 50%;
+  background: var(--border, #D1FAF6); color: var(--muted, #64748B);
+  font-family: 'sora', sans-serif; font-weight: 800; font-size: .7rem;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Correct answer highlight */
+.quiz-choice.correct {
+  background: #D1FAE5;
+  border-color: #6EE7B7;
+  color: #065F46; font-weight: 700;
+}
+.quiz-choice.correct::before {
+  background: #10B981; color: #fff;
+}
+.quiz-choice-check {
+  margin-left: auto;
+  color: #10B981; font-size: .82rem;
+  flex-shrink: 0;
+}
+</style>
+
+<div class="quiz-preview-panel">
+
+  <div class="quiz-preview-header">
+    <div class="quiz-preview-icon"><i class="fa-solid fa-clipboard-list"></i></div>
+    <div class="quiz-preview-title">{{ quiz.title }}</div>
+  </div>
+
+  <div class="quiz-preview-body">
+
+    {% for q in questions %}
+    <div class="quiz-question-card">
+
+      <div class="quiz-q-header">
+        <div class="quiz-q-num">{{ forloop.counter }}</div>
+        <div class="quiz-q-text">{{ q.question_text }}</div>
+      </div>
+
+      <div class="quiz-choices">
         {% for c in q.choices.all %}
-          <li class="{% if c.is_correct %}text-success fw-bold{% endif %}">
-            {{ c.text }}
-          </li>
-        {% endfor %}
-      </ul>
-    </div>
-  {% endfor %}
 
+        {# ── NO chr filter here. The A/B/C/D letter is rendered
+              entirely by the CSS ::before counter above. ── #}
+        <div class="quiz-choice {% if c.is_correct %}correct{% endif %}">
+          {{ c.text }}
+          {% if c.is_correct %}
+          <i class="fa-solid fa-circle-check quiz-choice-check"></i>
+          {% endif %}
+        </div>
+
+        {% endfor %}
+      </div>
+
+    </div>
+    {% endfor %}
+
+  </div>
 </div>

@@ -1,378 +1,964 @@
 {% load static %}
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Course details</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <meta charset="UTF-8">
+  <title>{{ course.title }} — Speshway</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 
 <style>
-.rating-stars {
-    display: inline-flex;
-    flex-direction: row-reverse;
-    justify-content: center;
-    gap: 0.25rem;
+:root {
+  --amber:    #d97706;
+  --amber-lt: #fef3c7;
+  --amber-md: #fde68a;
+  --rust:     #b45309;
+  --cream:    #fffbf5;
+  --parchment:#fef9f0;
+  --ink:      #1c1412;
+  --ink-lt:   #5c4f46;
+  --muted:    #7c6f67;
+  --border:   #e8ddd4;
+  --border-lt:#f3ede6;
+  --glass:    rgba(255,251,245,0.88);
+  --shadow:   0 8px 40px rgba(28,20,18,0.10);
+  --shadow-sm:0 4px 18px rgba(28,20,18,0.07);
+  --green:    #16a34a;
+  --green-lt: #dcfce7;
+  --blue:     #2563eb;
+  --blue-lt:  #dbeafe;
+  --red:      #dc2626;
+  --red-lt:   #fee2e2;
+  --teal:     #0f766e;
+  --teal-lt:  #ccfbf1;
 }
-.rating-stars input {
-    display: none;
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--cream);
+  color: var(--ink);
+  min-height: 100vh;
+  overflow-x: hidden;
 }
-.rating-stars label {
-    font-size: 1.8rem;
-    color: #ddd;
-    cursor: pointer;
+
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse 60% 50% at 85% 10%, #fde68a55 0%, transparent 60%),
+    radial-gradient(ellipse 40% 60% at 5%  90%, #fcd34d33 0%, transparent 55%),
+    radial-gradient(ellipse 50% 40% at 50% 50%, #fff7ed   0%, transparent 80%);
 }
+body::after {
+  content: '';
+  position: fixed; top: -120px; right: -120px; z-index: 0; pointer-events: none;
+  width: 420px; height: 420px;
+  border: 1.5px solid rgba(217,119,6,0.14);
+  border-radius: 50%;
+  animation: spinRing 50s linear infinite;
+}
+@keyframes spinRing { to { transform: rotate(360deg); } }
+
+/* ═══════════ TOPBAR ═══════════ */
+.topbar {
+  position: sticky; top: 0; z-index: 999;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 48px;
+  background: var(--glass);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+}
+
+.brand {
+  font-family: 'Sora', sans-serif;
+  font-weight: 800; font-size: 1.2rem;
+  letter-spacing:  -.2px; color: var(--ink);
+  text-decoration: none;
+  display: flex; align-items: center; gap: 10px;
+}
+.brand .dot {
+  width: 9px; height: 9px; border-radius: 50%;
+  background: var(--amber); flex-shrink: 0;
+  box-shadow: 0 0 0 3px rgba(217,119,6,.2);
+  animation: dotPulse 2s ease-in-out infinite;
+}
+@keyframes dotPulse {
+  0%,100% { box-shadow: 0 0 0 3px rgba(217,119,6,.2); }
+  50%      { box-shadow: 0 0 0 7px rgba(217,119,6,.07); }
+}
+
+.topbar-right { display: flex; align-items: center; gap: 16px; }
+.user-greet { font-size: 14px; font-weight: 500; color: var(--muted); }
+.user-greet strong { color: var(--ink); }
+
+.avatar-btn {
+  width: 44px; height: 44px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--amber), var(--rust));
+  color: white; font-family: 'Nunito', sans-serif;
+  font-size: 18px; font-weight: 700;
+  border: none; cursor: pointer;
+  box-shadow: 0 4px 14px rgba(180,83,9,.35);
+  transition: transform .2s, box-shadow .2s;
+}
+.avatar-btn:hover { transform: scale(1.07); box-shadow: 0 6px 20px rgba(180,83,9,.45); }
+
+.dropdown-menu {
+  border: 1px solid var(--border) !important;
+  border-radius: 16px !important;
+  padding: 10px !important;
+  min-width: 230px;
+  box-shadow: 0 24px 60px rgba(28,20,18,.12) !important;
+  background: white !important;
+  animation: dropIn .18s ease;
+  font-family: 'Nunito', sans-serif;
+}
+@keyframes dropIn {
+  from { opacity:0; transform: translateY(-8px); }
+  to   { opacity:1; transform: translateY(0); }
+}
+.dropdown-item {
+  border-radius: 10px; padding: 10px 14px;
+  font-size: 13.5px; font-weight: 500; color: var(--ink);
+  transition: background .2s, color .2s, transform .2s;
+}
+.dropdown-item:hover { background: var(--amber-lt); color: var(--rust); transform: translateX(4px); }
+.dropdown-item.logout-item { color: var(--red); }
+.dropdown-item.logout-item:hover { background: var(--red-lt); color: #b91c1c; }
+.dropdown-divider { border-color: var(--border) !important; margin: 6px 0 !important; }
+
+/* ═══════════ PAGE WRAP ═══════════ */
+.page-wrap {
+  position: relative; z-index: 1;
+  max-width: 1040px;
+  margin: 48px auto 80px;
+  padding: 0 24px;
+  animation: fadeUp .5s ease both;
+}
+@keyframes fadeUp {
+  from { opacity:0; transform: translateY(20px); }
+  to   { opacity:1; transform: translateY(0); }
+}
+
+/* ═══════════ COURSE HERO ═══════════ */
+.course-hero {
+  background: linear-gradient(135deg, var(--amber) 0%, var(--rust) 100%);
+  border-radius: 24px;
+  padding: 40px 48px;
+  margin-bottom: 32px;
+  position: relative; overflow: hidden;
+  display: flex; align-items: center; gap: 32px;
+  color: white;
+}
+.course-hero::before {
+  content: ''; position: absolute; top: -80px; right: -80px;
+  width: 300px; height: 300px; border-radius: 50%;
+  background: rgba(255,255,255,.08); pointer-events: none;
+}
+.course-hero::after {
+  content: ''; position: absolute; bottom: -60px; left: 32%;
+  width: 200px; height: 200px; border-radius: 50%;
+  background: rgba(255,255,255,.05); pointer-events: none;
+}
+
+.hero-thumb {
+  flex-shrink: 0; width: 160px; height: 110px;
+  border-radius: 16px; overflow: hidden;
+  border: 2.5px solid rgba(255,255,255,.28);
+  box-shadow: 0 8px 28px rgba(0,0,0,.25);
+  background: rgba(0,0,0,.2);
+  position: relative; z-index: 1;
+}
+.hero-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.hero-thumb-empty {
+  width: 100%; height: 100%;
+  display: grid; place-items: center;
+  font-size: 2.8rem; opacity: .6;
+}
+
+.hero-content { flex: 1; position: relative; z-index: 1; }
+.hero-tag {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(255,255,255,.2);
+  border: 1px solid rgba(255,255,255,.32);
+  padding: 4px 12px; border-radius: 999px;
+  font-size: 11px; font-weight: 700; letter-spacing: .12em;
+  text-transform: uppercase; margin-bottom: 12px;
+}
+.hero-title {
+  font-family: 'Nunito', sans-serif;
+  font-size: clamp(1.35rem, 2.2vw, 1.8rem);
+  font-weight: 900; line-height: 1.2; margin-bottom: 10px;
+}
+.hero-instructor {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(255,255,255,.16);
+  border: 1px solid rgba(255,255,255,.26);
+  padding: 6px 14px; border-radius: 999px;
+  font-size: 13.5px; font-weight: 500;
+}
+.hero-desc {
+  font-size: 13.5px; opacity: .8; line-height: 1.65;
+  margin-top: 12px; max-width: 560px;
+}
+
+/* ═══════════ CARD SHELL (reusable) ═══════════ */
+.spw-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow .22s;
+}
+.spw-card:hover { box-shadow: var(--shadow); }
+.spw-card + .spw-card { margin-top: 20px; }
+
+.spw-card::before {
+  content: ''; display: block; height: 4px;
+  background: linear-gradient(90deg, var(--amber), #f59e0b, var(--rust));
+}
+
+/* ═══════════ PROGRESS ═══════════ */
+.progress-card { margin-bottom: 32px; }
+.progress-inner { padding: 26px 32px 30px; }
+
+.progress-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 14px;
+}
+.progress-label {
+  font-family: 'Nunito', sans-serif;
+  font-size: 17px; font-weight: 800; color: var(--ink);
+  display: flex; align-items: center; gap: 10px;
+}
+.progress-label i { font-size: 16px; color: var(--amber); }
+.progress-count {
+  font-size: 12.5px; font-weight: 600; color: var(--rust);
+  background: var(--amber-lt);
+  padding: 4px 13px; border-radius: 999px;
+  border: 1px solid var(--amber-md);
+}
+.progress-track {
+  height: 12px; background: var(--border-lt);
+  border-radius: 999px; overflow: hidden;
+}
+.progress-fill {
+  height: 100%; border-radius: 999px;
+  background: linear-gradient(90deg, var(--amber), var(--rust));
+  position: relative;
+  transition: width 1s cubic-bezier(.22,1,.36,1);
+}
+.progress-fill::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.38), transparent);
+  animation: shimmer 2.2s ease-in-out infinite;
+}
+@keyframes shimmer { 0%{transform:translateX(-100%)} 100%{transform:translateX(200%)} }
+.progress-pct {
+  text-align: right; margin-top: 7px;
+  font-size: 12px; font-weight: 700; color: var(--rust);
+}
+
+.progress-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 20px; }
+
+.btn-review {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 11px 22px; border-radius: 12px; border: none;
+  background: linear-gradient(135deg, var(--amber), var(--rust));
+  color: white; font-family: 'Nunito', sans-serif;
+  font-size: 14px; font-weight: 600;
+  cursor: pointer; box-shadow: 0 4px 14px rgba(180,83,9,.3);
+  transition: all .22s;
+}
+.btn-review:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(180,83,9,.4); }
+
+.btn-certificate {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 11px 22px; border-radius: 12px;
+  background: white; border: 1.5px solid var(--border);
+  color: var(--ink); font-family: 'Nunito', sans-serif;
+  font-size: 14px; font-weight: 600; text-decoration: none;
+  transition: all .22s;
+}
+.btn-certificate:hover {
+  border-color: var(--amber); color: var(--rust);
+  background: var(--amber-lt); transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(180,83,9,.12);
+}
+
+/* ═══════════ SECTION DIVIDER ═══════════ */
+.section-header {
+  display: flex; align-items: center; gap: 14px;
+  margin: 36px 0 18px;
+}
+.section-header-title {
+  font-family: 'Nunito', sans-serif;
+  font-size: 19px; font-weight: 900; color: var(--ink);
+  white-space: nowrap;
+}
+.section-header-line { flex: 1; height: 1px; background: var(--border); }
+.section-header-count {
+  font-size: 11px; font-weight: 700; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--muted); white-space: nowrap;
+}
+
+/* ═══════════ MODULE CARD ═══════════ */
+.module-card { margin-bottom: 20px; }
+.module-card::before { display: none; } /* override card strip */
+
+.module-header {
+  padding: 20px 26px;
+  display: flex; align-items: center; gap: 16px;
+  border-bottom: 1px solid var(--border-lt);
+  background: var(--parchment);
+}
+.module-icon {
+  width: 44px; height: 44px; border-radius: 13px; flex-shrink: 0;
+  display: grid; place-items: center; font-size: 16px;
+}
+.module-icon.unlocked { background: var(--amber-lt); color: var(--rust); border: 1.5px solid var(--amber-md); }
+.module-icon.locked   { background: var(--red-lt);   color: var(--red);  border: 1.5px solid #fecaca; }
+
+.module-meta { flex: 1; }
+.module-title {
+  font-family: 'Nunito', sans-serif;
+  font-size: 17px; font-weight: 800; color: var(--ink); margin-bottom: 3px;
+}
+.module-desc { font-size: 13px; color: var(--muted); }
+
+.status-pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 5px 13px; border-radius: 999px;
+  font-size: 11.5px; font-weight: 700;
+}
+.status-pill.unlocked { background: var(--amber-lt); color: var(--rust); border: 1.5px solid var(--amber-md); }
+.status-pill.locked   { background: var(--red-lt);   color: var(--red);  border: 1.5px solid #fecaca; }
+
+/* Lectures grid */
+.lectures-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(215px, 1fr));
+  gap: 16px; padding: 20px 26px;
+}
+
+.lecture-card {
+  border: 1px solid var(--border); border-radius: 14px;
+  overflow: hidden; background: var(--cream);
+  transition: transform .2s, box-shadow .2s, border-color .2s;
+}
+.lecture-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-sm);
+  border-color: var(--amber-md);
+}
+.lecture-card.just-completed {
+  border-color: var(--amber) !important;
+  box-shadow: 0 0 0 3px rgba(217,119,6,.15) !important;
+}
+
+.lecture-video { width: 100%; display: block; background: #1c1412; max-height: 128px; }
+.lecture-thumb-empty {
+  height: 88px; background: linear-gradient(135deg, #1c1412, #3a2010);
+  display: grid; place-items: center;
+}
+.lecture-thumb-empty i { font-size: 1.8rem; color: rgba(255,255,255,.22); }
+
+.lecture-body { padding: 14px 16px; }
+.lecture-title {
+  font-family: 'Nunito', sans-serif;
+  font-size: 14px; font-weight: 800; color: var(--ink);
+  margin-bottom: 12px; line-height: 1.3;
+}
+.lecture-actions { display: flex; flex-direction: column; gap: 7px; }
+
+.btn-lec {
+  width: 100%; padding: 8px 12px; border-radius: 10px;
+  font-family: 'Nunito', sans-serif; font-size: 13px; font-weight: 600;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  text-decoration: none; cursor: pointer; border: 1.5px solid;
+  transition: all .18s;
+}
+.btn-lec.complete { border-color: var(--amber); color: var(--rust); background: var(--amber-lt); }
+.btn-lec.complete:hover { background: var(--amber); color: white; }
+.btn-lec.undo     { border-color: var(--red);   color: var(--red);  background: var(--red-lt); }
+.btn-lec.undo:hover { background: var(--red); color: white; }
+.btn-lec.ask      { border-color: var(--border); color: var(--muted); background: white; }
+.btn-lec.ask:hover { border-color: var(--amber); color: var(--rust); background: var(--amber-lt); }
+
+/* ═══════════ QUIZ / ASSIGNMENT / LIVE ROWS ═══════════ */
+.content-row {
+  background: white; border: 1px solid var(--border);
+  border-radius: 18px; margin-bottom: 16px;
+  padding: 20px 26px;
+  display: flex; align-items: center; gap: 18px;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow .2s;
+}
+.content-row:hover { box-shadow: var(--shadow); }
+.content-row.quiz-row       { border-left: 4px solid var(--amber); }
+.content-row.assignment-row { border-left: 4px solid var(--blue); }
+.content-row.live-row       { border-left: 4px solid var(--green); }
+
+.row-icon {
+  width: 48px; height: 48px; border-radius: 14px; flex-shrink: 0;
+  display: grid; place-items: center; font-size: 1.3rem;
+}
+.row-icon.quiz-ic       { background: var(--amber-lt); }
+.row-icon.assignment-ic { background: var(--blue-lt); }
+.row-icon.live-ic       { background: var(--green-lt); position: relative; }
+
+.live-pulse {
+  position: absolute; top: -3px; right: -3px;
+  width: 11px; height: 11px; border-radius: 50%;
+  background: var(--red); border: 2px solid white;
+  animation: liveBlink 1.5s ease-in-out infinite;
+}
+@keyframes liveBlink { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(1.25)} }
+
+.row-meta { flex: 1; }
+.row-title {
+  font-family: 'Nunito', sans-serif;
+  font-size: 16px; font-weight: 800; color: var(--ink); margin-bottom: 3px;
+}
+.row-sub { font-size: 12.5px; color: var(--muted); font-weight: 500; }
+.row-action { flex-shrink: 0; }
+
+.btn-action {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 9px 20px; border-radius: 11px;
+  font-family: 'Nunito', sans-serif; font-size: 13.5px; font-weight: 600;
+  text-decoration: none; cursor: pointer; border: none; transition: all .22s;
+}
+.btn-action.take   { background: linear-gradient(135deg, var(--amber), var(--rust)); color: white; box-shadow: 0 4px 14px rgba(180,83,9,.28); }
+.btn-action.retake { background: var(--amber-lt); color: var(--rust); border: 1.5px solid var(--amber-md); }
+.btn-action.result { background: var(--green-lt); color: var(--green); border: 1.5px solid #bbf7d0; }
+.btn-action.locked { background: var(--red-lt); color: var(--red); border: 1.5px solid #fecaca; cursor: default; }
+.btn-action:hover:not(.locked) { transform: translateY(-2px); filter: brightness(1.06); }
+
+/* ═══════════ EMPTY STATE ═══════════ */
+.empty-state {
+  text-align: center; padding: 52px 24px;
+  background: white; border: 1px dashed var(--border);
+  border-radius: 20px;
+}
+.empty-state i { font-size: 2.4rem; color: var(--muted); margin-bottom: 14px; display: block; }
+.empty-state p {
+  font-family: 'Nunito', sans-serif;
+  font-size: 16px; font-weight: 700; color: var(--muted);
+}
+
+/* ═══════════ MODALS ═══════════ */
+.modal-content {
+  border: 1px solid var(--border) !important;
+  border-radius: 22px !important;
+  font-family: 'Nunito', sans-serif !important;
+  box-shadow: 0 20px 60px rgba(28,20,18,.18) !important;
+}
+.modal-header {
+  border-bottom: 1px solid var(--border-lt) !important;
+  padding: 22px 26px !important;
+}
+.modal-title {
+  font-family: 'Nunito', sans-serif !important;
+  font-size: 18px !important; font-weight: 800 !important; color: var(--ink) !important;
+}
+.modal-body  { padding: 22px 26px !important; }
+.modal-footer { border-top: 1px solid var(--border-lt) !important; padding: 16px 26px !important; }
+
+.modal-label {
+  font-size: 11px; font-weight: 700; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 8px;
+}
+.modal-textarea {
+  width: 100%; border: 1.5px solid var(--border); border-radius: 12px;
+  padding: 12px 16px; background: var(--cream); color: var(--ink);
+  font-family: 'Nunito', sans-serif; font-size: 14px;
+  outline: none; resize: vertical; min-height: 110px;
+  transition: border-color .2s, box-shadow .2s;
+}
+.modal-textarea:focus {
+  border-color: var(--amber); background: white;
+  box-shadow: 0 0 0 3px rgba(217,119,6,.1);
+}
+
+.btn-modal-submit {
+  padding: 10px 24px; border-radius: 12px; border: none;
+  background: linear-gradient(135deg, var(--amber), var(--rust));
+  color: white; font-family: 'Nunito', sans-serif;
+  font-size: 14px; font-weight: 600; cursor: pointer;
+  box-shadow: 0 4px 14px rgba(180,83,9,.25); transition: all .22s;
+}
+.btn-modal-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(180,83,9,.35); }
+
+.btn-modal-cancel {
+  padding: 10px 20px; border-radius: 12px;
+  border: 1.5px solid var(--border); background: white;
+  color: var(--muted); font-family: 'Nunito', sans-serif;
+  font-size: 14px; font-weight: 600; cursor: pointer; transition: all .2s;
+}
+.btn-modal-cancel:hover { background: var(--parchment); color: var(--ink); }
+
+/* Star rating */
+.rating-stars { display: inline-flex; flex-direction: row-reverse; justify-content: center; gap: 4px; }
+.rating-stars input { display: none; }
+.rating-stars label { font-size: 2rem; color: var(--border); cursor: pointer; transition: color .15s; }
 .rating-stars input:checked ~ label,
 .rating-stars label:hover,
-.rating-stars label:hover ~ label {
-    color: #ffc107;
+.rating-stars label:hover ~ label { color: var(--amber); }
+
+/* ═══════════ TOAST ═══════════ */
+.toast-wrap {
+  position: fixed; bottom: 28px; right: 28px; z-index: 9999;
+  display: flex; flex-direction: column; gap: 10px; pointer-events: none;
+}
+.toast-msg {
+  background: white; border: 1.5px solid var(--amber-md);
+  border-radius: 14px; padding: 14px 18px;
+  display: flex; align-items: center; gap: 12px;
+  box-shadow: 0 8px 28px rgba(180,83,9,.18);
+  font-size: 14px; font-weight: 600; color: var(--ink);
+  animation: toastIn .35s cubic-bezier(.22,1,.36,1) both;
+  min-width: 260px;
+}
+.toast-msg.fade-out { animation: toastOut .3s ease forwards; }
+@keyframes toastIn  { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+@keyframes toastOut { from{opacity:1;transform:translateY(0)} to{opacity:0;transform:translateY(10px)} }
+
+/* ═══════════ FOOTER ═══════════ */
+.page-footer {
+  text-align: center; padding: 24px;
+  font-size: 13px; color: var(--muted);
+  border-top: 1px solid var(--border);
+   margin-top: 60px;
+  position: relative; z-index: 1;
+}
+
+/* ═══════════ RESPONSIVE ═══════════ */
+@media (max-width: 700px) {
+  .topbar { padding: 12px 18px; }
+  .user-greet { display: none; }
+  .course-hero { flex-direction: column; padding: 28px 22px; gap: 18px; }
+  .hero-thumb { width: 100%; height: 160px; }
+  .lectures-grid { grid-template-columns: 1fr 1fr; }
+  .content-row { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .page-wrap { margin-top: 32px; }
 }
 </style>
 </head>
-<body class="bg-light">
+<body>
 
-<div class="d-flex justify-content-between align-items-center p-3 bg-white shadow-sm">
-    <a href="{% url 'student_dashboard' %}" class="text-decoration-none text-dark">
-        <h3 class="m-0 fw-bold">Bildung</h3>
-    </a>
+<!-- ═══════════ TOPBAR ═══════════ -->
+<nav class="topbar">
+  <a href="{% url 'student_dashboard' %}" class="brand">
+    <span class="dot"></span>
+    Speshway
+  </a>
 
-    <div class="d-flex align-items-center gap-3">
-        <h4 class="m-0">Hello, {{ user.first_name }} {{ user.last_name }}</h4>
+  <div class="topbar-right">
 
-        <div class="dropdown">
-            <button class="btn rounded-circle shadow"
-                    style="background:gray;color:white;width:45px;height:45px;"
-                    type="button" data-bs-toggle="dropdown">
-                {{ request.user.username|first|upper }}
-            </button>
-
-            <ul class="dropdown-menu dropdown-menu-end">
-                <li><a class="dropdown-item" href="{% url 'profile_view' %}">Profile</a></li>
-                <li><a class="dropdown-item" href="{% url 'student:my_courses' %}">My Courses</a></li>
-                <li><a class="dropdown-item" href="{% url 'student:student_upcoming_classes' %}">My Schedules</a></li>
-                <li><a class="dropdown-item" href="{% url 'student_my_activity' %}">My activity</a></li>
-                <li><a class="dropdown-item" href="{% url 'student:my_certificates' %}">My Certificates</a></li>
-                <li><a class="dropdown-item" href="#">Notifications</a></li>
-                <li><a class="dropdown-item" href="#">Payments</a></li>
-                <li><a class="dropdown-item" href="#">Help and Support</a></li>
-                <li><a class="dropdown-item" href="#">Feedback</a></li>
-                <li><a class="dropdown-item" href="{% url 'account_settings' %}">Account Settings</a></li>
-                <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item text-danger" href="{% url 'logout_view' %}">Logout</a></li>
-            </ul>
-        </div>
+    <div class="dropdown">
+      <button class="avatar-btn" data-bs-toggle="dropdown" aria-expanded="false">
+        {{ request.user.username|first|upper }}
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end">
+        <li><a class="dropdown-item" href="{% url 'profile_view' %}"><i class="fas fa-user fa-fw me-2" style="color:var(--amber)"></i>Profile</a></li>
+        <li><a class="dropdown-item" href="{% url 'student:my_courses' %}"><i class="fas fa-book-open fa-fw me-2" style="color:var(--amber)"></i>My Courses</a></li>
+        <li><a class="dropdown-item" href="{% url 'student:student_upcoming_classes' %}"><i class="fas fa-calendar fa-fw me-2" style="color:var(--amber)"></i>My Schedules</a></li>
+        <li><a class="dropdown-item" href="{% url 'student_my_activity' %}"><i class="fas fa-chart-line fa-fw me-2" style="color:var(--amber)"></i>My Activity</a></li>
+        <li><a class="dropdown-item" href="{% url 'student:my_certificates' %}"><i class="fas fa-certificate fa-fw me-2" style="color:var(--amber)"></i>My Certificates</a></li>
+        <li><a class="dropdown-item" href="{% url 'student_notifications' %}"><i class="fas fa-bell fa-fw me-2" style="color:var(--amber)"></i>Notifications</a></li>
+        <li><a class="dropdown-item" href="#"><i class="fas fa-credit-card fa-fw me-2" style="color:var(--amber)"></i>Payments</a></li>
+        <li><a class="dropdown-item" href="#"><i class="fas fa-circle-question fa-fw me-2" style="color:var(--amber)"></i>Help &amp; Support</a></li>
+        <li><a class="dropdown-item" href="{% url 'account_settings' %}"><i class="fas fa-gear fa-fw me-2" style="color:var(--amber)"></i>Account Settings</a></li>
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item logout-item" href="{% url 'logout_view' %}"><i class="fas fa-arrow-right-from-bracket fa-fw me-2"></i>Sign Out</a></li>
+      </ul>
     </div>
-</div>
+  </div>
+</nav>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<div class="page-wrap">
 
-
-<div class="container py-5">
-
-<h2 class="fw-bold mb-4 text-primary">{{ course.title }}</h2>
-<div class="card shadow-sm border-0 mb-4 p-4 rounded-4">
-    <h5 class="mb-3 text-secondary">Course Overview</h5>
-
-    <div class="row">
-        <div class="col-md-8">
-            <p><strong>Instructor:</strong> {{ course.instructor.get_full_name|default:course.instructor.username }}</p>
-            <p><strong>Description:</strong></p>
-            <p class="text-muted">{{ course.description }}</p>
-        </div>
-
-        <div class="col-md-4 text-center">
-            {% if course.thumbnail %}
-                <img src="{{ course.thumbnail.url }}" class="img-fluid rounded-4 shadow-sm" alt="{{ course.title }}">
-            {% else %}
-                <img src="{% static 'images/default-course.png' %}" class="img-fluid rounded-4 shadow-sm" alt="No Image">
-            {% endif %}
-        </div>
-    </div>
-</div>
-
-
-<div class="card shadow-sm border-0 mb-4 p-4 rounded-4">
-
-    <div class="d-flex justify-content-between align-items-center mb-2">
-        <h5 class="mb-0 text-secondary fw-semibold">Your Progress</h5>
-
-        <span class="text-muted small">
-            {{ completed }} / {{ total }} lectures ({{ progress_percent }}%)
-        </span>
+  <!-- ═══ COURSE HERO ═══ -->
+  <div class="course-hero">
+    <div class="hero-thumb">
+      {% if course.thumbnail %}
+        <img src="{{ course.thumbnail.url }}" alt="{{ course.title }}">
+      {% else %}
+        <div class="hero-thumb-empty">📚</div>
+      {% endif %}
     </div>
 
-    <div class="progress" style="height: 15px; border-radius: 10px; overflow: hidden;">
-        <div class="progress-bar bg-success progress-bar-striped progress-bar-animated"
-             style="width: {{ progress_percent }}%;">
-            {{ progress_percent }}%
-        </div>
+    <div class="hero-content">
+      <div class="hero-tag">📖 Course Details</div>
+      <div class="hero-title">{{ course.title }}</div>
+      <div class="hero-instructor">
+        <i class="fas fa-chalkboard-teacher"></i>
+        {{ course.instructor.get_full_name|default:course.instructor.username }}
+      </div>
+      <p class="hero-desc">{{ course.description|truncatewords:30 }}</p>
     </div>
+  </div>
 
-    {% if progress_percent >= 80 %}
-    <div class="mt-4 d-flex justify-content-center gap-3 flex-wrap">
+  <!-- ═══ PROGRESS ═══ -->
+  <div class="spw-card progress-card">
+    <div class="progress-inner">
+      <div class="progress-header">
+        <div class="progress-label">
+          <i class="fas fa-chart-line"></i> Your Progress
+        </div>
+        <div class="progress-count">{{ completed }} / {{ total }} lectures</div>
+      </div>
 
-        {% if user_review %}
-        <button class="btn btn-warning btn-lg shadow-sm"
-                type="button"
-                data-bs-toggle="modal"
-                data-bs-target="#leaveReviewModal">
-            ✏ Edit Your Review
+      <div class="progress-track">
+        <div class="progress-fill" style="width: {{ progress_percent }}%;"></div>
+      </div>
+      <div class="progress-pct">{{ progress_percent }}% complete</div>
+
+      {% if progress_percent >= 80 %}
+      <div class="progress-actions">
+        <button class="btn-review" type="button" data-bs-toggle="modal" data-bs-target="#leaveReviewModal">
+          {% if user_review %}
+            <i class="fas fa-pen"></i> Edit Your Review
+          {% else %}
+            <i class="fas fa-star"></i> Leave a Review
+          {% endif %}
         </button>
-        {% else %}
-        <button class="btn btn-outline-primary btn-lg shadow-sm"
-                type="button"
-                data-bs-toggle="modal"
-                data-bs-target="#leaveReviewModal">
-            ⭐ Leave a Review
-        </button>
-        {% endif %}
-
         {% if progress_percent == 100 %}
-        <a href="{% url 'student:get_certificate' course.id %}"
-           class="btn btn-success btn-lg shadow-sm">
-            🎓 Get Certificate
+        <a href="{% url 'student:get_certificate' course.id %}" class="btn-certificate">
+          <i class="fas fa-certificate"></i> Get Certificate
         </a>
         {% endif %}
-
+      </div>
+      {% endif %}
     </div>
-    {% endif %}
-</div>
+  </div>
 
+  <!-- ═══ CONTENT ═══ -->
+  <div class="section-header">
+    <div class="section-header-title">Course Content</div>
+    <div class="section-header-line"></div>
+    <div class="section-header-count">{{ ordered_items|length }} items</div>
+  </div>
 
-{% for item in ordered_items %}
+  {% for item in ordered_items %}
 
-  {% if item.type == "module" %}
-    <div class="module mb-4">
-
-      <h4 class="fw-bold text-primary mb-2">
-        {{ item.title }}
-
-        {% if item.unlocked %}
-          <span class="badge bg-success ms-2">✔ Unlocked</span>
-        {% else %}
-          <span class="badge bg-danger ms-2">🔒 Locked</span>
-        {% endif %}
-      </h4>
-
-      <p class="text-muted">{{ item.obj.description|default:"No description." }}</p>
+    {# ── MODULE ── #}
+    {% if item.type == "module" %}
+    <div class="spw-card module-card">
+      <div class="module-header">
+        <div class="module-icon {% if item.unlocked %}unlocked{% else %}locked{% endif %}">
+          {% if item.unlocked %}<i class="fas fa-unlock"></i>
+          {% else %}<i class="fas fa-lock"></i>{% endif %}
+        </div>
+        <div class="module-meta">
+          <div class="module-title">{{ item.title }}</div>
+          <div class="module-desc">{{ item.obj.description|default:"No description provided." }}</div>
+        </div>
+        <div class="status-pill {% if item.unlocked %}unlocked{% else %}locked{% endif %}">
+          {% if item.unlocked %}<i class="fas fa-check"></i> Unlocked
+          {% else %}<i class="fas fa-lock"></i> Locked{% endif %}
+        </div>
+      </div>
 
       {% if item.unlocked %}
-      <div class="row g-3">
+      <div class="lectures-grid">
         {% for lecture in item.obj.lectures.all %}
-        <div class="col-md-3 col-sm-6">
-          <div class="card h-100 shadow-sm rounded-4">
+        <div class="lecture-card" id="card-{{ lecture.id }}">
+          {% if lecture.video %}
+          <video class="lecture-video"
+                 controls
+                 data-lecture-id="{{ lecture.id }}"
+                 data-completed="{% if lecture.id in progress_map %}true{% else %}false{% endif %}">
+            <source src="{{ lecture.video.url }}" type="video/mp4">
+          </video>
+          {% else %}
+          <div class="lecture-thumb-empty">
+            <i class="fas fa-play-circle"></i>
+          </div>
+          {% endif %}
 
-            {% if lecture.video %}
-            <video width="100%" controls class="rounded-top">
-              <source src="{{ lecture.video.url }}" type="video/mp4">
-            </video>
-            {% endif %}
-
-            <div class="card-body d-flex flex-column">
-              <h6 class="fw-bold">{{ lecture.title }}</h6>
-
-              <div class="mt-auto text-center">
-                {% if lecture.id in progress_map %}
-                <a href="{% url 'student:undo_lecture_completion' lecture.id %}"
-                   class="btn btn-outline-danger btn-sm w-100 mb-2">
-                   ↩ Undo Completion
-                </a>
-                {% else %}
-                <a href="{% url 'student:mark_lecture_complete' lecture.id %}"
-                   class="btn btn-outline-primary btn-sm w-100 mb-2">
-                   ✔ Mark Complete
-                </a>
-                {% endif %}
-
-                <button class="btn btn-info btn-sm w-100"
-                        data-bs-toggle="modal"
-                        data-bs-target="#askQuestionModal"
-                        data-lecture-id="{{ lecture.id }}">
-                  💬 Ask a Question
-                </button>
-              </div>
+          <div class="lecture-body">
+            <div class="lecture-title">{{ lecture.title }}</div>
+            <div class="lecture-actions" id="actions-{{ lecture.id }}">
+              {% if lecture.id in progress_map %}
+              <a href="{% url 'student:undo_lecture_completion' lecture.id %}" class="btn-lec undo">
+                <i class="fas fa-rotate-left"></i> Undo Completion
+              </a>
+              {% else %}
+              <a href="{% url 'student:mark_lecture_complete' lecture.id %}" class="btn-lec complete">
+                <i class="fas fa-check"></i> Mark Complete
+              </a>
+              {% endif %}
+              <button class="btn-lec ask"
+                      data-bs-toggle="modal"
+                      data-bs-target="#askQuestionModal"
+                      data-lecture-id="{{ lecture.id }}">
+                <i class="fas fa-message"></i> Ask a Question
+              </button>
             </div>
-
           </div>
         </div>
         {% endfor %}
       </div>
       {% endif %}
-
     </div>
-  {% endif %}
+    {% endif %}
 
-{% if item.type == "quiz" %}
-<div class="card shadow-sm rounded-4 mb-4 p-4 border-warning">
-
-  <h5 class="fw-bold text-warning">📝 {{ item.title }}</h5>
-
-  {% if item.passed %}
-
-      <span class="badge bg-success">✔ Passed</span>
-
-      <div class="mt-2">
-        <a href="{% url 'quiz_result' item.obj.id %}"
-           class="btn btn-success btn-sm">
-           📊 View Result
-        </a>
-      </div>
-
-  {% elif item.attempts > 0 %}
-
-  <div class="progress mt-2" style="height: 34px;">
-    <a href="{% url 'take_quiz' item.obj.id %}"
-      class="progress-bar fw-semibold text-decoration-none d-flex align-items-center justify-content-center"
-      style="width:100%;">
-      🔁 Retake Quiz
-   </a>
-  </div>
-
-  <small class="text-muted d-block mt-2">
-     Attempts: {{ item.attempts }}/3 • {{ item.attempts_left }} left
-  </small>
-
-  {% elif item.unlocked %}
-
-      <a href="{% url 'take_quiz' item.obj.id %}"
-         class="btn btn-primary btn-sm">
-         ▶ Take Quiz
-      </a>
-
-  {% else %}
-      <span class="badge bg-danger">🔒 Locked</span>
-  {% endif %}
-
-</div>
-{% endif %}
-
-
-  {% if item.type == "assignment" %}
-    <div class="card shadow-sm rounded-4 mb-4 p-4 border-info">
-      <div class="d-flex justify-content-between align-items-center">
-        <h5 class="fw-bold text-info mb-0">
-          📂 {{ item.title }}
-        </h5>
-
-        {% if item.obj %}
-          <a href="{% url 'courses:start_assignment' item.obj.id %}"
-            class="btn btn-sm btn-outline-primary">
-            Start Assignment
-          </a>
-        {% else %}
-          <span class="badge bg-warning text-dark">
-            Assignment not linked
-          </span>
+    {# ── QUIZ ── #}
+    {% if item.type == "quiz" %}
+    <div class="content-row quiz-row">
+      <div class="row-icon quiz-ic">📝</div>
+      <div class="row-meta">
+        <div class="row-title">{{ item.title }}</div>
+        {% if item.attempts > 0 and not item.passed %}
+        <div class="row-sub">Attempts: {{ item.attempts }}/3 &nbsp;·&nbsp; {{ item.attempts_left }} remaining</div>
+        {% elif item.passed %}
+        <div class="row-sub" style="color:var(--green)"><i class="fas fa-check-circle"></i> Passed</div>
         {% endif %}
       </div>
-
-      <p class="text-muted mt-2 mb-0">
-        ⏱ Duration: 30 minutes
-      </p>
+      <div class="row-action">
+        {% if item.passed %}
+          <a href="{% url 'quiz_result' item.obj.id %}" class="btn-action result">
+            <i class="fas fa-chart-bar"></i> View Result
+          </a>
+        {% elif item.attempts > 0 %}
+          <a href="{% url 'take_quiz' item.obj.id %}" class="btn-action retake">
+            <i class="fas fa-rotate"></i> Retake
+          </a>
+        {% elif item.unlocked %}
+          <a href="{% url 'take_quiz' item.obj.id %}" class="btn-action take">
+            <i class="fas fa-play"></i> Take Quiz
+          </a>
+        {% else %}
+          <span class="btn-action locked"><i class="fas fa-lock"></i> Locked</span>
+        {% endif %}
+      </div>
     </div>
-  {% endif %}
+    {% endif %}
 
-  {% if item.type == "live" %}
-    <div class="card shadow-sm rounded-4 mb-4 p-4 border-success">
-      <h5 class="fw-bold text-success mb-0">🎥 {{ item.title }}</h5>
+    {# ── ASSIGNMENT ── #}
+    {% if item.type == "assignment" %}
+    <div class="content-row assignment-row">
+      <div class="row-icon assignment-ic">📂</div>
+      <div class="row-meta">
+        <div class="row-title">{{ item.title }}</div>
+        <div class="row-sub"><i class="fas fa-clock"></i>&nbsp; Duration: 30 minutes</div>
+      </div>
+      <div class="row-action">
+        {% if item.obj %}
+        <a href="{% url 'courses:start_assignment' item.obj.id %}" class="btn-action take">
+          <i class="fas fa-arrow-right"></i> Start
+        </a>
+        {% else %}
+        <span class="btn-action locked"><i class="fas fa-triangle-exclamation"></i> Not linked</span>
+        {% endif %}
+      </div>
     </div>
-  {% endif %}
+    {% endif %}
 
-{% empty %}
-  <p class="text-muted">No course content available.</p>
-{% endfor %}
+    {# ── LIVE CLASS ── #}
+    {% if item.type == "live" %}
+    <div class="content-row live-row">
+      <div class="row-icon live-ic">
+        🎥
+        <div class="live-pulse"></div>
+      </div>
+      <div class="row-meta">
+        <div class="row-title">{{ item.title }}</div>
+        <div class="row-sub" style="color:var(--red)">
+          <i class="fas fa-circle" style="font-size:.55rem"></i>&nbsp; Live Session
+        </div>
+      </div>
+    </div>
+    {% endif %}
 
+  {% empty %}
+  <div class="empty-state">
+    <i class="fas fa-book-open"></i>
+    <p>No course content available yet.</p>
+  </div>
+  {% endfor %}
 
+</div><!-- /page-wrap -->
+
+<!-- ═══ TOAST CONTAINER ═══ -->
+<div class="toast-wrap" id="toastWrap"></div>
+
+<!-- ═══ ASK QUESTION MODAL ═══ -->
 <div class="modal fade" id="askQuestionModal" tabindex="-1">
-  <div class="modal-dialog">
+  <div class="modal-dialog modal-dialog-centered">
     <form method="POST" id="askQuestionForm" class="modal-content">
       {% csrf_token %}
       <div class="modal-header">
-        <h5 class="modal-title">Ask a Question</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-
-      <div class="modal-body">
-        <textarea name="question" class="form-control" rows="4" placeholder="Type your question..." required></textarea>
-      </div>
-
-      <div class="modal-footer">
-        <button type="submit" class="btn btn-primary">Submit Question</button>
-      </div>
-    </form>
-  </div>
-</div>
-
-
-<div class="modal fade" id="leaveReviewModal" tabindex="-1">
-  <div class="modal-dialog">
-    <form method="POST" action="{% url 'student:leave_review' course.id %}" class="modal-content">
-      {% csrf_token %}
-      <div class="modal-header">
         <h5 class="modal-title">
-            {% if user_review %}Edit Your Review{% else %}Leave a Review{% endif %}
+          <i class="fas fa-message me-2" style="color:var(--amber)"></i>Ask a Question
         </h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
-
       <div class="modal-body">
-
-        <div class="mb-3 text-center">
-          <span class="fw-semibold d-block mb-2">Your Rating</span>
-
-          <div class="rating-stars">
-              {% for i in "54321"|make_list %}
-              <input type="radio"
-                     id="star{{ i }}"
-                     name="rating"
-                     value="{{ i }}"
-                     {% if user_review and user_review.rating == i|add:"0" %}checked{% endif %}
-                     {% if not user_review and i == "5" %}required{% endif %}>
-              <label for="star{{ i }}">★</label>
-              {% endfor %}
-          </div>
-        </div>
-
-        <div class="mb-3">
-          <label class="form-label">Your feedback</label>
-          <textarea name="comment" class="form-control" rows="4" required>
-{% if user_review %}{{ user_review.comment }}{% endif %}
-</textarea>
-        </div>
-
+        <label class="modal-label">Your Question</label>
+        <textarea name="question" class="modal-textarea"
+                  placeholder="Type your question here..." required></textarea>
       </div>
-
       <div class="modal-footer">
-        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button type="submit" class="btn btn-primary">
-            {% if user_review %}Update Review{% else %}Submit Review{% endif %}
+        <button type="button" class="btn-modal-cancel" data-bs-dismiss="modal">Cancel</button>
+        <button type="submit" class="btn-modal-submit">
+          <i class="fas fa-paper-plane me-2"></i>Submit
         </button>
       </div>
     </form>
   </div>
 </div>
 
+<!-- ═══ REVIEW MODAL ═══ -->
+<div class="modal fade" id="leaveReviewModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <form method="POST" action="{% url 'student:leave_review' course.id %}" class="modal-content">
+      {% csrf_token %}
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="fas fa-star me-2" style="color:var(--amber)"></i>
+          {% if user_review %}Edit Your Review{% else %}Leave a Review{% endif %}
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-4 text-center">
+          <label class="modal-label" style="display:block;margin-bottom:12px;">Your Rating</label>
+          <div class="rating-stars">
+            {% for i in "54321"|make_list %}
+            <input type="radio" id="star{{ i }}" name="rating" value="{{ i }}"
+                   {% if user_review and user_review.rating == i|add:"0" %}checked{% endif %}
+                   {% if not user_review and i == "5" %}required{% endif %}>
+            <label for="star{{ i }}">★</label>
+            {% endfor %}
+          </div>
+        </div>
+        <label class="modal-label">Your Feedback</label>
+        <textarea name="comment" class="modal-textarea" required
+                  placeholder="Share your thoughts about this course...">{% if user_review %}{{ user_review.comment }}{% endif %}</textarea>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-modal-cancel" data-bs-dismiss="modal">Cancel</button>
+        <button type="submit" class="btn-modal-submit">
+          <i class="fas fa-check me-2"></i>
+          {% if user_review %}Update{% else %}Submit{% endif %} Review
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
 
+<footer class="page-footer">
+  &copy; 2025 Speshway. All rights reserved.
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", () => {
 
-    const modal = document.getElementById("askQuestionModal");
-    const form = document.getElementById("askQuestionForm");
+  function getCsrf() {
+    return document.querySelector("[name=csrfmiddlewaretoken]")?.value || "";
+  }
 
-    modal.addEventListener("show.bs.modal", function (event) {
-        const btn = event.relatedTarget;
-        const lectureId = btn.getAttribute("data-lecture-id");
-        form.action = `/accounts/student/lecture/${lectureId}/ask/`;
+  // Ask question — dynamic form action
+  const qModal = document.getElementById("askQuestionModal");
+  const qForm  = document.getElementById("askQuestionForm");
+  if (qModal && qForm) {
+    qModal.addEventListener("show.bs.modal", e => {
+      qForm.action = `/accounts/student/lecture/${e.relatedTarget.getAttribute("data-lecture-id")}/ask/`;
     });
+  }
+
+  // Animate progress bar on load
+  const fill = document.querySelector(".progress-fill");
+  if (fill) {
+    const target = fill.style.width;
+    fill.style.width = "0%";
+    setTimeout(() => { fill.style.width = target; }, 200);
+  }
+
+  // Toast
+  function showToast(icon, message) {
+    const wrap = document.getElementById("toastWrap");
+    const el = document.createElement("div");
+    el.className = "toast-msg";
+    el.innerHTML = `<span style="font-size:1.2rem;flex-shrink:0">${icon}</span><span>${message}</span>`;
+    wrap.appendChild(el);
+    setTimeout(() => {
+      el.classList.add("fade-out");
+      el.addEventListener("animationend", () => el.remove());
+    }, 3500);
+  }
+
+  // Update progress bar in-place
+  function updateProgress(percent, completed, total) {
+    const f = document.querySelector(".progress-fill");
+    const p = document.querySelector(".progress-pct");
+    const c = document.querySelector(".progress-count");
+    if (f) f.style.width  = percent + "%";
+    if (p) p.textContent  = percent + "% complete";
+    if (c) c.textContent  = `${completed} / ${total} lectures`;
+  }
+
+  // Swap button to Undo
+  function swapToUndo(lectureId) {
+    const wrap = document.getElementById(`actions-${lectureId}`);
+    if (!wrap) return;
+    const btn = wrap.querySelector(".btn-lec.complete");
+    if (!btn) return;
+    btn.outerHTML = `<a href="/accounts/student/lecture/${lectureId}/undo/" class="btn-lec undo">
+                       <i class="fas fa-rotate-left"></i> Undo Completion
+                     </a>`;
+  }
+
+  // Auto-mark complete when video ends (or reaches 95%)
+  document.querySelectorAll(".lecture-video[data-lecture-id]").forEach(video => {
+    if (video.dataset.completed === "true") return;
+
+    const fireComplete = function () {
+      if (video.dataset.completed === "true") return;
+      video.dataset.completed = "true";
+
+      const lid  = video.dataset.lectureId;
+      const card = document.getElementById(`card-${lid}`);
+
+      fetch(`/accounts/student/lecture/${lid}/auto-complete/`, {
+        method : "POST",
+        headers: { "X-CSRFToken": getCsrf(), "Content-Type": "application/x-www-form-urlencoded" },
+        body   : `watched_time=${Math.round(video.currentTime)}&duration=${Math.round(video.duration)}`
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data.status === "success") {
+          if (card) card.classList.add("just-completed");
+          swapToUndo(lid);
+          updateProgress(data.progress_percent, data.completed, data.total);
+          showToast("✅", "Lecture marked as complete!");
+          if (data.progress_percent >= 80) {
+            const actions = document.querySelector(".progress-actions");
+            if (actions && !actions.querySelector(".btn-review")) location.reload();
+          }
+        }
+      })
+      .catch(() => showToast("⚠️", "Couldn't save progress. Check your connection."));
+    };
+
+    video.addEventListener("ended", fireComplete);
+
+    video.addEventListener("timeupdate", function () {
+      if (this.duration > 0 && this.currentTime / this.duration >= 0.95) fireComplete();
+    });
+  });
 
 });
 </script>
-
-
-<footer class="text-center mt-5">
-    <p>&copy; 2025 Bildung. All rights reserved.</p>
-</footer>
 
 </body>
 </html>

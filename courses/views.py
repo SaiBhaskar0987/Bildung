@@ -102,13 +102,26 @@ def view_course(request, course_id):
         )
     )
 
+    total_modules = modules.count()
+    total_lectures = sum(
+        module.lectures.count() for module in modules
+    )
+
+    total_quizzes = course.quizzes.count() if hasattr(course, "quizzes") else 0
+    total_assignments = course.assignments.count() if hasattr(course, "assignments") else 0
+    total_live_classes = course.live_classes.count() if hasattr(course, "live_classes") else 0
+
     context = {
         "course": course,
         "modules": modules,
+        "total_modules": total_modules,
+        "total_lectures": total_lectures,
+        "total_quizzes": total_quizzes,
+        "total_assignments": total_assignments,
+        "total_live_classes": total_live_classes,
     }
 
     return render(request, "courses/view_course.html", context)
-
 
 
 @login_required(login_url='/login/')
@@ -637,7 +650,7 @@ def get_certificate(request, course_id):
 
     p.line(150, height - 500, width - 150, height - 500)
     p.setFont("Helvetica-Oblique", 12)
-    p.drawCentredString(width/2, height - 520, "Bildung Learning Platform")
+    p.drawCentredString(width/2, height - 520, "Speshway Learning Platform")
 
     p.showPage()
     p.save()
@@ -918,21 +931,33 @@ def delete_event(request, event_id):
 
 @login_required
 def give_feedback(request, course_id):
-    course = get_object_or_404(Course, id=course_id, instructor=request.user)
+    course = get_object_or_404(
+        Course,
+        id=course_id,
+        instructor=request.user
+    )
 
-    if request.method == 'POST':
-        form = FeedbackForm(request.POST)
+    if request.method == "POST":
+        form = FeedbackForm(request.POST, course=course)
         if form.is_valid():
             feedback = form.save(commit=False)
             feedback.instructor = request.user
             feedback.course = course
             feedback.save()
+
             messages.success(request, "Feedback submitted successfully!")
-            return redirect('instructor:course_detail', course_id=course.id)
+            return redirect("instructor:course_detail", course_id=course.id)
     else:
-        form = FeedbackForm()
-       
-    return render(request, 'courses/instructor/give_feedback.html', {'form': form, 'course': course})
+        form = FeedbackForm(course=course)
+
+    return render(
+        request,
+        "courses/instructor/give_feedback.html",
+        {
+            "form": form,
+            "course": course,
+        },
+    )
 
 @login_required(login_url='/login/')
 def student_course_list(request):
@@ -1164,41 +1189,74 @@ def save_module(request, module_id):
 
     return JsonResponse({"status": "success"})
 
-
 @csrf_exempt
 @login_required
 def save_course(request):
+
     if request.method != "POST":
         return JsonResponse({"error": "POST required"}, status=400)
 
-    data = json.loads(request.body or "{}")
-    course_id = data.get("course_id")
-    structure = data.get("structure", [])
-     # ✅ FIX: handle empty decimal price safely
-    price = data.get("price")
-    if price in ("", None):
-        price = 0
+    # If formData is used
+    if request.content_type.startswith("multipart/form-data"):
 
-    level = data.get("level")
+        course_id = request.POST.get("course_id")
+        title = request.POST.get("title")
+        description = request.POST.get("description")
+        category = request.POST.get("category")
+        level = request.POST.get("level")
+
+        structure = json.loads(request.POST.get("structure", "[]"))
+
+        price = request.POST.get("price") or 0
+
+        thumbnail = request.FILES.get("thumbnail")
+
+    else:
+        data = json.loads(request.body or "{}")
+
+        course_id = data.get("course_id")
+        title = data.get("title")
+        description = data.get("description")
+        category = data.get("category")
+        level = data.get("level")
+        structure = data.get("structure", [])
+        price = data.get("price") or 0
+
+        thumbnail = None
+
+
     if level not in ["beginner", "intermediate", "advanced"]:
         return JsonResponse({"error": "Invalid course level"}, status=400)
+
+
     if course_id:
-        course = get_object_or_404(Course, id=course_id, instructor=request.user)
-        course.title = data.get("title", "")
-        course.description = data.get("description", "")
+        course = get_object_or_404(
+            Course,
+            id=course_id,
+            instructor=request.user
+        )
+
+        course.title = title
+        course.description = description
         course.price = price
-        course.category = data.get("category", "")
+        course.category = category
         course.level = level
-        course.save()
+
     else:
         course = Course.objects.create(
             instructor=request.user,
-            title=data.get("title", ""),
-            description=data.get("description", ""),
+            title=title,
+            description=description,
             price=price,
-            category=data.get("category", ""),
-            level=level, 
+            category=category,
+            level=level
         )
+
+    # ✅ Save thumbnail if uploaded
+    if thumbnail:
+        course.thumbnail = thumbnail
+
+    course.save()
 
     updated_structure = []
 
@@ -1207,12 +1265,14 @@ def save_course(request):
         block_type = item.get("type")
 
         if block_type == "Module":
+
             if item.get("module_id"):
                 module = Module.objects.get(id=item["module_id"])
                 module.title = item.get("title", module.title)
                 module.description = item.get("description", module.description)
                 module.module_order = index
                 module.save()
+
             else:
                 module = Module.objects.create(
                     course=course,
@@ -1220,55 +1280,63 @@ def save_course(request):
                     description=item.get("description", ""),
                     module_order=index
                 )
+
                 item["module_id"] = module.id
 
+
         elif block_type == "Quiz":
+
             if item.get("quiz_id"):
                 quiz = Quiz.objects.get(id=item["quiz_id"], course=course)
                 quiz.title = item.get("title", quiz.title)
                 quiz.quiz_order = index
                 quiz.save()
+
             else:
                 quiz = Quiz.objects.create(
                     course=course,
                     title=item.get("title", "Quiz"),
                     quiz_order=index
                 )
+
                 item["quiz_id"] = quiz.id
 
             item["scope"] = item.get("scope", "all_before")
 
+
         elif block_type == "Assignment":
+
             assignment_id = item.get("assignment_id")
 
             if assignment_id:
-                # ✅ Ensure assignment really exists (do NOT recreate)
                 exists = Assignment.objects.filter(
                     id=assignment_id,
                     course=course
                 ).exists()
 
                 if not exists:
-                    # Safety fallback: recreate only if missing
                     a = Assignment.objects.create(
                         course=course,
                         title=item.get("title", "Assignment")
                     )
                     item["assignment_id"] = a.id
+
             else:
-                # ✅ Create ONLY once
                 a = Assignment.objects.create(
                     course=course,
                     title=item.get("title", "Assignment")
                 )
                 item["assignment_id"] = a.id
 
+
         elif block_type == "LiveClass":
+
             if item.get("liveclass_id"):
                 lc = LiveClass.objects.get(id=item["liveclass_id"])
                 lc.topic = item.get("title", lc.topic)
                 lc.live_class_order = index
                 lc.save()
+
             else:
                 lc = LiveClass.objects.create(
                     course=course,
@@ -1276,9 +1344,12 @@ def save_course(request):
                     topic=item.get("title", "Live Class"),
                     live_class_order=index
                 )
+
                 item["liveclass_id"] = lc.id
 
+
         updated_structure.append(item)
+
 
     course.structure_json = updated_structure
     course.save()
@@ -1910,47 +1981,6 @@ def student_history(request, course_id, student_id):
 
 
 @login_required
-def instructor_account_settings(request):
-    if request.method == "POST" and "change_password" in request.POST:
-        form = PasswordChangeForm(user=request.user, data=request.POST)
-
-        if form.is_valid():
-            user = form.save()
-            update_session_auth_hash(request, user)
-
-            # ⚠️ DEV ONLY: get new password value
-            new_password = form.cleaned_data.get("new_password1")
-
-            # Send confirmation mail (with password value)
-            if user.email:
-                send_mail(
-                    subject="Password Changed Successfully",
-                    message=(
-                        f"Hi {user.first_name or user.username},\n\n"
-                        "Your password has been changed successfully.\n\n"
-                        f"Updated Password: {new_password}\n\n"
-                        "If you did not make this change, please contact support immediately.\n\n"
-                        "Thanks,\nBildung Team"
-                    ),
-                    from_email=settings.DEFAULT_FROM_EMAIL,
-                    recipient_list=[gangadharam.konangi@gmail.com],
-                    fail_silently=False,
-                )
-
-            messages.success(request, "Password updated successfully! Email sent.")
-            return redirect("instructor:account_settings")
-
-        else:
-            messages.error(
-                request,
-                "Password update failed. Please check the entered details."
-            )
-
-    return render(request, "instructor/account_settings.html")
-
-
-
-@login_required
 @csrf_exempt
 def create_assignment(request):
     data = json.loads(request.body or "{}")
@@ -2386,8 +2416,7 @@ def mark_all_admin_notifications_read(request):
         is_read=False
     ).update(is_read=True)
 
-    return redirect("admin_notifications")
-
+    return redirect("courses:admin_notifications")
 
 @staff_member_required
 def admin_course_detail(request, course_id):
@@ -2396,59 +2425,80 @@ def admin_course_detail(request, course_id):
     ordered_items = []
     structure = course.structure_json or []
 
-    modules = {
-        m.id: m for m in Module.objects.filter(course=course)
-        .prefetch_related('lectures')
-    }
-    quizzes = {q.id: q for q in Quiz.objects.filter(course=course)}
-    assignments = {a.id: a for a in Assignment.objects.filter(course=course)}
-    lives = {l.id: l for l in LiveClass.objects.filter(course=course)}
+    module_count = quiz_count = assignment_count = live_count = 1
 
-    for block in structure:
-        block_type = block.get("type")
+    for item in structure:
+        item_type = item.get("type")
 
-        if block_type == "Module":
-            module = modules.get(block.get("module_id"))
+        if item_type == "Module":
+            module = course.modules.filter(
+                id=item.get("module_id")
+            ).prefetch_related("lectures").first()
+
             if module:
                 ordered_items.append({
                     "type": "module",
-                    "title": block.get("display_title", module.title),
                     "obj": module,
+                    "title": item.get("title") or f"Module {module_count}"
                 })
+                module_count += 1
 
-        elif block_type == "Quiz":
-            quiz = quizzes.get(block.get("quiz_id"))
+        elif item_type == "Quiz":
+            quiz_id = item.get("quiz_id")
+            quiz = course.quizzes.filter(id=quiz_id).first()
+
             if quiz:
+                title = item.get("title") or quiz.title or f"Quiz {quiz_count}"
+
                 ordered_items.append({
                     "type": "quiz",
-                    "title": quiz.title,
-                    "display_label": block.get("display_title", "Quiz"),
                     "obj": quiz,
+                    "title": title,
+                    "quiz_id": quiz.id,
+                    "display_label": f"Quiz {quiz_count}"
                 })
+                quiz_count += 1
 
-        elif block_type == "Assignment":
-            assignment = assignments.get(block.get("assignment_id"))
+        elif item_type == "Assignment":
+            assignment = course.assignments.filter(
+                id=item.get("assignment_id")
+            ).first()
+
             if assignment:
                 ordered_items.append({
                     "type": "assignment",
-                    "title": block.get("display_title", assignment.title),
                     "obj": assignment,
+                    "title": item.get("title") or f"Assignment {assignment_count}"
                 })
+                assignment_count += 1
 
-        elif block_type == "LiveClass":
-            live = lives.get(block.get("liveclass_id"))
+        elif item_type == "LiveClass":
+            live = course.live_classes.filter(
+                id=item.get("liveclass_id")
+            ).first()
+
             if live:
                 ordered_items.append({
                     "type": "live",
-                    "title": block.get("display_title", live.topic),
                     "obj": live,
+                    "title": item.get("title") or f"Live Class {live_count}"
                 })
+                live_count += 1
 
-    return render(request, "courses/admin/admin_course_detail.html", {
-        "course": course,
-        "ordered_items": ordered_items,
-    })
+    course_comments = AdminComment.objects.filter(
+        course=course,
+        target_type="course"
+    ).order_by("-created_at")
 
+    return render(
+        request,
+        "courses/admin/admin_course_detail.html",
+        {
+            "course": course,
+            "ordered_items": ordered_items,
+            "course_comments": course_comments,
+        },
+    )
 
 @staff_member_required
 def admin_courses(request):
@@ -2516,16 +2566,6 @@ def delete_user_admin(request, user_id):
     return redirect(request.META.get('HTTP_REFERER', 'admin_dashboard'))
 
 
-@staff_member_required
-def admin_instructor_courses(request, instructor_id):
-    instructor = get_object_or_404(User, id=instructor_id)
-
-    courses = Course.objects.filter(instructor=instructor)
-
-    return render(request, "courses/admin/instructor_courses.html", {
-        "instructor": instructor,
-        "courses": courses
-    })
 
 @staff_member_required
 def admin_student_courses(request, student_id):

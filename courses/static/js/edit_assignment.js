@@ -1,12 +1,7 @@
-/* ===============================
-   CONFIG
-================================ */
+
 const RAG_GENERATE_URL = "/api/rag/generate-answer";
 
 
-/* ===============================
-   CSRF TOKEN
-================================ */
 function getCSRFToken() {
     return document.cookie
         .split("; ")
@@ -14,19 +9,11 @@ function getCSRFToken() {
         ?.split("=")[1];
 }
 
-
-/* ===============================
-   LOAD EXISTING QUESTIONS
-================================ */
 function getExistingQuestions() {
     const el = document.getElementById("questions-data");
     return el ? JSON.parse(el.textContent) : [];
 }
 
-
-/* ===============================
-   AI AUTO FILL USING RAG
-================================ */
 async function generateWithAI(questionTextarea) {
 
     const card = questionTextarea.closest(".question-card");
@@ -70,9 +57,6 @@ async function generateWithAI(questionTextarea) {
 }
 
 
-/* ===============================
-   ADD QUESTION UI
-================================ */
 function addQuestion(q = {}) {
 
     const container = document.getElementById("questionsContainer");
@@ -103,18 +87,12 @@ function addQuestion(q = {}) {
 }
 
 
-/* ===============================
-   RENDER EXISTING QUESTIONS
-================================ */
 document.addEventListener("DOMContentLoaded", () => {
     const questions = getExistingQuestions();
     questions.forEach(q => addQuestion(q));
 });
 
 
-/* ===============================
-   COLLECT QUESTIONS
-================================ */
 function collectQuestions() {
 
     const questions = [];
@@ -143,10 +121,6 @@ function collectQuestions() {
     return questions;
 }
 
-
-/* ===============================
-   SAVE ASSIGNMENT
-================================ */
 function saveAssignment() {
 
     const formData = new FormData();
@@ -190,9 +164,6 @@ function saveAssignment() {
 }
 
 
-/* ===============================
-   BACK BUTTON
-================================ */
 function goBack() {
     window.location.href = BACK_URL;
 }

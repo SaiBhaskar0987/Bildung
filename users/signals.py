@@ -19,17 +19,17 @@ def send_invite_on_creation(sender, instance, created, **kwargs):
 
         invite_link = f"{core_settings.SITE_URL}/accounts/verify/{instance.role}/{verification.token}/"
 
-        subject = "You have been invited to join Bildung!"
+        subject = "You have been invited to join Speshway!"
         message = f"""
         Hello {instance.username},
 
-        This is an account for you on the Bildung Platform as a {instance.role}.
+        This is an account for you on the Speshway Platform as a {instance.role}.
 
         Please click the link below to verify your account and set up your password:
         {invite_link}
 
         Best regards,
-        Bildung Team
+        Speshway Team
         """
 
         try:

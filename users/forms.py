@@ -10,29 +10,34 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from .models import User
 
+from django import forms
+from django.contrib.auth.forms import UserCreationForm
+from .models import User
+
 
 class StudentSignUpForm(UserCreationForm):
+
     class Meta:
         model = User
         fields = ["first_name", "last_name", "email", "password1", "password2"]
 
-        widgets = {
-            "first_name": forms.TextInput(attrs={
-                "placeholder": "First Name",
-                "class": "form-control"
-            }),
-            "last_name": forms.TextInput(attrs={
-                "placeholder": "Last Name",
-                "class": "form-control"
-            }),
-            "email": forms.EmailInput(attrs={
-                "placeholder": "Email Address",
-                "class": "form-control"
-            }),
-        }
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        self.fields["first_name"].widget.attrs.update({
+            "placeholder": "First Name",
+            "class": "form-control"
+        })
+
+        self.fields["last_name"].widget.attrs.update({
+            "placeholder": "Last Name",
+            "class": "form-control"
+        })
+
+        self.fields["email"].widget.attrs.update({
+            "placeholder": "Email Address",
+            "class": "form-control"
+        })
 
         self.fields["password1"].widget.attrs.update({
             "placeholder": "Password",
@@ -43,44 +48,49 @@ class StudentSignUpForm(UserCreationForm):
             "placeholder": "Confirm Password",
             "class": "form-control"
         })
+
+    def clean_email(self):
+        email = self.cleaned_data.get("email")
+
+        if User.objects.filter(username=email).exists():
+            raise forms.ValidationError("An account with this email already exists.")
+
+        return email
 
     def save(self, commit=True):
         user = super().save(commit=False)
         user.username = self.cleaned_data["email"]
         user.role = "student"
+
         if commit:
             user.save()
+
         return user
+
 
 class InstructorSignUpForm(UserCreationForm):
 
     class Meta:
         model = User
-        fields = [
-            "first_name",
-            "last_name",
-            "email",
-            "password1",
-            "password2",
-        ]
-
-        widgets = {
-            "first_name": forms.TextInput(attrs={
-                "placeholder": "First Name",
-                "class": "form-control"
-            }),
-            "last_name": forms.TextInput(attrs={
-                "placeholder": "Last Name",
-                "class": "form-control"
-            }),
-            "email": forms.EmailInput(attrs={
-                "placeholder": "Email Address",
-                "class": "form-control"
-            }),
-        }
+        fields = ["first_name", "last_name", "email", "password1", "password2"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        self.fields["first_name"].widget.attrs.update({
+            "placeholder": "First Name",
+            "class": "form-control"
+        })
+
+        self.fields["last_name"].widget.attrs.update({
+            "placeholder": "Last Name",
+            "class": "form-control"
+        })
+
+        self.fields["email"].widget.attrs.update({
+            "placeholder": "Email Address",
+            "class": "form-control"
+        })
 
         self.fields["password1"].widget.attrs.update({
             "placeholder": "Password",
@@ -91,7 +101,7 @@ class InstructorSignUpForm(UserCreationForm):
             "placeholder": "Confirm Password",
             "class": "form-control"
         })
-    
+
     def clean_email(self):
         email = self.cleaned_data.get("email")
 
@@ -104,10 +114,12 @@ class InstructorSignUpForm(UserCreationForm):
         user = super().save(commit=False)
         user.username = self.cleaned_data["email"]
         user.role = "instructor"
+
         if commit:
             user.save()
-        return user
 
+        return user
+    
 User = get_user_model()
 
 class ProfileForm(forms.ModelForm):

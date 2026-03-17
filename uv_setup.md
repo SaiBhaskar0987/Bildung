@@ -2,10 +2,10 @@ Step 0: Sync the Repository
     - Ensure your local repository is synced with the develop branch.
 
 Step 1: Clone the Repository
-    - git clone https://github.com/SaiBhaskar0987/Bildung.git
+    - git clone https://github.com/SaiBhaskar0987/Speshway.git
 
-Step 2: Navigate to the Bildung Folder
-    - cd Bildung
+Step 2: Navigate to the Speshway Folder
+    - cd Speshway
     Note :✔️ Ensure pyproject.toml exists in this directory.
 
 Step 3: Switch to the main Branch
@@ -16,7 +16,7 @@ Step 4: Create Your Own Branch
     - git checkout -b <your-branch-name>
 
 Step 5: Create a Virtual Environment
-    (Open VS Code → open the Bildung folder)
+    (Open VS Code → open the Speshway folder)
         - python -m venv .uvenu
 
 {.uvenu is the virtual environment name. You may choose a different name if required.}

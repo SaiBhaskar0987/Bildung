@@ -15,7 +15,7 @@ from django.contrib.auth.tokens import default_token_generator
 from django.conf import settings
 from courses.utils import check_and_send_reminders
 from django.contrib.auth import update_session_auth_hash
-from django.db.models import Q, Count
+from django.db.models import Q, Avg, Count, Sum
 from django.contrib.admin.views.decorators import staff_member_required
 
 from quizzes.models import QuizResult
@@ -28,7 +28,7 @@ from courses.services.recommendation_service import get_recommended_courses
 
 from .models import User, Profile, LoginHistory, InstructorProfile
 from .forms import StudentSignUpForm, InstructorSignUpForm, ProfileForm, UserDisplayForm, InstructorUserReadOnlyForm, InstructorUserForm, InstructorProfileForm
-from courses.models import Certificate, Course, Enrollment, Lecture, LectureProgress, LectureQuestion, LiveClass, LiveClassAttendance, Notification
+from courses.models import Certificate, Course, CourseReview, Enrollment, Feedback, Lecture, LectureProgress, LectureQuestion, LiveClass, LiveClassAttendance, Notification
 
 def auth_page(request):
     return render(request, "users/login_page.html")
@@ -39,8 +39,8 @@ def signup_page(request):
         "instructor_form": InstructorSignUpForm(),
     })
 
-
 def student_signup(request):
+
     if request.method == "POST":
         form = StudentSignUpForm(request.POST)
 
@@ -62,18 +62,17 @@ def student_signup(request):
 
             messages.success(
                 request,
-                "✅ Account created! Please check your email to verify your account."
+                "Account created! Please check your email to verify your account."
             )
 
             return render(request, "users/check_email.html")
 
-        else:
-            messages.error(request, "Please correct the errors below.")
+        messages.error(request, "Please correct the errors below.")
 
-            return render(request, "users/signup_page.html", {
-                "student_form": form,
-                "instructor_form": InstructorSignUpForm(),
-            })
+        return render(request, "users/signup_page.html", {
+            "student_form": form,
+            "instructor_form": InstructorSignUpForm(),
+        })
 
     return redirect("signup_page")
 
@@ -104,20 +103,14 @@ def student_login(request):
     })
     return render(request, "student/student_login.html", {"form": form})
 
-from django.db.models import Count, Q, Avg
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
-from django.contrib import messages
-
 @login_required
 def student_dashboard(request):
     user = request.user
 
     if user.role != "student":
         messages.error(request, "Access denied.")
-        return redirect("login")
+        return redirect("auth_page")
 
-    # ================= ENROLLMENTS =================
     enrollments = Enrollment.objects.filter(
         student=user
     ).select_related("course")
@@ -125,13 +118,9 @@ def student_dashboard(request):
     enrolled_course_ids = enrollments.values_list("course_id", flat=True)
     enrolled_courses_count = enrollments.count()
 
-    # ================= CERTIFICATES =================
     certificates_count = Certificate.objects.filter(
         student=user
     ).count()
-
-    # ================= COURSE PROGRESS =================
-    # Calculate overall progress based on completed lectures
 
     total_lectures = Lecture.objects.filter(
         module__course_id__in=enrolled_course_ids
@@ -148,7 +137,35 @@ def student_dashboard(request):
     else:
         average_progress = 0
 
-    # ================= NOTIFICATIONS =================
+    continue_courses = []
+    completed_courses_count = 0
+
+    for enrollment in enrollments:
+        course = enrollment.course
+
+        course_lectures = Lecture.objects.filter(
+            module__course=course
+        ).count()
+
+        completed = LectureProgress.objects.filter(
+            student=user,
+            completed=True,
+            lecture__module__course=course
+        ).count()
+
+        if course_lectures > 0:
+            progress = round((completed / course_lectures) * 100)
+        else:
+            progress = 0
+
+        if progress == 100:
+            completed_courses_count += 1
+        else:
+            course.progress = progress
+            continue_courses.append(course)
+
+    in_progress_count = len(continue_courses)
+
     unread_notifications = Notification.objects.filter(
         user=user,
         is_read=False
@@ -156,10 +173,8 @@ def student_dashboard(request):
 
     unread_count = unread_notifications.count()
 
-    # ================= RECOMMENDATIONS =================
     recommended_courses = get_recommended_courses(user)
 
-    # ================= COURSES =================
     all_courses = (
         Course.objects
         .filter(
@@ -171,7 +186,6 @@ def student_dashboard(request):
         .order_by("-popularity", "-created_at")
     )
 
-    # ================= POPULAR CATEGORIES =================
     popular_categories = (
         Course.objects
         .filter(status="approved", is_published=True)
@@ -180,7 +194,6 @@ def student_dashboard(request):
         .order_by("-total")[:6]
     )
 
-    # ================= DASHBOARD STATS =================
     dashboard_stats = [
         {
             "icon": "fas fa-book-open",
@@ -188,14 +201,19 @@ def student_dashboard(request):
             "label": "Enrolled Courses",
         },
         {
+            "icon": "fas fa-play-circle",
+            "value": in_progress_count,
+            "label": "In Progress",
+        },
+        {
+            "icon": "fas fa-check-circle",
+            "value": completed_courses_count,
+            "label": "Completed",
+        },
+        {
             "icon": "fas fa-certificate",
             "value": certificates_count,
             "label": "Certificates Earned",
-        },
-        {
-            "icon": "fas fa-chart-line",
-            "value": f"{average_progress}%",
-            "label": "Learning Progress",
         },
     ]
 
@@ -203,10 +221,11 @@ def student_dashboard(request):
         "all_courses": all_courses,
         "recommended_courses": recommended_courses,
         "enrolled_course_ids": enrolled_course_ids,
+        "continue_courses": continue_courses,
+        "dashboard_stats": dashboard_stats,
         "unread_count": unread_count,
         "unread_notifications": unread_notifications,
         "popular_categories": popular_categories,
-        "dashboard_stats": dashboard_stats,
     }
 
     return render(request, "student/student_dashboard.html", context)
@@ -255,7 +274,7 @@ def account_settings(request):
             )
 
             send_mail(
-                subject="Confirm Your Password Change - Bildung",
+                subject="Confirm Your Password Change - Speshway",
                 message=f"""
 Hello {user.first_name},
 
@@ -353,16 +372,30 @@ def profile_view_or_edit(request, mode=None):
 @login_required
 def student_my_activity(request):
     user = request.user
-    enrollments = Enrollment.objects.filter(student=user)
+    enrollments = Enrollment.objects.filter(student=user).select_related("course")
+    selected_course_id = request.GET.get("course")
+    selected_course = None
+
+    if selected_course_id:
+        selected_enrollment = enrollments.filter(course_id=selected_course_id).first()
+        if selected_enrollment:
+            selected_course = selected_enrollment.course
+
+    filtered_enrollments = enrollments
+    if selected_course:
+        filtered_enrollments = enrollments.filter(course=selected_course)
 
     course_progress = []
-    for enroll in enrollments:
+
+    for enroll in filtered_enrollments:
         course = enroll.course
         lectures = Lecture.objects.filter(module__course=course)
         total_lectures = lectures.count()
 
         completed = LectureProgress.objects.filter(
-            student=user, lecture__in=lectures, completed=True
+            student=user,
+            lecture__in=lectures,
+            completed=True
         ).count()
 
         percent = round((completed / total_lectures) * 100, 2) if total_lectures > 0 else 0
@@ -375,28 +408,51 @@ def student_my_activity(request):
         })
 
     recent_videos = LectureProgress.objects.filter(
-        student=user, completed=True
-    ).select_related("lecture", "lecture__module__course").order_by("-updated_at")[:10]
+        student=user,
+        completed=True
+    ).select_related("lecture", "lecture__module__course")
 
-    video_lessons_watched = LectureProgress.objects.filter(
-        student=user, completed=True
-    ).select_related("lecture", "lecture__module__course").order_by("-updated_at")
+    video_lessons_watched = recent_videos
 
-    enrolled_course_ids = enrollments.values_list("course_id", flat=True)
+    if selected_course:
+        recent_videos = recent_videos.filter(
+            lecture__module__course=selected_course
+        )
+        video_lessons_watched = video_lessons_watched.filter(
+            lecture__module__course=selected_course
+        )
 
-    all_live_classes = LiveClass.objects.filter(course_id__in=enrolled_course_ids)
+    recent_videos = recent_videos.order_by("-updated_at")[:10]
+    video_lessons_watched = video_lessons_watched.order_by("-updated_at")
+
+    quiz_activity = QuizResult.objects.filter(student=user)
+
+    if selected_course:
+        quiz_activity = quiz_activity.filter(quiz__course=selected_course)
+
+    quiz_activity = quiz_activity.select_related(
+        "quiz", "quiz__course"
+    ).order_by("-submitted_at")
+
+    if selected_course:
+        all_live_classes = LiveClass.objects.filter(course=selected_course)
+    else:
+        enrolled_course_ids = enrollments.values_list("course_id", flat=True)
+        all_live_classes = LiveClass.objects.filter(course_id__in=enrolled_course_ids)
 
     total_classes = all_live_classes.count()
 
-    attendance_records = (
-        LiveClassAttendance.objects
-        .filter(user=user, live_class__in=all_live_classes)
-        .select_related("live_class", "live_class__course")
-    )
+    attendance_records = LiveClassAttendance.objects.filter(
+        user=user,
+        live_class__in=all_live_classes
+    ).select_related("live_class", "live_class__course")
 
     attended_count = attendance_records.exclude(joined_at=None).count()
 
-    attendance_percent = round((attended_count / total_classes) * 100, 2) if total_classes > 0 else 0
+    attendance_percent = (
+        round((attended_count / total_classes) * 100, 2)
+        if total_classes > 0 else 0
+    )
 
     attendance_data = {
         "total_classes": total_classes,
@@ -409,36 +465,62 @@ def student_my_activity(request):
                 "course": rec.live_class.course.title,
                 "date": rec.live_class.date,
                 "status": "Joined" if rec.joined_at else "Missed",
-                "joined_at": rec.joined_at,
                 "duration": f"{rec.duration} mins" if rec.duration else "—",
             }
             for rec in attendance_records
         ]
     }
-    quiz_activity = (
-        QuizResult.objects.filter(student=user)
-            .select_related("quiz", "quiz__course")
-            .order_by("-submitted_at")
+
+    feedback_activity = Feedback.objects.filter(student=user)
+
+    if selected_course:
+        feedback_activity = feedback_activity.filter(course=selected_course)
+
+    feedback_activity = feedback_activity.select_related(
+        "course", "instructor"
+    ).order_by("-created_at")
+
+    qna_activity = LectureQuestion.objects.filter(student=user)
+
+    if selected_course:
+        qna_activity = qna_activity.filter(
+            lecture__module__course=selected_course
         )
+
+    qna_activity = qna_activity.select_related(
+        "lecture", "lecture__module", "lecture__module__course"
+    ).prefetch_related("replies__user").order_by("-created_at")
+
+    total_completed = LectureProgress.objects.filter(
+        student=user,
+        completed=True
+    )
+
+    total_lectures = Lecture.objects.all()
+
+    if selected_course:
+        total_completed = total_completed.filter(
+            lecture__module__course=selected_course
+        )
+        total_lectures = total_lectures.filter(
+            module__course=selected_course
+        )
+
+    total_completed_count = total_completed.count()
+    total_lectures_count = total_lectures.count()
+
+    overall_progress = (
+        round((total_completed_count / total_lectures_count) * 100, 2)
+        if total_lectures_count > 0 else 0
+    )
 
     login_history = LoginHistory.objects.filter(user=user).order_by("-login_time")[:25]
 
-    qna_activity = (
-        LectureQuestion.objects.filter(student=user)
-        .select_related("lecture", "lecture__module", "lecture__module__course")
-        .prefetch_related("replies__user")
-        .order_by("-created_at")
-    )
-
-    total_completed = LectureProgress.objects.filter(student=user, completed=True).count()
-    total_lectures = Lecture.objects.count()
-    overall_progress = (
-        round((total_completed / total_lectures) * 100, 2) if total_lectures > 0 else 0
-    )
-
     context = {
+        "enrollments": enrollments,
+        "selected_course": selected_course,
         "total_enrolled_courses": enrollments.count(),
-        "total_completed_lectures": total_completed,
+        "total_completed_lectures": total_completed_count,
         "overall_progress": overall_progress,
         "course_progress": course_progress,
         "recent_videos": recent_videos,
@@ -447,10 +529,10 @@ def student_my_activity(request):
         "attendance_data": attendance_data,
         "login_history": login_history,
         "qna_activity": qna_activity,
+        "feedback_activity": feedback_activity,
     }
 
     return render(request, "student/my_activity.html", context)
-    
 
 @login_required
 def student_notifications(request):
@@ -493,8 +575,8 @@ def mark_notification(request, notif_id):
 
 
 # --- Instructor --- #
-
 def instructor_signup(request):
+
     if request.method == "POST":
         form = InstructorSignUpForm(request.POST)
 
@@ -503,9 +585,7 @@ def instructor_signup(request):
             user.is_active = False
             user.save()
 
-            InstructorProfile.objects.create(
-                user=user,
-            )
+            InstructorProfile.objects.create(user=user)
 
             verification, _ = EmailVerification.objects.get_or_create(user=user)
 
@@ -518,18 +598,17 @@ def instructor_signup(request):
 
             messages.success(
                 request,
-                "✅ Account created! Please verify your email to activate your account."
+                "Account created! Please verify your email to activate your account."
             )
 
             return render(request, "users/check_email.html")
 
-        else:
-            messages.error(request, "Please correct the errors below.")
+        messages.error(request, "Please correct the errors below.")
 
-            return render(request, "users/signup_page.html", {
-                "student_form": StudentSignUpForm(),
-                "instructor_form": form,
-            })
+        return render(request, "users/signup_page.html", {
+            "student_form": StudentSignUpForm(),
+            "instructor_form": form,
+        })
 
     return redirect("signup_page")
 
@@ -561,25 +640,44 @@ def instructor_login(request):
 
     return render(request, "instructor/instructor_login.html", {"form": form})
 
+
 @login_required
 def instructor_dashboard(request):
-    check_and_send_reminders(request.user)
-    courses = Course.objects.filter(instructor=request.user)
+
+    if request.user.role != "instructor":
+        return redirect("auth_page") 
+
+    instructor = request.user
+
+    check_and_send_reminders(instructor)
+
+    courses = Course.objects.filter(instructor=instructor)
+
     unread_count = Notification.objects.filter(
-        user=request.user,
+        user=instructor,
         is_read=False
     ).count()
 
     total_students = Enrollment.objects.filter(
-        course__in=courses
-    ).values('student').distinct().count()
+        course__instructor=instructor
+    ).values("student").distinct().count()
 
-    return render(request, 'instructor/instructor_dashboard.html', {
-        'courses': courses,
-        'total_students': total_students,
-        "unread_count": unread_count,
-    })
+    total_earnings = Enrollment.objects.filter(
+        course__instructor=instructor
+    ).aggregate(
+        total=Sum("course__price")
+    )["total"] or 0
 
+    return render(
+        request,
+        "instructor/instructor_dashboard.html",
+        {
+            "courses": courses,
+            "total_students": total_students,
+            "unread_count": unread_count,
+            "total_earnings": total_earnings,
+        },
+    )
 def logout_view(request):
     logout(request)
     messages.success(request, "You have been successfully logged out.")
@@ -609,11 +707,11 @@ def custom_password_reset(request):
             )
             reset_url = f"{request.scheme}://{request.get_host()}{reset_path}"
 
-            subject = "Password Reset Request - Bildung"
+            subject = "Password Reset Request - Speshway"
             message = f"""
 Hello {user.first_name or user.username},
 
-You requested a password reset for your Bildung account.
+You requested a password reset for your Speshway account.
 
 Reset your password using the link below:
 {reset_url}
@@ -621,7 +719,7 @@ Reset your password using the link below:
 If you didn’t request this, you can safely ignore this email.
 
 Thanks,
-Bildung Team
+Speshway Team
 """
 
             send_mail(
@@ -823,7 +921,7 @@ def instructor_account_settings(request):
             )
 
             send_mail(
-                subject="Confirm Your Password Change - Bildung",
+                subject="Confirm Your Password Change - Speshway",
                 message=f"""
 Hello {user.first_name},
 
@@ -924,7 +1022,7 @@ def admin_login(request):
 
             else:
                 messages.error(request, "Access denied. Admin login only.")
-                return redirect("login")
+                return redirect("auth_page")
 
         else:
             messages.error(request, "Invalid username or password")
@@ -1006,62 +1104,6 @@ def verify_email(request, role, token):
     )
 
 
-from django.contrib import messages
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth import update_session_auth_hash
-from django.core.mail import send_mail
-from django.conf import settings
-from django.shortcuts import render, redirect
-
-
-@login_required
-def account_settings(request):
-    if request.method == "POST":
-        current_password = request.POST.get("current_password")
-        new_password = request.POST.get("new_password")
-        confirm_password = request.POST.get("confirm_password")
-
-        user = request.user
-
-        # 1) Validate current password
-        if not user.check_password(current_password):
-            messages.error(request, "Current password is incorrect.")
-            return redirect("account_settings")
-
-        # 2) Validate new password match
-        if new_password != confirm_password:
-            messages.error(request, "New password and Confirm password do not match.")
-            return redirect("account_settings")
-
-        # 3) Update password
-        user.set_password(new_password)
-        user.save()
-
-        # 4) Keep user logged in after password change
-        update_session_auth_hash(request, user)
-
-        # 5) Send confirmation email
-        subject = "Password Changed Successfully"
-        message = f"""
-Hi {user.get_full_name() or user.username},
-Your account password has been changed successfully.
-If you did not perform this action, please contact support immediately.
-Regards,
-Bildung Platform Team
-        """.strip()
-
-        send_mail(
-            subject=subject,
-            message=message,
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[user.email],
-            fail_silently=False,
-        )
-
-        messages.success(request, "Password updated successfully. Confirmation email generated.")
-        return redirect("account_settings")
-
-    return render(request, "account_settings.html")
 @staff_member_required
 def admin_dashboard(request):
 
@@ -1077,3 +1119,85 @@ def admin_dashboard(request):
     }
 
     return render(request, "admin/admin_dashboard.html", context)
+
+
+@staff_member_required
+def admin_view_instructor(request, user_id):
+    instructor = get_object_or_404(User, id=user_id, role="instructor")
+
+    profile = InstructorProfile.objects.filter(user=instructor).first()
+    courses = Course.objects.filter(instructor=instructor)
+
+    total_revenue = Enrollment.objects.filter(
+        course__instructor=instructor
+    ).aggregate(total=Sum("course__price"))["total"] or 0
+
+    try:
+
+        avg_rating = CourseReview.objects.filter(
+            course__instructor=instructor
+        ).aggregate(avg=Avg("rating"))["avg"] or 0
+    except:
+        avg_rating = 0
+
+    context = {
+        "user_obj": instructor,
+        "profile": profile,
+        "courses": courses,
+        "total_revenue": total_revenue,
+        "avg_rating": round(avg_rating, 1),
+    }
+
+    return render(request, "admin/view_instructor.html", context)
+
+@staff_member_required
+def admin_view_student(request, user_id):
+    student = get_object_or_404(User, id=user_id, role="student")
+
+    profile = Profile.objects.filter(user=student).first()
+    enrollments = Enrollment.objects.filter(student=student)
+
+    completed_courses = 0
+    total_progress = 0
+    course_count = enrollments.count()
+
+    for enrollment in enrollments:
+        course = enrollment.course
+
+        total_lectures = Lecture.objects.filter(
+            module__course=course
+        ).count()
+
+        completed_lectures = LectureProgress.objects.filter(
+            student=student,
+            lecture__module__course=course,
+            completed=True
+        ).count()
+
+        if total_lectures > 0:
+            progress_percent = (completed_lectures / total_lectures) * 100
+            total_progress += progress_percent
+
+            if progress_percent == 100:
+                completed_courses += 1
+
+    avg_progress = round(total_progress / course_count, 1) if course_count > 0 else 0
+
+    context = {
+        "user_obj": student,
+        "profile": profile,
+        "enrollments": enrollments,
+        "completed_courses": completed_courses,
+        "avg_progress": avg_progress,
+    }
+
+    return render(request, "admin/view_student.html", context)
+
+@staff_member_required
+def toggle_suspend_user(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+
+    user.is_suspended = not user.is_suspended
+    user.save()
+
+    return redirect(request.META.get("HTTP_REFERER"))

@@ -703,23 +703,45 @@ body {
   }
 </style>
 </head>
-<body>
+<body style="background: var(--yellow-light);">
+  <div class="d-flex justify-content-between align-items-center p-3 shadow-sm"
+     style="background: linear-gradient(135deg, var(--brown-dark), var(--brown-medium));">
+    <a href="{% url 'instructor_dashboard' %}" class="text-decoration-none">
+</head>
+<body class="bg-light">
+  <div class="d-flex justify-content-between align-items-center p-3 bg-white shadow-sm">
+    <a href="{% url 'instructor_dashboard' %}" class="text-decoration-none text-dark">
+        <h3 class="m-0 fw-bold brand-title">
+                <i class="fas fa-graduation-cap"></i> Speshway
+            </h3>
+    </a>  
+    <div class="d-flex align-items-center gap-4">
 
-<!-- ═══ TOPNAV ═══════════════════════════════════════════════ -->
-<nav class="topnav">
-  <a href="{% url 'instructor_dashboard' %}" class="brand">SPESH<span>WAY</span></a>
-  <div class="nav-actions">
-    <!-- Bell -->
-    <div class="dropdown">
-      <button class="nav-icon-btn" id="notifBell" data-bs-toggle="dropdown">
-        <i class="fa-solid fa-bell"></i>
-        {% if unread_count > 0 %}<span class="bell-badge">{{ unread_count }}</span>{% endif %}
-      </button>
-      <div class="dropdown-menu dropdown-menu-end notif-panel shadow">
-        <h6 class="dropdown-header">Notifications <a href="{% url 'instructor_notifications' %}">View All</a></h6>
-        <div id="notifList"></div>
-        <div class="border-top p-2" style="border-color:rgba(94,234,212,.1)!important;">
-          <button id="markAllBtn" class="btn btn-sm w-100" style="background:rgba(13,148,136,.2);color:var(--teal-glow);font-weight:600;border:none;border-radius:var(--r-sm);">Mark all as read</button>
+    <div class="dropdown position-relative">
+        <a class="fs-4 text-dark position-relative" href="#" id="notifBell" data-bs-toggle="dropdown">
+            <i class="fa-solid fa-bell"></i>
+
+            {% if unread_count > 0 %}
+            <span class="badge bg-danger rounded-circle"
+                  style="font-size:10px;position:absolute;top:-6px;right:-6px;">
+                {{ unread_count }}
+            </span>
+            {% endif %}
+        </a>
+
+        <div class="dropdown-menu dropdown-menu-end notif-panel shadow">
+            <h6 class="dropdown-header d-flex justify-content-between">
+                Notifications
+                <a href="{% url 'instructor_notifications' %}" class="small">View All</a>
+            </h6>
+
+            <div id="notifList"></div>
+
+            <div class="border-top p-2 text-center">
+                <button id="markAllBtn" class="btn btn-sm btn-outline-primary w-100">
+                    Mark all as read
+                </button>
+            </div>
         </div>
       </div>
     </div>
@@ -852,27 +874,73 @@ body {
   {% if courses %}
   <div class="course-grid">
     {% for course in courses %}
-    <div class="course-card">
-      <div class="course-banner"></div>
-      <div class="course-body">
-        <div class="course-badge"><i class="fa-solid fa-circle-dot"></i> Active</div>
-        <div class="course-title">{{ course.title }}</div>
-        <div class="course-desc">{{ course.description|truncatewords:14 }}</div>
-        <div class="course-meta-row">
-          <span class="course-students"><i class="fa-solid fa-user-group"></i> {{ course.enrollments.count|default:"0" }} students</span>
-          <span class="course-price">₹{{ course.price|default:"Free" }}</span>
+    <div class="course-scroll-card ms-2">
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100 course-card position-relative">
+
+        <div class="position-absolute top-0 end-0 m-3">
+            {% if course.status == "draft" %}
+                <span class="badge bg-secondary px-3 py-2">Draft</span>
+
+            {% elif course.status == "pending" %}
+                <span class="badge bg-warning text-dark px-3 py-2">
+                    ⏳ Pending
+                </span>
+
+            {% elif course.status == "approved" %}
+                <span class="badge bg-success px-3 py-2">
+                    ✔ Published
+                </span>
+
+            {% elif course.status == "rejected" %}
+                <span class="badge bg-danger px-3 py-2">
+                    ❌ Rejected
+                </span>
+            {% endif %}
         </div>
-      </div>
-      <div class="course-footer">
-        <div class="course-actions">
-          <a href="{% url 'instructor:course_detail' course.id %}" class="act-btn primary full"><i class="fa-regular fa-eye"></i> View Course</a>
-          <a href="{% url 'instructor:edit_course' course.id %}" class="act-btn"><i class="fa-regular fa-pen-to-square"></i> Edit</a>
-          <a href="{% url 'instructor:course_overview' course.id %}" class="act-btn"><i class="fa-solid fa-chart-line"></i> Overview</a>
-          <a href="{% url 'instructor:give_feedback' course.id %}" class="act-btn"><i class="fa-regular fa-comment-dots"></i> Feedback</a>
-          <a href="{% url 'instructor:schedule_live_class' %}" class="act-btn"><i class="fa-solid fa-video"></i> Schedule</a>
-          <a href="{% url 'instructor:add_event' %}" class="act-btn full"><i class="fa-regular fa-calendar-plus"></i> Add Event</a>
+
+        <div class="card-body pt-5">  
+
+        <h5 class="fw-bold text-dark mb-2">{{ course.title }}</h5>
+
+        {% if course.status == "rejected" and course.rejection_reason %}
+            <div class="small text-danger mb-2">
+                Reason: {{ course.rejection_reason }}
+            </div>
+        {% endif %}
+
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="text-muted small">
+            {{ course.enrollments.count|default:"0" }} Students
+            </span>
+
+            <span class="fw-bold text-success">
+            ₹{{ course.price|default:"Free" }}
+            </span>
         </div>
-      </div>
+
+        <div class="d-grid gap-2 mt-3">
+            <a href="{% url 'instructor:course_detail' course.id %}" class="btn btn-outline-primary btn-sm">
+            View Course
+            </a>
+            <a href="{% url 'instructor:edit_course' course.id %}" class="btn btn-outline-warning btn-sm">
+            Edit Details
+            </a>
+            <a href="{% url 'instructor:course_overview' course.id %}" class="btn btn-outline-success btn-sm">
+            Course Overview
+            </a>
+            <a href="{% url 'instructor:give_feedback' course.id %}" class="btn btn-outline-secondary btn-sm">
+            Feedback
+            </a>
+            <a href="{% url 'instructor:schedule_live_class' %}" class="btn btn-outline-dark btn-sm">
+            Schedule Live Class
+            </a>
+            <a href="{% url 'instructor:add_event' %}" class="btn btn-outline-dark btn-sm">
+            Add Event
+            </a>
+        </div>
+
+        </div>
+    </div>
     </div>
     {% endfor %}
   </div>

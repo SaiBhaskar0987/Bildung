@@ -31,7 +31,8 @@
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
-    font-family:  Franklin Gothic Medium;
+    /* FIX: font name with spaces must be quoted */
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
     background: var(--cream);
     color: var(--ink);
     min-height: 100vh;
@@ -71,7 +72,7 @@
   }
 
   .brand {
-    font-family:  Franklin Gothic Medium;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
     font-weight: 700; font-size: 26px;
     letter-spacing: .06em; color: var(--ink);
     text-decoration: none;
@@ -119,7 +120,7 @@
   .dropdown-item {
     border-radius: 10px; padding: 10px 14px;
     font-size: 13.5px; font-weight: 500; color: var(--ink);
-    font-family: Franklin Gothic Medium;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
     transition: background .2s, color .2s, transform .2s;
   }
 
@@ -153,7 +154,6 @@
     text-align: center;
   }
 
-  /* dynamic gradient top — set via JS based on score */
   .score-card-header {
     padding: 36px 32px 28px;
     position: relative; overflow: hidden;
@@ -163,47 +163,6 @@
     content: ''; display: block; height: 5px;
     background: linear-gradient(90deg, var(--amber), #f59e0b, var(--rust));
     position: absolute; top: 0; left: 0; right: 0;
-  }
-
-  /* result emoji ring */
-  .result-ring {
-    width: 90px; height: 90px; border-radius: 50%;
-    margin: 0 auto 18px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 36px;
-    position: relative;
-  }
-
-  .result-ring::after {
-    content: '';
-    position: absolute; inset: -7px;
-    border-radius: 50%;
-    border: 2px solid transparent;
-    animation: ringPulse 2.5s ease-in-out infinite;
-  }
-
-  @keyframes ringPulse {
-    0%,100% { transform: scale(1); opacity: .7; }
-    50%      { transform: scale(1.08); opacity: .25; }
-  }
-
-  .result-ring.great  { background: var(--green-lt); }
-  .result-ring.great::after  { border-color: #86efac; }
-
-  .result-ring.ok     { background: var(--amber-lt); }
-  .result-ring.ok::after     { border-color: #fde68a; }
-
-  .result-ring.poor   { background: var(--rose-lt); }
-  .result-ring.poor::after   { border-color: #fecaca; }
-
-  .quiz-result-title {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 30px; font-weight: 700; color: var(--ink);
-    margin-bottom: 4px; line-height: 1.1;
-  }
-
-  .quiz-result-sub {
-    font-size: 13.5px; color: var(--muted); margin-bottom: 22px;
   }
 
   /* Score ring SVG */
@@ -234,10 +193,20 @@
     letter-spacing: .1em; text-transform: uppercase;
   }
 
-  /* stat chips strip */
+  .quiz-result-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 30px; font-weight: 700; color: var(--ink);
+    margin-bottom: 4px; line-height: 1.1;
+  }
+
+  .quiz-result-sub {
+    font-size: 13.5px; color: var(--muted); margin-bottom: 22px;
+  }
+
+  /* Stat chips */
   .score-stats {
-    display: flex; justify-content: center; gap: 12px;
-    flex-wrap: wrap; padding: 0 24px 28px;
+    display: flex; justify-content: center; gap: 10px;
+    flex-wrap: wrap; padding: 0 24px 24px;
   }
 
   .stat-chip {
@@ -251,21 +220,36 @@
   .stat-chip.correct-chip i { color: var(--green); }
   .stat-chip.wrong-chip   i { color: var(--rose); }
   .stat-chip.pct-chip     i { color: var(--amber); }
+  .stat-chip.attempts-chip i { color: #6366f1; }
+  .stat-chip.pass-chip    i { color: var(--rust); }
 
-  /* result message banner */
+  /* Result message banner */
   .result-message {
     margin: 0 28px 28px;
     border-radius: 14px; padding: 14px 18px;
     display: flex; align-items: center; gap: 12px;
     font-size: 14px; font-weight: 600;
+    text-align: left;
   }
 
   .result-message.great { background: var(--green-lt); color: var(--green); border: 1px solid #86efac; }
   .result-message.ok    { background: var(--amber-lt); color: var(--rust);  border: 1px solid #fde68a; }
   .result-message.poor  { background: var(--rose-lt);  color: var(--rose);  border: 1px solid #fecaca; }
 
-  .result-message i { font-size: 18px; flex-shrink: 0; }
-  .result-message span { font-size: 13px; font-weight: 400; color: inherit; opacity: .85; }
+  .result-message i { font-size: 20px; flex-shrink: 0; }
+  .result-message .msg-sub { font-size: 13px; font-weight: 400; opacity: .85; display: block; margin-top: 2px; }
+
+  /* ── Retry / no-attempts notice (from page 1) ── */
+  .attempts-banner {
+    margin: 0 28px 28px;
+    border-radius: 14px; padding: 12px 18px;
+    display: flex; align-items: center; gap: 10px;
+    font-size: 13px; font-weight: 600;
+    border: 1px solid var(--border);
+    background: #f9f5ff; color: #7c3aed;
+  }
+
+  .attempts-banner i { font-size: 16px; flex-shrink: 0; }
 
   /* ════════ ANSWERS LIST ════════ */
   .answers-head {
@@ -285,7 +269,7 @@
     font-size: 26px; font-weight: 700; color: var(--ink);
   }
 
-  /* answer card */
+  /* Answer card */
   .answer-card {
     background: white;
     border: 1px solid var(--border);
@@ -304,7 +288,6 @@
 
   .answer-card:hover { transform: translateY(-2px); }
 
-  /* left accent */
   .answer-card.correct-card { border-left: 4px solid var(--green); }
   .answer-card.wrong-card   { border-left: 4px solid var(--rose); }
 
@@ -316,7 +299,7 @@
   .answer-icon {
     width: 34px; height: 34px; flex-shrink: 0; border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
-    font-size: 14px; margin-top: 1px;
+    font-size: 14px; margin-top: 2px;
   }
 
   .answer-card.correct-card .answer-icon { background: var(--green-lt); color: var(--green); }
@@ -327,12 +310,13 @@
   .answer-q {
     font-family: 'Cormorant Garamond', serif;
     font-size: 17px; font-weight: 700; color: var(--ink);
-    margin-bottom: 8px; line-height: 1.3;
+    margin-bottom: 10px; line-height: 1.3;
   }
 
+  /* Your answer row */
   .answer-choice-row {
-    display: flex; align-items: center; gap: 8px;
-    font-size: 13.5px;
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    font-size: 13.5px; margin-bottom: 0;
   }
 
   .answer-label {
@@ -340,10 +324,7 @@
     text-transform: uppercase; color: var(--muted); flex-shrink: 0;
   }
 
-  .answer-choice-text {
-    font-weight: 600;
-  }
-
+  .answer-choice-text { font-weight: 600; }
   .answer-card.correct-card .answer-choice-text { color: var(--green); }
   .answer-card.wrong-card   .answer-choice-text { color: var(--rose); }
 
@@ -355,6 +336,23 @@
 
   .answer-card.correct-card .result-pill { background: var(--green-lt); color: var(--green); border: 1px solid #86efac; }
   .answer-card.wrong-card   .result-pill { background: var(--rose-lt);  color: var(--rose);  border: 1px solid #fecaca; }
+
+  /* ── Correct-answer hint (from page 1) ── */
+  .correct-hint {
+    display: flex; align-items: center; gap: 7px;
+    margin-top: 8px;
+    padding: 8px 12px;
+    background: var(--green-lt);
+    border: 1px solid #86efac;
+    border-radius: 10px;
+    font-size: 13px; font-weight: 600; color: var(--green);
+  }
+
+  .correct-hint i { font-size: 12px; flex-shrink: 0; }
+  .correct-hint .hint-label {
+    font-size: 11px; font-weight: 700; letter-spacing: .08em;
+    text-transform: uppercase; color: #15803d; margin-right: 4px;
+  }
 
   /* ── Back button ── */
   .back-btn {
@@ -379,130 +377,110 @@
     .page-wrap { margin-top: 36px; }
     .score-stats { gap: 8px; }
     .answer-body { gap: 10px; }
-    .answer-choice-row { flex-wrap: wrap; }
+    .result-message { margin: 0 16px 24px; }
+    .attempts-banner { margin: 0 16px 24px; }
   }
   </style>
 </head>
 
 <body>
 
-<!-- ════════ TOPBAR ════════ -->
-<nav class="topbar">
-  <a href="{% url 'student_dashboard' %}" class="brand">
-    <span class="dot"></span>
-    Speshway
-  </a>
+<div class="d-flex justify-content-between align-items-center p-3 bg-white shadow-sm sticky-top">
+    <a href="{% url 'student_dashboard' %}" class="text-decoration-none text-dark">
+        <h3 class="m-0 fw-bold">Bildung</h3>
+    </a>
 
-  <div class="topbar-right">
-    <div class="dropdown">
-      <button class="avatar-btn" data-bs-toggle="dropdown" aria-expanded="false">
-        {{ request.user.username|first|upper }}
-      </button>
-      <ul class="dropdown-menu dropdown-menu-end">
-        <li><a class="dropdown-item" href="{% url 'profile_view' %}"><i class="fas fa-user fa-fw me-2" style="color:var(--amber)"></i>Profile</a></li>
-        <li><a class="dropdown-item" href="{% url 'student:my_courses' %}"><i class="fas fa-book fa-fw me-2" style="color:var(--amber)"></i>My Courses</a></li>
-        <li><a class="dropdown-item" href="{% url 'student:student_upcoming_classes' %}"><i class="fas fa-calendar fa-fw me-2" style="color:var(--amber)"></i>My Schedules</a></li>
-        <li><a class="dropdown-item" href="{% url 'student_my_activity' %}"><i class="fas fa-chart-line fa-fw me-2" style="color:var(--amber)"></i>My Activity</a></li>
-        <li><a class="dropdown-item" href="{% url 'student:my_certificates' %}"><i class="fas fa-certificate fa-fw me-2" style="color:var(--amber)"></i>My Certificates</a></li>
-        <li><a class="dropdown-item" href="{% url 'student_notifications' %}"><i class="fas fa-bell fa-fw me-2" style="color:var(--amber)"></i>Notifications</a></li>
-        <li><a class="dropdown-item" href="#"><i class="fas fa-credit-card fa-fw me-2" style="color:var(--amber)"></i>Payments</a></li>
-        <li><a class="dropdown-item" href="#"><i class="fas fa-circle-question fa-fw me-2" style="color:var(--amber)"></i>Help & Support</a></li>
-        <li><a class="dropdown-item" href="{% url 'account_settings' %}"><i class="fas fa-gear fa-fw me-2" style="color:var(--amber)"></i>Account Settings</a></li>
-        <li><hr class="dropdown-divider"></li>
-        <li><a class="dropdown-item logout-item" href="{% url 'logout_view' %}"><i class="fas fa-arrow-right-from-bracket fa-fw me-2"></i>Sign Out</a></li>
-      </ul>
-    </div>
-  </div>
-</nav>
+    <div class="d-flex align-items-center gap-3">
+        <h6 class="m-0 text-muted">
+            Hello, <strong>{{ user.first_name }} {{ user.last_name }}</strong>
+        </h6>
 
-<!-- ════════ PAGE ════════ -->
-<div class="page-wrap">
+        <div class="dropdown">
+            <button class="btn rounded-circle shadow-sm"
+                    style="background:#6c757d;color:white;width:45px;height:45px;"
+                    data-bs-toggle="dropdown">
+                {{ request.user.username|first|upper }}
+            </button>
 
-  <!-- ── Score card ── -->
-  <div class="score-card">
-    <div class="score-card-header">
-
-      <!-- Animated score ring -->
-      <div class="score-ring-wrap">
-        <svg viewBox="0 0 130 130" width="130" height="130">
-          <circle class="ring-bg-path" cx="65" cy="65" r="52"/>
-          <circle class="ring-fill-path" cx="65" cy="65" r="52"
-            id="scoreRing"
-            stroke-dasharray="327"
-            stroke-dashoffset="327"
-            stroke="{{ result.score|divisibleby:answers|length|yesno:'#16a34a,#d97706' }}"/>
-        </svg>
-        <div class="score-ring-label">
-          <span class="score-big" id="scoreBig">{{ result.score }}</span>
-          <span class="score-denom">of {{ answers|length }}</span>
+            <ul class="dropdown-menu dropdown-menu-end">
+           <li><a class="dropdown-item" href="{% url 'profile_view' %}">Profile</a></li>
+            <li><a class="dropdown-item" href="{% url 'student:my_courses' %}">My Courses</a></li>
+            <li><a class="dropdown-item" href="{% url 'student_my_activity' %}">My activity</a></li>
+            <li><a class="dropdown-item" href="{% url 'student:student_upcoming_classes' %}">My_schedules</a></li>
+            <li><a class="dropdown-item" href="{% url 'student:my_certificates' %}">My Certificates</a></li>
+            <li><a class="dropdown-item" href="{% url 'student_notifications' %}">Notifications</a></li>
+            <li><a class="dropdown-item" href="#">Payments</a></li>
+            <li><a class="dropdown-item" href="#">Help and Support</a></li>
+            <li><a class="dropdown-item" href="{% url 'account_settings' %}">Account Settings</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item text-danger" href="{% url 'logout_view' %}">Logout</a></li>
+            </ul>
         </div>
-      </div>
+    </div>
+</div>
 
       <h1 class="quiz-result-title">{{ quiz.title }}</h1>
       <p class="quiz-result-sub">Quiz complete — here's how you did</p>
 
     </div>
 
-    <!-- Stat chips -->
-    <div class="score-stats">
-      <span class="stat-chip correct-chip">
-        <i class="fas fa-check-circle"></i>
-        {{ result.score }} correct
-      </span>
-      <span class="stat-chip wrong-chip">
-        <i class="fas fa-circle-xmark"></i>
-        {{ answers|length|add:"-"|add:result.score }} wrong
-      </span>
-      <span class="stat-chip pct-chip" id="pctChip">
-        <i class="fas fa-chart-simple"></i>
-        — %
-      </span>
-    </div>
-
-    <!-- Result message -->
-    <div class="result-message" id="resultMsg">
-      <i class="fas fa-star"></i>
-      <div>
-        <div id="resultMsgText">Well done!</div>
-        <span id="resultMsgSub">Keep practising to strengthen your knowledge.</span>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- ── Answers breakdown ── -->
-  <div class="answers-head">
-    <span class="tag">Breakdown</span>
-    <h2>Answer Review</h2>
-  </div>
-
-  {% for a in answers %}
-  <div class="answer-card {% if a.choice.is_correct %}correct-card{% else %}wrong-card{% endif %}">
-    <div class="answer-body">
-      <div class="answer-icon">
-        {% if a.choice.is_correct %}
-        <i class="fas fa-check"></i>
-        {% else %}
-        <i class="fas fa-xmark"></i>
-        {% endif %}
-      </div>
-      <div class="answer-content">
-        <p class="answer-q">{{ a.question.question_text }}</p>
-        <div class="answer-choice-row">
-          <span class="answer-label">Your answer:</span>
-          <span class="answer-choice-text">{{ a.choice.text }}</span>
-          <span class="result-pill">
-            {% if a.choice.is_correct %}
-            <i class="fas fa-check"></i> Correct
-            {% else %}
-            <i class="fas fa-xmark"></i> Incorrect
-            {% endif %}
-          </span>
+            <span class="score-badge
+                {% if passed %}
+                    bg-success text-white
+                {% else %}
+                    bg-danger text-white
+                {% endif %}
+            ">
+                {{ percent }}%
+            </span>
         </div>
-      </div>
+
+        <div class="px-4 pb-4">
+            <p class="mb-1"><strong>Score:</strong> {{ result.score }} / {{ total_questions }}</p>
+            <p class="mb-1"><strong>Attempts Used:</strong> {{ attempts }} / 3</p>
+            <p class="mb-1"><strong>Passing Score:</strong> {{ pass_percent }}%</p>
+
+            {% if passed %}
+                <div class="alert alert-success mt-3 mb-0">
+                    ✅ Congratulations! You passed the quiz.
+                </div>
+            {% else %}
+                <div class="alert alert-danger mt-3 mb-0">
+                    ❌ You did not pass. Try again to unlock the next module.
+                </div>
+            {% endif %}
+        </div>
     </div>
-  </div>
-  {% endfor %}
+
+    {% for a in answers %}
+    <div class="card shadow-sm mb-3 question-card
+        {% if passed and a.choice.is_correct %}correct
+        {% elif passed and not a.choice.is_correct %}wrong
+        {% endif %}
+    ">
+        <div class="card-body">
+            <h6 class="fw-bold mb-2">
+                Q{{ forloop.counter }}. {{ a.question.question_text }}
+            </h6>
+
+            <p class="mb-0">
+                <strong>Your Answer:</strong> {{ a.choice.text }}
+
+                {% if passed %}
+                    {% if a.choice.is_correct %}
+                        <span class="ms-2 text-success fw-bold">✔ Correct</span>
+                    {% else %}
+                        <span class="ms-2 text-danger fw-bold">✖ Incorrect</span>
+                        <br>
+                        <small class="text-success">
+                            Correct Answer: {{ a.correct_choice.text }}
+                        </small>
+                    {% endif %}
+                {% endif %}
+            </p>
+        </div>
+    </div>
+    {% endfor %}
 
   <!-- Back to course -->
   <a href="{% url 'student:student_course_detail' course_id %}" class="back-btn">
@@ -511,60 +489,9 @@
 
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-  // Derive values from Django template
-  const score  = {{ result.score }};
-  const total  = {{ answers|length }};
-  const pct    = total > 0 ? Math.round((score / total) * 100) : 0;
-
-  // Animate SVG ring
-  const circ   = 327;
-  const offset = circ - (circ * pct / 100);
-  const ring   = document.getElementById('scoreRing');
-
-  // Colour by threshold
-  let ringColor, msgClass, msgText, msgSub;
-
-  if (pct >= 80) {
-    ringColor = '#16a34a';
-    msgClass  = 'great';
-    msgText   = '🎉 Excellent work!';
-    msgSub    = 'Outstanding score — you clearly know this material well.';
-  } else if (pct >= 50) {
-    ringColor = '#d97706';
-    msgClass  = 'ok';
-    msgText   = '👍 Good effort!';
-    msgSub    = 'You\'re on the right track — a little more revision will get you there.';
-  } else {
-    ringColor = '#e11d48';
-    msgClass  = 'poor';
-    msgText   = '📚 Keep practising';
-    msgSub    = 'Don\'t worry — review the material and give it another go!';
-  }
-
-  ring.setAttribute('stroke', ringColor);
-
-  // Animate on load
-  window.addEventListener('load', () => {
-    setTimeout(() => {
-      ring.style.strokeDashoffset = offset;
-    }, 120);
-  });
-
-  // Percentage chip
-  document.getElementById('pctChip').innerHTML =
-    `<i class="fas fa-chart-simple"></i> ${pct}%`;
-
-  // Result message
-  const msgEl    = document.getElementById('resultMsg');
-  const msgTextEl = document.getElementById('resultMsgText');
-  const msgSubEl  = document.getElementById('resultMsgSub');
-
-  msgEl.classList.add(msgClass);
-  msgTextEl.textContent = msgText;
-  msgSubEl.textContent  = msgSub;
-</script>
+<footer class="text-center mt-5 mb-4">
+    <p class="text-muted small">&copy; 2025 Bildung. All rights reserved.</p>
+</footer>
 
 </body>
 </html>

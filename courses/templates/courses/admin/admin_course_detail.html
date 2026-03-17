@@ -4,200 +4,489 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Course Review</title>
+<title>Speshway — Course Review</title>
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
 <style>
-body { background:#f4f6fb; }
-.course-card { border-radius:16px; }
-.lecture-card video { height:150px; object-fit:cover; }
-.section-title { color:#2563EB; font-weight:700; }
-.comment-box { background:#fff8e1; border-left:4px solid #f59e0b; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:          #05080f;
+  --sidebar:     #0a0d14;
+  --panel:       #0d1117;
+  --card:        #111620;
+  --card-inner:  #161c27;
+  --border:      rgba(255,255,255,0.07);
+  --accent:      #4ade80;
+  --accent-dim:  rgba(74,222,128,0.10);
+  --accent-glow: rgba(74,222,128,0.30);
+  --blue:        #38bdf8;
+  --blue-dim:    rgba(56,189,248,0.10);
+  --yellow:      #fbbf24;
+  --yellow-dim:  rgba(251,191,36,0.10);
+  --red:         #f87171;
+  --red-dim:     rgba(248,113,113,0.10);
+  --purple:      #a78bfa;
+  --purple-dim:  rgba(167,139,250,0.10);
+  --orange:      #fb923c;
+  --orange-dim:  rgba(251,146,60,0.10);
+  --teal:        #2dd4bf;
+  --teal-dim:    rgba(45,212,191,0.10);
+  --text:        #e8edf5;
+  --muted:       #4e5a6e;
+  --muted-light: #7a8699;
+  --sidebar-w:   260px;
+}
+
+html, body { font-family: 'Sora', sans-serif; background: var(--bg); color: var(--text); }
+
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image:
+    linear-gradient(rgba(74,222,128,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(74,222,128,0.025) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none; z-index: 0;
+}
+
+.sidebar { width: var(--sidebar-w); height: 100vh; position: fixed; left: 0; top: 0; background: var(--sidebar); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 28px 0; z-index: 100; }
+.sidebar-brand { display: flex; align-items: center; gap: 10px; padding: 0 24px 28px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+.brand-icon { width: 36px; height: 36px; background: var(--accent); border-radius: 9px; display: grid; place-items: center; flex-shrink: 0; }
+.brand-icon svg { width: 18px; height: 18px; }
+.brand-name { font-size: 1.05rem; font-weight: 700; color: var(--text); }
+.brand-tag { font-family: 'DM Mono', monospace; font-size: 0.6rem; color: var(--accent); letter-spacing: 0.12em; text-transform: uppercase; margin-top: 1px; }
+.nav-section { padding: 0 14px; flex: 1; }
+.nav-label { font-family: 'DM Mono', monospace; font-size: 0.6rem; letter-spacing: 0.18em; color: var(--muted); text-transform: uppercase; padding: 0 10px; margin: 18px 0 6px; }
+.nav-item { display: flex; align-items: center; gap: 11px; padding: 11px 12px; border-radius: 9px; color: var(--muted-light); text-decoration: none; font-size: 0.88rem; font-weight: 500; transition: all 0.2s; margin-bottom: 2px; }
+.nav-item i { width: 18px; text-align: center; font-size: 0.85rem; flex-shrink: 0; }
+.nav-item:hover { background: rgba(255,255,255,0.05); color: var(--text); }
+.nav-item.active { background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(74,222,128,0.15); }
+.sidebar-footer { padding: 20px 14px 0; border-top: 1px solid var(--border); margin-top: 12px; }
+.logout-link { display: flex; align-items: center; gap: 11px; padding: 11px 12px; border-radius: 9px; color: var(--red); text-decoration: none; font-size: 0.88rem; font-weight: 500; transition: all 0.2s; }
+.logout-link:hover { background: var(--red-dim); color: var(--red); }
+
+.main { margin-left: var(--sidebar-w); min-height: 100vh; position: relative; z-index: 1; }
+.topbar { background: var(--panel); border-bottom: 1px solid var(--border); padding: 18px 36px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 50; backdrop-filter: blur(12px); }
+.topbar-left h5 { font-size: 1rem; font-weight: 700; color: var(--text); }
+.topbar-left span { font-size: 0.78rem; color: var(--muted-light); font-family: 'DM Mono', monospace; }
+.btn-back { display: inline-flex; align-items: center; gap: 7px; height: 34px; padding: 0 14px; border-radius: 8px; border: 1px solid var(--border); background: transparent; color: var(--muted-light); font-family: 'Sora', sans-serif; font-size: 0.8rem; font-weight: 600; cursor: pointer; text-decoration: none; transition: all 0.2s; }
+.btn-back:hover { border-color: var(--blue); color: var(--blue); background: var(--blue-dim); }
+
+.body-wrap { padding: 32px 36px; max-width: 1100px; }
+
+@keyframes fadeUp { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
+
+.review-banner {
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--yellow-dim); border: 1px solid rgba(251,191,36,0.2);
+  border-radius: 12px; padding: 14px 20px; margin-bottom: 28px;
+  animation: fadeUp 0.4s cubic-bezier(.22,1,.36,1) both;
+}
+.review-banner .rb-left { display: flex; align-items: center; gap: 10px; }
+.review-banner i { color: var(--yellow); font-size: 0.9rem; }
+.review-banner span { font-size: 0.88rem; font-weight: 600; color: var(--yellow); }
+.review-banner small { font-size: 0.76rem; color: var(--muted-light); display: block; margin-top: 1px; }
+.status-mono { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase; padding: 4px 10px; border-radius: 999px; font-weight: 500; }
+.status-pending  { background: var(--yellow-dim); color: var(--yellow); border: 1px solid rgba(251,191,36,0.25); }
+.status-approved { background: var(--accent-dim);  color: var(--accent);  border: 1px solid rgba(74,222,128,0.25); }
+
+.course-hero { margin-bottom: 24px; animation: fadeUp 0.45s cubic-bezier(.22,1,.36,1) 0.05s both; }
+.course-hero h2 { font-size: 1.55rem; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+.course-meta-row { display: flex; gap: 20px; flex-wrap: wrap; }
+.meta-chip { display: inline-flex; align-items: center; gap: 6px; font-size: 0.78rem; color: var(--muted-light); font-family: 'DM Mono', monospace; }
+.meta-chip i { font-size: 0.72rem; }
+
+.section-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 14px; padding: 24px 26px; margin-bottom: 20px;
+  animation: fadeUp 0.5s cubic-bezier(.22,1,.36,1) both;
+}
+.section-card-title {
+  font-family: 'DM Mono', monospace; font-size: 0.7rem;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--muted-light); margin-bottom: 16px;
+  display: flex; align-items: center; gap: 8px;
+}
+.section-card-title i { color: var(--accent); }
+
+
+.overview-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+.overview-item { background: var(--card-inner); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; }
+.overview-item label { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 4px; }
+.overview-item p { font-size: 0.9rem; font-weight: 600; color: var(--text); }
+
+.course-desc { font-size: 0.88rem; color: var(--muted-light); line-height: 1.75; }
+
+.comment-item {
+  background: var(--card-inner); border: 1px solid var(--border);
+  border-left: 3px solid var(--yellow);
+  border-radius: 8px; padding: 12px 16px; margin-bottom: 10px;
+}
+.comment-item p { font-size: 0.86rem; color: var(--text); margin-bottom: 4px; }
+.comment-item time { font-family: 'DM Mono', monospace; font-size: 0.68rem; color: var(--muted-light); }
+
+.comment-form { margin-top: 16px; }
+.comment-textarea {
+  width: 100%; background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+  border-radius: 9px; padding: 12px 14px; color: var(--text);
+  font-family: 'Sora', sans-serif; font-size: 0.86rem;
+  resize: vertical; min-height: 80px; outline: none; transition: border-color 0.2s;
+}
+.comment-textarea::placeholder { color: var(--muted); }
+.comment-textarea:focus { border-color: rgba(251,191,36,0.4); }
+.btn-comment { margin-top: 10px; height: 36px; padding: 0 18px; border-radius: 8px; border: 1px solid rgba(251,191,36,0.25); background: var(--yellow-dim); color: var(--yellow); font-family: 'Sora', sans-serif; font-size: 0.82rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 7px; transition: all 0.2s; }
+.btn-comment:hover { background: var(--yellow); color: #05080f; }
+
+.module-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 14px; padding: 24px 26px; margin-bottom: 16px;
+  animation: fadeUp 0.5s cubic-bezier(.22,1,.36,1) both;
+}
+.module-header { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 6px; }
+.module-icon { width: 36px; height: 36px; border-radius: 9px; background: var(--blue-dim); border: 1px solid rgba(56,189,248,0.15); display: grid; place-items: center; color: var(--blue); font-size: 0.85rem; flex-shrink: 0; }
+.module-title { font-size: 1rem; font-weight: 700; color: var(--text); }
+.module-desc { font-size: 0.82rem; color: var(--muted-light); margin-top: 2px; }
+
+.lecture-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; margin-top: 20px; }
+.lecture-item { background: var(--card-inner); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; transition: border-color 0.2s, transform 0.2s; }
+.lecture-item:hover { border-color: rgba(56,189,248,0.25); transform: translateY(-2px); }
+.lecture-video { width: 100%; height: 120px; object-fit: cover; display: block; }
+.lecture-thumb { width: 100%; height: 120px; object-fit: cover; display: block; background: var(--card); }
+.lecture-body { padding: 12px; }
+.lecture-name { font-size: 0.82rem; font-weight: 600; color: var(--text); margin-bottom: 8px; }
+.btn-pdf { display: inline-flex; align-items: center; gap: 5px; height: 28px; padding: 0 10px; border-radius: 6px; border: 1px solid rgba(56,189,248,0.2); background: var(--blue-dim); color: var(--blue); font-size: 0.72rem; font-weight: 600; text-decoration: none; transition: all 0.2s; }
+.btn-pdf:hover { background: var(--blue); color: #05080f; }
+.no-lectures { font-size: 0.82rem; color: var(--muted); font-style: italic; margin-top: 12px; }
+
+.content-type-card {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 22px; border-radius: 12px; margin-bottom: 14px;
+  border: 1px solid; animation: fadeUp 0.5s cubic-bezier(.22,1,.36,1) both;
+}
+.content-type-card .ct-left { display: flex; align-items: center; gap: 12px; }
+.ct-icon { width: 38px; height: 38px; border-radius: 9px; display: grid; place-items: center; font-size: 0.9rem; flex-shrink: 0; }
+.ct-title { font-size: 0.92rem; font-weight: 700; }
+.ct-label { font-family: 'DM Mono', monospace; font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; margin-top: 2px; }
+
+.quiz-card { background: rgba(251,191,36,0.05); border-color: rgba(251,191,36,0.2); }
+.quiz-card .ct-icon { background: var(--yellow-dim); color: var(--yellow); }
+.quiz-card .ct-title { color: var(--yellow); }
+.quiz-card .ct-label { color: var(--muted-light); }
+
+.assign-card { background: rgba(56,189,248,0.05); border-color: rgba(56,189,248,0.2); }
+.assign-card .ct-icon { background: var(--blue-dim); color: var(--blue); }
+.assign-card .ct-title { color: var(--blue); }
+.assign-card .ct-label { color: var(--muted-light); }
+
+.live-card { background: rgba(74,222,128,0.05); border-color: rgba(74,222,128,0.2); }
+.live-card .ct-icon { background: var(--accent-dim); color: var(--accent); }
+.live-card .ct-title { color: var(--accent); }
+.live-card .ct-label { color: var(--muted-light); }
+
+.btn-preview { height: 32px; padding: 0 14px; border-radius: 7px; border: 1px solid rgba(251,191,36,0.25); background: var(--yellow-dim); color: var(--yellow); font-family: 'Sora', sans-serif; font-size: 0.78rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; transition: all 0.2s; }
+.btn-preview:hover { background: var(--yellow); color: #05080f; }
+
+.quiz-preview-area { margin-top: 14px; border-top: 1px solid var(--border); padding-top: 14px; }
+
+.actions-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 24px 26px; margin-top: 8px; margin-bottom: 32px; animation: fadeUp 0.5s cubic-bezier(.22,1,.36,1) both; }
+.actions-card-title { font-family: 'DM Mono', monospace; font-size: 0.7rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted-light); margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+.actions-card-title i { color: var(--accent); }
+.actions-row { display: flex; gap: 14px; flex-wrap: wrap; align-items: flex-start; }
+
+.btn-approve { height: 44px; padding: 0 28px; border-radius: 10px; border: 1px solid rgba(74,222,128,0.25); background: var(--accent-dim); color: var(--accent); font-family: 'Sora', sans-serif; font-size: 0.9rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 9px; transition: all 0.2s; }
+.btn-approve:hover { background: var(--accent); color: #05080f; box-shadow: 0 0 20px var(--accent-glow); }
+
+.reject-group { display: flex; flex-direction: column; gap: 10px; flex: 1; min-width: 280px; }
+.reject-input { height: 44px; padding: 0 14px; border-radius: 10px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); color: var(--text); font-family: 'Sora', sans-serif; font-size: 0.86rem; outline: none; transition: border-color 0.2s; }
+.reject-input::placeholder { color: var(--muted); }
+.reject-input:focus { border-color: rgba(248,113,113,0.4); }
+.btn-reject { height: 44px; padding: 0 28px; border-radius: 10px; border: 1px solid rgba(248,113,113,0.25); background: var(--red-dim); color: var(--red); font-family: 'Sora', sans-serif; font-size: 0.9rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 9px; transition: all 0.2s; }
+.btn-reject:hover { background: var(--red); color: #fff; box-shadow: 0 0 20px rgba(248,113,113,0.3); }
+
+.approved-banner { display: flex; align-items: center; gap: 12px; background: var(--accent-dim); border: 1px solid rgba(74,222,128,0.2); border-radius: 12px; padding: 16px 20px; margin-top: 8px; margin-bottom: 32px; }
+.approved-banner i { color: var(--accent); font-size: 1.1rem; }
+.approved-banner span { font-size: 0.9rem; font-weight: 600; color: var(--accent); }
+.approved-banner small { display: block; color: var(--muted-light); font-size: 0.78rem; margin-top: 1px; }
+
+.no-content { font-size: 0.88rem; color: var(--muted); font-style: italic; padding: 16px 0; }
+
+.divider { height: 1px; background: var(--border); margin: 20px 0; }
 </style>
 </head>
-
 <body>
 
-<div class="d-flex justify-content-between align-items-center p-3 bg-white shadow-sm">
-    <a href="{% url 'admin_dashboard' %}" class="text-decoration-none text-dark">
-        <h4 class="fw-bold m-0">Speshway</h4>
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#05080f" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+      </svg>
+    </div>
+    <div>
+      <div class="brand-name">Speshway</div>
+      <div class="brand-tag">Admin Portal</div>
+    </div>
+  </div>
+  <nav class="nav-section">
+    <div class="nav-label">Platform</div>
+    <a href="{% url 'admin_dashboard' %}" class="nav-item"><i class="fa-solid fa-gauge-high"></i>Dashboard</a>
+    <a href="{% url 'courses:admin_courses' %}" class="nav-item active"><i class="fa-solid fa-book-open"></i>Courses</a>
+    <a href="{% url 'courses:admin_instructors' %}" class="nav-item"><i class="fa-solid fa-chalkboard-user"></i>Instructors</a>
+    <a href="{% url 'courses:admin_students' %}" class="nav-item"><i class="fa-solid fa-user-graduate"></i>Students</a>
+    <div class="nav-label">Tools</div>
+    <a href="{% url 'courses:admin_notifications' %}" class="nav-item"><i class="fa-solid fa-bell"></i>Notifications</a>
+  </nav>
+  <div class="sidebar-footer">
+    <a href="{% url 'admin_logout' %}" class="logout-link"><i class="fa-solid fa-arrow-right-from-bracket"></i>Logout</a>
+  </div>
+</aside>
+
+<main class="main">
+
+  <div class="topbar">
+    <div class="topbar-left">
+      <h5>Course Review</h5>
+      <span>Admin Review Mode</span>
+    </div>
+    <a href="{% url 'courses:admin_courses' %}" class="btn-back">
+      <i class="fa-solid fa-arrow-left"></i> Back to Courses
     </a>
-    <div>
-        <a href="{% url 'logout_view' %}" class="btn btn-sm btn-danger">Logout</a>
-    </div>
-</div>
+  </div>
 
-<div class="container py-4">
+  <div class="body-wrap">
 
-<div class="alert alert-warning d-flex justify-content-between align-items-center">
-    <div>
-        <strong>Admin Review Mode</strong><br>
-    </div>
-    <span class="badge bg-dark">{{ course.status|upper }}</span>
-</div>
-
-<h2 class="fw-bold text-primary">{{ course.title }}</h2>
-
-<div class="card course-card shadow-sm p-4 mb-4">
-    <h5 class="text-secondary mb-3">Course Overview</h5>
-    <p><strong>Instructor:</strong> {{ course.instructor.get_full_name|default:course.instructor.username }}</p>
-    <p><strong>Category:</strong> {{ course.category }}</p>
-    <p><strong>Price:</strong> ₹{{ course.price }}</p>
-    <p class="text-muted">{{ course.description }}</p>
-
-    <h6 class="mt-3">Admin Feedback</h6>
-    {% for c in course_comments %}
-        <div class="comment-box p-2 rounded mb-2">
-            {{ c.comment }}
-            <div class="small text-muted">{{ c.created_at }}</div>
+    <div class="review-banner">
+      <div class="rb-left">
+        <i class="fa-solid fa-shield-halved"></i>
+        <div>
+          <span>Admin Review Mode</span>
+          <small>You are reviewing this course before it goes live</small>
         </div>
-    {% empty %}
-        <p class="text-muted">No feedback yet.</p>
-    {% endfor %}
+      </div>
+      <span class="status-mono {% if course.status == 'approved' %}status-approved{% else %}status-pending{% endif %}">
+        {{ course.status|upper }}
+      </span>
+    </div>
 
-    {% if course.status != "approved" %}
-    <form method="post" action="{% url 'courses:admin_add_comment' course.id 'course' %}">
+    <div class="course-hero">
+      <h2>{{ course.title }}</h2>
+      <div class="course-meta-row">
+        <span class="meta-chip"><i class="fa-solid fa-user"></i>{{ course.instructor.get_full_name|default:course.instructor.username }}</span>
+        <span class="meta-chip"><i class="fa-solid fa-tag"></i>{{ course.category }}</span>
+        <span class="meta-chip"><i class="fa-solid fa-indian-rupee-sign"></i>{{ course.price }}</span>
+      </div>
+    </div>
+
+    <div class="section-card" style="animation-delay:0.05s;">
+      <div class="section-card-title"><i class="fa-solid fa-circle-info"></i> Course Overview</div>
+
+      <div class="overview-grid">
+        <div class="overview-item">
+          <label>Instructor</label>
+          <p>{{ course.instructor.get_full_name|default:course.instructor.username }}</p>
+        </div>
+        <div class="overview-item">
+          <label>Category</label>
+          <p>{{ course.category }}</p>
+        </div>
+        <div class="overview-item">
+          <label>Price</label>
+          <p>₹{{ course.price }}</p>
+        </div>
+      </div>
+
+      <p class="course-desc">{{ course.description }}</p>
+
+      <div class="divider"></div>
+
+      <div class="section-card-title" style="margin-bottom:12px;"><i class="fa-solid fa-comments"></i> Admin Feedback</div>
+
+      {% for c in course_comments %}
+        <div class="comment-item">
+          <p>{{ c.comment }}</p>
+          <time>{{ c.created_at }}</time>
+        </div>
+      {% empty %}
+        <p style="font-size:0.84rem;color:var(--muted);font-style:italic;">No feedback added yet.</p>
+      {% endfor %}
+
+      {% if course.status != "approved" %}
+      <form method="post" action="{% url 'courses:admin_add_comment' course.id 'course' %}" class="comment-form">
         {% csrf_token %}
-        <textarea name="comment" class="form-control mt-2"
-                  placeholder="Comment about this course..." required></textarea>
-        <button class="btn btn-sm btn-warning mt-2">Add Comment</button>
-    </form>
-    {% endif %}
-</div>
+        <textarea name="comment" class="comment-textarea" placeholder="Leave feedback on this course…" required></textarea>
+        <button type="submit" class="btn-comment"><i class="fa-solid fa-paper-plane"></i> Add Comment</button>
+      </form>
+      {% endif %}
+    </div>
 
-<h3 class="section-title mb-3">Course Content</h3>
+    <div style="margin-bottom:16px;">
+      <p style="font-family:'DM Mono',monospace;font-size:0.68rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--muted-light);margin-bottom:4px;">Structure</p>
+      <h4 style="font-size:1.05rem;font-weight:700;color:var(--text);">Course Content</h4>
+    </div>
 
-{% for item in ordered_items %}
+    {% for item in ordered_items %}
 
-    {% if item.type == "module" %}
-    <div class="card course-card shadow-sm p-4 mb-4">
-        <h5 class="fw-bold">📘 {{ item.title }}</h5>
-        <p class="text-muted">{{ item.obj.description|default:"No description provided." }}</p>
+      {% if item.type == "module" %}
+      <div class="module-card" style="animation-delay:0.08s;">
+        <div class="module-header">
+          <div class="module-icon"><i class="fa-solid fa-book-open"></i></div>
+          <div>
+            <div class="module-title">{{ item.title }}</div>
+            <div class="module-desc">{{ item.obj.description|default:"No description provided." }}</div>
+          </div>
+        </div>
 
-        <h6>Feedback</h6>
+        <div class="divider"></div>
+        <div class="section-card-title" style="margin-bottom:10px;font-size:0.66rem;"><i class="fa-solid fa-comments"></i> Module Feedback</div>
         {% for c in item.obj.admincomment_set.all %}
-            <div class="comment-box p-2 rounded mb-2">
-                {{ c.comment }}
-                <div class="small text-muted">{{ c.created_at }}</div>
-            </div>
+          <div class="comment-item">
+            <p>{{ c.comment }}</p>
+            <time>{{ c.created_at }}</time>
+          </div>
         {% empty %}
-            <p class="text-muted">No feedback yet.</p>
+          <p style="font-size:0.82rem;color:var(--muted);font-style:italic;margin-bottom:12px;">No feedback yet.</p>
         {% endfor %}
 
         {% if course.status != "approved" %}
-        <form method="post" action="{% url 'courses:admin_add_comment' course.id 'module' item.obj.id %}">
-            {% csrf_token %}
-            <textarea name="comment" class="form-control mt-2"
-                      placeholder="Comment about this module..." required></textarea>
-            <button class="btn btn-sm btn-warning mt-2">Add Comment</button>
+        <form method="post" action="{% url 'courses:admin_add_comment' course.id 'module' item.obj.id %}" class="comment-form">
+          {% csrf_token %}
+          <textarea name="comment" class="comment-textarea" placeholder="Comment about this module…" required></textarea>
+          <button type="submit" class="btn-comment"><i class="fa-solid fa-paper-plane"></i> Add Comment</button>
         </form>
         {% endif %}
 
-        <div class="row g-3 mt-3">
-        {% for lecture in item.obj.lectures.all %}
-            <div class="col-lg-3 col-md-4 col-sm-6">
-                <div class="card lecture-card h-100 shadow-sm">
-
-                    {% if lecture.video %}
-                        <video controls class="w-100 rounded-top">
-                            <source src="{{ lecture.video.url }}">
-                        </video>
-                    {% else %}
-                        <img src="{% static 'images/default-video.png' %}" class="img-fluid rounded-top">
-                    {% endif %}
-
-                    <div class="card-body text-center">
-                        <strong>{{ lecture.title }}</strong>
-
-                        {% if lecture.file %}
-                        <div class="mt-2">
-                            <a href="{{ lecture.file.url }}" target="_blank"
-                               class="btn btn-sm btn-outline-primary">
-                               View PDF
-                            </a>
-                        </div>
-                        {% endif %}
-                    </div>
-
-                </div>
+        {% if item.obj.lectures.all %}
+        <div class="divider"></div>
+        <div class="section-card-title" style="font-size:0.66rem;margin-bottom:12px;"><i class="fa-solid fa-play-circle"></i> Lectures</div>
+        <div class="lecture-grid">
+          {% for lecture in item.obj.lectures.all %}
+          <div class="lecture-item">
+            {% if lecture.video %}
+              <video controls class="lecture-video">
+                <source src="{{ lecture.video.url }}">
+              </video>
+            {% else %}
+              <img src="{% static 'images/default-video.png' %}" class="lecture-thumb" alt="No video">
+            {% endif %}
+            <div class="lecture-body">
+              <div class="lecture-name">{{ lecture.title }}</div>
+              {% if lecture.file %}
+                <a href="{{ lecture.file.url }}" target="_blank" class="btn-pdf">
+                  <i class="fa-solid fa-file-pdf"></i> View PDF
+                </a>
+              {% endif %}
             </div>
-        {% empty %}
-            <p class="text-muted ps-3">No lectures added.</p>
-        {% endfor %}
+          </div>
+          {% endfor %}
         </div>
-    </div>
-    {% endif %}
+        {% else %}
+          <p class="no-lectures">No lectures added to this module yet.</p>
+        {% endif %}
 
-    {% if item.type == "quiz" %}
-    <div class="card shadow-sm p-4 mb-4 border-warning">
-        <div class="d-flex justify-content-between align-items-center">
-            <h5 class="fw-bold mb-0">📝 Quiz — {{ item.title }}</h5>
-            <button class="btn btn-sm btn-outline-warning"
-                    onclick="loadQuizPreview({{ item.obj.id }})">
-                Preview
+      </div>
+      {% endif %}
+
+      {% if item.type == "quiz" %}
+      <div class="content-type-card quiz-card" style="flex-direction:column;align-items:stretch;">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div class="ct-left">
+            <div class="ct-icon"><i class="fa-solid fa-circle-question"></i></div>
+            <div>
+              <div class="ct-title">{{ item.title }}</div>
+              <div class="ct-label">Quiz</div>
+            </div>
+          </div>
+          <button class="btn-preview" onclick="loadQuizPreview({{ item.obj.id }})">
+            <i class="fa-solid fa-eye"></i> Preview
+          </button>
+        </div>
+        <div id="quiz-preview-{{ item.obj.id }}" class="quiz-preview-area" style="display:none;"></div>
+      </div>
+      {% endif %}
+
+      {% if item.type == "assignment" %}
+      <div class="content-type-card assign-card">
+        <div class="ct-left">
+          <div class="ct-icon"><i class="fa-solid fa-folder-open"></i></div>
+          <div>
+            <div class="ct-title">{{ item.title }}</div>
+            <div class="ct-label">Assignment</div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      {% if item.type == "live" %}
+      <div class="content-type-card live-card">
+        <div class="ct-left">
+          <div class="ct-icon"><i class="fa-solid fa-video"></i></div>
+          <div>
+            <div class="ct-title">{{ item.title }}</div>
+            <div class="ct-label">Live Session</div>
+          </div>
+        </div>
+        <span style="font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--accent);background:var(--accent-dim);border:1px solid rgba(74,222,128,0.2);padding:3px 10px;border-radius:999px;">LIVE</span>
+      </div>
+      {% endif %}
+
+    {% empty %}
+      <p class="no-content">No course content has been added yet.</p>
+    {% endfor %}
+
+    {% if course.status != "approved" %}
+    <div class="actions-card" style="animation-delay:0.1s;">
+      <div class="actions-card-title"><i class="fa-solid fa-shield-halved"></i> Admin Actions</div>
+      <div class="actions-row">
+
+        <form method="post" action="{% url 'courses:admin_approve_course' course.id %}">
+          {% csrf_token %}
+          <button type="submit" class="btn-approve">
+            <i class="fa-solid fa-check"></i> Approve &amp; Publish
+          </button>
+        </form>
+
+        <form method="post" action="{% url 'courses:admin_reject_course' course.id %}" style="flex:1;min-width:280px;">
+          {% csrf_token %}
+          <div class="reject-group">
+            <input type="text" name="reason" class="reject-input" placeholder="Reason for rejection (optional)">
+            <button type="submit" class="btn-reject">
+              <i class="fa-solid fa-xmark"></i> Reject Course
             </button>
-        </div>
-        <div id="quiz-preview-{{ item.obj.id }}" class="mt-3"></div>
+          </div>
+        </form>
+
+      </div>
+    </div>
+    {% else %}
+    <div class="approved-banner">
+      <i class="fa-solid fa-circle-check"></i>
+      <div>
+        <span>Course Approved</span>
+        <small>This course is live and visible to all students.</small>
+      </div>
     </div>
     {% endif %}
 
-    {% if item.type == "assignment" %}
-    <div class="card shadow-sm p-4 mb-4 border-info">
-        <h5 class="fw-bold text-info mb-0">📂 Assignment — {{ item.title }}</h5>
-    </div>
-    {% endif %}
-
-    {% if item.type == "live" %}
-    <div class="card shadow-sm p-4 mb-4 border-success">
-        <h5 class="fw-bold text-success mb-0">🎥 Live Session — {{ item.title }}</h5>
-    </div>
-    {% endif %}
-
-{% empty %}
-<p class="text-muted">No course content added.</p>
-{% endfor %}
-
-{% if course.status != "approved" %}
-<div class="card shadow-sm p-4 border-0 mt-4">
-    <h5 class="fw-bold mb-3">Admin Actions</h5>
-
-    <form method="post" action="{% url 'courses:admin_approve_course' course.id %}" class="mb-3">
-        {% csrf_token %}
-        <button class="btn btn-success px-4">✔ Approve & Publish</button>
-    </form>
-
-    <form method="post" action="{% url 'courses:admin_reject_course' course.id %}">
-        {% csrf_token %}
-        <input type="text" name="reason" class="form-control mb-2"
-               placeholder="Reason for rejection (optional)">
-        <button class="btn btn-danger px-4">❌ Reject Course</button>
-    </form>
-</div>
-{% else %}
-<div class="alert alert-success mt-4">
-    ✅ This course is already approved and visible to students.
-</div>
-{% endif %}
-
-</div>
+  </div>
+</main>
 
 <script>
 function loadQuizPreview(quizId) {
   const container = document.getElementById(`quiz-preview-${quizId}`);
-
-  if (container.innerHTML.trim() !== "") {
-    container.innerHTML = "";
+  if (container.style.display !== 'none' && container.innerHTML.trim() !== '') {
+    container.style.display = 'none';
+    container.innerHTML = '';
     return;
   }
-
-  fetch(`/courses/admin/quiz/${quizId}/preview/`)
+  container.style.display = 'block';
+  container.innerHTML = '<p style="color:var(--muted-light);font-size:0.82rem;font-family:\'DM Mono\',monospace;">Loading…</p>';
+  fetch(`/courses/admin-quiz/${quizId}/preview/`)
     .then(res => res.text())
-    .then(html => container.innerHTML = html)
-    .catch(() => {
-      container.innerHTML =
-        "<p class='text-danger'>Failed to load quiz preview</p>";
-    });
+    .then(html => { container.innerHTML = html; })
+    .catch(() => { container.innerHTML = '<p style="color:var(--red);font-size:0.82rem;">Failed to load quiz preview.</p>'; });
 }
 </script>
 

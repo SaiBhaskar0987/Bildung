@@ -9,7 +9,7 @@ from users.views import logout_view, google_login_redirect
 
 
 def home(request):
-    return HttpResponse("Main Site - Bildung")
+    return HttpResponse("Main Site - Speshway")
 
 
 urlpatterns = [

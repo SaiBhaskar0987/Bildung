@@ -1,9 +1,11 @@
- <!DOCTYPE html>
+{% load static %}
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Student History – SPESHWAY</title>
+    <meta charset="UTF-8">
+    <title>Student Activity</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -190,330 +192,280 @@ body { font-family: 'DM Sans', sans-serif; background: var(--surface); color: va
 </head>
 <body>
 
-<!-- ── TOPNAV ─── -->
-<nav class="topnav">
-  <a href="{% url 'instructor_dashboard' %}" class="brand">SPESH<span>WAY</span></a>
-  <div class="dropdown">
-    <button class="avatar-btn" type="button" data-bs-toggle="dropdown">
-      {{ request.user.username|first|upper }}
-    </button>
-    <ul class="dropdown-menu dropdown-menu-end">
-      <li><a class="dropdown-item" href="{% url 'instructor_profile_view' %}"><i class="fa-regular fa-user me-2"></i>Profile</a></li>
-      <li><a class="dropdown-item" href="{% url 'instructor:add_course' %}"><i class="fa-solid fa-plus me-2"></i>Create New Course</a></li>
-      <li><a class="dropdown-item" href="{% url 'instructor:students_list' %}"><i class="fa-solid fa-users me-2"></i>My Students</a></li>
-      <li><a class="dropdown-item" href="{% url 'instructor:calendar_view' %}"><i class="fa-regular fa-calendar me-2"></i>My Schedules</a></li>
-      <li><a class="dropdown-item" href="{% url 'instructor_notifications' %}"><i class="fa-regular fa-bell me-2"></i>Notifications</a></li>
-      <li><a class="dropdown-item" href="#"><i class="fa-solid fa-wallet me-2"></i>Earnings & Payments</a></li>
-      <li><a class="dropdown-item" href="#"><i class="fa-regular fa-circle-question me-2"></i>Help & Support</a></li>
-      <li><a class="dropdown-item" href="{% url 'instructor_account_settings' %}"><i class="fa-solid fa-gear me-2"></i>Account Settings</a></li>
-      <li><hr class="dropdown-divider"></li>
-      <li><a class="dropdown-item text-danger" href="{% url 'logout_view' %}"><i class="fa-solid fa-right-from-bracket me-2"></i>Logout</a></li>
-    </ul>
-  </div>
-</nav>
+<div class="dashboard-header d-flex justify-content-between align-items-center">
+    <a href="{% url 'instructor_dashboard' %}" class="text-decoration-none text-dark">
+        <h3 class="m-0 fw-bold brand-title">
+                <i class="fas fa-graduation-cap"></i> Speshway
+            </h3>
+    </a>
 
-<!-- ── HERO ─── -->
-<div class="hero">
-  <h1><i class="fa-solid fa-user-graduate me-2"></i>Student Learning History</h1>
-  <div class="hero-meta">
-    <div class="hero-pill"><i class="fa-solid fa-book-open"></i> {{ course.title }}</div>
-    <div class="hero-pill"><i class="fa-regular fa-user"></i> {{ student.get_full_name }}</div>
-  </div>
+    <div class="dropdown">
+        <button class="btn rounded-circle shadow"
+                style="background:gray;color:white;width:45px;height:45px;"
+                type="button" data-bs-toggle="dropdown">
+            {{ request.user.username|first|upper }}
+        </button>
+
+        <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="{% url 'instructor_profile_view' %}">Profile</a></li>
+            <li><a class="dropdown-item" href="{% url 'instructor:students_list' %}">My Students</a></li>
+            <li><a class="dropdown-item" href="{% url 'logout_view' %}" class="text-danger">Logout</a></li>
+        </ul>
+    </div>
 </div>
 
-<!-- ── PAGE ─── -->
-<div class="page-wrap">
+<div class="activity-header">
+    <div class="container text-center">
+        <h1><i class="fas fa-user-graduate me-2"></i>Student Learning Activity</h1>
+        <p class="lead">
+            {{ student.get_full_name }} |
+            Course: {{ course.title }}
+        </p>
+    </div>
+</div>
+
+<div class="container mb-5">
+
+    <div class="row mb-4">
+
+        <div class="col-md-3 mb-3">
+            <div class="stat-card">
+                <i class="fas fa-book-open"></i>
+                <h3>{{ total_lectures }}</h3>
+                <p>Total Lectures</p>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="stat-card">
+                <i class="fas fa-check-circle"></i>
+                <h3>{{ completed_lectures }}</h3>
+                <p>Completed Lectures</p>
+            </div>
+        </div>
 
   
 
-  <!-- STATS -->
-  <div class="stats-grid">
-    <div class="stat-card">
-      <div class="stat-icon"><i class="fa-solid fa-book-open"></i></div>
-      <div class="stat-value">{{ total_lectures }}</div>
-      <div class="stat-label">Total Lectures</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon"><i class="fa-solid fa-circle-check"></i></div>
-      <div class="stat-value">{{ completed_lectures }}</div>
-      <div class="stat-label">Completed Lectures</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon"><i class="fa-solid fa-chart-line"></i></div>
-      <div class="stat-value">{{ progress_percent }}%</div>
-      <div class="stat-label">Course Progress</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon"><i class="fa-regular fa-clock"></i></div>
-      <div class="stat-value">{{ total_watch_time }}s</div>
-      <div class="stat-label">Video Watch Time</div>
-    </div>
-  </div>
-
-  <!-- TABS -->
-  <div class="tabs-bar">
-    <button class="tab-btn active" onclick="openTab(event, 'progress-tab')">
-      <i class="fa-solid fa-chart-bar"></i> Progress
-    </button>
-    <button class="tab-btn" onclick="openTab(event, 'quiz-tab')">
-      <i class="fa-solid fa-list-check"></i> Quizzes
-    </button>
-    <button class="tab-btn" onclick="openTab(event, 'attendance-tab')">
-      <i class="fa-solid fa-user-check"></i> Attendance
-    </button>
-    <button class="tab-btn" onclick="openTab(event, 'videos-tab')">
-      <i class="fa-solid fa-play-circle"></i> Video Activity
-    </button>
-    <button class="tab-btn" onclick="openTab(event, 'qna-tab')">
-      <i class="fa-regular fa-circle-question"></i> Q&amp;A
-    </button>
-    <button class="tab-btn" onclick="openTab(event, 'login-tab')">
-      <i class="fa-solid fa-clock-rotate-left"></i> Login History
-    </button>
-  </div>
-
-  <!-- ── PROGRESS ── -->
-  <div id="progress-tab" class="tab-panel active">
-    <div class="panel-card">
-      <div class="panel-top-bar"></div>
-      <div class="panel-header">
-        <div class="panel-icon"><i class="fa-solid fa-chart-bar"></i></div>
-        <div class="panel-title">Course Progress</div>
-      </div>
-      <div class="panel-body">
-        <div class="progress-meta">
-          <strong>{{ completed_lectures }}</strong> of <strong>{{ total_lectures }}</strong> lectures completed
+        <div class="col-md-3 mb-3">
+            <div class="stat-card">
+                <i class="fas fa-clock"></i>
+                <h3>{{ total_watch_time }}</h3>
+                <p>Watch Time (sec)</p>
+            </div>
         </div>
-        <div class="prog-bar-wrap">
-          <div class="prog-bar-fill" style="width: {{ progress_percent }}%;"></div>
-        </div>
-        <div class="prog-pct">{{ progress_percent }}%</div>
-      </div>
-    </div>
-  </div>
 
-  <!-- ── QUIZZES ── -->
-  <div id="quiz-tab" class="tab-panel">
-    <div class="panel-card">
-      <div class="panel-top-bar"></div>
-      <div class="panel-header">
-        <div class="panel-icon"><i class="fa-solid fa-list-check"></i></div>
-        <div class="panel-title">Quiz Performance</div>
-      </div>
-      <div class="panel-body" style="padding: 0;">
+    </div>
+
+    <div class="tab-buttons">
+        <button class="tab-button active" onclick="openTab(event,'progress-tab')">
+            <i class="fas fa-book me-2"></i>Progress
+        </button>
+
+        <button class="tab-button" onclick="openTab(event,'quiz-tab')">
+            <i class="fas fa-list-check me-2"></i>Quizzes
+        </button>
+
+        <button class="tab-button" onclick="openTab(event,'attendance-tab')">
+            <i class="fas fa-user-check me-2"></i>Attendance
+        </button>
+
+        <button class="tab-button" onclick="openTab(event,'history-tab')">
+            <i class="fas fa-history me-2"></i>Login History
+        </button>
+
+        <button class="tab-button" onclick="openTab(event,'qna-tab')">
+            <i class="fas fa-question-circle me-2"></i>Q&A
+        </button>
+    </div>
+
+    <div id="progress-tab" class="tab-content active">
+        <h3>Lecture Progress</h3>
+
+        <div class="progress-container mt-3">
+            <div class="progress-bar" style="width: {{ progress_percent }}%;"></div>
+            <span class="progress-text">{{ progress_percent }}% Complete</span>
+        </div>
+
+        <h4 class="mt-4">Video Activity</h4>
+
+        {% if activity %}
+        <table class="activity-table">
+            <thead>
+                <tr>
+                    <th>Lecture</th>
+                    <th>Watched (sec)</th>
+                    <th>Status</th>
+                    <th>Last Updated</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for a in activity %}
+                <tr>
+                    <td>{{ a.lecture.title }}</td>
+                    <td>{{ a.last_position }}</td>
+                    <td class="{% if a.completed %}status-success{% else %}status-failure{% endif %}">
+                        {% if a.completed %}Completed{% else %}In Progress{% endif %}
+                    </td>
+                    <td>{{ a.updated_at|date:"Y-m-d H:i" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="text-center py-4">
+            <i class="fas fa-play-circle fa-3x text-muted mb-3"></i>
+            <p class="text-muted">No video activity yet.</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <div id="quiz-tab" class="tab-content">
+        <h3>Quiz Activity</h3>
+
         {% if quiz_results %}
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Quiz</th>
-              <th>Score</th>
-              <th>Attempted On</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for r in quiz_results %}
-            <tr>
-              <td>{{ r.quiz.title }}</td>
-              <td><span class="badge-success"><i class="fa-solid fa-star"></i> {{ r.score }}</span></td>
-              <td>{{ r.submitted_at|date:"Y-m-d H:i" }}</td>
-            </tr>
-            {% endfor %}
-          </tbody>
+        <table class="activity-table">
+            <thead>
+                <tr>
+                    <th>Quiz</th>
+                    <th>Score</th>
+                    <th>Attempted On</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in quiz_results %}
+                <tr>
+                    <td>{{ r.quiz.title }}</td>
+                    <td>{{ r.score }}</td>
+                    <td>{{ r.submitted_at|date:"Y-m-d H:i" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
         </table>
         {% else %}
-        <div class="empty-state">
-          <i class="fa-solid fa-list-check"></i>
-          <p>No quiz attempts yet.</p>
+        <div class="text-center py-4">
+            <i class="fas fa-list-check fa-3x text-muted mb-3"></i>
+            <p class="text-muted">No quiz attempts yet.</p>
         </div>
         {% endif %}
       </div>
     </div>
-  </div>
 
-  <!-- ── ATTENDANCE ── -->
-  <div id="attendance-tab" class="tab-panel">
-    <div class="panel-card">
-      <div class="panel-top-bar"></div>
-      <div class="panel-header">
-        <div class="panel-icon"><i class="fa-solid fa-user-check"></i></div>
-        <div class="panel-title">Live Class Attendance</div>
-      </div>
-      <div class="panel-body">
-        <div class="att-summary">
-          <div class="att-chip total"><i class="fa-solid fa-layer-group"></i> Total: {{ total_classes }}</div>
-          <div class="att-chip attended"><i class="fa-solid fa-circle-check"></i> Attended: {{ attended }}</div>
-          <div class="att-chip missed"><i class="fa-solid fa-circle-xmark"></i> Missed: {{ missed }}</div>
-        </div>
-      </div>
-      <div style="padding: 0 0 2px;">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Class Title</th>
-              <th>Joined At</th>
-              <th>Duration</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for att in attendance_list %}
-            <tr>
-              <td>{{ att.live_class.title }}</td>
-              <td>{{ att.joined_at|date:"Y-m-d H:i" }}</td>
-              <td>{{ att.duration }} mins</td>
-            </tr>
-            {% empty %}
-            <tr><td colspan="3" class="text-center" style="color:var(--muted);padding:28px;">No attendance records.</td></tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
+    <div id="attendance-tab" class="tab-content">
+        <h3>Attendance Overview</h3>
 
-  <!-- ── VIDEO ACTIVITY ── -->
-  <div id="videos-tab" class="tab-panel">
-    <div class="panel-card">
-      <div class="panel-top-bar"></div>
-      <div class="panel-header">
-        <div class="panel-icon"><i class="fa-solid fa-play-circle"></i></div>
-        <div class="panel-title">Video Lessons Watched</div>
-      </div>
-      <div style="padding: 0 0 2px;">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Lecture</th>
-              <th>Progress</th>
-              <th>Status</th>
-              <th>Last Updated</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for a in activity %}
-            <tr>
-              <td style="max-width:260px;">{{ a.lecture.title }}</td>
-              <td>{{ a.last_position }}s</td>
-              <td>
-                {% if a.completed %}
-                  <span class="badge-success"><i class="fa-solid fa-check"></i> Completed</span>
-                {% else %}
-                  <span class="badge-progress"><i class="fa-solid fa-spinner"></i> In Progress</span>
-                {% endif %}
-              </td>
-              <td>{{ a.updated_at|date:"Y-m-d H:i" }}</td>
-            </tr>
-            {% empty %}
-            <tr><td colspan="4" class="text-center" style="color:var(--muted);padding:28px;">No video activity yet.</td></tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── Q&A ── -->
-  <div id="qna-tab" class="tab-panel">
-    <div class="panel-card">
-      <div class="panel-top-bar"></div>
-      <div class="panel-header">
-        <div class="panel-icon"><i class="fa-regular fa-circle-question"></i></div>
-        <div class="panel-title">Q&amp;A Activity</div>
-      </div>
-      <div class="panel-body">
-        {% if questions %}
-          {% for q in questions %}
-          <div class="qna-card">
-            <div class="qna-question">
-              <div class="qna-q-label"><i class="fa-regular fa-circle-question me-1"></i> Question</div>
-              <div class="qna-q-text">{{ q.question }}</div>
-              <div class="qna-q-meta">
-                <i class="fa-solid fa-film me-1" style="color:var(--teal);"></i>{{ q.lecture.title }}
-                &nbsp;·&nbsp;
-                <i class="fa-solid fa-book-open me-1" style="color:var(--teal);"></i>{{ q.lecture.module.course.title }}
-                &nbsp;·&nbsp;{{ q.created_at|date:"Y-m-d" }}
-              </div>
+        <div class="row mt-4">
+            <div class="col-md-3 mb-3">
+                <div class="stat-card">
+                    <h4>Total Classes</h4>
+                    <p class="big-number">{{ total_classes }}</p>
+                </div>
             </div>
-            {% if q.replies.all %}
-            <div class="qna-replies">
-              {% for reply in q.replies.all %}
-              <div class="qna-reply">
-                <div class="qna-reply-author">{{ reply.user.get_full_name }}</div>
-                <div class="qna-reply-text">{{ reply.reply }}</div>
-                <div class="qna-reply-date">{{ reply.created_at|date:"Y-m-d H:i" }}</div>
-              </div>
-              {% endfor %}
+
+            <div class="col-md-3 mb-3">
+                <div class="stat-card">
+                    <h4>Attended</h4>
+                    <p class="big-number">{{ attended }}</p>
+                </div>
             </div>
-            {% else %}
-            <div class="qna-no-replies">No replies yet.</div>
-            {% endif %}
-          </div>
-          {% endfor %}
-        {% else %}
-        <div class="empty-state">
-          <i class="fa-regular fa-comment-dots"></i>
-          <p>No Q&amp;A activity found.</p>
+
+            <div class="col-md-3 mb-3">
+                <div class="stat-card">
+                    <h4>Missed</h4>
+                    <p class="big-number">{{ missed }}</p>
+                </div>
+            </div>
         </div>
-        {% endif %}
+
+        <table class="activity-table">
+            <thead>
+                <tr>
+                    <th>Class</th>
+                    <th>Joined At</th>
+                    <th>Duration</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for att in attendance_list %}
+                <tr>
+                    <td>{{ att.live_class.title }}</td>
+                    <td>{{ att.joined_at|date:"Y-m-d H:i" }}</td>
+                    <td>{{ att.duration }} mins</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
       </div>
     </div>
-  </div>
 
-  <!-- ── LOGIN HISTORY ── -->
-  <div id="login-tab" class="tab-panel">
-    <div class="panel-card">
-      <div class="panel-top-bar"></div>
-      <div class="panel-header">
-        <div class="panel-icon"><i class="fa-solid fa-clock-rotate-left"></i></div>
-        <div class="panel-title">Login History</div>
-      </div>
-      <div style="padding: 0 0 2px;">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Login Time</th>
-              <th>Status</th>
-              <th>Device</th>
-              <th>Logout Time</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for login in login_history %}
-            <tr>
-              <td>{{ login.login_time|date:"Y-m-d" }}</td>
-              <td>{{ login.login_time|date:"H:i" }}</td>
-              <td class="{% if login.status == 'Success' %}status-success{% else %}status-failure{% endif %}">
-                {{ login.status }}
-              </td>
-              <td>{{ login.device|default:"Unknown Device" }}</td>
-              <td>
-                {% if login.logout_time %}
-                  {{ login.logout_time|date:"Y-m-d H:i" }}
-                {% else %}
-                  <span class="badge-active"><i class="fa-solid fa-circle" style="font-size:.5rem;"></i> Active</span>
-                {% endif %}
-              </td>
-            </tr>
-            {% empty %}
-            <tr><td colspan="5" class="text-center" style="color:var(--muted);padding:28px;">No login history found.</td></tr>
-            {% endfor %}
-          </tbody>
+    <div id="history-tab" class="tab-content">
+        <h3>Login History</h3>
+
+        <table class="activity-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Device</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for login in login_history %}
+                <tr>
+                    <td>{{ login.login_time|date:"Y-m-d H:i" }}</td>
+                    <td class="{% if login.status == 'Success' %}status-success{% else %}status-failure{% endif %}">
+                        {{ login.status }}
+                    </td>
+                    <td>{{ login.device|default:"Unknown" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="3" class="text-center text-muted">No login history.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
         </table>
       </div>
     </div>
   </div>
+
+    <div id="qna-tab" class="tab-content">
+        <h3>Q&A Activity</h3>
+
+        {% for q in questions %}
+        <div class="qna-item">
+            <p class="fw-bold">Q: {{ q.question }}</p>
+            <p class="text-muted">
+                Lecture: {{ q.lecture.title }} |
+                {{ q.created_at|date:"Y-m-d" }}
+            </p>
+        </div>
+        {% empty %}
+        <div class="text-center py-4">
+            <i class="fas fa-question-circle fa-3x text-muted mb-3"></i>
+            <p class="text-muted">No Q&A activity yet.</p>
+        </div>
+        {% endfor %}
+    </div>
 
 </div>
 
+<footer class="bg-light py-4 mt-5">
+    <div class="container text-center">
+        <p class="mb-0">&copy; 2025 Speshway. All rights reserved.</p>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 <script>
 function openTab(evt, tabName) {
-  document.querySelectorAll('.tab-panel').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById(tabName).classList.add('active');
-  evt.currentTarget.classList.add('active');
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+
+    document.getElementById(tabName).classList.add('active');
+    evt.currentTarget.classList.add('active');
 }
 </script>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -28,7 +28,7 @@ def send_verification_email(request, user, role, token):
     )
 
     email = EmailMessage(
-        subject="Verify your email - Bildung",
+        subject="Verify your email - Speshway",
         body=html_message,
         from_email=settings.DEFAULT_FROM_EMAIL,
         to=[user.email],

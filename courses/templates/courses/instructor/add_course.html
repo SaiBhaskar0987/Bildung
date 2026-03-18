@@ -2,339 +2,491 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Create Course</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Create Course – SPESHWAY</title>
 
-    <link rel="stylesheet" href="{% static 'css/add_course.css' %}">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/add_course.css' %}">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
 
-    <script>
-        const BASE_URL = "/accounts/instructor";
-        const COURSE_ID = "{{ course_id }}";
-        const PRELOAD = {{ preload|safe }};
-    </script>
-
-
+<script>
+  const BASE_URL = "/accounts/instructor";
+  const COURSE_ID = "{{ course_id }}";
+  const PRELOAD = {{ preload|safe }};
+</script>
 
 <style>
-    
-    *{
-    box-sizing:border-box;
-    font-family: 'Segoe UI', sans-serif;
+:root {
+  --ink:          #0F1117;
+  --ink-soft:     #2C2F3A;
+  --teal:         #0D9488;
+  --teal-mid:     #14B8A6;
+  --teal-glow:    #5EEAD4;
+  --teal-pale:    #CCFBF1;
+  --surface:      #F0FDFA;
+  --card-bg:      #FFFFFF;
+  --border:       #C7F5EE;
+  --border-strong:#99E9DC;
+  --muted:        #64748B;
+  --muted-light:  #94A3B8;
+  --red:          #EF4444;
+  --radius:       20px;
+  --radius-sm:    12px;
+  --shadow-sm:    0 2px 8px rgba(13,148,136,.07);
+  --shadow-md:    0 6px 24px rgba(13,148,136,.11);
+  --shadow-lg:    0 16px 48px rgba(13,148,136,.15);
 }
-
-body{
-    margin:0;
-    background: linear-gradient(135deg,#ffffff,#fff7cc,#ffffff);
-    min-height:100vh;
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', sans-serif; background: var(--surface); color: var(--ink); min-height: 100vh; }
+body::before {
+  content: ''; position: fixed; inset: 0;
+  background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 40px 40px; opacity: .3; pointer-events: none; z-index: 0;
 }
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-thumb { background: var(--teal-glow); border-radius: 99px; }
 
-.topbar{
-    background: linear-gradient(135deg,#3a2a1a,#5a3d1f);
-    padding:12px 25px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    box-shadow:0 4px 12px rgba(0,0,0,0.4);
+
+.topnav {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 32px; height: 64px;
+  background: rgba(255,255,255,.93); backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border); box-shadow: var(--shadow-sm);
 }
-
-.topbar-title{
-    font-size:26px;
-    font-weight:bold;
-    text-decoration:none;
-    color:#facc15;
+.brand { font-family: 'Sora', sans-serif; font-weight: 800; font-size: 1.35rem; letter-spacing: -.5px; color: var(--teal); text-decoration: none; }
+.brand span { color: var(--ink); }
+.avatar-btn {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--teal), var(--teal-mid));
+  color: #fff; border: none; cursor: pointer;
+  font-family: 'Sora', sans-serif; font-weight: 700; font-size: 1rem;
+  display: flex; align-items: center; justify-content: center;
+  transition: box-shadow .2s, transform .15s;
 }
+.avatar-btn:hover { box-shadow: 0 0 0 4px var(--teal-pale); transform: scale(1.05); }
+.dropdown-menu { border: 1px solid var(--border) !important; border-radius: var(--radius) !important; box-shadow: var(--shadow-lg) !important; padding: 8px !important; min-width: 220px !important; }
+.dropdown-item { border-radius: var(--radius-sm); font-size: .875rem; color: var(--ink-soft); padding: 8px 12px; transition: background .15s, color .15s; }
+.dropdown-item:hover { background: var(--teal-pale); color: var(--teal); }
+.dropdown-item.text-danger:hover { background: #FEE2E2; color: var(--red); }
+.dropdown-divider { border-color: var(--border) !important; }
 
-.topbar .btn.rounded-circle{
-    background: linear-gradient(135deg,#facc15,#fde68a);
-    color:#3a2a1a;
-    border:none;
-    box-shadow:0 4px 10px rgba(250,204,21,0.6);
+
+.page-wrap { position: relative; z-index: 1; max-width: 980px; margin: 0 auto; padding: 40px 24px 100px; }
+
+
+.page-header { margin-bottom: 32px; }
+.eyebrow {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--teal-pale); color: var(--teal);
+  border: 1px solid var(--teal-glow); border-radius: 99px;
+  padding: 4px 12px; font-size: .71rem; font-weight: 700;
+  letter-spacing: .8px; text-transform: uppercase; margin-bottom: 10px;
 }
+.page-header h2 { font-family: 'Sora', sans-serif; font-weight: 800; font-size: 2rem; letter-spacing: -1.2px; }
+.page-header h2 span { color: var(--teal); }
+.page-header p { color: var(--muted); margin-top: 6px; font-size: .88rem; line-height: 1.6; }
 
-.paper{
-    width:100%;
-    max-width:1200px;
-    margin:40px auto;
-    background:#ffffff;
-    padding:45px;
-    border-radius:22px;
-    box-shadow:0 25px 60px rgba(0,0,0,0.15);
+
+.section-card {
+  background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: var(--radius); overflow: hidden;
+  margin-bottom: 20px; box-shadow: var(--shadow-md);
+  animation: fadeUp .45s cubic-bezier(.22,.68,0,1.2) both;
+  position: relative;
 }
-
-.title{
-    text-align:center;
-    font-size:40px;
-    color:#3a2a1a;
-    margin-bottom:30px;
+.section-card.d1 { animation-delay: .08s; }
+.section-card.d2 { animation-delay: .16s; }
+@keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+.section-card::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+  background: linear-gradient(180deg, var(--teal), var(--teal-glow));
+  border-radius: 4px 0 0 4px;
 }
-
-.label{
-    font-weight:600;
-    color:#3a2a1a;
+.section-header { display: flex; align-items: center; gap: 12px; padding: 20px 28px 0; }
+.section-icon {
+  width: 38px; height: 38px;
+  background: linear-gradient(135deg, var(--teal-pale), #fff);
+  color: var(--teal); border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: .95rem; flex-shrink: 0; box-shadow: 0 2px 8px rgba(13,148,136,.1);
 }
+.section-title { font-family: 'Sora', sans-serif; font-weight: 700; font-size: 1rem; color: var(--ink); }
+.section-subtitle { font-size: .77rem; color: var(--muted-light); margin-top: 2px; }
+.section-body { padding: 20px 28px 28px; }
 
-.input-box{
-    width:100%;
-    padding:14px 16px;
-    border-radius:12px;
-    border:2px solid #facc15;
-    margin-bottom:18px;
+
+.field-wrap { display: flex; flex-direction: column; gap: 5px; }
+.field-label { font-size: .71rem; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: var(--muted); }
+.req { color: var(--teal); }
+.field-input, .field-select, .field-textarea {
+  width: 100%; padding: 10px 14px;
+  border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+  font-family: 'DM Sans', sans-serif; font-size: .9rem; color: var(--ink);
+  background: #FAFFFE; outline: none;
+  transition: border-color .2s, box-shadow .2s, background .2s; appearance: none;
 }
-
-.input-box:focus{
-    outline:none;
-    border-color:#92400e;
-    box-shadow:0 0 0 4px rgba(250,204,21,0.35);
+.field-input:hover, .field-select:hover, .field-textarea:hover { border-color: var(--border-strong); }
+.field-input:focus, .field-select:focus, .field-textarea:focus {
+  border-color: var(--teal); box-shadow: 0 0 0 4px rgba(13,148,136,.1); background: #fff;
 }
-
-.divider{
-    margin:60px 0;
+.field-textarea { resize: vertical; min-height: 90px; line-height: 1.6; }
+.select-wrap { position: relative; }
+.select-wrap::after {
+  content: '\f107'; font-family: 'Font Awesome 6 Free'; font-weight: 900;
+  position: absolute; right: 13px; top: 50%; transform: translateY(-50%);
+  color: var(--muted); pointer-events: none; font-size: .82rem;
 }
+.g2  { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.gap { display: flex; flex-direction: column; gap: 16px; }
 
-#topRow{
-    display:flex;
-    flex-wrap:wrap;
-    justify-content:center;
-    gap:22px;
-    margin-top:25px;
-}
 
-.builder-card{
-    width:200px;
-    height:170px;
-    background:linear-gradient(135deg,#fffdf2,#fff7cc);
-    border-radius:20px;
-    border:2px dashed #facc15;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    box-shadow:0 12px 28px rgba(0,0,0,0.18);
-    transition:0.3s;
-    cursor:grab;
-}
-
-.builder-card:hover{
-    transform:scale(1.06);
-}
-
-.drop-zone{
-    width:220px;
-    height:200px;
-    border-radius:22px;
-    border:3px dashed #facc15;
-    background:rgba(250,204,21,0.12);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:60px;
-    font-weight:bold;
-    color:#3a2a1a;
-    transition:0.3s;
-}
-
-.drop-zone:hover{
-    background:rgba(250,204,21,0.25);
-    transform:scale(1.08);
-}
-
-.drag-row{
-    display:flex;
-    justify-content:center;
-    gap:18px;
-    flex-wrap:wrap;
-    margin-top:25px;
-}
-
-.draggable-btn{
-    background:linear-gradient(135deg,#fde047,#facc15);
-    padding:12px 22px;
-    border-radius:14px;
-    font-weight:600;
-    color:#3a2a1a;
-    box-shadow:0 8px 18px rgba(0,0,0,0.2);
-    cursor:grab;
-}
-
-.actions{
-    display:flex;
-    justify-content:center;
-    gap:22px;
-    margin-top:30px;
-}
-
-.save-main,
-.publish-main{
-    background:linear-gradient(135deg,#3a2a1a,#5a3d1f);
-    color:white;
-    border:none;
-    padding:14px 36px;
-    font-size:16px;
-    border-radius:14px;
-    box-shadow:0 10px 28px rgba(0,0,0,0.35);
-    transition:0.3s;
-}
-
-.save-main:hover,
-.publish-main:hover{
-    transform:translateY(-3px);
-}
-
-.note{
-    text-align:center;
-    margin-top:18px;
-    color:#3a2a1a;
+.top-layout {
+  display: grid;
+  grid-template-columns: 1fr 260px;
+  gap: 24px;
+  align-items: start;
 }
 
 
-.topbar .btn.rounded-circle{
-    background: linear-gradient(135deg,#fde047,#facc15) !important;
-    color:#3a2a1a !important;
-    font-size:18px;
-    font-weight:700;
-    border:2px solid #ffffff;
-    box-shadow:0 0 0 3px rgba(250,204,21,0.7),
-               0 4px 12px rgba(0,0,0,0.3);
+#thumbnailInput { display: none; }
+
+.thumbnail-upload-area {
+  position: relative; width: 100%;
+  aspect-ratio: 16/9;
+  border: 2px dashed var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, #F0FDFA, #E6FBF8);
+  overflow: hidden; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: border-color .25s, background .25s, transform .18s, box-shadow .2s;
+}
+.thumbnail-upload-area:hover {
+  border-color: var(--teal);
+  background: linear-gradient(135deg, #D1FAF6, #CCFBF1);
+  transform: translateY(-2px); box-shadow: var(--shadow-md);
+}
+.thumbnail-upload-area.dragging {
+  border-color: var(--teal); background: var(--teal-pale);
+  box-shadow: 0 0 0 5px rgba(13,148,136,.08);
+}
+.thumbnail-upload-area.has-image {
+  border-style: solid; border-color: var(--teal-glow);
 }
 
-
-.stepper {
-    display:flex;
-    justify-content:center;
-    gap:40px;
-    margin-bottom:40px;
+.thumb-ph {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 8px; padding: 16px; text-align: center; pointer-events: none;
 }
-
-.step {
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    font-weight:600;
-    color:#999;
+.thumb-ico {
+  width: 42px; height: 42px;
+  background: linear-gradient(135deg, var(--teal-pale), #fff);
+  border: 1.5px solid var(--border-strong); border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.15rem; color: var(--teal);
+  box-shadow: 0 3px 10px rgba(13,148,136,.12);
+  transition: transform .2s;
 }
+.thumbnail-upload-area:hover .thumb-ico { transform: scale(1.1) translateY(-2px); }
+.thumb-ph-title { font-family: 'Sora', sans-serif; font-weight: 700; font-size: .79rem; color: var(--ink); }
+.thumb-ph-sub { font-size: .71rem; color: var(--muted); }
+.thumb-ph-sub strong { color: var(--teal); }
 
-.step-circle {
-    width:42px;
-    height:42px;
-    border-radius:50%;
-    background:#e5e5e5;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    margin-bottom:6px;
+.thumb-preview-img {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; border-radius: calc(var(--radius-sm) - 2px);
 }
-
-.step.active {
-    color:#3a2a1a;
+.thumb-hover-overlay {
+  position: absolute; inset: 0;
+  background: rgba(15,17,23,.5); backdrop-filter: blur(2px);
+  border-radius: calc(var(--radius-sm) - 2px);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+  opacity: 0; transition: opacity .25s;
 }
-
-.step.active .step-circle {
-    background:linear-gradient(135deg,#fde047,#facc15);
-    box-shadow:0 0 15px rgba(250,204,21,0.6);
+.thumbnail-upload-area.has-image:hover .thumb-hover-overlay { opacity: 1; }
+.thumb-hov-icon {
+  width: 34px; height: 34px;
+  background: rgba(255,255,255,.18); border: 1.5px solid rgba(255,255,255,.35);
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: .82rem;
 }
+.thumb-hov-text { color: #fff; font-family: 'Sora', sans-serif; font-weight: 700; font-size: .76rem; }
+.thumb-remove-btn {
+  position: absolute; top: 7px; right: 7px;
+  width: 26px; height: 26px;
+  background: rgba(239,68,68,.85); color: #fff;
+  border: none; border-radius: 50%; cursor: pointer;
+  display: none; align-items: center; justify-content: center;
+  font-size: .72rem; transition: background .15s, transform .15s; z-index: 5;
+}
+.thumbnail-upload-area.has-image .thumb-remove-btn { display: flex; }
+.thumb-remove-btn:hover { background: var(--red); transform: scale(1.1); }
 
 
+#topRow { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 8px; min-height: 50px; }
+.builder-card {
+  width: 185px; height: 150px; background: #fff; border-radius: 16px;
+  border: 2px dashed #dcdcdc;
+  display: flex; flex-direction: column; justify-content: center; align-items: center;
+  position: relative; box-shadow: 0 3px 12px rgba(0,0,0,.09);
+  transition: .22s ease; cursor: grab; padding: 12px;
+}
+.builder-card:hover { transform: scale(1.04); box-shadow: 0 7px 22px rgba(0,0,0,.13); }
+.card-title { font-size: 14px; font-weight: 700; text-align: center; margin-bottom: 10px; color: var(--ink); }
+.module-card     { border-color: #6aa9ff !important; }
+.quiz-card       { border-color: #ffc466 !important; }
+.assignment-card { border-color: #7ee6a0 !important; }
+.card-actions { display: flex; justify-content: center; gap: 7px; }
+.open-module-btn { background: #4caf50; color: #fff; border-radius: 6px; border: none; padding: 5px 10px; font-size: 12px; font-weight: 600; cursor: pointer; }
+.delete-module-btn { background: #ff4d4d; color: #fff; border-radius: 6px; border: none; padding: 5px 9px; font-size: 12px; font-weight: 600; cursor: pointer; }
+.drop-zone {
+  width: 185px; height: 150px; border-radius: 16px;
+  border: 2px dashed var(--border-strong);
+  background: linear-gradient(135deg, var(--teal-pale), #fff);
+  display: flex; justify-content: center; align-items: center;
+  font-size: 30px; font-weight: bold; color: var(--teal);
+  cursor: pointer; transition: .22s ease; box-shadow: var(--shadow-sm);
+}
+.drop-zone:hover { transform: scale(1.07); border-color: var(--teal); box-shadow: var(--shadow-md); }
+.drag-row { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 18px; margin-bottom: 10px; }
+.draggable-btn {
+  padding: 8px 17px; border-radius: 9px; font-weight: 700; font-size: 13px;
+  cursor: grab; border: none; color: white; user-select: none;
+  transition: transform .15s, box-shadow .15s;
+}
+.draggable-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 14px rgba(0,0,0,.14); }
+.module-btn     { background: linear-gradient(135deg,#4a90e2,#6aa9ff); }
+.quiz-btn       { background: linear-gradient(135deg,#f5a623,#ffcf7d); color: #333; }
+.assignment-btn { background: linear-gradient(135deg,#27ae60,#7ee6a0); }
+.note { font-size: .78rem; color: var(--muted); display: flex; align-items: center; gap: 5px; }
+
+
+.actions-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 12px; padding: 18px 28px;
+  background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: var(--radius); box-shadow: var(--shadow-md);
+  position: relative; overflow: hidden;
+}
+.actions-bar::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: linear-gradient(180deg, var(--teal), var(--teal-glow)); }
+.hint { display: flex; align-items: center; gap: 7px; font-size: .82rem; color: var(--muted); font-weight: 500; }
+.hint i { color: var(--teal); }
+.action-btns { display: flex; gap: 10px; }
+.btn-save-course {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: var(--teal-pale); color: var(--teal);
+  border: 1.5px solid var(--teal-glow); border-radius: var(--radius-sm);
+  padding: 10px 22px; font-size: .88rem; font-weight: 700;
+  font-family: 'Sora', sans-serif; cursor: pointer;
+  transition: background .15s, color .15s, transform .15s, box-shadow .15s;
+}
+.btn-save-course:hover { background: var(--teal); color: #fff; transform: translateY(-1px); box-shadow: 0 5px 18px rgba(13,148,136,.25); }
+.btn-publish {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: linear-gradient(135deg, var(--teal), var(--teal-mid));
+  color: #fff; border: none; border-radius: var(--radius-sm);
+  padding: 10px 24px; font-size: .88rem; font-weight: 700;
+  font-family: 'Sora', sans-serif; cursor: pointer;
+  box-shadow: 0 4px 14px rgba(13,148,136,.3);
+  transition: opacity .2s, transform .15s, box-shadow .2s;
+}
+.btn-publish:hover { opacity: .9; transform: translateY(-2px); box-shadow: 0 7px 24px rgba(13,148,136,.38); }
+
+@media (max-width: 760px) {
+  .top-layout { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+  .topnav { padding: 0 16px; }
+  .page-wrap { padding: 24px 16px 60px; }
+  .g2 { grid-template-columns: 1fr; }
+  .actions-bar { flex-direction: column; align-items: stretch; }
+  .action-btns { flex-direction: column; }
+  .section-header { padding: 16px 20px 0; }
+  .section-body { padding: 16px 20px 20px; }
+}
 </style>
 </head>
+<body>
 
+<nav class="topnav">
+  <a href="{% url 'instructor_dashboard' %}" class="brand">SPESH<span>WAY</span></a>
+  <div class="dropdown">
+    <button class="avatar-btn" type="button" data-bs-toggle="dropdown">{{ request.user.username|first|upper }}</button>
+    <ul class="dropdown-menu dropdown-menu-end">
+      <li><a class="dropdown-item" href="{% url 'instructor_profile_view' %}"><i class="fa-regular fa-user me-2"></i>Profile</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor:add_course' %}"><i class="fa-solid fa-plus me-2"></i>Create New Course</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor:students_list' %}"><i class="fa-solid fa-users me-2"></i>My Students</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor:calendar_view' %}"><i class="fa-regular fa-calendar me-2"></i>My Schedules</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor_notifications' %}"><i class="fa-regular fa-bell me-2"></i>Notifications</a></li>
+      <li><a class="dropdown-item" href="#"><i class="fa-solid fa-wallet me-2"></i>Earnings & Payments</a></li>
+      <li><a class="dropdown-item" href="#"><i class="fa-regular fa-circle-question me-2"></i>Help & Support</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor_account_settings' %}"><i class="fa-solid fa-gear me-2"></i>Account Settings</a></li>
+      <li><hr class="dropdown-divider"></li>
+      <li><a class="dropdown-item text-danger" href="{% url 'logout_view' %}"><i class="fa-solid fa-right-from-bracket me-2"></i>Logout</a></li>
+    </ul>
+  </div>
+</nav>
 
-<body class="bg-light">
+<div class="page-wrap">
 
+  <div class="page-header">
+    <div class="eyebrow"><i class="fa-solid fa-wand-magic-sparkles"></i> Course Creator</div>
+    <h2>Create a new <span>Course</span></h2>
+    <p>Fill in the details below, then build your course structure with modules and quizzes.</p>
+  </div>
 
-<div class="topbar">
-    <a href="{% url 'instructor_dashboard' %}" class="topbar-title">Speshway</a>
-
-    <div class="dropdown">
-        <button class="btn rounded-circle shadow"
-                style="background:#666;color:white;width:45px;height:45px;"
-                data-bs-toggle="dropdown">
-            {{ request.user.username|first|upper }}
-        </button>
-
-        <ul class="dropdown-menu dropdown-menu-end">
-                <li><a class="dropdown-item" href="{% url 'instructor_profile_view' %}">Profile</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor:add_course' %}">Create New Course</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor:students_list' %}">My Students</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor:calendar_view' %}">My Schedules</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor_notifications' %}">Notifications</a></li>
-                <li><a class="dropdown-item" href="#">Earnings & Payments</a></li>
-                <li><a class="dropdown-item" href="#">Help & Support</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor_account_settings' %}">Account Settings</a></li>
-                <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item text-danger" href="{% url 'logout_view' %}">Logout</a></li>
-        </ul>
+  
+  <div class="section-card">
+    <div class="section-header">
+      <div class="section-icon"><i class="fa-solid fa-book-open"></i></div>
+      <div>
+        <div class="section-title">Course Details</div>
+        <div class="section-subtitle">Basic information &amp; course thumbnail</div>
+      </div>
     </div>
-</div>
+    <div class="section-body">
+      <div class="top-layout">
 
+        
+        <div class="gap">
+          <div class="field-wrap">
+            <label class="field-label">Course Title <span class="req">*</span></label>
+            <input id="courseTitle" class="field-input" placeholder="e.g. Complete Python Bootcamp" value="{{ course_title }}">
+          </div>
+          <div class="field-wrap">
+            <label class="field-label">Description <span class="req">*</span></label>
+            <textarea id="courseDescription" class="field-textarea" placeholder="What will students learn in this course?">{{ course_description }}</textarea>
+          </div>
+          <div class="g2">
+            <div class="field-wrap">
+              <label class="field-label">Price (₹)</label>
+              <input id="coursePrice" type="number" class="field-input" placeholder="0 for free" value="{{ course_price }}">
+            </div>
+            <div class="field-wrap">
+              <label class="field-label">Category</label>
+              <div class="select-wrap">
+                <select id="courseCategory" class="field-select">
+                  <option value="" disabled selected>Select Category</option>
+                  <option value="business"    {% if course_category == 'business'    %}selected{% endif %}>Business</option>
+                  <option value="design"      {% if course_category == 'design'      %}selected{% endif %}>Design</option>
+                  <option value="music"       {% if course_category == 'music'       %}selected{% endif %}>Music</option>
+                  <option value="programming" {% if course_category == 'programming' %}selected{% endif %}>Programming</option>
+                  <option value="others"      {% if course_category == 'others'      %}selected{% endif %}>Others</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="g2">
+            <div class="field-wrap">
+              <label class="field-label">Course Level</label>
+              <div class="select-wrap">
+                <select id="courseLevel" class="field-select">
+                  <option value="" disabled selected>Select Level</option>
+                  <option value="beginner"     {% if course_level == 'beginner'     %}selected{% endif %}>Beginner</option>
+                  <option value="intermediate" {% if course_level == 'intermediate' %}selected{% endif %}>Intermediate</option>
+                  <option value="advanced"     {% if course_level == 'advanced'     %}selected{% endif %}>Advanced</option>
+                </select>
+              </div>
+            </div>
+            <div></div>
+          </div>
+        </div>
 
-<div class="paper">
+        
+        <div>
+          <div style="font-size:.71rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin-bottom:6px;">
+            Thumbnail <span class="req">*</span>
+          </div>
+          <input type="file" id="thumbnailInput" accept="image/png,image/jpeg,image/webp" onchange="handleThumbnailUpload(event)">
+          <div class="thumbnail-upload-area" id="thumbUploadArea"
+               onclick="document.getElementById('thumbnailInput').click()"
+               ondragover="thumbDragOver(event)" ondragleave="thumbDragLeave(event)" ondrop="thumbDrop(event)">
+            <div class="thumb-ph" id="thumbPlaceholder">
+              <div class="thumb-ico"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+              <div class="thumb-ph-title">Upload Thumbnail</div>
+              <div class="thumb-ph-sub"><strong>Click</strong> or drag &amp; drop</div>
+            </div>
+            <img id="thumbPreviewImg" class="thumb-preview-img" src="" alt="" style="display:none">
+            <div class="thumb-hover-overlay">
+              <div class="thumb-hov-icon"><i class="fa-solid fa-pen"></i></div>
+              <div class="thumb-hov-text">Change</div>
+            </div>
+            <button class="thumb-remove-btn" onclick="removeThumbnail(event)"><i class="fa-solid fa-xmark"></i></button>
+          </div>
+        </div>
 
-
-    <h1 class="title">CREATE COURSE</h1>
-
-    <label class="label">Course Title</label>
-    <input id="courseTitle" class="input-box" value="{{ course_title }}">
-
-    <label class="label">Course Thumbnail</label>
-
-    <input type="file"
-    id="courseThumbnail"
-    class="input-box"
-    accept="image/*">
-
-    <label class="label">Description</label>
-    <textarea id="courseDescription" class="input-box" style="height:80px;">{{ course_description }}</textarea>
-
-    <label class="label">Price (₹)</label>
-    <input id="coursePrice" type="number" class="input-box" value="{{ course_price }}">
-
-    <label class="label">Category</label>
-    <select id="courseCategory" class="input-box">
-    <option value="" disabled selected>Select Category</option>
-        <option value="business" {% if course_category == 'business' %}selected{% endif %}>Business</option>
-        <option value="design" {% if course_category == 'design' %}selected{% endif %}>Design</option>
-        <option value="music" {% if course_category == 'music' %}selected{% endif %}>Music</option>
-        <option value="programming" {% if course_category == 'programming' %}selected{% endif %}>Programming</option>
-        <option value="others" {% if course_category == 'others' %}selected{% endif %}>Others</option>
-    </select>
-
-    <label class="label">Course Level</label>
-    <select id="courseLevel" class="input-box">
-        <option value="" disabled selected>Select Level</option>
-        <option value="beginner" {% if course_level == 'beginner' %}selected{% endif %}>Beginner</option>
-        <option value="intermediate" {% if course_level == 'intermediate' %}selected{% endif %}>Intermediate</option>
-        <option value="advanced" {% if course_level == 'advanced' %}selected{% endif %}>Advanced</option>
-    </select>
-
-    <hr class="divider">
-
-    <h1 class="title">MODULE BUILDER</h1>
-
-    <div id="moduleBuilder">
-          <div id="topRow"></div>
+      </div>
     </div>
+  </div>
 
-    <div class="bottom-area">
-
+  
+  <div class="section-card d1">
+    <div class="section-header">
+      <div class="section-icon"><i class="fa-solid fa-cubes"></i></div>
+      <div>
+        <div class="section-title">Module Builder</div>
+        <div class="section-subtitle">Drag blocks onto the + zone to build your curriculum</div>
+      </div>
+    </div>
+    <div class="section-body">
+      <div id="moduleBuilder"><div id="topRow"></div></div>
+      <div style="margin-top:20px;">
         <div class="drag-row">
-            <div class="draggable-btn module-btn" draggable="true" data-type="Module">Module</div>
-            <div class="draggable-btn quiz-btn" draggable="true" data-type="Quiz">Quiz</div>
-            <div class="draggable-btn assignment-btn" draggable="true" data-type="Assignment">Assignment</div>
-            <div class="draggable-btn liveclass-btn" draggable="true" data-type="Live Class">Live Class</div>
+          <div class="draggable-btn module-btn"    draggable="true" data-type="Module"><i class="fa-solid fa-layer-group me-1"></i>Module</div>
+          <div class="draggable-btn quiz-btn"       draggable="true" data-type="Quiz"><i class="fa-solid fa-circle-question me-1"></i>Quiz</div>
+          <div class="draggable-btn assignment-btn" draggable="true" data-type="Assignment"><i class="fa-solid fa-file-pen me-1"></i>Assignment</div>
         </div>
-
-        <div class="actions">
-            <button class="save-main" onclick="saveCourse()">Save Course</button>
-            <button class="publish-main" onclick="publishCourse()">Publish</button>
-        </div>
-
-        <div class="note">💡 Drag items onto the + box to add them</div>
+        <div class="note">💡 Drag items onto the <strong style="color:var(--teal)">+</strong> box to add them</div>
+      </div>
     </div>
+  </div>
+
+  
+  <div class="actions-bar d2">
+    <div class="hint"><i class="fa-solid fa-circle-info"></i>Save course before publishing</div>
+    <div class="action-btns">
+      <button class="btn-save-course" onclick="saveCourse()"><i class="fa-solid fa-floppy-disk"></i> Save Draft</button>
+      <button class="btn-publish" onclick="publishCourse()"><i class="fa-solid fa-rocket"></i> Publish Course</button>
+    </div>
+  </div>
 
 </div>
 
 <script src="{% static 'js/add_course.js' %}"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
+<script>
+let thumbnailFile = null;
+function handleThumbnailUpload(e) { const f = e.target.files[0]; if (f) applyThumbnail(f); }
+function applyThumbnail(file) {
+  if (file.size > 5*1024*1024) { alert('Max file size is 5 MB.'); return; }
+  thumbnailFile = file;
+  const r = new FileReader();
+  r.onload = e => {
+    document.getElementById('thumbPreviewImg').src = e.target.result;
+    document.getElementById('thumbPreviewImg').style.display = 'block';
+    document.getElementById('thumbPlaceholder').style.display = 'none';
+    document.getElementById('thumbUploadArea').classList.add('has-image');
+  };
+  r.readAsDataURL(file);
+}
+function removeThumbnail(e) {
+  e.stopPropagation(); thumbnailFile = null;
+  document.getElementById('thumbPreviewImg').src = '';
+  document.getElementById('thumbPreviewImg').style.display = 'none';
+  document.getElementById('thumbPlaceholder').style.display = 'flex';
+  document.getElementById('thumbUploadArea').classList.remove('has-image');
+  document.getElementById('thumbnailInput').value = '';
+}
+function thumbDragOver(e) { e.preventDefault(); document.getElementById('thumbUploadArea').classList.add('dragging'); }
+function thumbDragLeave() { document.getElementById('thumbUploadArea').classList.remove('dragging'); }
+function thumbDrop(e) {
+  e.preventDefault(); document.getElementById('thumbUploadArea').classList.remove('dragging');
+  const f = e.dataTransfer.files[0];
+  if (f && f.type.startsWith('image/')) applyThumbnail(f);
+}
+</script>
 </body>
 </html>

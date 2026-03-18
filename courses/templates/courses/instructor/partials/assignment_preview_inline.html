@@ -1,0 +1,47 @@
+{% comment %}
+  Assignment inline preview partial.
+  Context: assignment (with .title, .description, .file, .due_date)
+{% endcomment %}
+
+<style>
+.ap-wrap {
+  border: 1px solid #BFDBFE;
+  border-radius: 12px; overflow: hidden; background: #fff;
+}
+.ap-body { padding: 14px 16px; }
+.ap-desc { font-size: .84rem; color: #64748B; line-height: 1.65; margin-bottom: 14px; }
+.ap-meta-row { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 12px; }
+.ap-meta-item { display: flex; align-items: center; gap: 5px; font-size: .76rem; color: #64748B; }
+.ap-meta-item i { color: #3B82F6; }
+.ap-download {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: #DBEAFE; color: #1E40AF;
+  border: 1px solid #BFDBFE; border-radius: 8px;
+  padding: 6px 14px; font-size: .78rem; font-weight: 700;
+  text-decoration: none; transition: background .15s, color .15s;
+}
+.ap-download:hover { background: #3B82F6; color: #fff; }
+</style>
+
+<div class="ap-wrap">
+  <div class="ap-body">
+    {% if assignment.description %}
+    <p class="ap-desc">{{ assignment.description }}</p>
+    {% else %}
+    <p class="ap-desc" style="font-style:italic;color:#94A3B8;">No description provided.</p>
+    {% endif %}
+
+    <div class="ap-meta-row">
+      <div class="ap-meta-item">
+        <i class="fa-regular fa-calendar"></i>
+        <span><strong>Due date:</strong> {{ assignment.due_date|default:"Not set" }}</span>
+      </div>
+    </div>
+
+    {% if assignment.file %}
+    <a href="{{ assignment.file.url }}" class="ap-download" download>
+      <i class="fa-solid fa-file-arrow-down"></i> Download Assignment
+    </a>
+    {% endif %}
+  </div>
+</div>

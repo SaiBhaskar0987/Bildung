@@ -7,13 +7,11 @@
 <title>Instructor Dashboard – SPESHWAY</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=sora:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
 <link rel="stylesheet" type="text/css" href="{% static 'instructor_dashboard/inst_dash.css' %}">
 
 <style>
-/* ═══════════════════════════════════════════════════════
-   DESIGN TOKENS
-═══════════════════════════════════════════════════════ */
+
 :root {
   --ink:        #0F1117;
   --ink-soft:   #2C2F3A;
@@ -57,7 +55,7 @@ body {
   border-bottom: 1px solid rgba(94,234,212,.12);
 }
 .brand {
-  font-family: 'Syne', sans-serif; font-weight: 800;
+  font-family: 'sora', sans-serif; font-weight: 800;
   font-size: 1.45rem; letter-spacing: -.5px;
   color: var(--teal-glow); text-decoration: none;
 }
@@ -512,6 +510,14 @@ body {
   transition: background .15s, color .15s, border-color .15s, transform .15s;
   white-space: nowrap;
 }
+
+.site-footer {
+    border-top: 1px solid var(--border);
+    text-align: center; padding: 18px;
+    font-size: .8rem; color: var(--muted);
+    background: rgba(255,255,255,.85);
+    backdrop-filter: blur(8px);
+  }
 .act-btn i { font-size: .72rem; }
 .act-btn:hover { background: var(--teal-pale); color: var(--teal); border-color: var(--teal-glow); transform: translateY(-1px); }
 .act-btn.primary {
@@ -688,28 +694,12 @@ body {
       </div>
     </div>
 
-    <div class="hero-right">
-      <div class="hstat-card">
-        <div class="hstat-icon hsi-teal"><i class="fa-solid fa-book-open"></i></div>
-        <div><div class="hstat-val">{{ courses|length }}</div><div class="hstat-lbl">Active Courses</div></div>
-      </div>
-      <div class="hstat-card">
-        <div class="hstat-icon hsi-violet"><i class="fa-solid fa-users"></i></div>
-        <div><div class="hstat-val">{{ total_students|default:"0" }}</div><div class="hstat-lbl">Total Students</div></div>
-      </div>
-      <div class="hstat-card">
-        <div class="hstat-icon hsi-amber"><i class="fa-solid fa-star"></i></div>
-        <div><div class="hstat-val">{{ instructor_rating|default:"4.6" }}</div><div class="hstat-lbl">Avg. Rating</div></div>
-      </div>
-    </div>
   </div>
 
   <div class="hero-fade"></div>
 </div>
 
-
 <main class="main">
-
   
   <div class="stats-wrap">
     <div class="stats-grid">
@@ -857,7 +847,7 @@ body {
   </div>
 </div>
 
-
+<footer class="site-footer">&copy; 2025 Speshway. All rights reserved.</footer>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 (function(){

@@ -1,19 +1,75 @@
-<div class="mt-3 p-3 border rounded bg-light">
+{% comment %}
+  Quiz inline preview partial.
+  Context: quiz, questions (each with q.question_text, q.choices.all, c.text, c.is_correct)
+  CSS counter generates A/B/C/D — no custom Django filter needed.
+{% endcomment %}
 
-  <h5 class="fw-bold">{{ quiz.title }}</h5>
+<style>
+.qp-wrap { display: flex; flex-direction: column; gap: 10px; }
 
+.qp-card {
+  border: 1px solid #C7F5EE;
+  border-radius: 12px; overflow: hidden;
+  background: #fff;
+}
+
+.qp-q-row {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 11px 14px;
+  background: #F0FDFA;
+  border-bottom: 1px solid #C7F5EE;
+}
+.qp-num {
+  width: 22px; height: 22px; border-radius: 50%;
+  background: #0D9488; color: #fff;
+  font-family: 'Sora', sans-serif; font-weight: 800; font-size: .68rem;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; margin-top: 1px;
+}
+.qp-q-text { font-size: .85rem; font-weight: 600; color: #0F1117; line-height: 1.5; }
+
+.qp-choices {
+  padding: 10px 14px;
+  display: flex; flex-direction: column; gap: 6px;
+  counter-reset: choice-counter;
+}
+.qp-choice {
+  display: flex; align-items: center; gap: 9px;
+  padding: 7px 12px; border-radius: 8px;
+  border: 1.5px solid #C7F5EE;
+  font-size: .82rem; color: #2C2F3A; background: #fff;
+  counter-increment: choice-counter;
+}
+.qp-choice::before {
+  content: counter(choice-counter, upper-alpha);
+  width: 20px; height: 20px; border-radius: 50%;
+  background: #C7F5EE; color: #64748B;
+  font-family: 'Sora', sans-serif; font-weight: 800; font-size: .66rem;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.qp-choice.correct {
+  background: #D1FAE5; border-color: #6EE7B7;
+  color: #065F46; font-weight: 700;
+}
+.qp-choice.correct::before { background: #10B981; color: #fff; }
+.qp-check { margin-left: auto; color: #10B981; font-size: .8rem; flex-shrink: 0; }
+</style>
+
+<div class="qp-wrap">
   {% for q in questions %}
-    <div class="mb-3">
-      <strong>Q{{ forloop.counter }}.</strong> {{ q.question_text }}
-
-      <ul class="mt-1">
-        {% for c in q.choices.all %}
-          <li class="{% if c.is_correct %}text-success fw-bold{% endif %}">
-            {{ c.text }}
-          </li>
-        {% endfor %}
-      </ul>
+  <div class="qp-card">
+    <div class="qp-q-row">
+      <div class="qp-num">{{ forloop.counter }}</div>
+      <div class="qp-q-text">{{ q.question_text }}</div>
     </div>
+    <div class="qp-choices">
+      {% for c in q.choices.all %}
+      <div class="qp-choice {% if c.is_correct %}correct{% endif %}">
+        {{ c.text }}
+        {% if c.is_correct %}<i class="fa-solid fa-circle-check qp-check"></i>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
   {% endfor %}
-
 </div>

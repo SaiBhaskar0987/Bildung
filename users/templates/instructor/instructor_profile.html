@@ -1,15 +1,387 @@
-{% load static %}
+ {% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Instructor Profile</title>
- 
+<title>Instructor Profile – SPESHWAY</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" type="text/css" href="{% static 'instructor_profile/style.css' %}">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+  /* ─── DESIGN SYSTEM (same teal palette) ─── */
+  :root {
+    --ink:       #0F1117;
+    --ink-soft:  #2C2F3A;
+    --teal:      #0D9488;
+    --teal-mid:  #14B8A6;
+    --teal-glow: #5EEAD4;
+    --teal-pale: #CCFBF1;
+    --surface:   #F8FFFE;
+    --card-bg:   #FFFFFF;
+    --border:    #D1FAF6;
+    --muted:     #64748B;
+    --red:       #EF4444;
+    --radius:    18px;
+    --radius-sm: 10px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--surface);
+    color: var(--ink);
+    min-height: 100vh;
+  }
+
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-thumb { background: var(--teal-glow); border-radius: 99px; }
+
+  /* ─── TOPNAV ─── */
+  .topnav {
+    position: sticky; top: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 32px;
+    height: 64px;
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(18px);
+    border-bottom: 1px solid var(--border);
+  }
+  .brand {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: 1.35rem;
+    letter-spacing: -.5px;
+    color: var(--teal); text-decoration: none;
+  }
+  .brand span { color: var(--ink); }
+
+  .nav-greeting {
+    font-size: .9rem; color: var(--muted);
+    font-weight: 500;
+  }
+  .nav-greeting strong { color: var(--ink); }
+
+  .nav-actions { display: flex; align-items: center; gap: 14px; }
+
+  .avatar-wrap { position: relative; cursor: pointer; }
+  .avatar-img {
+    width: 40px; height: 40px; border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--teal-glow);
+    transition: box-shadow .2s;
+  }
+  .avatar-btn {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--teal), var(--teal-mid));
+    color: #fff; border: none; cursor: pointer;
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1rem;
+    display: flex; align-items: center; justify-content: center;
+    transition: box-shadow .2s, transform .15s;
+  }
+  .avatar-btn:hover, .avatar-img:hover {
+    box-shadow: 0 0 0 4px var(--teal-pale); transform: scale(1.05);
+  }
+
+  .dropdown-menu {
+    border: 1px solid var(--border) !important;
+    border-radius: var(--radius) !important;
+    box-shadow: 0 12px 40px rgba(13,148,136,.12) !important;
+    padding: 8px !important;
+    min-width: 220px !important;
+  }
+  .dropdown-item {
+    border-radius: var(--radius-sm);
+    font-size: .875rem; color: var(--ink-soft);
+    padding: 8px 12px;
+    transition: background .15s, color .15s;
+  }
+  .dropdown-item:hover { background: var(--teal-pale); color: var(--teal); }
+  .dropdown-item.text-danger:hover { background: #FEE2E2; color: var(--red); }
+  .dropdown-divider { border-color: var(--border) !important; }
+
+  /* ─── BACK LINK ─── */
+  .back-link {
+    display: inline-flex; align-items: center; gap: 7px;
+    color: var(--teal); font-size: .85rem; font-weight: 600;
+    text-decoration: none;
+    transition: gap .2s;
+  }
+  .back-link:hover { gap: 10px; color: var(--teal); }
+
+  /* ─── PAGE WRAPPER ─── */
+  .page-wrap {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+
+  /* ─── PAGE HEADER ─── */
+  .page-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 32px;
+    flex-wrap: wrap; gap: 12px;
+  }
+  .page-header h2 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: 1.8rem;
+    letter-spacing: -1px; color: var(--ink);
+  }
+  .page-header h2 span { color: var(--teal); }
+  .mode-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--teal-pale); color: var(--teal);
+    font-size: .78rem; font-weight: 700;
+    padding: 5px 12px; border-radius: 99px;
+    letter-spacing: .3px;
+  }
+
+  /* ─── PROFILE CARD ─── */
+  .profile-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(13,148,136,.07);
+    animation: fadeUp .4s ease both;
+  }
+  @keyframes fadeUp {
+    from { opacity:0; transform:translateY(18px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+
+  /* Card top accent */
+  .card-accent {
+    height: 6px;
+    background: linear-gradient(90deg, var(--teal), var(--teal-glow));
+  }
+
+  /* ─── AVATAR SECTION ─── */
+  .avatar-section {
+    display: flex; flex-direction: column; align-items: center;
+    padding: 36px 24px 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  .profile-avatar {
+    width: 110px; height: 110px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid var(--teal-pale);
+    box-shadow: 0 0 0 3px var(--teal-glow);
+    margin-bottom: 12px;
+    transition: box-shadow .25s;
+  }
+  .profile-avatar:hover { box-shadow: 0 0 0 5px var(--teal); }
+  .avatar-placeholder {
+    width: 110px; height: 110px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--teal), var(--teal-mid));
+    color: #fff; font-family: 'Syne', sans-serif;
+    font-size: 2.5rem; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    border: 4px solid var(--teal-pale);
+    box-shadow: 0 0 0 3px var(--teal-glow);
+    margin-bottom: 12px;
+  }
+  .change-photo-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--teal-pale); color: var(--teal);
+    border: 1px solid var(--teal-glow);
+    border-radius: 99px;
+    padding: 6px 16px;
+    font-size: .8rem; font-weight: 600;
+    cursor: pointer;
+    transition: background .15s;
+    margin-top: 4px;
+  }
+  .change-photo-btn:hover { background: var(--teal); color: #fff; }
+  .avatar-name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700; font-size: 1.2rem;
+    color: var(--ink); margin-bottom: 4px;
+  }
+  .avatar-title {
+    font-size: .84rem; color: var(--muted); font-weight: 400;
+  }
+
+  /* ─── PROFILE BODY ─── */
+  .profile-body { padding: 28px 32px 32px; }
+
+  /* VIEW MODE */
+  .info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+  }
+  .info-row {
+    display: flex; flex-direction: column;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .info-row:nth-child(odd) { padding-right: 28px; }
+  .info-row:nth-child(even) { padding-left: 28px; border-left: 1px solid var(--border); }
+  .info-row.full {
+    grid-column: 1 / -1;
+    padding-right: 0; padding-left: 0;
+    border-left: none;
+  }
+  .info-label {
+    font-size: .72rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .7px;
+    color: var(--teal); margin-bottom: 3px;
+  }
+  .info-value {
+    font-size: .92rem; color: var(--ink-soft);
+    font-weight: 400; line-height: 1.5;
+  }
+  .info-value a {
+    color: var(--teal); font-weight: 600; text-decoration: none;
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+  .info-value a:hover { text-decoration: underline; }
+
+  /* Social chips */
+  .social-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+  .social-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--teal-pale); color: var(--teal);
+    border: 1px solid var(--teal-glow);
+    border-radius: 99px;
+    padding: 5px 14px;
+    font-size: .8rem; font-weight: 600;
+    text-decoration: none;
+    transition: background .15s, color .15s;
+  }
+  .social-chip:hover { background: var(--teal); color: #fff; }
+
+  /* Resume button */
+  .resume-btn {
+    display: inline-flex; align-items: center; gap: 7px;
+    background: #fff; color: var(--teal);
+    border: 1.5px solid var(--teal);
+    border-radius: var(--radius-sm);
+    padding: 8px 20px;
+    font-size: .85rem; font-weight: 700;
+    text-decoration: none;
+    transition: background .15s, color .15s;
+    margin-top: 6px;
+  }
+  .resume-btn:hover { background: var(--teal); color: #fff; }
+
+  /* ─── EDIT MODE FORM ─── */
+  .edit-section-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700; font-size: .8rem;
+    text-transform: uppercase; letter-spacing: .7px;
+    color: var(--teal); margin-bottom: 12px; margin-top: 22px;
+  }
+  .edit-section-title:first-child { margin-top: 0; }
+
+  .field-group {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 14px; margin-bottom: 0;
+  }
+  .field-group.single { grid-template-columns: 1fr; }
+
+  .field-wrap { display: flex; flex-direction: column; gap: 5px; margin-bottom: 14px; }
+  .field-wrap label {
+    font-size: .76rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .6px;
+    color: var(--muted);
+  }
+
+  /* Style all Django form inputs */
+  .profile-body input[type="text"],
+  .profile-body input[type="email"],
+  .profile-body input[type="url"],
+  .profile-body input[type="number"],
+  .profile-body input[type="file"],
+  .profile-body textarea,
+  .profile-body select {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-family: 'DM Sans', sans-serif;
+    font-size: .88rem;
+    color: var(--ink);
+    background: #fff;
+    outline: none;
+    transition: border-color .2s, box-shadow .2s;
+  }
+  .profile-body input:focus,
+  .profile-body textarea:focus,
+  .profile-body select:focus {
+    border-color: var(--teal);
+    box-shadow: 0 0 0 3px rgba(13,148,136,.12);
+  }
+  .profile-body textarea { resize: vertical; min-height: 90px; }
+  .profile-body input[type="file"] {
+    padding: 7px 10px;
+    background: var(--surface);
+    cursor: pointer;
+  }
+
+  /* ─── DIVIDER ─── */
+  .profile-divider {
+    height: 1px; background: var(--border);
+    margin: 28px 0;
+  }
+
+  /* ─── ACTION BUTTONS ─── */
+  .btn-save {
+    display: inline-flex; align-items: center; gap: 7px;
+    background: linear-gradient(135deg, var(--teal), var(--teal-mid));
+    color: #fff; border: none;
+    border-radius: var(--radius-sm);
+    padding: 10px 28px;
+    font-size: .9rem; font-weight: 700;
+    font-family: 'Syne', sans-serif;
+    cursor: pointer;
+    transition: opacity .2s, transform .15s;
+    text-decoration: none;
+  }
+  .btn-save:hover { opacity: .88; transform: translateY(-1px); color: #fff; }
+
+  .btn-cancel {
+    display: inline-flex; align-items: center; gap: 7px;
+    background: #fff; color: var(--muted);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 22px;
+    font-size: .9rem; font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: border-color .15s, color .15s;
+  }
+  .btn-cancel:hover { border-color: var(--muted); color: var(--ink); }
+
+  .btn-edit {
+    display: inline-flex; align-items: center; gap: 7px;
+    background: var(--teal-pale); color: var(--teal);
+    border: 1.5px solid var(--teal-glow);
+    border-radius: var(--radius-sm);
+    padding: 10px 24px;
+    font-size: .9rem; font-weight: 700;
+    font-family: 'Syne', sans-serif;
+    text-decoration: none;
+    transition: background .15s, color .15s;
+  }
+  .btn-edit:hover { background: var(--teal); color: #fff; }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 640px) {
+    .topnav { padding: 0 16px; }
+    .page-wrap { padding: 24px 16px 60px; }
+    .profile-body { padding: 20px 18px 24px; }
+    .info-grid { grid-template-columns: 1fr; }
+    .info-row:nth-child(even) { padding-left: 0; border-left: none; }
+    .info-row:nth-child(odd)  { padding-right: 0; }
+    .field-group { grid-template-columns: 1fr; }
+    .nav-greeting { display: none; }
+  }
+</style>
 </head>
- 
 <body>
 
 <!-- ================= TOPBAR ================= -->
@@ -156,43 +528,138 @@
 <p><span class="profile-label">Experience:</span>
 <span class="profile-value">{{ profile.experience|default:"-" }}</span></p>
 
-<p><span class="profile-label">About:</span>
-<span class="profile-value">{{ profile.about_me|default:"-" }}</span></p>
+        <div class="edit-section-title"><i class="fa-solid fa-briefcase me-1"></i> Professional</div>
+        <div class="field-group single">
+          <div class="field-wrap">
+            <label>Professional Title</label>
+            {{ profile_form.professional_title }}
+          </div>
+        </div>
+        <div class="field-group">
+          <div class="field-wrap">
+            <label>Expertise</label>
+            {{ profile_form.expertise }}
+          </div>
+          <div class="field-wrap">
+            <label>Experience (Years)</label>
+            {{ profile_form.experience }}
+          </div>
+        </div>
+        <div class="field-group single">
+          <div class="field-wrap">
+            <label>Qualification</label>
+            {{ profile_form.qualification }}
+          </div>
+        </div>
+        <div class="field-group single">
+          <div class="field-wrap">
+            <label>About Me</label>
+            {{ profile_form.about_me }}
+          </div>
+        </div>
 
-{% if profile.linkedin %}
-<p><span class="profile-label">LinkedIn:</span>
-<a href="{{ profile.linkedin }}" target="_blank">View</a></p>
-{% endif %}
+        <div class="edit-section-title"><i class="fa-solid fa-link me-1"></i> Links & Documents</div>
+        <div class="field-group">
+          <div class="field-wrap">
+            <label>LinkedIn</label>
+            {{ profile_form.linkedin }}
+          </div>
+          <div class="field-wrap">
+            <label>Website</label>
+            {{ profile_form.website }}
+          </div>
+        </div>
+        <div class="field-group single">
+          <div class="field-wrap">
+            <label>Resume (PDF)</label>
+            {{ profile_form.resume }}
+          </div>
+        </div>
 
-{% if profile.website %}
-<p><span class="profile-label">Website:</span>
-<a href="{{ profile.website }}" target="_blank">Visit</a></p>
-{% endif %}
+        {% else %}
+        <!-- ═══ VIEW MODE ═══ -->
 
-{% if profile.resume %}
-<a href="{{ profile.resume.url }}" target="_blank" class="btn btn-outline-success btn-sm mt-2">
-View Resume
-</a>
-{% endif %}
+        <div class="info-grid">
+          <div class="info-row">
+            <span class="info-label">Email</span>
+            <span class="info-value">{{ profile.user.email }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Phone</span>
+            <span class="info-value">{{ profile.phone|default:"—" }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Professional Title</span>
+            <span class="info-value">{{ profile.professional_title|default:"—" }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Expertise</span>
+            <span class="info-value">{{ profile.expertise|default:"—" }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Experience</span>
+            <span class="info-value">{{ profile.experience|default:"—" }} years</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Qualification</span>
+            <span class="info-value">{{ profile.qualification|default:"—" }}</span>
+          </div>
+          <div class="info-row full">
+            <span class="info-label">About Me</span>
+            <span class="info-value">{{ profile.about_me|default:"No bio added yet." }}</span>
+          </div>
 
-{% endif %}
+          {% if profile.linkedin or profile.website %}
+          <div class="info-row full" style="border-bottom:none;">
+            <span class="info-label">Links</span>
+            <div class="social-chips" style="margin-top:6px;">
+              {% if profile.linkedin %}
+              <a href="{{ profile.linkedin }}" target="_blank" class="social-chip">
+                <i class="fa-brands fa-linkedin"></i> LinkedIn
+              </a>
+              {% endif %}
+              {% if profile.website %}
+              <a href="{{ profile.website }}" target="_blank" class="social-chip">
+                <i class="fa-solid fa-globe"></i> Website
+              </a>
+              {% endif %}
+            </div>
+          </div>
+          {% endif %}
+        </div>
 
-<div class="profile-divider"></div>
+        {% if profile.resume %}
+        <div style="margin-top:20px;">
+          <a href="{{ profile.resume.url }}" target="_blank" class="resume-btn">
+            <i class="fa-regular fa-file-pdf"></i> View Resume
+          </a>
+        </div>
+        {% endif %}
 
-<div class="d-flex justify-content-between">
-{% if is_editing %}
-    <button type="submit" class="btn-save">Save Changes</button>
-    <a href="{% url 'instructor_profile_view' %}" class="btn-cancel">Cancel</a>
-{% else %}
-    <a href="{% url 'instructor_profile_edit' 'edit' %}" class="btn btn-edit">
-        Edit Profile
-    </a>
-{% endif %}
+        {% endif %}
+
+        <div class="profile-divider"></div>
+
+        <div class="d-flex justify-content-between align-items-center gap-3 flex-wrap">
+          {% if is_editing %}
+            <button type="submit" class="btn-save">
+              <i class="fa-solid fa-floppy-disk"></i> Save Changes
+            </button>
+            <a href="{% url 'instructor_profile_view' %}" class="btn-cancel">
+              <i class="fa-solid fa-xmark"></i> Cancel
+            </a>
+          {% else %}
+            <a href="{% url 'instructor_profile_edit' 'edit' %}" class="btn-edit">
+              <i class="fa-solid fa-pen"></i> Edit Profile
+            </a>
+          {% endif %}
+        </div>
+
+      </div><!-- /profile-body -->
+    </div><!-- /profile-card -->
+  </form>
 </div>
 
-</div>
-</form>
-</div>
-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

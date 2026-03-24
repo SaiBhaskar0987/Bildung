@@ -1,246 +1,446 @@
-{% load static %}
+ {% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Edit Course</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Edit Course – SPESHWAY</title>
 
-    <link rel="stylesheet" href="{% static 'css/add_course.css' %}">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/add_course.css' %}">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=sora:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 
-    <script>
-        const BASE_URL = "/accounts/instructor";
-        const COURSE_ID = "{{ course.id }}";
-    </script>
+<script>
+  const BASE_URL = "/accounts/instructor";
+  const COURSE_ID = "{{ course.id }}";
+</script>
 
 <style>
-
-.topbar {
-    background: white;
-    padding: 12px 25px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+/* ─── DESIGN SYSTEM ─── */
+:root {
+  --ink:       #0F1117;
+  --ink-soft:  #2C2F3A;
+  --teal:      #0D9488;
+  --teal-mid:  #14B8A6;
+  --teal-glow: #5EEAD4;
+  --teal-pale: #CCFBF1;
+  --surface:   #F8FFFE;
+  --card-bg:   #FFFFFF;
+  --border:    #D1FAF6;
+  --muted:     #64748B;
+  --red:       #EF4444;
+  --radius:    16px;
+  --radius-sm: 10px;
 }
 
-.topbar-title {
-    font-size: 26px;
-    font-weight: 700;
-    text-decoration: none;
-    color: #222;
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--surface);
+  color: var(--ink);
+  min-height: 100vh;
 }
 
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-thumb { background: var(--teal-glow); border-radius: 99px; }
+
+/* ─── TOPNAV ─── */
+.topnav {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 32px; height: 64px;
+  background: rgba(255,255,255,.92);
+  backdrop-filter: blur(18px);
+  border-bottom: 1px solid var(--border);
+}
+.brand {
+  font-family: 'sora', sans-serif;
+  font-weight: 800; font-size: 1.35rem;
+  letter-spacing: -.5px; color: var(--teal);
+  text-decoration: none;
+}
+.brand span { color: var(--ink); }
+.avatar-btn {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--teal), var(--teal-mid));
+  color: #fff; border: none; cursor: pointer;
+  font-family: 'sora', sans-serif; font-weight: 700; font-size: 1rem;
+  display: flex; align-items: center; justify-content: center;
+  transition: box-shadow .2s, transform .15s;
+}
+.avatar-btn:hover { box-shadow: 0 0 0 4px var(--teal-pale); transform: scale(1.05); }
+.dropdown-menu {
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius) !important;
+  box-shadow: 0 12px 40px rgba(13,148,136,.12) !important;
+  padding: 8px !important; min-width: 220px !important;
+}
+.dropdown-item {
+  border-radius: var(--radius-sm);
+  font-size: .875rem; color: var(--ink-soft);
+  padding: 8px 12px;
+  transition: background .15s, color .15s;
+}
+.dropdown-item:hover { background: var(--teal-pale); color: var(--teal); }
+.dropdown-item.text-danger:hover { background: #FEE2E2; color: var(--red); }
+.dropdown-divider { border-color: var(--border) !important; }
+
+/* ─── PAGE WRAP ─── */
+.page-wrap {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+}
+
+/* ─── BACK LINK ─── */
+.back-link {
+  display: inline-flex; align-items: center; gap: 7px;
+  color: var(--teal); font-size: .85rem; font-weight: 600;
+  text-decoration: none; margin-bottom: 24px;
+  transition: gap .2s;
+}
+.back-link:hover { gap: 10px; }
+
+/* ─── PAGE HEADER ─── */
+.page-header { margin-bottom: 28px; }
+.page-header h2 {
+  font-family: 'sora', sans-serif;
+  font-weight: 800; font-size: 1.9rem;
+  letter-spacing: -1px; color: var(--ink);
+}
+.page-header h2 span { color: var(--teal); }
+.page-header p { color: var(--muted); margin-top: 5px; font-size: .88rem; }
+
+/* ─── SECTION CARD ─── */
+.section-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 20px rgba(13,148,136,.06);
+  animation: fadeUp .4s ease both;
+}
+.section-card.delay { animation-delay: .1s; }
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(14px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+.card-top-bar {
+  height: 4px;
+  background: linear-gradient(90deg, var(--teal), var(--teal-glow));
+}
+.section-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 16px 22px;
+  border-bottom: 1px solid var(--border);
+}
+.section-icon {
+  width: 36px; height: 36px;
+  background: var(--teal-pale); color: var(--teal);
+  border-radius: var(--radius-sm);
+  display: flex; align-items: center; justify-content: center;
+  font-size: .9rem; flex-shrink: 0;
+}
+.section-title {
+  font-family: 'sora', sans-serif;
+  font-weight: 700; font-size: 1rem; color: var(--ink);
+}
+.section-body { padding: 22px 22px 26px; }
+
+/* ─── FORM FIELDS ─── */
+.field-wrap { display: flex; flex-direction: column; gap: 5px; margin-bottom: 16px; }
+.field-wrap:last-child { margin-bottom: 0; }
+.field-label {
+  font-size: .73rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .7px; color: var(--muted);
+}
+.field-input, .field-select, .field-textarea {
+  width: 100%; padding: 10px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: 'DM Sans', sans-serif;
+  font-size: .9rem; color: var(--ink);
+  background: #fff; outline: none;
+  transition: border-color .2s, box-shadow .2s;
+  appearance: none;
+}
+.field-input:focus, .field-select:focus, .field-textarea:focus {
+  border-color: var(--teal);
+  box-shadow: 0 0 0 3px rgba(13,148,136,.12);
+}
+.field-textarea { resize: vertical; min-height: 90px; line-height: 1.5; }
+.select-wrap { position: relative; }
+.select-wrap::after {
+  content: '\f107'; font-family: 'Font Awesome 6 Free'; font-weight: 900;
+  position: absolute; right: 13px; top: 50%; transform: translateY(-50%);
+  color: var(--muted); pointer-events: none; font-size: .85rem;
+}
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+/* ─── ORIGINAL MODULE BUILDER STYLES (100% unchanged) ─── */
 #topRow {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 18px;
-    margin-top: 30px;
-    justify-content: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin-top: 30px;
+  justify-content: center;
 }
-
 .builder-card {
-    width: 230px;
-    height: 170px;
-    background: #fff;
-    border-radius: 14px;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.12);
-    padding: 15px;
-    cursor: grab;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    border: 3px dashed transparent;
+  width: 230px; height: 170px;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+  padding: 15px;
+  cursor: grab;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border: 3px dashed transparent;
+  transition: 0.3s;
 }
-
-.card-title {
-    font-size: 18px;
-    font-weight: 700;
-    text-align: center;
-}
-
-.card-actions {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-}
-
+.builder-card:hover { transform: scale(1.03); }
+.card-title { font-size: 18px; font-weight: 700; text-align: center; }
+.card-actions { display: flex; justify-content: center; gap: 10px; }
 .open-module-btn {
-    background: #4caf50;
-    color: white;
-    border-radius: 6px;
-    border: none;
-    padding: 6px 12px;
-    font-size: 13px;
+  background: #4caf50; color: white;
+  border-radius: 6px; border: none;
+  padding: 6px 12px; font-size: 13px;
 }
-
 .delete-module-btn {
-    background: #ff3d3d;
-    color: white;
-    border-radius: 6px;
-    border: none;
-    padding: 6px 12px;
-    font-size: 13px;
+  background: #ff3d3d; color: white;
+  border-radius: 6px; border: none;
+  padding: 6px 12px; font-size: 13px;
 }
-
-.module-card { border-color: #6aa9ff; }
-.quiz-card { border-color: #ffc466; }
+.module-card     { border-color: #6aa9ff; }
+.quiz-card       { border-color: #ffc466; }
 .assignment-card { border-color: #8df2a1; }
-.liveclass-card { border-color: #ffa7d1; }
-
+.liveclass-card  { border-color: #ffa7d1; }
 .drop-zone {
-    width: 230px;
-    height: 170px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 42px;
-    background: #f7f9ff;
-    border: 3px dashed #aab4d4;
-    border-radius: 14px;
-    cursor: pointer;
+  width: 230px; height: 170px;
+  display: flex; justify-content: center; align-items: center;
+  font-size: 42px;
+  background: #f7f9ff;
+  border: 3px dashed #aab4d4;
+  border-radius: 14px;
+  cursor: pointer;
 }
-.bottom-area {
-    margin-top: 30px;   
-}
-
 .drag-row {
-    margin-top: 25px;   
-    display: flex;
-    gap: 14px;
-    justify-content: center;
+  margin-top: 25px;
+  display: flex; gap: 14px; justify-content: center;
 }
 
-.builder-card:hover {
-            transform: scale(1.03);
-        }
+/* ─── ACTIONS BAR ─── */
+.actions-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 12px;
+  padding: 18px 22px;
+  background: var(--card-bg);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  box-shadow: 0 4px 20px rgba(13,148,136,.06);
+}
+.hint { font-size: .82rem; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+.hint i { color: var(--teal); }
+.action-btns { display: flex; gap: 10px; }
+.btn-save {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: var(--teal-pale); color: var(--teal);
+  border: 1.5px solid var(--teal-glow); border-radius: var(--radius-sm);
+  padding: 10px 22px; font-size: .88rem; font-weight: 700;
+  font-family: 'sora', sans-serif; cursor: pointer;
+  transition: background .15s, color .15s;
+}
+.btn-save:hover { background: var(--teal); color: #fff; }
+.btn-publish {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: linear-gradient(135deg, var(--teal), var(--teal-mid));
+  color: #fff; border: none; border-radius: var(--radius-sm);
+  padding: 10px 24px; font-size: .88rem; font-weight: 700;
+  font-family: 'sora', sans-serif; cursor: pointer;
+  transition: opacity .2s, transform .15s;
+}
+.btn-publish:hover { opacity: .88; transform: translateY(-1px); }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 640px) {
+  .topnav { padding: 0 16px; }
+  .page-wrap { padding: 24px 16px 60px; }
+  .field-row { grid-template-columns: 1fr; }
+  .actions-bar { flex-direction: column; align-items: stretch; }
+  .action-btns { flex-direction: column; }
+}
 </style>
 </head>
+<body>
 
-<body class="bg-light">
+<!-- ── TOPNAV ─── -->
+<nav class="topnav">
+  <a href="{% url 'instructor_dashboard' %}" class="brand">SPESH<span>WAY</span></a>
+  <div class="dropdown">
+    <button class="avatar-btn" type="button" data-bs-toggle="dropdown">
+      {{ request.user.username|first|upper }}
+    </button>
+    <ul class="dropdown-menu dropdown-menu-end">
+      <li><a class="dropdown-item" href="{% url 'instructor_profile_view' %}"><i class="fa-regular fa-user me-2"></i>Profile</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor:add_course' %}"><i class="fa-solid fa-plus me-2"></i>Create New Course</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor:students_list' %}"><i class="fa-solid fa-users me-2"></i>My Students</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor:calendar_view' %}"><i class="fa-regular fa-calendar me-2"></i>My Schedules</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor_notifications' %}"><i class="fa-regular fa-bell me-2"></i>Notifications</a></li>
+      <li><a class="dropdown-item" href="#"><i class="fa-solid fa-wallet me-2"></i>Earnings & Payments</a></li>
+      <li><a class="dropdown-item" href="#"><i class="fa-regular fa-circle-question me-2"></i>Help & Support</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor_account_settings' %}"><i class="fa-solid fa-gear me-2"></i>Account Settings</a></li>
+      <li><hr class="dropdown-divider"></li>
+      <li><a class="dropdown-item text-danger" href="{% url 'logout_view' %}"><i class="fa-solid fa-right-from-bracket me-2"></i>Logout</a></li>
+    </ul>
+  </div>
+</nav>
 
-<div class="topbar">
-    <a href="{% url 'instructor_dashboard' %}" class="topbar-title">Bildung</a>
+<!-- ── PAGE ─── -->
+<div class="page-wrap">
+ 
 
-    <div class="dropdown">
-        <button class="btn rounded-circle shadow"
-                style="background:#666;color:white;width:45px;height:45px;"
-                data-bs-toggle="dropdown">
-            {{ request.user.username|first|upper }}
-        </button>
+  <div class="page-header">
+    <h2>Edit <span>Course</span></h2>
+    <p>Update your course details and restructure the module builder below.</p>
+  </div>
 
-        <ul class="dropdown-menu dropdown-menu-end">
-            <li><a class="dropdown-item" href="{% url 'instructor_profile_view' %}">Profile</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor:add_course' %}">Create New Course</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor:students_list' %}">My Students</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor:calendar_view' %}">My Schedules</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor_notifications' %}">Notifications</a></li>
-                <li><a class="dropdown-item" href="#">Earnings & Payments</a></li>
-                <li><a class="dropdown-item" href="#">Help & Support</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor_account_settings' %}">Account Settings</a></li>
-                <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item text-danger" href="{% url 'logout_view' %}">Logout</a></li>
-        </ul>
+  <!-- ── Course Details ── -->
+  <div class="section-card">
+    <div class="card-top-bar"></div>
+    <div class="section-header">
+      <div class="section-icon"><i class="fa-solid fa-book-open"></i></div>
+      <div class="section-title">Course Details</div>
     </div>
-</div>
+    <div class="section-body">
 
-<div class="paper">
+      <div class="field-wrap">
+        <label class="field-label">Course Title</label>
+        <input id="courseTitle" class="field-input"
+               value="{{ course.title }}" placeholder="Course title">
+      </div>
 
-    <h1 class="title">EDIT COURSE</h1>
+      <div class="field-wrap">
+        <label class="field-label">Description</label>
+        <textarea id="courseDescription" class="field-textarea"
+                  placeholder="What will students learn?">{{ course.description }}</textarea>
+      </div>
 
-    <label class="label">Course Title</label>
-    <input id="courseTitle" class="input-box" value="{{ course.title }}">
+      <div class="field-row">
+        <div class="field-wrap">
+          <label class="field-label">Price (₹)</label>
+          <input id="coursePrice" type="number" class="field-input"
+                 value="{{ course.price }}" placeholder="0 for free">
+        </div>
+        <div class="field-wrap">
+          <label class="field-label">Category</label>
+          <div class="select-wrap">
+            <select id="courseCategory" class="field-select">
+              <option value="business"    {% if course.category == 'business' %}selected{% endif %}>Business</option>
+              <option value="design"      {% if course.category == 'design' %}selected{% endif %}>Design</option>
+              <option value="music"       {% if course.category == 'music' %}selected{% endif %}>Music</option>
+              <option value="programming" {% if course.category == 'programming' %}selected{% endif %}>Programming</option>
+              <option value="others"      {% if course.category == 'others' %}selected{% endif %}>Others</option>
+            </select>
+          </div>
+        </div>
+      </div>
 
-    <label class="label">Description</label>
-    <textarea id="courseDescription" class="input-box">{{ course.description }}</textarea>
+      <div class="field-row" style="margin-bottom:0;">
+        <div class="field-wrap" style="margin-bottom:0;">
+          <label class="field-label">Course Level</label>
+          <div class="select-wrap">
+            <select id="courseLevel" class="field-select">
+              <option value="beginner"     {% if course.level == 'beginner' %}selected{% endif %}>Beginner</option>
+              <option value="intermediate" {% if course.level == 'intermediate' %}selected{% endif %}>Intermediate</option>
+              <option value="advanced"     {% if course.level == 'advanced' %}selected{% endif %}>Advanced</option>
+            </select>
+          </div>
+        </div>
+        <div class="field-wrap" style="margin-bottom:0;"></div>
+      </div>
 
-    <label class="label">Price (₹)</label>
-    <input id="coursePrice" type="number" class="input-box" value="{{ course.price }}">
+    </div>
+  </div>
 
-    <label class="label">Category</label>
-    <select id="courseCategory" class="input-box">
-        <option value="business" {% if course.category == 'business' %}selected{% endif %}>Business</option>
-        <option value="design" {% if course.category == 'design' %}selected{% endif %}>Design</option>
-        <option value="music" {% if course.category == 'music' %}selected{% endif %}>Music</option>
-        <option value="programming" {% if course.category == 'programming' %}selected{% endif %}>Programming</option>
-        <option value="others" {% if course.category == 'others' %}selected{% endif %}>Others</option>
-    </select>
-    
-    <label class="label">Course Level</label>
-    <select id="courseLevel" class="input-box">
-        <option value="beginner" {% if course.level == "beginner" %}selected{% endif %}>
-          Beginner
-       </option>
-       <option value="intermediate" {% if course.level == "intermediate" %}selected{% endif %}>
-          Intermediate
-       </option>
-      <option value="advanced" {% if course.level == "advanced" %}selected{% endif %}>
-          Advanced
-      </option>
-    </select>
+  <!-- ── Module Builder (original HTML 100% preserved) ── -->
+  <div class="section-card delay">
+    <div class="card-top-bar"></div>
+    <div class="section-header">
+      <div class="section-icon"><i class="fa-solid fa-cubes"></i></div>
+      <div class="section-title">Module Builder</div>
+    </div>
+    <div class="section-body">
 
-    <hr class="divider">
-
-    <h1 class="title">MODULE BUILDER</h1>
-
-    <div id="topRow">
+      <div id="topRow">
         {% for block in course.structure_json %}
         <div class="builder-card
-            {% if block.type == 'Module' %}module-card{% endif %}
-            {% if block.type == 'Quiz' %}quiz-card{% endif %}
-            {% if block.type == 'Assignment' %}assignment-card{% endif %}
-            {% if block.type == 'Live Class' %}liveclass-card{% endif %}"
-            draggable="true"
-            data-type="{{ block.type }}"
-            data-module-id="{{ block.module_id|default:'' }}"
-            data-quiz-id="{{ block.quiz_id|default:'' }}"
-            data-assignment-id="{{ block.assignment_id|default:'' }}"
-            data-liveclass-id="{{ block.liveclass_id|default:'' }}"
-            data-lectures='{{ block.lectures|default:"[]"|safe }}'>
+          {% if block.type == 'Module' %}module-card{% endif %}
+          {% if block.type == 'Quiz' %}quiz-card{% endif %}
+          {% if block.type == 'Assignment' %}assignment-card{% endif %}
+          {% if block.type == 'Live Class' %}liveclass-card{% endif %}"
+          draggable="true"
+          data-type="{{ block.type }}"
+          data-module-id="{{ block.module_id|default:'' }}"
+          data-quiz-id="{{ block.quiz_id|default:'' }}"
+          data-assignment-id="{{ block.assignment_id|default:'' }}"
+          data-liveclass-id="{{ block.liveclass_id|default:'' }}"
+          data-lectures='{{ block.lectures|default:"[]"|safe }}'>
 
-            <div class="card-title">{{ block.title }}</div>
+          <div class="card-title">{{ block.title }}</div>
 
-            <div class="card-actions">
-                {% if block.type == "Module" %}
-                <button class="open-module-btn"
-                        onclick="openModule({{ forloop.counter0 }})">
-                    Edit
-                </button>
-                {% endif %}
-                
-                {% if block.type == "Assignment" %}
-                <button class="open-module-btn" onclick="openAssignment({{ forloop.counter0 }})">Edit</button>
-                {% endif %}
-
-                {% if block.type == "Quiz" %}
-                <button class="open-module-btn"
-                        onclick="openQuiz({{ forloop.counter0 }})">
-                    Edit
-                </button>
-                {% endif %}
-
-                <button class="delete-module-btn"
-                        onclick="deleteBlock({{ forloop.counter0 }})">
-                    ✖
-                </button>
-            </div>
+          <div class="card-actions">
+            {% if block.type == "Module" %}
+            <button class="open-module-btn" onclick="openModule({{ forloop.counter0 }})">Edit</button>
+            {% endif %}
+            {% if block.type == "Assignment" %}
+            <button class="open-module-btn" onclick="openAssignment({{ forloop.counter0 }})">Edit</button>
+            {% endif %}
+            {% if block.type == "Quiz" %}
+            <button class="open-module-btn" onclick="openQuiz({{ forloop.counter0 }})">Edit</button>
+            {% endif %}
+            <button class="delete-module-btn" onclick="deleteBlock({{ forloop.counter0 }})">✖</button>
+          </div>
         </div>
         {% endfor %}
 
         <div id="dropZone" class="drop-zone">+</div>
-    </div>
+      </div>
 
-    <div class="actions mt-3">
-        <button class="save-main" onclick="saveCourse()">Save Changes</button>
-        <button class="publish-main" onclick="publishCourse()">Publish</button>
-    </div>
+      <div class="drag-row">
+        <div class="draggable-btn module-btn"     draggable="true" data-type="Module">Module</div>
+        <div class="draggable-btn quiz-btn"       draggable="true" data-type="Quiz">Quiz</div>
+        <div class="draggable-btn assignment-btn" draggable="true" data-type="Assignment">Assignment</div>
+        <div class="draggable-btn liveclass-btn"  draggable="true" data-type="Live Class">Live Class</div>
+      </div>
 
-    <div class="note">💡 Drag items onto the + box to add them</div>
+      <div style="text-align:center;margin-top:16px;font-size:.82rem;color:var(--muted);">
+        💡 Drag items onto the + box to add them
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── Actions Bar ── -->
+  <div class="actions-bar">
+    <div class="hint">
+      <i class="fa-solid fa-lightbulb"></i>
+      Save changes before publishing
+    </div>
+    <div class="action-btns">
+      <button class="btn-save" onclick="saveCourse()">
+        <i class="fa-solid fa-floppy-disk"></i> Save Changes
+      </button>
+      <button class="btn-publish" onclick="publishCourse()">
+        <i class="fa-solid fa-rocket"></i> Publish
+      </button>
+    </div>
+  </div>
 
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="{% static 'js/edit_course.js' %}"></script>
-
 </body>
 </html>

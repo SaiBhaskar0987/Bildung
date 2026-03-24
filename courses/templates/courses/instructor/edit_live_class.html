@@ -1,74 +1,312 @@
-{% load static %}
-
+ {% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Edit Liveclass</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Edit Live Class – SPESHWAY</title>
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=sora:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 
+<style>
+:root {
+  --ink:       #0F1117;
+  --ink-soft:  #2C2F3A;
+  --teal:      #0D9488;
+  --teal-mid:  #14B8A6;
+  --teal-glow: #5EEAD4;
+  --teal-pale: #CCFBF1;
+  --surface:   #F8FFFE;
+  --card-bg:   #FFFFFF;
+  --border:    #D1FAF6;
+  --muted:     #64748B;
+  --red:       #EF4444;
+  --radius:    16px;
+  --radius-sm: 10px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--surface);
+  color: var(--ink);
+  min-height: 100vh;
+}
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-thumb { background: var(--teal-glow); border-radius: 99px; }
+
+/* ─── TOPNAV ─── */
+.topnav {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 32px; height: 64px;
+  background: rgba(255,255,255,.92);
+  backdrop-filter: blur(18px);
+  border-bottom: 1px solid var(--border);
+}
+.brand {
+  font-family: 'sora', sans-serif;
+  font-weight: 800; font-size: 1.35rem;
+  letter-spacing: -.5px; color: var(--teal);
+  text-decoration: none;
+}
+.brand span { color: var(--ink); }
+.avatar-btn {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--teal), var(--teal-mid));
+  color: #fff; border: none; cursor: pointer;
+  font-family: 'sora', sans-serif; font-weight: 700; font-size: 1rem;
+  display: flex; align-items: center; justify-content: center;
+  transition: box-shadow .2s, transform .15s;
+}
+.avatar-btn:hover { box-shadow: 0 0 0 4px var(--teal-pale); transform: scale(1.05); }
+.dropdown-menu {
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius) !important;
+  box-shadow: 0 12px 40px rgba(13,148,136,.12) !important;
+  padding: 8px !important; min-width: 220px !important;
+}
+.dropdown-item {
+  border-radius: var(--radius-sm);
+  font-size: .875rem; color: var(--ink-soft);
+  padding: 8px 12px;
+  transition: background .15s, color .15s;
+}
+.dropdown-item:hover { background: var(--teal-pale); color: var(--teal); }
+.dropdown-item.text-danger:hover { background: #FEE2E2; color: var(--red); }
+.dropdown-divider { border-color: var(--border) !important; }
+
+/* ─── PAGE WRAP ─── */
+.page-wrap {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+}
+
+/* ─── BACK LINK ─── */
+.back-link {
+  display: inline-flex; align-items: center; gap: 7px;
+  color: var(--teal); font-size: .85rem; font-weight: 600;
+  text-decoration: none; margin-bottom: 24px;
+  transition: gap .2s;
+}
+.back-link:hover { gap: 10px; }
+
+/* ─── PAGE HEADER ─── */
+.page-header { margin-bottom: 28px; }
+.page-header h2 {
+  font-family: 'sora', sans-serif;
+  font-weight: 800; font-size: 1.9rem;
+  letter-spacing: -1px; color: var(--ink);
+}
+.page-header h2 span { color: var(--teal); }
+.page-header p { color: var(--muted); margin-top: 5px; font-size: .88rem; }
+
+/* ─── FORM CARD ─── */
+.form-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: 0 6px 28px rgba(13,148,136,.08);
+  animation: fadeUp .4s ease both;
+}
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(14px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+.card-top-bar {
+  height: 4px;
+  background: linear-gradient(90deg, var(--teal), var(--teal-glow));
+}
+.card-header-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--border);
+}
+.card-header-icon {
+  width: 36px; height: 36px;
+  background: var(--teal-pale); color: var(--teal);
+  border-radius: var(--radius-sm);
+  display: flex; align-items: center; justify-content: center;
+  font-size: .9rem; flex-shrink: 0;
+}
+.card-header-title {
+  font-family: 'sora', sans-serif;
+  font-weight: 700; font-size: 1rem; color: var(--ink);
+}
+
+/* ─── FORM BODY ─── */
+.form-body { padding: 26px 24px 28px; }
+
+.field-wrap { display: flex; flex-direction: column; gap: 5px; margin-bottom: 18px; }
+.field-wrap:last-of-type { margin-bottom: 0; }
+.field-label {
+  font-size: .73rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .7px;
+  color: var(--muted);
+}
+.field-input {
+  width: 100%; padding: 10px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: 'DM Sans', sans-serif;
+  font-size: .9rem; color: var(--ink);
+  background: #fff; outline: none;
+  transition: border-color .2s, box-shadow .2s;
+}
+.field-input:focus {
+  border-color: var(--teal);
+  box-shadow: 0 0 0 3px rgba(13,148,136,.12);
+}
+.field-input[type="date"],
+.field-input[type="time"] { color-scheme: light; }
+
+/* URL input with prefix icon */
+.input-icon-wrap { position: relative; }
+.input-icon-wrap .input-icon {
+  position: absolute; left: 13px; top: 50%; transform: translateY(-50%);
+  color: var(--muted); font-size: .85rem; pointer-events: none;
+}
+.input-icon-wrap .field-input { padding-left: 36px; }
+
+.form-divider { height: 1px; background: var(--border); margin: 22px 0; }
+
+/* Date + Time side by side */
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+/* ─── BUTTONS ─── */
+.btn-row {
+  display: flex; gap: 10px; flex-wrap: wrap;
+  padding: 0 24px 24px;
+}
+.btn-save {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: linear-gradient(135deg, var(--teal), var(--teal-mid));
+  color: #fff; border: none; border-radius: var(--radius-sm);
+  padding: 10px 26px; font-size: .9rem; font-weight: 700;
+  font-family: 'sora', sans-serif; cursor: pointer;
+  transition: opacity .2s, transform .15s;
+}
+.btn-save:hover { opacity: .88; transform: translateY(-1px); }
+
+.btn-cancel {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: #fff; color: var(--muted);
+  border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+  padding: 10px 22px; font-size: .9rem; font-weight: 600;
+  text-decoration: none; transition: border-color .15s, color .15s;
+}
+.btn-cancel:hover { border-color: var(--muted); color: var(--ink); }
+
+@media (max-width: 560px) {
+  .topnav { padding: 0 16px; }
+  .page-wrap { padding: 24px 16px 60px; }
+  .field-row { grid-template-columns: 1fr; }
+  .btn-row { flex-direction: column; }
+}
+</style>
 </head>
+<body>
 
-<body class="bg-light">
-
-<div class="d-flex justify-content-between align-items-center p-3 bg-white shadow-sm">
-  <a href="{% url 'instructor_dashboard' %}" class="text-decoration-none text-dark">
-    <h3 class="m-0 fw-bold">Bildung</h3>
-  </a>
-
+<!-- ── TOPNAV ─── -->
+<nav class="topnav">
+  <a href="{% url 'instructor_dashboard' %}" class="brand">SPESH<span>WAY</span></a>
   <div class="dropdown">
-    <button class="btn rounded-circle shadow"
-            style="background:gray;color:white;width:45px;height:45px;"
-            data-bs-toggle="dropdown">
+    <button class="avatar-btn" type="button" data-bs-toggle="dropdown">
       {{ request.user.username|first|upper }}
     </button>
-
     <ul class="dropdown-menu dropdown-menu-end">
-              <li><a class="dropdown-item" href="{% url 'instructor_profile_view' %}">Profile</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor:add_course' %}">Create New Course</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor:students_list' %}">My Students</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor:calendar_view' %}">My Schedules</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor_notifications' %}">Notifications</a></li>
-                <li><a class="dropdown-item" href="#">Earnings & Payments</a></li>
-                <li><a class="dropdown-item" href="#">Help & Support</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor_account_settings' %}">Account Settings</a></li>
-                <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item text-danger" href="{% url 'logout_view' %}">Logout</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor_profile_view' %}"><i class="fa-regular fa-user me-2"></i>Profile</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor:add_course' %}"><i class="fa-solid fa-plus me-2"></i>Create New Course</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor:students_list' %}"><i class="fa-solid fa-users me-2"></i>My Students</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor:calendar_view' %}"><i class="fa-regular fa-calendar me-2"></i>My Schedules</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor_notifications' %}"><i class="fa-regular fa-bell me-2"></i>Notifications</a></li>
+      <li><a class="dropdown-item" href="#"><i class="fa-solid fa-wallet me-2"></i>Earnings & Payments</a></li>
+      <li><a class="dropdown-item" href="#"><i class="fa-regular fa-circle-question me-2"></i>Help & Support</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor_account_settings' %}"><i class="fa-solid fa-gear me-2"></i>Account Settings</a></li>
+      <li><hr class="dropdown-divider"></li>
+      <li><a class="dropdown-item text-danger" href="{% url 'logout_view' %}"><i class="fa-solid fa-right-from-bracket me-2"></i>Logout</a></li>
     </ul>
   </div>
-</div>
+</nav>
 
-<body class="bg-light py-5">
+<!-- ── PAGE ─── -->
+<div class="page-wrap">
 
-<div class="container py-4">
+  <a href="{% url 'instructor:calendar_view' %}" class="back-link">
+    <i class="fa-solid fa-arrow-left"></i> Back to Schedules
+  </a>
 
-    <h3>Edit Live Class</h3>
+  <div class="page-header">
+    <h2>Edit <span>Live Class</span></h2>
+    <p>Update the topic, schedule, or meeting link for this live class.</p>
+  </div>
+
+  <div class="form-card">
+    <div class="card-top-bar"></div>
+    <div class="card-header-row">
+      <div class="card-header-icon"><i class="fa-solid fa-video"></i></div>
+      <div class="card-header-title">Live Class Details</div>
+    </div>
 
     <form method="post">
-        {% csrf_token %}
+      {% csrf_token %}
+      <div class="form-body">
 
-        <label class="form-label">Topic</label>
-        <input type="text" name="topic" class="form-control"
-               value="{{ liveclass.topic }}" required>
+        <div class="field-wrap">
+          <label class="field-label">Topic</label>
+          <input type="text" name="topic" class="field-input"
+                 value="{{ liveclass.topic }}" required
+                 placeholder="e.g. Introduction to React Hooks">
+        </div>
 
-        <label class="form-label mt-3">Date</label>
-        <input type="date" name="date" class="form-control"
-               value="{{ liveclass.date|date:'Y-m-d' }}" required>
+        <div class="form-divider"></div>
 
-        <label class="form-label mt-3">Time</label>
-        <input type="time" name="time" class="form-control"
-               value="{{ liveclass.time|time:'H:i' }}" required>
+        <div class="field-row">
+          <div class="field-wrap" style="margin-bottom:0;">
+            <label class="field-label">Date</label>
+            <input type="date" name="date" class="field-input"
+                   value="{{ liveclass.date|date:'Y-m-d' }}" required>
+          </div>
+          <div class="field-wrap" style="margin-bottom:0;">
+            <label class="field-label">Time</label>
+            <input type="time" name="time" class="field-input"
+                   value="{{ liveclass.time|time:'H:i' }}" required>
+          </div>
+        </div>
 
-        <label class="form-label mt-3">Meeting Link</label>
-        <input type="url" name="meeting_link" class="form-control"
-               value="{{ liveclass.meeting_link }}">
+        <div class="form-divider"></div>
 
-        <button class="btn btn-primary mt-4">Save Changes</button>
+        <div class="field-wrap" style="margin-bottom:0;">
+          <label class="field-label">Meeting Link</label>
+          <div class="input-icon-wrap">
+            <i class="input-icon fa-solid fa-link"></i>
+            <input type="url" name="meeting_link" class="field-input"
+                   value="{{ liveclass.meeting_link }}"
+                   placeholder="https://meet.google.com/…">
+          </div>
+        </div>
+
+      </div>
+
+      <div class="btn-row">
+        <button type="submit" class="btn-save">
+          <i class="fa-solid fa-floppy-disk"></i> Save Changes
+        </button>
+        <a href="{% url 'instructor:calendar_view' %}" class="btn-cancel">
+          <i class="fa-solid fa-xmark"></i> Cancel
+        </a>
+      </div>
     </form>
+  </div>
 
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

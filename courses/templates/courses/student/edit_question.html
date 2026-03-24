@@ -1,72 +1,378 @@
-{% load static %}
-
+ 
+ {% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Edit Questions</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Question — Speshway</title>
 
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+  :root {
+    --amber:    #d97706;
+    --amber-lt: #fef3c7;
+    --rust:     #b45309;
+    --cream:    #fffbf5;
+    --ink:      #1c1412;
+    --muted:    #7c6f67;
+    --border:   #e8ddd4;
+    --glass:    rgba(255,251,245,0.82);
+    --shadow:   0 8px 40px rgba(28,20,18,0.10);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family:  Franklin Gothic Medium;
+    background: var(--cream);
+    color: var(--ink);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 85% 10%, #fde68a55 0%, transparent 60%),
+      radial-gradient(ellipse 40% 60% at 5% 90%,  #fcd34d33 0%, transparent 55%),
+      radial-gradient(ellipse 50% 40% at 50% 50%, #fff7ed   0%, transparent 80%);
+    pointer-events: none; z-index: 0;
+  }
+
+  body::after {
+    content: '';
+    position: fixed; top: -120px; right: -120px;
+    width: 420px; height: 420px;
+    border: 1.5px solid rgba(217,119,6,0.18);
+    border-radius: 50%;
+    pointer-events: none; z-index: 0;
+    animation: spin 40s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ════════ HEADER ════════ */
+  .topbar {
+    position: sticky; top: 0; z-index: 999;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 48px;
+    background: var(--glass);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .brand {
+    font-family:  Franklin Gothic Medium;
+    font-weight: 700; font-size: 26px;
+      color: var(--ink);
+    text-decoration: none;
+    display: flex; align-items: center; gap: 10px;
+  }
+
+  .brand .dot {
+    width: 9px; height: 9px; border-radius: 50%;
+    background: var(--amber); flex-shrink: 0;
+    box-shadow: 0 0 0 3px rgba(217,119,6,.2);
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%,100% { box-shadow: 0 0 0 3px rgba(217,119,6,.2); }
+    50%      { box-shadow: 0 0 0 7px rgba(217,119,6,.07); }
+  }
+
+  .topbar-right { display: flex; align-items: center; gap: 18px; }
+
+  .topbar-greeting { font-size: 14px; font-weight: 500; color: var(--muted); }
+  .topbar-greeting strong { color: var(--ink); }
+
+  .avatar-btn {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--amber), var(--rust));
+    color: white; font-family: 'Cormorant Garamond', serif;
+    font-size: 18px; font-weight: 700;
+    border: none; cursor: pointer;
+    box-shadow: 0 4px 14px rgba(180,83,9,.35);
+    transition: transform .2s, box-shadow .2s;
+  }
+
+  .avatar-btn:hover { transform: scale(1.07); box-shadow: 0 6px 20px rgba(180,83,9,.45); }
+
+  .dropdown-menu {
+    border: 1px solid var(--border); border-radius: 16px;
+    padding: 10px; min-width: 230px;
+    box-shadow: 0 24px 60px rgba(28,20,18,0.12);
+    background: white; animation: dropIn .18s ease;
+  }
+
+  @keyframes dropIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .dropdown-item {
+    border-radius: 10px; padding: 10px 14px;
+    font-family: Franklin Gothic Medium;
+    font-size: 13.5px; font-weight: 500; color: var(--ink);
+    transition: background .2s, color .2s, transform .2s;
+  }
+
+  .dropdown-item:hover { background: var(--amber-lt); color: var(--rust); transform: translateX(4px); }
+  .dropdown-item.logout-item { color: #dc2626; }
+  .dropdown-item.logout-item:hover { background: #fef2f2; color: #b91c1c; }
+  .dropdown-divider { border-color: var(--border); margin: 6px 0; }
+
+  /* ════════ PAGE ════════ */
+  .page-wrap {
+    position: relative; z-index: 1;
+    max-width: 680px;
+    margin: 60px auto 80px;
+    padding: 0 24px;
+    animation: fadeUp .55s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(22px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── Page heading ── */
+  .page-heading {
+    display: flex; align-items: center; gap: 14px;
+    margin-bottom: 32px;
+  }
+
+  .page-heading .tag {
+    font-size: 11px; font-weight: 600;
+    letter-spacing: .18em; text-transform: uppercase;
+    color: var(--amber); background: var(--amber-lt);
+    padding: 4px 12px; border-radius: 99px;
+  }
+
+  .page-heading h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 34px; font-weight: 700; color: var(--ink); line-height: 1.1;
+  }
+
+  /* ── Edit card ── */
+  .edit-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 26px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+
+  .edit-card::before {
+    content: ''; display: block; height: 5px;
+    background: linear-gradient(90deg, var(--amber), #f59e0b, var(--rust));
+  }
+
+  .edit-card-body { padding: 36px 38px 32px; }
+
+  /* Context info box */
+  .context-box {
+    display: flex; align-items: flex-start; gap: 12px;
+    background: var(--amber-lt);
+    border: 1px solid #fde68a;
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-bottom: 28px;
+  }
+
+  .context-box i { color: var(--amber); font-size: 16px; margin-top: 2px; flex-shrink: 0; }
+
+  .context-box p {
+    font-size: 13px; color: var(--rust); font-weight: 500; margin: 0; line-height: 1.5;
+  }
+
+  /* Label */
+  .field-label {
+    font-size: 11px; font-weight: 700;
+    letter-spacing: .14em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 8px; display: block;
+  }
+
+  /* Textarea */
+  .question-textarea {
+    width: 100%;
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 16px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px; color: var(--ink);
+    background: #fffdf9;
+    resize: vertical;
+    min-height: 140px;
+    transition: border-color .2s, box-shadow .2s;
+    outline: none;
+    line-height: 1.7;
+  }
+
+  .question-textarea:focus {
+    border-color: var(--amber);
+    box-shadow: 0 0 0 3px rgba(217,119,6,.14);
+    background: white;
+  }
+
+  .char-count {
+    font-size: 12px; color: var(--muted);
+    text-align: right; margin-top: 6px;
+  }
+
+  /* ── Footer ── */
+  .edit-card-footer {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 22px 38px;
+    background: #fffbf2;
+    border-top: 1px solid var(--border);
+    gap: 12px;
+  }
+
+  .btn-save {
+    background: linear-gradient(135deg, var(--amber), var(--rust));
+    color: white; border: none;
+    padding: 11px 28px; border-radius: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px; font-weight: 700;
+    display: inline-flex; align-items: center; gap: 8px;
+    box-shadow: 0 4px 16px rgba(180,83,9,.28);
+    cursor: pointer;
+    transition: transform .2s, box-shadow .2s;
+  }
+
+  .btn-save:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(180,83,9,.38);
+  }
+
+  .btn-cancel {
+    color: var(--muted);
+    border: 1.5px solid var(--border);
+    background: white;
+    padding: 11px 22px; border-radius: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px; font-weight: 600;
+    text-decoration: none;
+    display: inline-flex; align-items: center; gap: 7px;
+    transition: border-color .2s, color .2s, transform .2s;
+  }
+
+  .btn-cancel:hover {
+    border-color: #ef4444; color: #ef4444;
+    transform: translateY(-1px);
+  }
+
+  @media (max-width: 600px) {
+    .topbar { padding: 12px 20px; }
+    .edit-card-body { padding: 24px 20px; }
+    .edit-card-footer { padding: 18px 20px; flex-direction: column-reverse; }
+    .btn-save, .btn-cancel { width: 100%; justify-content: center; }
+    .page-wrap { margin-top: 40px; }
+  }
+  </style>
 </head>
-<body class="bg-light">
 
-<div class="d-flex justify-content-between align-items-center p-3 bg-white shadow-sm">
-    <a href="{% url 'student_dashboard' %}" class="text-decoration-none text-dark">
-        <h3 class="m-0 fw-bold">Bildung</h3>
-    </a>
+<body>
 
-    <div class="d-flex align-items-center gap-3">
-        <h4 class="m-0">Hello, {{ user.first_name }} {{ user.last_name }}</h4>
+<!-- ════════ HEADER ════════ -->
+<nav class="topbar">
+  <a href="{% url 'student_dashboard' %}" class="brand">
+    <span class="dot"></span>
+    Speshway
+  </a>
 
-        <div class="dropdown">
-            <button class="btn rounded-circle shadow"
-                    style="background:gray;color:white;width:45px;height:45px;"
-                    type="button" data-bs-toggle="dropdown">
-                {{ request.user.username|first|upper }}
-            </button>
+  <div class="topbar-right">
+    <span class="topbar-greeting d-none d-md-block">
+      Hello, <strong>{{ user.first_name }} {{ user.last_name }}</strong>
+    </span>
 
-            <ul class="dropdown-menu dropdown-menu-end">
-                <li><a class="dropdown-item" href="{% url 'profile_view' %}">Profile</a></li>
-                <li><a class="dropdown-item" href="{% url 'student:my_courses' %}">My Courses</a></li>
-                <li><a class="dropdown-item" href="{% url 'student:student_upcoming_classes' %}">My Schedules</a></li>
-                <li><a class="dropdown-item" href="{% url 'student_my_activity' %}">My activity</a></li>
-                <li><a class="dropdown-item" href="{% url 'student:my_certificates' %}">My Certificates</a></li>
-                <li><a class="dropdown-item" href="#">Notifications</a></li>
-                <li><a class="dropdown-item" href="#">Payments</a></li>
-                <li><a class="dropdown-item" href="#">Help and Support</a></li>
-                <li><a class="dropdown-item" href="#">Feedback</a></li>
-                <li><a class="dropdown-item" href="{% url 'account_settings' %}">Account Settings</a></li>
-                <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item text-danger" href="{% url 'logout_view' %}">Logout</a></li>
-            </ul>
-        </div>
+    <div class="dropdown">
+      <button class="avatar-btn" data-bs-toggle="dropdown" aria-expanded="false">
+        {{ request.user.username|first|upper }}
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end">
+        <li><a class="dropdown-item" href="{% url 'profile_view' %}"><i class="fas fa-user fa-fw me-2" style="color:var(--amber)"></i>Profile</a></li>
+        <li><a class="dropdown-item" href="{% url 'student:my_courses' %}"><i class="fas fa-book fa-fw me-2" style="color:var(--amber)"></i>My Courses</a></li>
+        <li><a class="dropdown-item" href="{% url 'student:student_upcoming_classes' %}"><i class="fas fa-calendar fa-fw me-2" style="color:var(--amber)"></i>My Schedules</a></li>
+        <li><a class="dropdown-item" href="{% url 'student_my_activity' %}"><i class="fas fa-chart-line fa-fw me-2" style="color:var(--amber)"></i>My Activity</a></li>
+        <li><a class="dropdown-item" href="{% url 'student:my_certificates' %}"><i class="fas fa-certificate fa-fw me-2" style="color:var(--amber)"></i>My Certificates</a></li>
+        <li><a class="dropdown-item" href="{% url 'student_notifications' %}"><i class="fas fa-bell fa-fw me-2" style="color:var(--amber)"></i>Notifications</a></li>
+        <li><a class="dropdown-item" href="#"><i class="fas fa-credit-card fa-fw me-2" style="color:var(--amber)"></i>Payments</a></li>
+        <li><a class="dropdown-item" href="#"><i class="fas fa-circle-question fa-fw me-2" style="color:var(--amber)"></i>Help & Support</a></li>
+        <li><a class="dropdown-item" href="{% url 'account_settings' %}"><i class="fas fa-gear fa-fw me-2" style="color:var(--amber)"></i>Account Settings</a></li>
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item logout-item" href="{% url 'logout_view' %}"><i class="fas fa-arrow-right-from-bracket fa-fw me-2"></i>Sign Out</a></li>
+      </ul>
     </div>
+  </div>
+</nav>
+
+<!-- ════════ PAGE ════════ -->
+<div class="page-wrap">
+
+  <div class="page-heading">
+    <span class="tag">Q&amp;A</span>
+    <h2>Edit Question</h2>
+  </div>
+
+  <div class="edit-card">
+    <div class="edit-card-body">
+
+      <!-- Context hint -->
+      <div class="context-box">
+        <i class="fas fa-circle-info"></i>
+        <p>You are editing your question for <strong>{{ question.lecture.module.course.title }}</strong>. Keep it clear and specific so your instructor can help you better.</p>
+      </div>
+
+      <form method="POST" id="editForm">
+        {% csrf_token %}
+
+        <label class="field-label" for="questionText">Your Question</label>
+
+        <textarea
+          id="questionText"
+          name="question"
+          class="question-textarea"
+          rows="5"
+          required
+          maxlength="1000"
+          oninput="updateCount()"
+        >{{ question.question }}</textarea>
+
+        <p class="char-count"><span id="charCount">0</span> / 1000 characters</p>
+
+    </div>
+
+    <!-- Footer -->
+    <div class="edit-card-footer">
+      <a href="{% url 'student:course_qna' question.lecture.module.course.id %}" class="btn-cancel">
+        <i class="fas fa-xmark"></i> Cancel
+      </a>
+      <button type="submit" form="editForm" class="btn-save">
+        <i class="fas fa-check"></i> Save Changes
+      </button>
+    </div>
+
+      </form>
+  </div>
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-<body class="bg-light p-5">
-
-<div class="container py-5">
-
-    <div class="card shadow-sm p-4">
-        <h3 class="mb-4">Edit Your Question</h3>
-
-        <form method="POST">
-            {% csrf_token %}
-
-            <textarea name="question" class="form-control mb-3" rows="4" required>{{ question.question }}</textarea>
-
-            <button type="submit" class="btn btn-primary">Save Changes</button>
-            <a href="{% url 'student:course_qna' question.lecture.module.course.id %}"
-               class="btn btn-secondary">
-                Cancel
-            </a>
-        </form>
-    </div>
-
-</div>
+<script>
+  function updateCount() {
+    const ta = document.getElementById('questionText');
+    document.getElementById('charCount').textContent = ta.value.length;
+  }
+  // Init on load
+  updateCount();
+</script>
 
 </body>
 </html>

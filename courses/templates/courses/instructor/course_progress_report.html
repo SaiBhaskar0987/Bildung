@@ -1,63 +1,319 @@
-
-{% load static %}
-
+ {% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Course progress</title>
+<title>Course Progress – SPESHWAY</title>
+
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=sora:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 
+<style>
+:root {
+  --ink:       #0F1117;
+  --ink-soft:  #2C2F3A;
+  --teal:      #0D9488;
+  --teal-mid:  #14B8A6;
+  --teal-glow: #5EEAD4;
+  --teal-pale: #CCFBF1;
+  --surface:   #F8FFFE;
+  --card-bg:   #FFFFFF;
+  --border:    #D1FAF6;
+  --muted:     #64748B;
+  --red:       #EF4444;
+  --radius:    16px;
+  --radius-sm: 10px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--surface);
+  color: var(--ink);
+  min-height: 100vh;
+}
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-thumb { background: var(--teal-glow); border-radius: 99px; }
+
+/* ─── TOPNAV ─── */
+.topnav {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 32px; height: 64px;
+  background: rgba(255,255,255,.92);
+  backdrop-filter: blur(18px);
+  border-bottom: 1px solid var(--border);
+}
+.brand {
+  font-family: 'sora', sans-serif;
+  font-weight: 800; font-size: 1.35rem;
+  letter-spacing: -.5px; color: var(--teal);
+  text-decoration: none;
+}
+.brand span { color: var(--ink); }
+.avatar-btn {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--teal), var(--teal-mid));
+  color: #fff; border: none; cursor: pointer;
+  font-family: 'sora', sans-serif; font-weight: 700; font-size: 1rem;
+  display: flex; align-items: center; justify-content: center;
+  transition: box-shadow .2s, transform .15s;
+}
+.avatar-btn:hover { box-shadow: 0 0 0 4px var(--teal-pale); transform: scale(1.05); }
+.dropdown-menu {
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius) !important;
+  box-shadow: 0 12px 40px rgba(13,148,136,.12) !important;
+  padding: 8px !important; min-width: 220px !important;
+}
+.dropdown-item {
+  border-radius: var(--radius-sm);
+  font-size: .875rem; color: var(--ink-soft);
+  padding: 8px 12px;
+  transition: background .15s, color .15s;
+}
+.dropdown-item:hover { background: var(--teal-pale); color: var(--teal); }
+.dropdown-item.text-danger:hover { background: #FEE2E2; color: var(--red); }
+.dropdown-divider { border-color: var(--border) !important; }
+
+/* ─── PAGE WRAP ─── */
+.page-wrap {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+}
+
+/* ─── BACK LINK ─── */
+.back-link {
+  display: inline-flex; align-items: center; gap: 7px;
+  color: var(--teal); font-size: .85rem; font-weight: 600;
+  text-decoration: none; margin-bottom: 24px;
+  transition: gap .2s;
+}
+.back-link:hover { gap: 10px; }
+
+/* ─── PAGE HEADER ─── */
+.page-header { margin-bottom: 28px; }
+.page-header h2 {
+  font-family: 'sora', sans-serif;
+  font-weight: 800; font-size: 1.9rem;
+  letter-spacing: -1px; color: var(--ink);
+}
+.page-header h2 span { color: var(--teal); }
+.page-header p { color: var(--muted); margin-top: 5px; font-size: .88rem; }
+
+/* ─── SECTION CARD ─── */
+.section-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(13,148,136,.06);
+  animation: fadeUp .4s ease both;
+}
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(14px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+.card-top-bar {
+  height: 4px;
+  background: linear-gradient(90deg, var(--teal), var(--teal-glow));
+}
+.section-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 16px 22px;
+  border-bottom: 1px solid var(--border);
+}
+.section-icon {
+  width: 36px; height: 36px;
+  background: var(--teal-pale); color: var(--teal);
+  border-radius: var(--radius-sm);
+  display: flex; align-items: center; justify-content: center;
+  font-size: .9rem; flex-shrink: 0;
+}
+.section-title {
+  font-family: 'sora', sans-serif;
+  font-weight: 700; font-size: 1rem; color: var(--ink);
+}
+
+/* ─── TABLE ─── */
+.teal-table {
+  width: 100%; border-collapse: collapse;
+  font-size: .88rem;
+}
+.teal-table thead tr { background: var(--teal-pale); }
+.teal-table thead th {
+  padding: 11px 18px;
+  font-family: 'sora', sans-serif;
+  font-weight: 700; font-size: .72rem;
+  text-transform: uppercase; letter-spacing: .6px;
+  color: var(--teal); border: none; white-space: nowrap;
+}
+.teal-table tbody tr {
+  border-bottom: 1px solid var(--border);
+  transition: background .12s;
+}
+.teal-table tbody tr:last-child { border-bottom: none; }
+.teal-table tbody tr:hover { background: #F0FDFA; }
+.teal-table td {
+  padding: 13px 18px;
+  color: var(--ink-soft); vertical-align: middle;
+}
+
+/* Avatar chip */
+.student-chip {
+  display: inline-flex; align-items: center; gap: 10px;
+}
+.student-avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--teal), var(--teal-mid));
+  color: #fff; font-family: 'sora', sans-serif;
+  font-weight: 800; font-size: .8rem;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.student-name { font-weight: 600; color: var(--ink); }
+
+/* Counters */
+.count-cell { font-family: 'sora', sans-serif; font-weight: 700; color: var(--ink-soft); }
+
+/* Progress bar */
+.progress-bar-wrap {
+  display: flex; align-items: center; gap: 10px;
+  min-width: 180px;
+}
+.progress-track {
+  flex: 1; height: 7px; background: var(--border);
+  border-radius: 99px; overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width .5s ease;
+}
+.progress-fill.high   { background: linear-gradient(90deg, var(--teal), var(--teal-glow)); }
+.progress-fill.mid    { background: linear-gradient(90deg, #F59E0B, #FDE68A); }
+.progress-fill.low    { background: linear-gradient(90deg, #EF4444, #FCA5A5); }
+.progress-pct {
+  font-family: 'sora', sans-serif;
+  font-weight: 800; font-size: .82rem;
+  min-width: 42px; text-align: right;
+}
+.progress-pct.high { color: var(--teal); }
+.progress-pct.mid  { color: #D97706; }
+.progress-pct.low  { color: var(--red); }
+
+/* Empty state */
+.empty-state {
+  display: flex; flex-direction: column;
+  align-items: center; padding: 52px 24px;
+  color: var(--muted); text-align: center;
+}
+.empty-icon {
+  width: 56px; height: 56px; border-radius: 50%;
+  background: var(--teal-pale); color: var(--teal);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.4rem; margin-bottom: 14px;
+}
+.empty-state p { font-size: .88rem; }
+</style>
 </head>
-<body class="bg-light">
-  <div class="d-flex justify-content-between align-items-center p-3 bg-white shadow-sm">
-    <a href="{% url 'instructor_dashboard' %}" class="text-decoration-none text-dark">
-        <h3 class="m-0 fw-bold">Bildung</h3>
-    </a>  
+<body>
 
-        <div class="dropdown">
-            <button class="btn rounded-circle shadow" style="background:gray;color:white;width:45px;height:45px;" type="button" data-bs-toggle="dropdown">
-                {{ request.user.username|first|upper }}
-            </button>
-            <ul class="dropdown-menu dropdown-menu-end">
-                <li><a class="dropdown-item" href="{% url 'instructor_profile_view' %}">Profile</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor:add_course' %}">Create New Course</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor:students_list' %}">My Students</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor:calendar_view' %}">My Schedules</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor_notifications' %}">Notifications</a></li>
-                <li><a class="dropdown-item" href="#">Earnings & Payments</a></li>
-                <li><a class="dropdown-item" href="#">Help & Support</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor_account_settings' %}">Account Settings</a></li>
-                <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item text-danger" href="{% url 'logout_view' %}">Logout</a></li>
-            </ul>
-        </div>
+<!-- ── TOPNAV ─── -->
+<nav class="topnav">
+  <a href="{% url 'instructor_dashboard' %}" class="brand">SPESH<span>WAY</span></a>
+  <div class="dropdown">
+    <button class="avatar-btn" type="button" data-bs-toggle="dropdown">
+      {{ request.user.username|first|upper }}
+    </button>
+    <ul class="dropdown-menu dropdown-menu-end">
+      <li><a class="dropdown-item" href="{% url 'instructor_profile_view' %}"><i class="fa-regular fa-user me-2"></i>Profile</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor:add_course' %}"><i class="fa-solid fa-plus me-2"></i>Create New Course</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor:students_list' %}"><i class="fa-solid fa-users me-2"></i>My Students</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor:calendar_view' %}"><i class="fa-regular fa-calendar me-2"></i>My Schedules</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor_notifications' %}"><i class="fa-regular fa-bell me-2"></i>Notifications</a></li>
+      <li><a class="dropdown-item" href="#"><i class="fa-solid fa-wallet me-2"></i>Earnings & Payments</a></li>
+      <li><a class="dropdown-item" href="#"><i class="fa-regular fa-circle-question me-2"></i>Help & Support</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor_account_settings' %}"><i class="fa-solid fa-gear me-2"></i>Account Settings</a></li>
+      <li><hr class="dropdown-divider"></li>
+      <li><a class="dropdown-item text-danger" href="{% url 'logout_view' %}"><i class="fa-solid fa-right-from-bracket me-2"></i>Logout</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ── PAGE ─── -->
+<div class="page-wrap">
+
+  
+
+  <div class="page-header">
+    <h2>Progress <span>Report</span></h2>
+    <p>{{ course.title }}</p>
+  </div>
+
+  <div class="section-card">
+    <div class="card-top-bar"></div>
+    <div class="section-header">
+      <div class="section-icon"><i class="fa-solid fa-chart-line"></i></div>
+      <div class="section-title">Student Progress</div>
     </div>
+    <div style="overflow-x:auto;">
+      <table class="teal-table">
+        <thead>
+          <tr>
+            <th>Student</th>
+            <th>Completed</th>
+            <th>Total Lectures</th>
+            <th>Progress</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in progress_data %}
+          {% with pct=row.progress|floatformat:0 %}
+          <tr>
+            <td>
+              <div class="student-chip">
+                <div class="student-avatar">{{ row.student.username|first|upper }}</div>
+                <span class="student-name">{{ row.student.username }}</span>
+              </div>
+            </td>
+            <td class="count-cell">{{ row.completed }}</td>
+            <td class="count-cell">{{ row.total }}</td>
+            <td>
+              <div class="progress-bar-wrap">
+                <div class="progress-track">
+                  <div class="progress-fill {% if row.progress >= 70 %}high{% elif row.progress >= 35 %}mid{% else %}low{% endif %}"
+                       style="width:{{ row.progress|floatformat:0 }}%"></div>
+                </div>
+                <div class="progress-pct {% if row.progress >= 70 %}high{% elif row.progress >= 35 %}mid{% else %}low{% endif %}">
+                  {{ row.progress|floatformat:2 }}%
+                </div>
+              </div>
+            </td>
+          </tr>
+          {% endwith %}
+          {% empty %}
+          <tr>
+            <td colspan="4">
+              <div class="empty-state">
+                <div class="empty-icon"><i class="fa-solid fa-chart-line"></i></div>
+                <p>No progress data available yet.</p>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
 </div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-<h5 class="fw-bold mb-4 text-primary">Course Progress Report: {{ course.title }}</h5>
-<table class="table">
-  <thead>
-    <tr>
-      <th>Student</th>
-      <th>Completed</th>
-      <th>Total Lectures</th>
-      <th>Progress %</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for row in progress_data %}
-      <tr>
-        <td>{{ row.student.username }}</td>
-        <td>{{ row.completed }}</td>
-        <td>{{ row.total }}</td>
-        <td>{{ row.progress|floatformat:2 }}%</td>
-      </tr>
-    {% endfor %}
-  </tbody>
-</table>
-
 </body>
 </html>

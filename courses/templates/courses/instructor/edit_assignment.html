@@ -1,180 +1,358 @@
-{% load static %}
+ {% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Edit Assignment</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Edit Assignment – SPESHWAY</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=sora:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 
-    <style>
-
-/* ================= THEME COLORS ================= */
-:root{
-  --yellow:#facc15;
-  --yellow-soft:#fff7cc;
-  --brown:#3a2a1a;
-  --brown-dark:#5a3d1f;
+<style>
+/* ─── DESIGN SYSTEM ─── */
+:root {
+  --ink:       #0F1117;
+  --ink-soft:  #2C2F3A;
+  --teal:      #0D9488;
+  --teal-mid:  #14B8A6;
+  --teal-glow: #5EEAD4;
+  --teal-pale: #CCFBF1;
+  --surface:   #F8FFFE;
+  --card-bg:   #FFFFFF;
+  --border:    #D1FAF6;
+  --muted:     #64748B;
+  --red:       #EF4444;
+  --radius:    16px;
+  --radius-sm: 10px;
 }
 
-/* ================= BACKGROUND ================= */
-body{
-    background: linear-gradient(135deg,#fffdf2,#fff7cc) !important;
-    font-family: 'Segoe UI', sans-serif;
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--surface);
+  color: var(--ink);
+  min-height: 100vh;
 }
 
-/* ================= MAIN CARD ================= */
-.card{
-    border-radius:25px !important;
-    box-shadow:
-        0 25px 70px rgba(58,42,26,0.15),
-        0 0 60px rgba(250,204,21,0.1);
-    border:none !important;
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-thumb { background: var(--teal-glow); border-radius: 99px; }
+
+/* ─── TOPNAV ─── */
+.topnav {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 32px; height: 64px;
+  background: rgba(255,255,255,.92);
+  backdrop-filter: blur(18px);
+  border-bottom: 1px solid var(--border);
+}
+.brand {
+  font-family: 'sora', sans-serif;
+  font-weight: 800; font-size: 1.35rem;
+  letter-spacing: -.5px; color: var(--teal);
+  text-decoration: none;
+}
+.brand span { color: var(--ink); }
+.avatar-btn {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--teal), var(--teal-mid));
+  color: #fff; border: none; cursor: pointer;
+  font-family: 'sora', sans-serif; font-weight: 700; font-size: 1rem;
+  display: flex; align-items: center; justify-content: center;
+  transition: box-shadow .2s, transform .15s;
+}
+.avatar-btn:hover { box-shadow: 0 0 0 4px var(--teal-pale); transform: scale(1.05); }
+.dropdown-menu {
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius) !important;
+  box-shadow: 0 12px 40px rgba(13,148,136,.12) !important;
+  padding: 8px !important; min-width: 220px !important;
+}
+.dropdown-item {
+  border-radius: var(--radius-sm);
+  font-size: .875rem; color: var(--ink-soft);
+  padding: 8px 12px;
+  transition: background .15s, color .15s;
+}
+.dropdown-item:hover { background: var(--teal-pale); color: var(--teal); }
+.dropdown-item.text-danger:hover { background: #FEE2E2; color: var(--red); }
+.dropdown-divider { border-color: var(--border) !important; }
+
+/* ─── PAGE WRAP ─── */
+.page-wrap {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
 }
 
-/* Header Title */
-h3{
-    color:var(--brown);
-    font-weight:800;
+/* ─── BACK LINK ─── */
+.back-link {
+  display: inline-flex; align-items: center; gap: 7px;
+  color: var(--teal); font-size: .85rem; font-weight: 600;
+  text-decoration: none; margin-bottom: 24px;
+  transition: gap .2s; cursor: pointer; background: none; border: none;
 }
+.back-link:hover { gap: 10px; color: var(--teal); }
 
-/* Section Title */
-h5{
-    color:var(--brown-dark);
-    font-weight:700;
+/* ─── PAGE HEADER ─── */
+.page-header { margin-bottom: 28px; }
+.page-header h2 {
+  font-family: 'sora', sans-serif;
+  font-weight: 800; font-size: 1.9rem;
+  letter-spacing: -1px; color: var(--ink);
 }
+.page-header h2 span { color: var(--teal); }
+.page-header p { color: var(--muted); margin-top: 5px; font-size: .88rem; }
 
-/* ================= INPUT FIELDS ================= */
-.form-control{
-    border-radius:14px !important;
-    border:2px solid var(--yellow);
-    padding:12px;
+/* ─── SECTION CARD ─── */
+.section-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 20px rgba(13,148,136,.06);
+  animation: fadeUp .4s ease both;
 }
-
-.form-control:focus{
-    border-color:var(--brown);
-    box-shadow:0 0 0 4px rgba(250,204,21,0.35);
+.section-card.delay { animation-delay: .1s; }
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(14px); }
+  to   { opacity:1; transform:translateY(0); }
 }
-
-/* ================= DIVIDER ================= */
-hr{
-    height:2px;
-    background:linear-gradient(to right,transparent,var(--yellow),transparent);
-    border:none;
+.card-top-bar {
+  height: 4px;
+  background: linear-gradient(90deg, var(--teal), var(--teal-glow));
 }
-
-/* ================= ADD QUESTION BUTTON ================= */
-.btn-outline-primary{
-    border:2px solid var(--brown);
-    color:var(--brown);
-    border-radius:12px;
-    font-weight:600;
+.section-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 16px 22px;
+  border-bottom: 1px solid var(--border);
 }
-
-.btn-outline-primary:hover{
-    background:var(--brown);
-    color:white;
+.section-icon {
+  width: 36px; height: 36px;
+  background: var(--teal-pale); color: var(--teal);
+  border-radius: var(--radius-sm);
+  display: flex; align-items: center; justify-content: center;
+  font-size: .9rem; flex-shrink: 0;
 }
-
-/* ================= SAVE BUTTON ================= */
-.btn-success{
-    background:linear-gradient(135deg,var(--brown),var(--brown-dark));
-    border:none;
-    border-radius:14px;
-    font-weight:600;
+.section-title {
+  font-family: 'sora', sans-serif;
+  font-weight: 700; font-size: 1rem; color: var(--ink);
 }
+.section-body { padding: 22px 22px 26px; }
 
-.btn-success:hover{
-    box-shadow:0 10px 25px rgba(58,42,26,0.3);
+/* ─── FORM FIELDS ─── */
+.field-wrap { display: flex; flex-direction: column; gap: 5px; margin-bottom: 16px; }
+.field-wrap:last-child { margin-bottom: 0; }
+.field-label {
+  font-size: .73rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .7px; color: var(--muted);
 }
-
-/* ================= BACK BUTTON ================= */
-.btn-outline-secondary{
-    border:2px solid var(--yellow);
-    color:var(--brown);
-    border-radius:14px;
-    font-weight:600;
+.field-input, .field-textarea {
+  width: 100%; padding: 10px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: 'DM Sans', sans-serif;
+  font-size: .9rem; color: var(--ink);
+  background: #fff; outline: none;
+  transition: border-color .2s, box-shadow .2s;
 }
-
-.btn-outline-secondary:hover{
-    background:var(--yellow);
-    color:var(--brown);
+.field-input:focus, .field-textarea:focus {
+  border-color: var(--teal);
+  box-shadow: 0 0 0 3px rgba(13,148,136,.12);
 }
+.field-textarea { resize: vertical; min-height: 90px; line-height: 1.5; }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 
-/* ================= QUESTION BLOCKS (Dynamic) ================= */
-#questionsContainer > div{
-    border-left:5px solid var(--yellow);
-    border-radius:15px;
-    padding:15px;
-    background:#fffdf5;
-    box-shadow:0 8px 25px rgba(58,42,26,0.08);
-    margin-bottom:15px;
+/* ─── QUESTIONS SECTION ─── */
+.questions-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 16px;
 }
+.questions-label {
+  font-family: 'sora', sans-serif;
+  font-weight: 700; font-size: .95rem; color: var(--ink);
+  display: flex; align-items: center; gap: 8px;
+}
+.questions-label i { color: var(--teal); }
 
-    </style>
+/* Question card */
+#questionsContainer > div {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--teal);
+  border-radius: var(--radius-sm);
+  padding: 18px 20px;
+  margin-bottom: 12px;
+  transition: box-shadow .18s;
+  animation: fadeUp .3s ease both;
+}
+#questionsContainer > div:hover { box-shadow: 0 5px 18px rgba(13,148,136,.1); }
+
+/* Add question btn */
+.btn-add-q {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; padding: 11px;
+  background: var(--teal-pale); color: var(--teal);
+  border: 2px dashed var(--teal-glow); border-radius: var(--radius-sm);
+  font-family: 'sora', sans-serif; font-weight: 700; font-size: .88rem;
+  cursor: pointer; transition: background .15s, border-color .15s, transform .15s;
+  margin-top: 4px;
+}
+.btn-add-q:hover { background: #B2F5EA; border-color: var(--teal); transform: translateY(-1px); }
+
+/* ─── ACTIONS BAR ─── */
+.actions-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 12px;
+  padding: 18px 22px;
+  background: var(--card-bg);
+  border: 1px solid var(--border); border-radius: var(--radius);
+  box-shadow: 0 4px 20px rgba(13,148,136,.06);
+}
+.hint { font-size: .82rem; color: var(--muted); display: flex; align-items: center; gap: 6px; }
+.hint i { color: var(--teal); }
+.action-btns { display: flex; gap: 10px; }
+
+.btn-save {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: linear-gradient(135deg, var(--teal), var(--teal-mid));
+  color: #fff; border: none; border-radius: var(--radius-sm);
+  padding: 10px 24px; font-size: .88rem; font-weight: 700;
+  font-family: 'sora', sans-serif; cursor: pointer;
+  transition: opacity .2s, transform .15s;
+}
+.btn-save:hover { opacity: .88; transform: translateY(-1px); }
+
+.btn-back {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: var(--teal-pale); color: var(--teal);
+  border: 1.5px solid var(--teal-glow); border-radius: var(--radius-sm);
+  padding: 10px 20px; font-size: .88rem; font-weight: 700;
+  font-family: 'sora', sans-serif; cursor: pointer;
+  transition: background .15s, color .15s;
+}
+.btn-back:hover { background: var(--teal); color: #fff; }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 560px) {
+  .topnav { padding: 0 16px; }
+  .page-wrap { padding: 24px 16px 60px; }
+  .field-row { grid-template-columns: 1fr; }
+  .actions-bar { flex-direction: column; align-items: stretch; }
+  .action-btns { flex-direction: column; }
+}
+</style>
 </head>
+<body>
 
-<body class="bg-light">
+<!-- ── TOPNAV ─── -->
+<nav class="topnav">
+  <a href="{% url 'instructor_dashboard' %}" class="brand">SPESH<span>WAY</span></a>
+  <div class="dropdown">
+    <button class="avatar-btn" type="button" data-bs-toggle="dropdown">
+      {{ request.user.username|first|upper }}
+    </button>
+    <ul class="dropdown-menu dropdown-menu-end">
+      <li><a class="dropdown-item" href="{% url 'instructor_profile_view' %}"><i class="fa-regular fa-user me-2"></i>Profile</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor:add_course' %}"><i class="fa-solid fa-plus me-2"></i>Create New Course</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor:students_list' %}"><i class="fa-solid fa-users me-2"></i>My Students</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor:calendar_view' %}"><i class="fa-regular fa-calendar me-2"></i>My Schedules</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor_notifications' %}"><i class="fa-regular fa-bell me-2"></i>Notifications</a></li>
+      <li><a class="dropdown-item" href="#"><i class="fa-solid fa-wallet me-2"></i>Earnings & Payments</a></li>
+      <li><a class="dropdown-item" href="#"><i class="fa-regular fa-circle-question me-2"></i>Help & Support</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor_account_settings' %}"><i class="fa-solid fa-gear me-2"></i>Account Settings</a></li>
+      <li><hr class="dropdown-divider"></li>
+      <li><a class="dropdown-item text-danger" href="{% url 'logout_view' %}"><i class="fa-solid fa-right-from-bracket me-2"></i>Logout</a></li>
+    </ul>
+  </div>
+</nav>
 
-<div class="container py-5">
-    <div class="card shadow border-0 rounded-4">
-        <div class="card-body p-4">
+<!-- ── PAGE ─── -->
+<div class="page-wrap">
 
-            <h3 class="fw-bold text-center mb-4">✏️ Edit Assignment</h3>
+  <button class="back-link" onclick="goBack()">
+    <i class="fa-solid fa-arrow-left"></i> Back to Course
+  </button>
 
-            <!-- Assignment Details -->
-            <div class="mb-3">
-                <label class="form-label">Title</label>
-                <input id="assignmentTitle"
-                       class="form-control"
-                       value="{{ assignment.title }}">
-            </div>
+  <div class="page-header">
+    <h2>Edit <span>Assignment</span></h2>
+    <p>Update assignment details and manage coding questions below.</p>
+  </div>
 
-            <div class="mb-3">
-                <label class="form-label">Description</label>
-                <textarea id="assignmentDescription"
-                          class="form-control"
-                          rows="3">{{ assignment.description }}</textarea>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">Max Marks</label>
-                <input id="assignmentMarks"
-                       type="number"
-                       class="form-control"
-                       value="{{ assignment.max_marks }}">
-            </div>
-
-            <hr class="my-4">
-
-            <!-- Coding Questions -->
-            <h5 class="fw-bold">💻 Coding Questions</h5>
-            <div id="questionsContainer"></div>
-
-            <button type="button"
-                    class="btn btn-outline-primary mt-3"
-                    onclick="addQuestion()">
-                + Add Question
-            </button>
-
-            <!-- Actions -->
-            <div class="d-flex justify-content-end gap-2 mt-4">
-                <button class="btn btn-success px-4"
-                        onclick="saveAssignment()">
-                    Save
-                </button>
-
-                <button class="btn btn-outline-secondary px-4"
-                        onclick="goBack()">
-                    Back
-                </button>
-            </div>
-
-        </div>
+  <!-- ── Assignment Details ── -->
+  <div class="section-card">
+    <div class="card-top-bar"></div>
+    <div class="section-header">
+      <div class="section-icon"><i class="fa-solid fa-file-pen"></i></div>
+      <div class="section-title">Assignment Details</div>
     </div>
+    <div class="section-body">
+
+      <div class="field-wrap">
+        <label class="field-label">Title</label>
+        <input id="assignmentTitle" class="field-input"
+               value="{{ assignment.title }}" placeholder="Assignment title">
+      </div>
+
+      <div class="field-wrap">
+        <label class="field-label">Description</label>
+        <textarea id="assignmentDescription" class="field-textarea"
+                  rows="3" placeholder="Describe what students need to do…">{{ assignment.description }}</textarea>
+      </div>
+
+      <div class="field-row" style="margin-bottom:0;">
+        <div class="field-wrap" style="margin-bottom:0;">
+          <label class="field-label">Max Marks</label>
+          <input id="assignmentMarks" type="number" class="field-input"
+                 value="{{ assignment.max_marks }}" placeholder="e.g. 100">
+        </div>
+        <div class="field-wrap" style="margin-bottom:0;"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── Coding Questions ── -->
+  <div class="section-card delay">
+    <div class="card-top-bar"></div>
+    <div class="section-header">
+      <div class="section-icon"><i class="fa-solid fa-code"></i></div>
+      <div class="section-title">Coding Questions</div>
+    </div>
+    <div class="section-body">
+
+      <div id="questionsContainer"></div>
+
+      <button type="button" class="btn-add-q" onclick="addQuestion()">
+        <i class="fa-solid fa-plus"></i> Add Question
+      </button>
+
+    </div>
+  </div>
+
+  <!-- ── Actions Bar ── -->
+  <div class="actions-bar">
+    <div class="hint">
+      <i class="fa-solid fa-lightbulb"></i>
+      Save to keep your changes to this assignment
+    </div>
+    <div class="action-btns">
+      <button class="btn-back" onclick="goBack()">
+        <i class="fa-solid fa-arrow-left"></i> Back
+      </button>
+      <button class="btn-save" onclick="saveAssignment()">
+        <i class="fa-solid fa-floppy-disk"></i> Save Assignment
+      </button>
+    </div>
+  </div>
+
 </div>
 
-<!-- Existing questions -->
+<!-- Existing questions data (preserved exactly) -->
 {{ questions|json_script:"questions-data" }}
 
 <script>
@@ -185,6 +363,6 @@ const BACK_URL = "/accounts/instructor/courses/{{ assignment.course.id }}/edit/"
 </script>
 
 <script src="{% static 'js/edit_assignment.js' %}"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

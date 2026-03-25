@@ -1,300 +1,660 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Course Overview</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Course Overview – SPESHWAY</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=sora:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+/* ─── DESIGN SYSTEM ─── */
+:root {
+  --ink:       #0F1117;
+  --ink-soft:  #2C2F3A;
+  --teal:      #0D9488;
+  --teal-mid:  #14B8A6;
+  --teal-glow: #5EEAD4;
+  --teal-pale: #CCFBF1;
+  --surface:   #F8FFFE;
+  --card-bg:   #FFFFFF;
+  --border:    #D1FAF6;
+  --muted:     #64748B;
+  --red:       #EF4444;
+  --green:     #10B981;
+  --blue:      #3B82F6;
+  --amber:     #F59E0B;
+  --radius:    16px;
+  --radius-sm: 10px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--surface);
+  color: var(--ink);
+  min-height: 100vh;
+}
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-thumb { background: var(--teal-glow); border-radius: 99px; }
+
+/* ─── TOPNAV ─── */
+.topnav {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 32px; height: 64px;
+  background: rgba(255,255,255,.92);
+  backdrop-filter: blur(18px);
+  border-bottom: 1px solid var(--border);
+}
+.brand {
+  font-family: 'sora', sans-serif;
+  font-weight: 800; font-size: 1.35rem;
+  letter-spacing: -.5px; color: var(--teal);
+  text-decoration: none;
+}
+.brand span { color: var(--ink); }
+.avatar-btn {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--teal), var(--teal-mid));
+  color: #fff; border: none; cursor: pointer;
+  font-family: 'sora', sans-serif; font-weight: 700; font-size: 1rem;
+  display: flex; align-items: center; justify-content: center;
+  transition: box-shadow .2s, transform .15s;
+}
+.avatar-btn:hover { box-shadow: 0 0 0 4px var(--teal-pale); transform: scale(1.05); }
+.dropdown-menu {
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius) !important;
+  box-shadow: 0 12px 40px rgba(13,148,136,.12) !important;
+  padding: 8px !important; min-width: 220px !important;
+}
+.dropdown-item {
+  border-radius: var(--radius-sm);
+  font-size: .875rem; color: var(--ink-soft);
+  padding: 8px 12px;
+  transition: background .15s, color .15s;
+}
+.dropdown-item:hover { background: var(--teal-pale); color: var(--teal); }
+.dropdown-item.text-danger:hover { background: #FEE2E2; color: var(--red); }
+.dropdown-divider { border-color: var(--border) !important; }
+
+/* ─── PAGE WRAP ─── */
+.page-wrap {
+  max-width: 1060px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+}
+
+/* ─── BACK LINK ─── */
+.back-link {
+  display: inline-flex; align-items: center; gap: 7px;
+  color: var(--teal); font-size: .85rem; font-weight: 600;
+  text-decoration: none; margin-bottom: 24px;
+  transition: gap .2s;
+}
+.back-link:hover { gap: 10px; }
+
+/* ─── PAGE HEADER ─── */
+.page-header { margin-bottom: 28px; }
+.page-header h2 {
+  font-family: 'sora', sans-serif;
+  font-weight: 800; font-size: 1.9rem;
+  letter-spacing: -1px; color: var(--ink);
+}
+.page-header h2 span { color: var(--teal); }
+.page-header p { color: var(--muted); margin-top: 5px; font-size: .88rem; }
+
+/* ─── TAB NAV ─── */
+.tab-nav {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  margin-bottom: 24px;
+}
+.tab-btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 8px 18px;
+  background: var(--card-bg);
+  border: 1.5px solid var(--border);
+  border-radius: 99px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: .84rem; font-weight: 600;
+  color: var(--muted); cursor: pointer;
+  transition: all .18s;
+  white-space: nowrap;
+}
+.tab-btn:hover { border-color: var(--teal-glow); color: var(--teal); background: var(--teal-pale); }
+.tab-btn.active {
+  background: linear-gradient(135deg, var(--teal), var(--teal-mid));
+  border-color: var(--teal);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(13,148,136,.25);
+}
+.tab-btn .tab-icon { font-size: .9rem; }
+
+/* ─── SECTION CARD ─── */
+.section-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(13,148,136,.06);
+  animation: fadeUp .35s ease both;
+}
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(12px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+.card-top-bar {
+  height: 4px;
+  background: linear-gradient(90deg, var(--teal), var(--teal-glow));
+}
+.section-header {
+  display: flex; align-items: center; gap: 10px;
+  padding: 16px 22px;
+  border-bottom: 1px solid var(--border);
+}
+.section-icon {
+  width: 36px; height: 36px;
+  background: var(--teal-pale); color: var(--teal);
+  border-radius: var(--radius-sm);
+  display: flex; align-items: center; justify-content: center;
+  font-size: .9rem; flex-shrink: 0;
+}
+.section-title {
+  font-family: 'sora', sans-serif;
+  font-weight: 700; font-size: 1rem; color: var(--ink);
+}
+
+/* ─── TABLES ─── */
+.teal-table {
+  width: 100%; border-collapse: collapse;
+  font-size: .88rem;
+}
+.teal-table thead tr {
+  background: var(--teal-pale);
+}
+.teal-table thead th {
+  padding: 10px 16px;
+  font-family: 'sora', sans-serif;
+  font-weight: 700; font-size: .73rem;
+  text-transform: uppercase; letter-spacing: .6px;
+  color: var(--teal); border: none;
+}
+.teal-table tbody tr {
+  border-bottom: 1px solid var(--border);
+  transition: background .12s;
+}
+.teal-table tbody tr:last-child { border-bottom: none; }
+.teal-table tbody tr:hover { background: #F0FDFA; }
+.teal-table td {
+  padding: 11px 16px; color: var(--ink-soft); vertical-align: middle;
+}
+
+/* Progress bar */
+.progress-bar-wrap {
+  display: flex; align-items: center; gap: 10px;
+}
+.progress-track {
+  flex: 1; height: 7px; background: var(--border);
+  border-radius: 99px; overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--teal), var(--teal-glow));
+  border-radius: 99px;
+  transition: width .4s ease;
+}
+.progress-pct {
+  font-family: 'sora', sans-serif;
+  font-weight: 800; font-size: .82rem; color: var(--teal);
+  min-width: 36px;
+}
+
+/* Empty state */
+.empty-state {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 48px 24px;
+  color: var(--muted); text-align: center;
+}
+.empty-icon {
+  width: 56px; height: 56px;
+  background: var(--teal-pale); color: var(--teal);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.4rem; margin-bottom: 14px;
+}
+.empty-state p { font-size: .88rem; color: var(--muted); }
+
+/* ─── QUESTION CARDS ─── */
+.q-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--teal);
+  border-radius: var(--radius-sm);
+  padding: 18px 20px;
+  margin-bottom: 14px;
+  transition: box-shadow .18s;
+}
+.q-card:hover { box-shadow: 0 6px 20px rgba(13,148,136,.1); }
+.q-card:last-child { margin-bottom: 0; }
+
+.q-header {
+  display: flex; align-items: flex-start;
+  justify-content: space-between; gap: 12px;
+  margin-bottom: 8px;
+}
+.q-text {
+  font-family: 'sora', sans-serif;
+  font-weight: 700; font-size: .95rem; color: var(--ink);
+  flex: 1;
+}
+.q-lecture-tag {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: #EFF6FF; color: var(--blue);
+  border-radius: 99px; font-size: .72rem; font-weight: 700;
+  padding: 3px 10px; white-space: nowrap; flex-shrink: 0;
+}
+.q-meta { font-size: .78rem; color: var(--muted); margin-bottom: 4px; }
+.q-meta strong { color: var(--ink-soft); }
+.q-time { font-size: .74rem; color: var(--muted); }
+
+/* Replies thread */
+.replies-thread {
+  margin-top: 14px;
+  padding-left: 16px;
+  border-left: 3px solid var(--teal-glow);
+}
+.reply-item { margin-bottom: 14px; }
+.reply-item:last-child { margin-bottom: 0; }
+.reply-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 4px;
+}
+.reply-author {
+  font-weight: 700; font-size: .85rem; color: var(--ink-soft);
+  display: flex; align-items: center; gap: 6px;
+}
+.instructor-badge {
+  background: var(--teal-pale); color: var(--teal);
+  font-size: .68rem; font-weight: 700;
+  padding: 2px 8px; border-radius: 99px;
+  text-transform: uppercase; letter-spacing: .4px;
+}
+.reply-actions { display: flex; gap: 6px; }
+.btn-edit-reply {
+  background: #EFF6FF; color: var(--blue);
+  border: none; border-radius: var(--radius-sm);
+  padding: 4px 10px; font-size: .74rem; font-weight: 600;
+  cursor: pointer; text-decoration: none;
+  transition: background .15s;
+}
+.btn-edit-reply:hover { background: #DBEAFE; color: var(--blue); }
+.btn-del-reply {
+  background: #FEE2E2; color: var(--red);
+  border: none; border-radius: var(--radius-sm);
+  padding: 4px 10px; font-size: .74rem; font-weight: 600;
+  cursor: pointer; text-decoration: none;
+  transition: background .15s;
+}
+.btn-del-reply:hover { background: var(--red); color: #fff; }
+.reply-text { font-size: .86rem; color: var(--ink-soft); margin-bottom: 3px; }
+.reply-time { font-size: .73rem; color: var(--muted); }
+
+/* Reply form */
+.reply-form { margin-top: 14px; }
+.reply-input-row { display: flex; gap: 8px; }
+.reply-input {
+  flex: 1; padding: 9px 14px;
+  border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+  font-family: 'DM Sans', sans-serif; font-size: .88rem;
+  color: var(--ink); background: #fff; outline: none;
+  transition: border-color .2s, box-shadow .2s;
+}
+.reply-input:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(13,148,136,.1); }
+.btn-reply {
+  background: linear-gradient(135deg, var(--teal), var(--teal-mid));
+  color: #fff; border: none; border-radius: var(--radius-sm);
+  padding: 9px 18px; font-size: .85rem; font-weight: 700;
+  font-family: 'sora', sans-serif; cursor: pointer;
+  white-space: nowrap; transition: opacity .2s;
+}
+.btn-reply:hover { opacity: .88; }
+
+/* ─── REVIEW CARDS ─── */
+.review-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 16px 20px;
+  margin-bottom: 12px;
+  transition: box-shadow .18s;
+}
+.review-card:hover { box-shadow: 0 5px 16px rgba(13,148,136,.08); }
+.review-card:last-child { margin-bottom: 0; }
+.stars { display: flex; gap: 2px; margin-bottom: 8px; }
+.star-filled { color: var(--amber); font-size: 1.1rem; }
+.star-empty  { color: #D1D5DB;   font-size: 1.1rem; }
+.review-comment { font-size: .9rem; color: var(--ink-soft); margin-bottom: 7px; line-height: 1.5; }
+.review-meta { font-size: .76rem; color: var(--muted); }
+.review-meta strong { color: var(--ink-soft); }
+
+/* Section body padding */
+.section-body { padding: 20px 22px 24px; }
+</style>
 </head>
+<body>
 
-<body class="bg-light">
+<!-- ── TOPNAV ─── -->
+<nav class="topnav">
+  <a href="{% url 'instructor_dashboard' %}" class="brand">SPESH<span>WAY</span></a>
+  <div class="dropdown">
+    <button class="avatar-btn" type="button" data-bs-toggle="dropdown">
+      {{ request.user.username|first|upper }}
+    </button>
+    <ul class="dropdown-menu dropdown-menu-end">
+      <li><a class="dropdown-item" href="{% url 'instructor_profile_view' %}"><i class="fa-regular fa-user me-2"></i>Profile</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor:add_course' %}"><i class="fa-solid fa-plus me-2"></i>Create New Course</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor:students_list' %}"><i class="fa-solid fa-users me-2"></i>My Students</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor:calendar_view' %}"><i class="fa-regular fa-calendar me-2"></i>My Schedules</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor_notifications' %}"><i class="fa-regular fa-bell me-2"></i>Notifications</a></li>
+      <li><a class="dropdown-item" href="#"><i class="fa-solid fa-wallet me-2"></i>Earnings & Payments</a></li>
+      <li><a class="dropdown-item" href="#"><i class="fa-regular fa-circle-question me-2"></i>Help & Support</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor_account_settings' %}"><i class="fa-solid fa-gear me-2"></i>Account Settings</a></li>
+      <li><hr class="dropdown-divider"></li>
+      <li><a class="dropdown-item text-danger" href="{% url 'logout_view' %}"><i class="fa-solid fa-right-from-bracket me-2"></i>Logout</a></li>
+    </ul>
+  </div>
+</nav>
 
-    <div class="d-flex justify-content-between align-items-center p-3 bg-white shadow-sm">
-        <a href="{% url 'instructor_dashboard' %}" class="text-decoration-none text-dark">
-            <h3 class="m-0 fw-bold">Bildung</h3>
-        </a>
+<!-- ── PAGE ─── -->
+<div class="page-wrap">
 
-        <div class="dropdown">
-            <button class="btn rounded-circle shadow"
-                style="background:gray;color:white;width:45px;height:45px;" type="button"
-                data-bs-toggle="dropdown">
-                {{ request.user.username|first|upper }}
-            </button>
+   
+  <div class="page-header">
+    <h2>Course <span>Overview</span></h2>
+    <p>{{ course.title }}</p>
+  </div>
 
-            <ul class="dropdown-menu dropdown-menu-end">
-                <li><a class="dropdown-item" href="{% url 'instructor_profile_view' %}">Profile</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor:add_course' %}">Create New Course</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor:students_list' %}">My Students</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor:calendar_view' %}">My Schedules</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor_notifications' %}">Notifications</a></li>
-                <li><a class="dropdown-item" href="#">Earnings & Payments</a></li>
-                <li><a class="dropdown-item" href="#">Help & Support</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor_account_settings' %}">Account Settings</a></li>
-                <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item text-danger" href="{% url 'logout_view' %}">Logout</a></li>
-            </ul>
-        </div>
+  <!-- ── TAB NAV ── -->
+  <div class="tab-nav">
+    <button class="tab-btn" data-section="progress">
+      <i class="tab-icon fa-solid fa-chart-line"></i> Progress
+    </button>
+    <button class="tab-btn" data-section="completed">
+      <i class="tab-icon fa-solid fa-graduation-cap"></i> Completed
+    </button>
+    <button class="tab-btn" data-section="downloaded">
+      <i class="tab-icon fa-solid fa-download"></i> Certificates
+    </button>
+    <button class="tab-btn" data-section="questions">
+      <i class="tab-icon fa-regular fa-circle-question"></i> Questions
+    </button>
+    <button class="tab-btn" data-section="reviews">
+      <i class="tab-icon fa-solid fa-star"></i> Reviews
+    </button>
+  </div>
+
+  <!-- ── PROGRESS ── -->
+  <div id="progress" class="review-section section-card">
+    <div class="card-top-bar"></div>
+    <div class="section-header">
+      <div class="section-icon"><i class="fa-solid fa-chart-line"></i></div>
+      <div class="section-title">Student Progress</div>
     </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
-    <div class="container py-3">
-
-        <h2 class="text-primary mb-4">📊 Course Overview — {{ course.title }}</h2>
-
-        <div class="btn-group mb-4" role="group">
-           <button class="btn btn-outline-primary" data-section="progress">📈 Progress</button>
-           <button class="btn btn-outline-success" data-section="completed">🎓 Completed Students</button>
-           <button class="btn btn-outline-info" data-section="downloaded">📥 Certificate Downloaded</button>
-           <button class="btn btn-outline-dark" data-section="questions">❓ Questions Asked</button>
-           <button class="btn btn-outline-info" data-section="reviews">⭐ Reviews</button>
-
-        </div>
-
-
-        <div id="progress" class="review-section">
-            <h4 class="fw-bold mb-3 text-primary">📈 Student Progress</h4>
-
-            <table class="table table-bordered">
-                <thead class="table-primary">
-                    <tr>
-                        <th>Student</th>
-                        <th>Completed</th>
-                        <th>Total</th>
-                        <th>Progress %</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for p in progress_list %}
-                    <tr>
-                        <td>{{ p.student.get_full_name }}</td>
-                        <td>{{ p.completed }}</td>
-                        <td>{{ p.total }}</td>
-                        <td><strong>{{ p.percent }}%</strong></td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-
-
-        <div id="completed" class="review-section d-none">
-            <h4 class="fw-bold mb-3 text-success">🎓 Students Who Completed the Course</h4>
-
-            {% if completed_students %}
-            <table class="table table-bordered">
-                <thead class="table-success">
-                    <tr>
-                        <th>Student</th>
-                        <th>Completed On</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for c in completed_students %}
-                    <tr>
-                        <td>{{ c.student.get_full_name }}</td>
-                        <td>{{ c.issued_on|date:"M d, Y" }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            {% else %}
-            <p class="text-muted">No students have completed this course yet.</p>
-            {% endif %}
-        </div>
-
-
-        <div id="downloaded" class="review-section d-none">
-            <h4 class="fw-bold mb-3 text-info">📥 Certificate Downloaded</h4>
-
-            {% if downloaded_students %}
-            <table class="table table-bordered">
-                <thead class="table-info">
-                    <tr>
-                        <th>Student</th>
-                        <th>Downloaded On</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for c in downloaded_students %}
-                    <tr>
-                        <td>{{ c.student.get_full_name }}</td>
-                        <td>{{ c.downloaded_at|date:"M d, Y H:i" }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            {% else %}
-            <p class="text-muted">No certificates have been downloaded yet.</p>
-            {% endif %}
-        </div>
-
-
-        <div id="questions" class="review-section d-none">
-            <h4 class="fw-bold mb-3 text-dark">❓ Questions Asked</h4>
-
-            {% if questions %}
-                {% for q in questions %}
-                <div class="card shadow-sm border-0 mb-4 rounded-4">
-                    <div class="card-body">
-
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <h5 class="mb-0">❓ {{ q.question }}</h5>
-
-                            <span class="badge bg-info text-dark fw-semibold ms-3">
-                                🎥 {{ q.lecture.title }}
-                            </span>
-                        </div>
-
-                        <p class="text-muted mb-1">
-                            Asked by:
-                            <strong>{{ q.student.get_full_name|default:q.student.username }}</strong>
-                        </p>
-                        <small class="text-muted">
-                            {{ q.created_at|date:"M d, Y — H:i A" }}
-                        </small>
-
-                        <div class="mt-4 ps-3 border-start border-3">
-
-                            {% for r in q.replies.all %}
-                            <div class="mb-4">
-
-                                <div class="d-flex justify-content-between">
-                                    <div>
-                                        <strong>💬 {{ r.user.get_full_name|default:r.user.username }}</strong>
-
-                                        {% if r.user == course.instructor %}
-                                        <span class="badge bg-primary ms-2">Instructor</span>
-                                        {% endif %}
-                                    </div>
-
-                                    {% if r.user == request.user %}
-                                    <div class="d-flex gap-2">
-                                        <a href="{% url 'instructor:edit_reply' r.id %}?tab=questions" 
-                                              class="btn btn-sm btn-outline-primary">Edit</a>
-
-                                        <a href="{% url 'instructor:delete_reply' r.id %}?tab=questions" 
-                                            class="btn btn-sm btn-outline-danger"
-                                             onclick="return confirm('Delete this reply?');">Delete</a>
-                                    </div>
-                                    {% endif %}
-                                </div>
-
-                                <p class="mt-2 mb-1">{{ r.reply }}</p>
-                                <small class="text-muted">
-                                    {{ r.created_at|date:"M d, Y — H:i A" }}
-                                </small>
-
-                            </div>
-                            {% empty %}
-                            {% endfor %}
-                        </div>
-
-                        {% if not q.replies.all %}
-                        <form method="POST" action="{% url 'instructor:add_reply' q.id %}?tab=questions" class="mt-3">
-                            {% csrf_token %}
-                            <div class="input-group">
-                                <input name="reply"
-                                       class="form-control"
-                                       placeholder="Reply to this question..."
-                                       required>
-                                <button class="btn btn-primary">Reply</button>
-                            </div>
-                        </form>
-                        {% endif %}
-
-                    </div>
+    <div style="overflow-x:auto;">
+      <table class="teal-table">
+        <thead>
+          <tr>
+            <th>Student</th>
+            <th>Completed</th>
+            <th>Total</th>
+            <th>Progress</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for p in progress_list %}
+          <tr>
+            <td><strong>{{ p.student.get_full_name }}</strong></td>
+            <td>{{ p.completed }}</td>
+            <td>{{ p.total }}</td>
+            <td>
+              <div class="progress-bar-wrap">
+                <div class="progress-track">
+                  <div class="progress-fill" style="width:{{ p.percent }}%"></div>
                 </div>
-                {% endfor %}
-            {% else %}
-            <p class="text-muted">No questions asked yet.</p>
-            {% endif %}
-        </div>
-
-<div id="reviews" class="review-section d-none">
-    <h4 class="fw-bold mb-3 ">⭐ Course Reviews</h4>
-
-    {% if reviews %}
-        {% for r in reviews %}
-        <div class="card shadow-sm border-0 mb-3 rounded-4">
-    <div class="card-body">
-
-        <div class="mb-2">
-            {% for i in "12345"|make_list %}
-                {% if forloop.counter <= r.rating %}
-                    <span style="color:#ffc107; font-size:1.3rem;">★</span>
-                {% else %}
-                    <span style="color:#ccc; font-size:1.3rem;">★</span>
-                {% endif %}
-            {% endfor %}
-        </div>
-
-        <p class="mb-1">{{ r.comment }}</p>
-
-        <small class="text-muted">
-            — {{ r.student.get_full_name|default:r.student.username }}
-            | {{ r.created_at|date:"M d, Y — H:i A" }}
-        </small>
-
+                <div class="progress-pct">{{ p.percent }}%</div>
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="4">
+            <div class="empty-state">
+              <div class="empty-icon"><i class="fa-solid fa-chart-line"></i></div>
+              <p>No progress data yet.</p>
+            </div>
+          </td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
-</div>
+  </div>
 
-        {% endfor %}
+  <!-- ── COMPLETED ── -->
+  <div id="completed" class="review-section section-card d-none">
+    <div class="card-top-bar"></div>
+    <div class="section-header">
+      <div class="section-icon" style="background:#D1FAE5;color:#065F46;"><i class="fa-solid fa-graduation-cap"></i></div>
+      <div class="section-title">Students Who Completed the Course</div>
+    </div>
+    {% if completed_students %}
+    <div style="overflow-x:auto;">
+      <table class="teal-table">
+        <thead>
+          <tr>
+            <th>Student</th>
+            <th>Completed On</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in completed_students %}
+          <tr>
+            <td><strong>{{ c.student.get_full_name }}</strong></td>
+            <td>{{ c.issued_on|date:"M d, Y" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
     {% else %}
-        <p class="text-muted">No reviews yet.</p>
+    <div class="empty-state">
+      <div class="empty-icon" style="background:#D1FAE5;color:#065F46;"><i class="fa-solid fa-graduation-cap"></i></div>
+      <p>No students have completed this course yet.</p>
+    </div>
     {% endif %}
+  </div>
+
+  <!-- ── CERTIFICATES ── -->
+  <div id="downloaded" class="review-section section-card d-none">
+    <div class="card-top-bar" style="background:linear-gradient(90deg,#3B82F6,#93C5FD);"></div>
+    <div class="section-header">
+      <div class="section-icon" style="background:#EFF6FF;color:#3B82F6;"><i class="fa-solid fa-certificate"></i></div>
+      <div class="section-title">Certificate Downloads</div>
+    </div>
+    {% if downloaded_students %}
+    <div style="overflow-x:auto;">
+      <table class="teal-table">
+        <thead>
+          <tr>
+            <th>Student</th>
+            <th>Downloaded On</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in downloaded_students %}
+          <tr>
+            <td><strong>{{ c.student.get_full_name }}</strong></td>
+            <td>{{ c.downloaded_at|date:"M d, Y — H:i" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-icon" style="background:#EFF6FF;color:#3B82F6;"><i class="fa-solid fa-certificate"></i></div>
+      <p>No certificates have been downloaded yet.</p>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- ── QUESTIONS ── -->
+  <div id="questions" class="review-section section-card d-none">
+    <div class="card-top-bar"></div>
+    <div class="section-header">
+      <div class="section-icon"><i class="fa-regular fa-circle-question"></i></div>
+      <div class="section-title">Questions Asked</div>
+    </div>
+    <div class="section-body">
+      {% if questions %}
+        {% for q in questions %}
+        <div class="q-card">
+          <div class="q-header">
+            <div class="q-text">{{ q.question }}</div>
+            <span class="q-lecture-tag">
+              <i class="fa-solid fa-video"></i> {{ q.lecture.title }}
+            </span>
+          </div>
+          <div class="q-meta">
+            Asked by <strong>{{ q.student.get_full_name|default:q.student.username }}</strong>
+          </div>
+          <div class="q-time">{{ q.created_at|date:"M d, Y — H:i A" }}</div>
+
+          {% if q.replies.all %}
+          <div class="replies-thread">
+            {% for r in q.replies.all %}
+            <div class="reply-item">
+              <div class="reply-header">
+                <div class="reply-author">
+                  {{ r.user.get_full_name|default:r.user.username }}
+                  {% if r.user == course.instructor %}
+                  <span class="instructor-badge">Instructor</span>
+                  {% endif %}
+                </div>
+                {% if r.user == request.user %}
+                <div class="reply-actions">
+                  <a href="{% url 'instructor:edit_reply' r.id %}?tab=questions" class="btn-edit-reply">Edit</a>
+                  <a href="{% url 'instructor:delete_reply' r.id %}?tab=questions" class="btn-del-reply"
+                     onclick="return confirm('Delete this reply?');">Delete</a>
+                </div>
+                {% endif %}
+              </div>
+              <div class="reply-text">{{ r.reply }}</div>
+              <div class="reply-time">{{ r.created_at|date:"M d, Y — H:i A" }}</div>
+            </div>
+            {% endfor %}
+          </div>
+          {% endif %}
+
+          {% if not q.replies.all %}
+          <form method="POST" action="{% url 'instructor:add_reply' q.id %}?tab=questions" class="reply-form">
+            {% csrf_token %}
+            <div class="reply-input-row">
+              <input name="reply" class="reply-input"
+                     placeholder="Reply to this question…" required>
+              <button type="submit" class="btn-reply">
+                <i class="fa-solid fa-paper-plane"></i> Reply
+              </button>
+            </div>
+          </form>
+          {% endif %}
+        </div>
+        {% endfor %}
+      {% else %}
+      <div class="empty-state">
+        <div class="empty-icon"><i class="fa-regular fa-circle-question"></i></div>
+        <p>No questions asked yet.</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- ── REVIEWS ── -->
+  <div id="reviews" class="review-section section-card d-none">
+    <div class="card-top-bar" style="background:linear-gradient(90deg,#F59E0B,#FDE68A);"></div>
+    <div class="section-header">
+      <div class="section-icon" style="background:#FFFBEB;color:#D97706;"><i class="fa-solid fa-star"></i></div>
+      <div class="section-title">Course Reviews</div>
+    </div>
+    <div class="section-body">
+      {% if reviews %}
+        {% for r in reviews %}
+        <div class="review-card">
+          <div class="stars">
+            {% for i in "12345"|make_list %}
+              {% if forloop.counter <= r.rating %}
+              <span class="star-filled">★</span>
+              {% else %}
+              <span class="star-empty">★</span>
+              {% endif %}
+            {% endfor %}
+          </div>
+          <div class="review-comment">{{ r.comment }}</div>
+          <div class="review-meta">
+            — <strong>{{ r.student.get_full_name|default:r.student.username }}</strong>
+            &nbsp;·&nbsp; {{ r.created_at|date:"M d, Y — H:i A" }}
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+      <div class="empty-state">
+        <div class="empty-icon" style="background:#FFFBEB;color:#D97706;"><i class="fa-solid fa-star"></i></div>
+        <p>No reviews yet.</p>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
 </div>
 
-    </div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+/* ── Tab logic (100% original, unchanged) ── */
+function activateTab(sectionId) {
+  document.querySelectorAll(".review-section")
+    .forEach(sec => sec.classList.add("d-none"));
 
-    <script>
-    function activateTab(sectionId) {
-        document.querySelectorAll(".review-section")
-            .forEach(sec => sec.classList.add("d-none"));
+  const activeSection = document.getElementById(sectionId);
+  if (activeSection) activeSection.classList.remove("d-none");
 
-        const activeSection = document.getElementById(sectionId);
-        if (activeSection) {
-            activeSection.classList.remove("d-none");
-        }
+  document.querySelectorAll(".tab-btn")
+    .forEach(btn => btn.classList.toggle("active", btn.dataset.section === sectionId));
 
-        document.querySelectorAll(".btn-group .btn")
-            .forEach(btn => {
-                btn.classList.toggle("active", btn.dataset.section === sectionId);
-            });
+  try { localStorage.setItem("courseReviewTab", sectionId); } catch (e) {}
+}
 
-        try {
-            localStorage.setItem("courseReviewTab", sectionId);
-        } catch (e) {
-            
-        }
-    }
+document.querySelectorAll(".tab-btn").forEach(btn => {
+  btn.addEventListener("click", () => activateTab(btn.dataset.section));
+});
 
-    document.querySelectorAll(".btn-group .btn").forEach(btn => {
-        btn.addEventListener("click", () => {
-            activateTab(btn.dataset.section);
-        });
-    });
-
-    (function () {
-        const params = new URLSearchParams(window.location.search);
-        const tabFromUrl = params.get("tab");
-
-        let initialTab = "progress"; 
-
-        if (tabFromUrl) {
-            initialTab = tabFromUrl;
-        } else {
-            try {
-                const saved = localStorage.getItem("courseReviewTab");
-                if (saved) initialTab = saved;
-            } catch (e) {
-            }
-        }
-
-        activateTab(initialTab);
-    })();
-    </script>
-
+(function () {
+  const params = new URLSearchParams(window.location.search);
+  const tabFromUrl = params.get("tab");
+  let initialTab = "progress";
+  if (tabFromUrl) {
+    initialTab = tabFromUrl;
+  } else {
+    try {
+      const saved = localStorage.getItem("courseReviewTab");
+      if (saved) initialTab = saved;
+    } catch (e) {}
+  }
+  activateTab(initialTab);
+})();
+</script>
 </body>
 </html>

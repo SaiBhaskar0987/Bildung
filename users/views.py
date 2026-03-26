@@ -563,8 +563,8 @@ def get_recent_notifications(request):
 
 
 @login_required
-def mark_all_notifications(request, notif_id):
-    Notification.objects.filter(id=notif_id, user=request.user).update(is_read=True)
+def mark_all_notifications(request):
+    Notification.objects.filter(user=request.user, is_read=False).update(is_read=True)
     return JsonResponse({"status": "ok"})
 
 @login_required

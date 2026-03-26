@@ -4,14 +4,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Notifications – SPESHWAY</title>
+<title>Notifications</title>
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=sora:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 
 <style>
-/* ─── DESIGN SYSTEM ─── */
+
 :root {
   --ink:       #0F1117;
   --ink-soft:  #2C2F3A;
@@ -40,7 +40,7 @@ body {
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-thumb { background: var(--teal-glow); border-radius: 99px; }
 
-/* ─── TOPNAV ─── */
+
 .topnav {
   position: sticky; top: 0; z-index: 100;
   display: flex; align-items: center; justify-content: space-between;
@@ -81,14 +81,14 @@ body {
 .dropdown-item.text-danger:hover { background: #FEE2E2; color: var(--red); }
 .dropdown-divider { border-color: var(--border) !important; }
 
-/* ─── PAGE WRAP ─── */
+
 .page-wrap {
   max-width: 760px;
   margin: 0 auto;
   padding: 40px 24px 80px;
 }
 
-/* ─── BACK LINK ─── */
+
 .back-link {
   display: inline-flex; align-items: center; gap: 7px;
   color: var(--teal); font-size: .85rem; font-weight: 600;
@@ -97,7 +97,7 @@ body {
 }
 .back-link:hover { gap: 10px; }
 
-/* ─── PAGE HEADER ─── */
+
 .page-header {
   display: flex; align-items: center; justify-content: space-between;
   flex-wrap: wrap; gap: 14px;
@@ -122,7 +122,7 @@ body {
 }
 .btn-mark-all:hover { background: var(--teal); color: #fff; }
 
-/* ─── NOTIFICATION CARD ─── */
+
 .notif-card {
   background: var(--card-bg);
   border: 1px solid var(--border);
@@ -142,7 +142,7 @@ body {
   border-color: var(--teal-glow);
 }
 
-/* Unread left accent + tinted bg */
+
 .notif-unread {
   background: #F0FDFA;
   border-color: var(--teal-glow);
@@ -155,7 +155,7 @@ body {
   border-radius: 4px 0 0 4px;
 }
 
-/* Read: faint left border */
+
 .notif-card:not(.notif-unread)::before {
   content: '';
   position: absolute; left: 0; top: 0; bottom: 0;
@@ -169,7 +169,7 @@ body {
   to   { opacity:1; transform:translateY(0); }
 }
 
-/* Avatar chip */
+
 .notif-avatar {
   width: 40px; height: 40px; border-radius: 50%;
   background: linear-gradient(135deg, var(--teal), var(--teal-mid));
@@ -185,7 +185,7 @@ body {
   background: #E2E8F0; color: var(--muted);
 }
 
-/* Body */
+
 .notif-body { flex: 1; }
 .notif-message {
   font-weight: 600; font-size: .92rem;
@@ -202,19 +202,14 @@ body {
 .notif-time span { display: flex; align-items: center; gap: 4px; }
 .notif-time i { color: var(--teal); font-size: .7rem; }
 
-/* Unread dot */
-.unread-dot {
-  width: 8px; height: 8px; border-radius: 50%;
-  background: var(--teal);
-  flex-shrink: 0; margin-top: 6px;
-  box-shadow: 0 0 0 2px var(--teal-pale);
-}
 
-/* Actions */
+
 .notif-actions {
-  display: flex; flex-direction: column;
-  align-items: flex-end; gap: 7px;
-  flex-shrink: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
 }
 
 .btn-open {
@@ -248,7 +243,7 @@ body {
 }
 .read-label i { color: var(--teal-glow); }
 
-/* ─── EMPTY STATE ─── */
+
 .empty-state {
   text-align: center; padding: 70px 32px;
   background: var(--card-bg);
@@ -263,7 +258,14 @@ body {
 }
 .empty-state p { font-size: .85rem; color: var(--muted); }
 
-/* ─── RESPONSIVE ─── */
+  .site-footer {
+    border-top: 1px solid var(--border);
+    text-align: center; padding: 18px;
+    font-size: .8rem; color: var(--muted);
+    background: rgba(255,255,255,.85);
+    backdrop-filter: blur(8px);
+  }
+
 @media (max-width: 560px) {
   .topnav { padding: 0 16px; }
   .page-wrap { padding: 24px 16px 60px; }
@@ -275,7 +277,7 @@ body {
 </head>
 <body>
 
-<!-- ── TOPNAV ─── -->
+
 <nav class="topnav">
   <a href="{% url 'instructor_dashboard' %}" class="brand">SPESH<span>WAY</span></a>
   <div class="dropdown">
@@ -297,7 +299,7 @@ body {
   </div>
 </nav>
 
-<!-- ── PAGE ─── -->
+
 <div class="page-wrap">
 
   
@@ -315,10 +317,10 @@ body {
     <div class="notif-card {% if not n.is_read %}notif-unread{% endif %}"
          style="animation-delay: {{ forloop.counter0 }}0ms">
 
-      <!-- Avatar -->
+      
       <div class="notif-avatar">{{ n.message|first|upper }}</div>
 
-      <!-- Body -->
+      
       <div class="notif-body">
         <div class="notif-message">{{ n.message }}</div>
         <div class="notif-time">
@@ -327,11 +329,7 @@ body {
         </div>
       </div>
 
-      {% if not n.is_read %}
-      <div class="unread-dot"></div>
-      {% endif %}
-
-      <!-- Actions -->
+      
       <div class="notif-actions">
         {% if n.url %}
         <a href="{{ n.url }}" class="btn-open">
@@ -360,8 +358,9 @@ body {
   {% endif %}
 
 </div>
+<footer class="site-footer">&copy; 2025 Speshway. All rights reserved.</footer>
 
-<!-- ── JS ─── -->
+
 <script>
 function markRead(id) {
   fetch("{% url 'mark_notification_read' 0 %}".replace("0", id))

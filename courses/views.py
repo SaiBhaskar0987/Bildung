@@ -306,22 +306,36 @@ def student_course_detail(request, course_id):
             quiz_count += 1
 
         elif item_type == "Assignment":
+
             assignment = Assignment.objects.filter(
                 id=item.get("assignment_id")
             ).first()
+
             if not assignment:
                 continue
+
+            attempt = StudentAssignment.objects.filter(
+                student=request.user,
+                assignment=assignment
+            ).first()
+
+            completed_item = False
+
+            if attempt and attempt.status == "COMPLETED":
+                completed_item = True
 
             unlocked = previous_completed
 
             ordered_items.append({
                 "type": "assignment",
                 "obj": assignment,
-                "title": title if title else assignment.title,
+                "title": title or assignment.title or f"Assignment {assignment_count}",
                 "unlocked": unlocked,
+                "completed": completed_item,
+                "attempt": attempt
             })
 
-            previous_completed = False
+            previous_completed = completed_item
             assignment_count += 1
 
         elif item_type == "LiveClass":
@@ -441,13 +455,15 @@ def undo_lecture_completion(request, lecture_id):
     return redirect('student:student_course_detail', course_id=course.id)
 
 
-
 @login_required(login_url='/student/login/')
 def student_progress(request, course_id):
-    """
-    Student: View overall progress for a course (without individual lectures)
-    """
-    enrollment = get_object_or_404(Enrollment, course_id=course_id, student=request.user)
+
+    enrollment = get_object_or_404(
+        Enrollment,
+        course_id=course_id,
+        student=request.user
+    )
+
     course = enrollment.course
 
     lectures = Lecture.objects.filter(module__course=course)
@@ -461,14 +477,24 @@ def student_progress(request, course_id):
 
     progress_percent = round((completed / total * 100), 2) if total else 0
 
+    remaining = total - completed
+
+    events = course.events.all().order_by("start_time")
+
     context = {
-        'course': course,
-        'total': total,
-        'completed': completed,
-        'progress_percent': progress_percent,
+        "course": course,
+        "total": total,
+        "completed": completed,
+        "remaining": remaining,
+        "progress_percent": progress_percent,
+        "events": events
     }
 
-    return render(request, 'courses/student/student_course_progress.html', context)
+    return render(
+        request,
+        "courses/student/student_course_progress.html",
+        context
+    )
 
 @login_required(login_url='/login/')
 def student_upcoming_classes(request):
@@ -493,29 +519,32 @@ def student_upcoming_classes(request):
     for cls in upcoming_classes:
         events.append({
             "id": cls.id,
-            "type": "live_class",
             "title": cls.topic,
-            "topic": cls.topic,
-            "course_name": cls.course.title,
-            "instructor": cls.instructor.get_full_name() or cls.instructor.username,
             "start": f"{cls.date}T{cls.time}",
-            "join_link": cls.meeting_link or "",
-            "classNames": ["live-class-event"],   
+            "classNames": ["live-class-event"],
+            "extendedProps": {  
+                "type": "live_class",
+                "topic": cls.topic,
+                "course_name": cls.course.title,
+                "instructor": cls.instructor.get_full_name() or cls.instructor.username,
+                "join_link": cls.meeting_link or "",
+            }
         })
 
     for ev in upcoming_events:
         events.append({
             "id": ev.id,
-            "type": "event",
             "title": ev.title,
-            "topic": ev.title,                       
-            "event_title": ev.title,
-            "event_description": ev.description,
-            "course_name": ev.course.title,
             "start": ev.start_time.isoformat(),
             "end": ev.end_time.isoformat(),
-            "event_link": "",                         
-            "classNames": ["event-class"],            
+            "classNames": ["event-class"],
+            "extendedProps": {   
+                "type": "event",
+                "event_title": ev.title,
+                "event_description": ev.description,
+                "course_name": ev.course.title,
+                "event_link": "",
+            }
         })
 
     return render(request, 'courses/student/student_calendar.html', {
@@ -741,14 +770,18 @@ def course_detail(request, course_id):
                 })
                 quiz_count += 1
 
-
         elif item_type == "Assignment":
-            assignment = course.assignments.first()
+            assignment_id = item.get("assignment_id")
+            assignment = course.assignments.filter(id=assignment_id).first()
+
             if assignment:
+                title = item.get("title") or assignment.title or f"Assignment {assignment_count}"
                 ordered_items.append({
                     "type": "assignment",
                     "obj": assignment,
-                    "title": item.get("title") or f"Assignment {assignment_count}"
+                    "title": title,
+                    "assignment_id": assignment.id,
+                    "display_label": f"Assignment {assignment_count}"
                 })
                 assignment_count += 1
 
@@ -795,6 +828,21 @@ def quiz_inline_preview(request, quiz_id):
         }
     )
 
+@login_required
+def assignment_inline_preview(request, assignment_id):
+    assignment = get_object_or_404(
+        Assignment,
+        id=assignment_id,
+        course__instructor=request.user
+    )
+
+    return render(
+        request,
+        "courses/instructor/partials/assignment_preview_inline.html",
+        {
+            "assignment": assignment
+        }
+    )
 
 @login_required
 def add_lecture(request, course_id):
@@ -1188,7 +1236,6 @@ def save_module(request, module_id):
             lecture.delete()
 
     return JsonResponse({"status": "success"})
-
 @csrf_exempt
 @login_required
 def save_course(request):
@@ -1196,7 +1243,9 @@ def save_course(request):
     if request.method != "POST":
         return JsonResponse({"error": "POST required"}, status=400)
 
-    # If formData is used
+    # -----------------------------
+    # READ DATA
+    # -----------------------------
     if request.content_type.startswith("multipart/form-data"):
 
         course_id = request.POST.get("course_id")
@@ -1208,7 +1257,6 @@ def save_course(request):
         structure = json.loads(request.POST.get("structure", "[]"))
 
         price = request.POST.get("price") or 0
-
         thumbnail = request.FILES.get("thumbnail")
 
     else:
@@ -1221,14 +1269,25 @@ def save_course(request):
         level = data.get("level")
         structure = data.get("structure", [])
         price = data.get("price") or 0
-
         thumbnail = None
 
+    # -----------------------------
+    # FIX NULL COURSE ID
+    # -----------------------------
+    if course_id in ["", "null", None]:
+        course_id = None
+    else:
+        course_id = int(course_id)
 
+    # -----------------------------
+    # VALIDATION
+    # -----------------------------
     if level not in ["beginner", "intermediate", "advanced"]:
         return JsonResponse({"error": "Invalid course level"}, status=400)
 
-
+    # -----------------------------
+    # CREATE OR UPDATE COURSE
+    # -----------------------------
     if course_id:
         course = get_object_or_404(
             Course,
@@ -1252,26 +1311,36 @@ def save_course(request):
             level=level
         )
 
-    # ✅ Save thumbnail if uploaded
+    # -----------------------------
+    # SAVE THUMBNAIL
+    # -----------------------------
     if thumbnail:
         course.thumbnail = thumbnail
 
     course.save()
 
+    # -----------------------------
+    # PROCESS STRUCTURE
+    # -----------------------------
     updated_structure = []
 
     for index, item in enumerate(structure):
 
         block_type = item.get("type")
 
+        # -------- MODULE --------
         if block_type == "Module":
 
-            if item.get("module_id"):
-                module = Module.objects.get(id=item["module_id"])
-                module.title = item.get("title", module.title)
-                module.description = item.get("description", module.description)
-                module.module_order = index
-                module.save()
+            module_id = item.get("module_id")
+
+            if module_id:
+                module = Module.objects.filter(id=module_id, course=course).first()
+
+                if module:
+                    module.title = item.get("title", module.title)
+                    module.description = item.get("description", module.description)
+                    module.module_order = index
+                    module.save()
 
             else:
                 module = Module.objects.create(
@@ -1283,14 +1352,18 @@ def save_course(request):
 
                 item["module_id"] = module.id
 
-
+        # -------- QUIZ --------
         elif block_type == "Quiz":
 
-            if item.get("quiz_id"):
-                quiz = Quiz.objects.get(id=item["quiz_id"], course=course)
-                quiz.title = item.get("title", quiz.title)
-                quiz.quiz_order = index
-                quiz.save()
+            quiz_id = item.get("quiz_id")
+
+            if quiz_id:
+                quiz = Quiz.objects.filter(id=quiz_id, course=course).first()
+
+                if quiz:
+                    quiz.title = item.get("title", quiz.title)
+                    quiz.quiz_order = index
+                    quiz.save()
 
             else:
                 quiz = Quiz.objects.create(
@@ -1303,39 +1376,45 @@ def save_course(request):
 
             item["scope"] = item.get("scope", "all_before")
 
-
+        # -------- ASSIGNMENT --------
         elif block_type == "Assignment":
 
             assignment_id = item.get("assignment_id")
 
             if assignment_id:
-                exists = Assignment.objects.filter(
+                assignment = Assignment.objects.filter(
                     id=assignment_id,
                     course=course
-                ).exists()
+                ).first()
 
-                if not exists:
-                    a = Assignment.objects.create(
+                if not assignment:
+                    assignment = Assignment.objects.create(
                         course=course,
                         title=item.get("title", "Assignment")
                     )
-                    item["assignment_id"] = a.id
+
+                    item["assignment_id"] = assignment.id
 
             else:
-                a = Assignment.objects.create(
+                assignment = Assignment.objects.create(
                     course=course,
                     title=item.get("title", "Assignment")
                 )
-                item["assignment_id"] = a.id
 
+                item["assignment_id"] = assignment.id
 
+        # -------- LIVE CLASS --------
         elif block_type == "LiveClass":
 
-            if item.get("liveclass_id"):
-                lc = LiveClass.objects.get(id=item["liveclass_id"])
-                lc.topic = item.get("title", lc.topic)
-                lc.live_class_order = index
-                lc.save()
+            liveclass_id = item.get("liveclass_id")
+
+            if liveclass_id:
+                lc = LiveClass.objects.filter(id=liveclass_id).first()
+
+                if lc:
+                    lc.topic = item.get("title", lc.topic)
+                    lc.live_class_order = index
+                    lc.save()
 
             else:
                 lc = LiveClass.objects.create(
@@ -1347,10 +1426,11 @@ def save_course(request):
 
                 item["liveclass_id"] = lc.id
 
-
         updated_structure.append(item)
 
-
+    # -----------------------------
+    # SAVE STRUCTURE JSON
+    # -----------------------------
     course.structure_json = updated_structure
     course.save()
 
@@ -1359,7 +1439,6 @@ def save_course(request):
         "course_id": course.id,
         "structure": updated_structure
     })
-
 
 @csrf_exempt
 @login_required
@@ -2080,31 +2159,126 @@ def save_assignment_questions(request, assignment_id):
     return JsonResponse({"status": "success"})
 
 
-
-# =========================
-# START ASSIGNMENT (START TIMER)
-# =========================
 @login_required
 def start_assignment(request, assignment_id):
-    assignment = get_object_or_404(Assignment, id=assignment_id)
 
-    attempt, created = StudentAssignment.objects.get_or_create(
+    assignment = get_object_or_404(Assignment, id=assignment_id)
+    course = assignment.course
+
+    enrollment = get_object_or_404(
+        Enrollment,
         student=request.user,
-        assignment=assignment,
-        defaults={
-            "start_time": timezone.now(),
-            "end_time": timezone.now() + timedelta(minutes=30),
-            "status": "IN_PROGRESS"
-        }
+        course=course
     )
 
-    return redirect("courses:take_assignment", assignment_id=assignment.id)
+    structure = course.structure_json or []
+
+    previous_completed = True
+
+    for item in structure:
+
+        item_type = item.get("type")
+
+        if item_type == "Module":
+
+            module = Module.objects.filter(
+                id=item.get("module_id")
+            ).first()
+
+            if not module:
+                continue
+
+            module_lectures = module.lectures.all()
+
+            completed = all(
+                LectureProgress.objects.filter(
+                    student=request.user,
+                    lecture=l,
+                    completed=True
+                ).exists()
+                for l in module_lectures
+            )
+
+            previous_completed = completed
 
 
+        elif item_type == "Quiz":
 
-# =========================
-# TAKE ASSIGNMENT (QUESTIONS + TIMER)
-# =========================
+            quiz = Quiz.objects.filter(
+                id=item.get("quiz_id")
+            ).first()
+
+            if not quiz:
+                continue
+
+            result = QuizResult.objects.filter(
+                student=request.user,
+                quiz=quiz
+            ).first()
+
+            passed = bool(result and result.passed)
+
+            previous_completed = passed
+
+
+        elif item_type == "Assignment":
+
+            if item.get("assignment_id") == assignment.id:
+
+                if not previous_completed:
+                    messages.error(
+                        request,
+                        "Please complete previous module or quiz before starting this assignment."
+                    )
+                    return redirect(
+                        "student:student_course_detail",
+                        course.id
+                    )
+
+                break
+
+            prev_assignment = Assignment.objects.filter(
+                id=item.get("assignment_id")
+            ).first()
+
+            if prev_assignment:
+                attempt = StudentAssignment.objects.filter(
+                    student=request.user,
+                    assignment=prev_assignment
+                ).first()
+
+                previous_completed = bool(
+                    attempt and attempt.status == "COMPLETED"
+                )
+
+ 
+    attempt = StudentAssignment.objects.filter(
+        student=request.user,
+        assignment=assignment
+    ).first()
+
+    if attempt and attempt.status == "COMPLETED":
+        return redirect(
+            "courses:assignment_result",
+            assignment_id=assignment.id
+        )
+
+
+    if not attempt:
+        attempt = StudentAssignment.objects.create(
+            student=request.user,
+            assignment=assignment,
+            start_time=timezone.now(),
+            end_time=timezone.now() + timedelta(minutes=30),
+            status="IN_PROGRESS"
+        )
+
+    return redirect(
+        "courses:take_assignment",
+        assignment_id=assignment.id
+    )
+
+
 @login_required
 def take_assignment(request, assignment_id):
     assignment = get_object_or_404(Assignment, id=assignment_id)
@@ -2120,15 +2294,12 @@ def take_assignment(request, assignment_id):
 
     questions = AssignmentQuestion.objects.filter(assignment=assignment)
 
-    # ✅ FIX allowed_languages for template
     for q in questions:
         if not isinstance(q.allowed_languages, list):
             q.allowed_languages = []
 
-        # remove empty strings if any
         q.allowed_languages = [lang for lang in q.allowed_languages if lang]
 
-        # final fallback (safety)
         if not q.allowed_languages:
             q.allowed_languages = ["c", "cpp", "java", "python"]
 
@@ -2195,6 +2366,12 @@ def submit_assignment(request, assignment_id):
     attempt.score = total_score
     attempt.status = "COMPLETED"
     attempt.save()
+
+    Notification.objects.create(
+        user=request.user,
+        message=f"Assignment '{assignment.title}' completed.",
+        url=reverse("student:student_course_detail", args=[assignment.course.id])
+    )
 
     return redirect("courses:assignment_result", assignment_id)
 

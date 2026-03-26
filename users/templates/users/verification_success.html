@@ -44,11 +44,7 @@ html, body {
   background-size:200% 100%; animation:rainbowShift 6s linear infinite;
 }
 @keyframes rainbowShift { 0%{background-position:0%} 100%{background-position:200%} }
-
-/* Confetti */
 #confettiCanvas { position:fixed;inset:0;z-index:5;pointer-events:none; }
-
-/* Card */
 .card {
   position:relative; z-index:10;
   width:520px; max-width:94vw;
@@ -61,8 +57,6 @@ html, body {
 @keyframes cardIn { from{opacity:0;transform:translateY(28px) scale(.97);} to{opacity:1;transform:translateY(0) scale(1);} }
 .card-strip { height:5px; background:linear-gradient(90deg,var(--green),var(--teal),var(--purple),var(--pink)); }
 .card-inner { padding:44px 48px; display:flex; flex-direction:column; align-items:center; text-align:center; }
-
-/* Brand */
 .brand-link { text-decoration:none; color:inherit; margin-bottom:28px; display:block; }
 .brand { display:flex; align-items:center; gap:10px; justify-content:center; }
 .brand-icon {
@@ -76,8 +70,6 @@ html, body {
   background:linear-gradient(135deg,var(--purple),var(--pink));
   -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
 }
-
-/* Check animation */
 .check-wrap { position:relative; margin-bottom:26px; }
 .check-circle {
   width:96px; height:96px; border-radius:50%;
@@ -92,8 +84,6 @@ html, body {
 .pulse-r { position:absolute; inset:-10px; border-radius:50%; border:2.5px solid rgba(34,197,94,.3); animation:pR 2.2s ease-in-out infinite; }
 .pulse-r2 { position:absolute; inset:-22px; border-radius:50%; border:2px solid rgba(34,197,94,.12); animation:pR 2.2s ease-in-out .55s infinite; }
 @keyframes pR { 0%,100%{transform:scale(1);opacity:.7;} 50%{transform:scale(1.06);opacity:.2;} }
-
-/* Badge */
 .page-badge {
   display:inline-flex; align-items:center; gap:6px;
   background:var(--green-lt); border:2px solid #bbf7d0;
@@ -106,8 +96,6 @@ html, body {
 .card-title { font-size:1.55rem; font-weight:900; color:var(--text); margin-bottom:8px; line-height:1.2; }
 .card-title .grad { background:linear-gradient(135deg,var(--green),var(--teal)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
 .card-sub { font-size:0.85rem; color:var(--muted); line-height:1.65; font-weight:500; max-width:360px; margin-bottom:24px; }
-
-/* Welcome card */
 .welcome-card {
   width:100%; border-radius:18px; overflow:hidden; margin-bottom:22px;
   background:linear-gradient(135deg,#1e1b2e 0%,#2d1b69 65%,#1b2d2d 100%);
@@ -127,8 +115,6 @@ html, body {
 .wc-name { font-size:1.3rem; font-weight:900; color:white; margin-bottom:4px; }
 .wc-name span { background:linear-gradient(135deg,#c4b5fd,#f9a8d4); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
 .wc-sub { font-size:0.78rem; color:rgba(255,255,255,.35); font-weight:500; }
-
-/* Perks row */
 .perks { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; width:100%; margin-bottom:22px; }
 .perk {
   background:#fafafa; border:1.5px solid #f0ecff;
@@ -145,8 +131,6 @@ html, body {
 .pi-3 { background:rgba(245,158,11,.12); color:#d97706; }
 .perk strong { display:block; font-size:0.72rem; font-weight:800; color:var(--text); margin-bottom:2px; }
 .perk span   { font-size:0.65rem; color:var(--muted-lt); }
-
-/* CTA */
 .btn-login {
   width:100%; height:46px; border:none; border-radius:12px;
   background:linear-gradient(135deg,var(--purple),var(--pink));
@@ -157,8 +141,6 @@ html, body {
   box-shadow:0 6px 20px rgba(124,58,237,.35); transition:all .22s;
 }
 .btn-login:hover { transform:translateY(-3px); box-shadow:0 12px 28px rgba(124,58,237,.42); filter:brightness(1.06); color:white; }
-
-/* Redirect */
 .redirect-note { margin-top:14px; font-size:0.75rem; color:var(--muted-lt); font-family:'DM Mono',monospace; font-weight:500; }
 #cdNum { color:var(--purple); font-weight:700; }
 

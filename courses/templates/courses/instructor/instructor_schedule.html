@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>My Schedules – SPESHWAY</title>
+<title>My Schedules</title>
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -11,7 +11,7 @@
 <link href="https://fonts.googleapis.com/css2?family=sora:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 
 <style>
-/* ─── DESIGN SYSTEM ─── */
+
 :root {
   --ink:       #0F1117;
   --ink-soft:  #2C2F3A;
@@ -43,7 +43,7 @@ body {
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-thumb { background: var(--teal-glow); border-radius: 99px; }
 
-/* ─── TOPNAV ─── */
+
 .topnav {
   position: sticky; top: 0; z-index: 100;
   display: flex; align-items: center; justify-content: space-between;
@@ -85,7 +85,6 @@ body {
 .dropdown-item.text-danger:hover { background: #FEE2E2; color: var(--red); }
 .dropdown-divider { border-color: var(--border) !important; }
 
-/* ─── PAGE WRAP ─── */
 .page-wrap {
   flex: 1;
   max-width: 1280px;
@@ -95,7 +94,6 @@ body {
   display: flex; flex-direction: column;
 }
 
-/* ─── PAGE HEADER ─── */
 .page-header {
   display: flex; align-items: center; justify-content: space-between;
   flex-wrap: wrap; gap: 14px;
@@ -136,7 +134,6 @@ body {
 }
 .btn-add-event:hover { background: var(--teal); color: #fff; }
 
-/* ─── MAIN LAYOUT ─── */
 .main-row {
   display: flex;
   gap: 20px;
@@ -156,7 +153,6 @@ body {
   min-height: 0;
 }
 
-/* ─── SCHEDULE CARD ─── */
 .schedule-card {
   background: var(--card-bg);
   border: 1px solid var(--border);
@@ -183,7 +179,6 @@ body {
   color: var(--teal);
 }
 
-/* Schedule items */
 .schedule-list { padding: 10px 0; }
 
 .schedule-item {
@@ -235,14 +230,63 @@ body {
   flex-shrink: 0;
 }
 
-/* Empty state */
+.custom-modal-header {
+  background: linear-gradient(135deg, #0D9488, #14B8A6);
+  color: #fff; 
+  border-bottom: none;
+  border-radius: 16px 16px 0 0;
+}
+
+.custom-modal-header .modal-title {
+  font-family: 'Sora', sans-serif;
+  font-weight: 700;
+  color: #fff; 
+}
+
+.custom-modal-header .btn-close {
+  filter: invert(1);
+  opacity: 0.9;
+}
+
+.modal-content {
+  border-radius: 16px;
+  border: 1px solid #D1FAF6;
+  box-shadow: 0 10px 30px rgba(13,148,136,0.2);
+}
+
+.modal-body {
+  font-size: 0.9rem;
+  color: #2C2F3A;
+}
+
+.modal-footer {
+  border-top: 1px solid #D1FAF6;
+}
+
+.modal-footer .btn-warning {
+  background: #FACC15;
+  border: none;
+  font-weight: 600;
+}
+
+.modal-footer .btn-danger {
+  background: #EF4444;
+  border: none;
+  font-weight: 600;
+}
+
+.modal-footer .btn-secondary {
+  background: #64748B;
+  border: none;
+  font-weight: 600;
+}
+
 .empty-msg {
   text-align: center; padding: 32px 20px;
 }
 .empty-msg i { font-size: 2rem; color: var(--teal-glow); margin-bottom: 10px; }
 .empty-msg p { font-size: .85rem; color: var(--muted); }
 
-/* ─── CALENDAR BOX ─── */
 .calendar-box {
   background: var(--card-bg);
   border: 1px solid var(--border);
@@ -253,7 +297,6 @@ body {
   animation: fadeUp .4s ease .08s both;
 }
 
-/* FullCalendar overrides */
 .fc-toolbar-title {
   font-family: 'sora', sans-serif !important;
   font-weight: 800 !important;
@@ -296,16 +339,28 @@ body {
 .fc-scrollgrid { border-color: var(--border) !important; }
 .fc-scrollgrid td, .fc-scrollgrid th { border-color: var(--border) !important; }
 
-/* Event pill colors */
+.live-class-event .fc-event-title {
+  color: #ffffff !important;
+}
+
+.event-class .fc-event-title {
+  color: #ffffff !important;
+}
+.fc-event {
+  padding: 2px 6px !important;
+  border-radius: 6px !important;
+  font-size: 0.75rem !important;
+}
+
 .live-class-event { background-color: var(--blue) !important; border-color: var(--blue) !important; border-radius: 6px !important; }
 .event-class      { background-color: var(--green) !important; border-color: var(--green) !important; border-radius: 6px !important; }
 
-/* ─── LEGEND ─── */
 .legend {
   display: flex; gap: 14px; align-items: center;
   padding: 10px 18px;
   border-top: 1px solid var(--border);
 }
+
 .legend-item {
   display: flex; align-items: center; gap: 6px;
   font-size: .75rem; color: var(--muted); font-weight: 500;
@@ -314,7 +369,6 @@ body {
   width: 10px; height: 10px; border-radius: 50%;
 }
 
-/* ─── RESPONSIVE ─── */
 @media (max-width: 900px) {
   .main-row { flex-direction: column; }
   .left-col { width: 100%; overflow-y: visible; }
@@ -325,7 +379,7 @@ body {
 </head>
 <body>
 
-<!-- ── TOPNAV ─── -->
+
 <nav class="topnav">
   <a href="{% url 'instructor_dashboard' %}" class="brand">SPESH<span>WAY</span></a>
   <div class="dropdown">
@@ -347,10 +401,10 @@ body {
   </div>
 </nav>
 
-<!-- ── PAGE ─── -->
+
 <div class="page-wrap">
 
-  <!-- Header -->
+  
   <div class="page-header">
     <h2>My <span>Schedules</span></h2>
     <div class="header-btns">
@@ -363,10 +417,10 @@ body {
     </div>
   </div>
 
-  <!-- Main row -->
+  
   <div class="main-row">
 
-    <!-- LEFT: Upcoming Schedule list -->
+    
     <div class="left-col">
       <div class="schedule-card">
         <div class="schedule-card-header">
@@ -420,7 +474,7 @@ body {
 
         </div>
 
-        <!-- Legend -->
+        
         <div class="legend">
           <div class="legend-item">
             <div class="legend-dot" style="background:var(--blue);"></div>
@@ -434,7 +488,6 @@ body {
       </div>
     </div>
 
-    <!-- RIGHT: Calendar -->
     <div class="right-col">
       <div class="calendar-box">
         <div id="calendar"></div>
@@ -444,11 +497,38 @@ body {
   </div>
 </div>
 
+<div class="modal fade" id="eventModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4 shadow">
+
+      <div class="modal-header custom-modal-header">
+        <h5 class="modal-title" id="modalTitle">Details</h5>
+        <button class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <p><strong>Course:</strong> <span id="modalCourse"></span></p>
+        <p><strong>Date:</strong> <span id="modalTime"></span></p>
+        <p id="modalDesc"></p>
+      </div>
+
+      <div class="modal-footer custom-modal-footer">
+        <a id="editBtn" class="btn btn-warning">Edit</a>
+        <a id="deleteBtn" class="btn btn-danger">Delete</a>
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
 
 <script>
+
 document.addEventListener("DOMContentLoaded", () => {
+
   let events = JSON.parse(`{{ events|safe }}`);
 
   events.forEach(ev => {
@@ -465,10 +545,43 @@ document.addEventListener("DOMContentLoaded", () => {
       center: "title",
       right: ""
     },
-    events: events
+    events: events,
+
+    displayEventTime: false,
+
+    eventClick: function(info) {
+      const e = info.event;
+      const props = e.extendedProps || {};
+      const dt = new Date(e.start);
+
+      document.getElementById("modalTitle").textContent =
+        props.topic || props.event_title || e.title;
+
+      document.getElementById("modalCourse").textContent =
+        props.course_name || "—";
+
+      document.getElementById("modalTime").textContent =
+        dt.toLocaleDateString([], { weekday: "long", year: "numeric", month: "short", day: "numeric" }) +
+        " • " + dt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+
+      document.getElementById("modalDesc").textContent =
+        props.event_description || "";
+
+      if (props.type === "live_class") {
+        document.getElementById("editBtn").href   = `/accounts/instructor/edit-class/${e.id}/`;
+        document.getElementById("deleteBtn").href = `/accounts/instructor/delete-class/${e.id}/`;
+      } else {
+        document.getElementById("editBtn").href   = `/accounts/instructor/edit-event/${e.id}/`;
+        document.getElementById("deleteBtn").href = `/accounts/instructor/delete-event/${e.id}/`;
+      }
+
+      info.jsEvent.preventDefault();
+      new bootstrap.Modal(document.getElementById("eventModal")).show();
+    }
   });
 
   calendar.render();
+
 });
 </script>
 

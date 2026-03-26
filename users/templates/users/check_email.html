@@ -45,8 +45,6 @@ html, body {
   background-size:200% 100%; animation:rainbowShift 6s linear infinite;
 }
 @keyframes rainbowShift { 0%{background-position:0%} 100%{background-position:200%} }
-
-/* Card */
 .card {
   position:relative; z-index:10;
   width:520px; max-width:94vw;
@@ -62,8 +60,6 @@ html, body {
 }
 .card-strip { height:5px; background:linear-gradient(90deg,var(--purple),var(--pink),var(--teal)); }
 .card-inner { padding:44px 48px; display:flex; flex-direction:column; align-items:center; text-align:center; }
-
-/* Brand */
 .brand-link { text-decoration:none; color:inherit; margin-bottom:30px; display:block; }
 .brand { display:flex; align-items:center; gap:10px; justify-content:center; }
 .brand-icon {
@@ -77,8 +73,6 @@ html, body {
   background:linear-gradient(135deg,var(--purple),var(--pink));
   -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
 }
-
-/* Envelope animation */
 .envelope-wrap {
   position:relative; margin-bottom:28px;
   animation:floatUp .6s cubic-bezier(.22,1,.36,1) .15s both;
@@ -103,8 +97,6 @@ html, body {
   animation:eRing 2.4s ease-in-out .6s infinite;
 }
 @keyframes eRing { 0%,100%{transform:scale(1);opacity:.8;} 50%{transform:scale(1.06);opacity:.2;} }
-
-/* Badge */
 .page-badge {
   display:inline-flex; align-items:center; gap:6px;
   background:var(--purple-lt); border:2px solid #ddd6fe;
@@ -117,8 +109,6 @@ html, body {
 .card-title { font-size:1.55rem; font-weight:900; color:var(--text); margin-bottom:8px; line-height:1.2; }
 .card-title .grad { background:linear-gradient(135deg,var(--purple),var(--pink)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
 .card-sub { font-size:0.85rem; color:var(--muted); line-height:1.65; font-weight:500; max-width:360px; margin-bottom:24px; }
-
-/* Checklist */
 .checklist {
   width:100%; background:#fafafa; border:1.5px solid #f0ecff;
   border-radius:16px; padding:16px 20px; margin-bottom:24px; text-align:left;
@@ -128,15 +118,11 @@ html, body {
 .chk-row i { font-size:0.8rem; width:16px; flex-shrink:0; }
 .chk-row.ok i  { color:var(--purple); }
 .chk-row.warn i { color:var(--amber); }
-
-/* Timer bar */
 .timer-bar-wrap { width:100%; margin-bottom:22px; }
 .timer-label { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; font-size:0.72rem; font-weight:700; color:var(--muted-lt); font-family:'DM Mono',monospace; }
 .timer-track { width:100%; height:5px; background:#f0ecff; border-radius:999px; overflow:hidden; }
 .timer-fill { height:100%; width:100%; border-radius:999px; background:linear-gradient(90deg,var(--purple),var(--pink)); animation:timerShrink 86400s linear forwards; }
 @keyframes timerShrink { from{width:100%;} to{width:0%;} }
-
-/* Buttons */
 .btn-primary {
   width:100%; height:46px; border:none; border-radius:12px;
   background:linear-gradient(135deg,var(--purple),var(--pink));

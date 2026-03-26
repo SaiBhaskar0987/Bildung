@@ -1,15 +1,14 @@
- 
- {% load static %}
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{ quiz.title }} — Take Quiz | SPESHWAY</title>
+  <title>{{ quiz.title }} — Take Quiz | Speshway</title>
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 
   <style>
   :root {
@@ -17,33 +16,39 @@
     --amber-lt: #fef3c7;
     --rust:     #b45309;
     --cream:    #fffbf5;
+    --parchment:#fef9f0;
     --ink:      #1c1412;
     --muted:    #7c6f67;
     --border:   #e8ddd4;
-    --glass:    rgba(255,251,245,0.82);
+    --border-lt:#f3ede6;
+    --glass:    rgba(255,251,245,0.88);
     --shadow:   0 8px 40px rgba(28,20,18,0.10);
     --green:    #16a34a;
     --green-lt: #dcfce7;
+    --green-dk: #14532d;
   }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
-    font-family:  Franklin Gothic Medium;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     background: var(--cream);
     color: var(--ink);
     min-height: 100vh;
     overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
   }
+
+  .page-wrap { flex: 1; }
 
   body::before {
     content: '';
-    position: fixed; inset: 0;
+    position: fixed; inset: 0; pointer-events: none; z-index: 0;
     background:
       radial-gradient(ellipse 60% 50% at 85% 10%, #fde68a55 0%, transparent 60%),
-      radial-gradient(ellipse 40% 60% at 5% 90%,  #fcd34d33 0%, transparent 55%),
+      radial-gradient(ellipse 40% 60% at 5%  90%, #fcd34d33 0%, transparent 55%),
       radial-gradient(ellipse 50% 40% at 50% 50%, #fff7ed   0%, transparent 80%);
-    pointer-events: none; z-index: 0;
   }
 
   body::after {
@@ -57,8 +62,6 @@
   }
 
   @keyframes spin { to { transform: rotate(360deg); } }
-
-  /* ════════ TOPBAR ════════ */
   .topbar {
     position: sticky; top: 0; z-index: 999;
     display: flex; align-items: center; justify-content: space-between;
@@ -69,9 +72,9 @@
   }
 
   .brand {
-    font-family:  Franklin Gothic Medium;
-    font-weight: 700; font-size: 26px;
-    letter-spacing: .06em; color: var(--ink);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 800; font-size: 24px;
+    letter-spacing: .04em; color: var(--ink);
     text-decoration: none;
     display: flex; align-items: center; gap: 10px;
   }
@@ -87,11 +90,10 @@
     0%,100% { box-shadow: 0 0 0 3px rgba(217,119,6,.2); }
     50%      { box-shadow: 0 0 0 7px rgba(217,119,6,.07); }
   }
-
-  /* progress bar in topbar */
   .topbar-progress {
-    display: flex; align-items: center; gap: 12px;
-    font-size: 13px; font-weight: 600; color: var(--muted);
+    display: flex; align-items: center; gap: 10px;
+    font-size: 12.5px; font-weight: 700; color: var(--muted);
+    font-family: 'DM Mono', monospace;
   }
 
   .topbar-prog-track {
@@ -110,7 +112,7 @@
   .avatar-btn {
     width: 44px; height: 44px; border-radius: 50%;
     background: linear-gradient(135deg, var(--amber), var(--rust));
-    color: white; font-family: 'Cormorant Garamond', serif;
+    color: white; font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 18px; font-weight: 700;
     border: none; cursor: pointer;
     box-shadow: 0 4px 14px rgba(180,83,9,.35);
@@ -120,20 +122,15 @@
   .avatar-btn:hover { transform: scale(1.07); box-shadow: 0 6px 20px rgba(180,83,9,.45); }
 
   .dropdown-menu {
-    border: 1px solid var(--border); border-radius: 16px;
-    padding: 10px; min-width: 230px;
-    box-shadow: 0 24px 60px rgba(28,20,18,0.12);
-    background: white; animation: dropIn .18s ease;
-  }
-
-  @keyframes dropIn {
-    from { opacity: 0; transform: translateY(-8px); }
-    to   { opacity: 1; transform: translateY(0); }
+    border: 1px solid var(--border) !important; border-radius: 16px !important;
+    padding: 10px !important; min-width: 230px;
+    box-shadow: 0 24px 60px rgba(28,20,18,.12) !important;
+    background: white !important;
   }
 
   .dropdown-item {
     border-radius: 10px; padding: 10px 14px;
-    font-family: Franklin Gothic Medium;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 13.5px; font-weight: 500; color: var(--ink);
     transition: background .2s, color .2s, transform .2s;
   }
@@ -141,9 +138,7 @@
   .dropdown-item:hover { background: var(--amber-lt); color: var(--rust); transform: translateX(4px); }
   .dropdown-item.logout-item { color: #dc2626; }
   .dropdown-item.logout-item:hover { background: #fef2f2; color: #b91c1c; }
-  .dropdown-divider { border-color: var(--border); margin: 6px 0; }
-
-  /* ════════ PAGE ════════ */
+  .dropdown-divider { border-color: var(--border) !important; margin: 6px 0 !important; }
   .page-wrap {
     position: relative; z-index: 1;
     max-width: 760px;
@@ -156,48 +151,48 @@
     from { opacity: 0; transform: translateY(22px); }
     to   { opacity: 1; transform: translateY(0); }
   }
-
-  /* ── Quiz header ── */
-  .quiz-header {
-    margin-bottom: 36px;
-  }
+  .quiz-header { margin-bottom: 36px; }
 
   .quiz-tag {
     display: inline-flex; align-items: center; gap: 6px;
-    font-size: 11px; font-weight: 600;
+    font-size: 10px; font-weight: 700;
     letter-spacing: .18em; text-transform: uppercase;
     color: var(--amber); background: var(--amber-lt);
     padding: 4px 12px; border-radius: 99px;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
+    font-family: 'DM Mono', monospace;
   }
 
   .quiz-main-title {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: clamp(26px, 3.5vw, 38px);
-    font-weight: 700; color: var(--ink);
-    line-height: 1.1; margin-bottom: 8px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: clamp(24px, 3.5vw, 34px);
+    font-weight: 800; color: var(--ink);
+    line-height: 1.1; margin-bottom: 10px;
   }
 
   .quiz-meta-row {
     display: flex; align-items: center; gap: 16px;
     font-size: 13px; color: var(--muted); flex-wrap: wrap;
+    font-weight: 500;
   }
 
   .quiz-meta-row i { color: var(--amber); }
 
-  /* answered counter badge */
   .answered-badge {
     display: inline-flex; align-items: center; gap: 6px;
     background: white; border: 1px solid var(--border);
     border-radius: 99px; padding: 5px 14px;
-    font-size: 12.5px; font-weight: 600; color: var(--ink);
-    transition: border-color .2s;
+    font-size: 12px; font-weight: 700; color: var(--ink);
+    transition: border-color .2s, color .2s, background .2s;
+    font-family: 'DM Mono', monospace;
   }
 
-  .answered-badge.all-done { border-color: var(--green); color: var(--green); }
-  .answered-badge i { color: var(--amber); }
+  .answered-badge.all-done {
+    border-color: var(--green); color: var(--green-dk); background: var(--green-lt);
+  }
 
-  /* ── Question cards ── */
+  .answered-badge i { color: var(--amber); }
+  .answered-badge.all-done i { color: var(--green); }
   .q-card {
     background: white;
     border: 1px solid var(--border);
@@ -209,6 +204,7 @@
     animation: fadeUp .45s ease both;
   }
 
+  .q-card:nth-child(1) { animation-delay: .00s; }
   .q-card:nth-child(2) { animation-delay: .06s; }
   .q-card:nth-child(3) { animation-delay: .12s; }
   .q-card:nth-child(4) { animation-delay: .18s; }
@@ -220,18 +216,13 @@
     background: linear-gradient(90deg, var(--amber), #f59e0b, var(--rust));
   }
 
-  /* answered state */
-  .q-card.answered {
-    border-color: #86efac;
-  }
+  .q-card.answered { border-color: #86efac; }
 
   .q-card.answered::before {
-    background: linear-gradient(90deg, var(--green), #22c55e, #15803d);
+    background: linear-gradient(90deg, var(--green), #22c55e, var(--green-dk));
   }
 
-  .q-body { padding: 22px 26px 20px; }
-
-  /* question row */
+  .q-body { padding: 24px 26px 22px; }
   .q-num-row {
     display: flex; align-items: flex-start; gap: 14px;
     margin-bottom: 20px;
@@ -240,32 +231,30 @@
   .q-num {
     width: 36px; height: 36px; flex-shrink: 0; border-radius: 50%;
     background: linear-gradient(135deg, var(--amber), var(--rust));
-    color: white; font-family: 'Cormorant Garamond', serif;
-    font-size: 16px; font-weight: 700;
+    color: white;
+    font-family: 'DM Mono', monospace;
+    font-size: 14px; font-weight: 500;
     display: flex; align-items: center; justify-content: center;
     box-shadow: 0 3px 10px rgba(180,83,9,.25);
-    transition: background .3s;
+    transition: background .3s, box-shadow .3s;
   }
 
-  /* answered — green circle */
   .q-card.answered .q-num {
-    background: linear-gradient(135deg, var(--green), #14532d);
+    background: linear-gradient(135deg, var(--green), var(--green-dk));
     box-shadow: 0 3px 10px rgba(22,163,74,.25);
   }
 
   .q-text {
-    font-size: 16px; font-weight: 600; color: var(--ink);
-    line-height: 1.45; flex: 1; padding-top: 4px;
+    font-size: 16px; font-weight: 700; color: var(--ink);
+    line-height: 1.5; flex: 1; padding-top: 5px;
   }
-
-  /* ── Choice options ── */
   .choices-list { display: flex; flex-direction: column; gap: 10px; }
 
   .choice-label {
     display: flex; align-items: center; gap: 12px;
     border: 1.5px solid var(--border);
     border-radius: 14px; padding: 13px 16px;
-    background: #fffbf2; cursor: pointer;
+    background: var(--parchment); cursor: pointer;
     transition: border-color .2s, background .2s, transform .15s;
     user-select: none;
   }
@@ -276,14 +265,11 @@
     transform: translateX(3px);
   }
 
-  /* hide native radio */
   .choice-label input[type="radio"] { display: none; }
 
-  /* custom radio dot */
   .choice-dot {
     width: 20px; height: 20px; border-radius: 50%; flex-shrink: 0;
-    border: 2px solid var(--border);
-    background: white;
+    border: 2px solid var(--border); background: white;
     display: flex; align-items: center; justify-content: center;
     transition: border-color .2s, background .2s;
   }
@@ -294,24 +280,19 @@
     background: transparent; transition: background .2s;
   }
 
-  /* checked state via JS class */
   .choice-label.selected {
-    border-color: var(--amber);
-    background: var(--amber-lt);
+    border-color: var(--amber); background: var(--amber-lt);
   }
 
   .choice-label.selected .choice-dot {
-    border-color: var(--amber);
-    background: var(--amber);
+    border-color: var(--amber); background: var(--amber);
   }
 
-  .choice-label.selected .choice-dot::after {
-    background: white;
+  .choice-label.selected .choice-dot::after { background: white; }
+
+  .choice-text {
+    font-size: 14.5px; color: var(--ink); font-weight: 600; flex: 1;
   }
-
-  .choice-text { font-size: 14.5px; color: var(--ink); font-weight: 500; flex: 1; }
-
-  /* ── Submit bar ── */
   .submit-bar {
     background: white; border: 1px solid var(--border);
     border-radius: 22px; padding: 22px 28px;
@@ -325,13 +306,14 @@
     font-size: 13.5px; color: var(--muted); font-weight: 500;
   }
 
-  .submit-info strong { color: var(--ink); }
+  .submit-info strong { color: var(--ink); font-weight: 700; }
 
   .btn-submit {
-    background: linear-gradient(135deg, var(--green), #14532d);
+    background: linear-gradient(135deg, var(--green), var(--green-dk));
     color: white; border: none;
     padding: 13px 32px; border-radius: 14px;
-    font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 700;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 15px; font-weight: 700;
     display: inline-flex; align-items: center; gap: 9px;
     box-shadow: 0 6px 20px rgba(22,163,74,.30);
     cursor: pointer; transition: transform .2s, box-shadow .2s;
@@ -342,11 +324,16 @@
     box-shadow: 0 10px 28px rgba(22,163,74,.42);
   }
 
-  /* disabled until all answered */
   .btn-submit:disabled {
     background: linear-gradient(135deg, #9ca3af, #6b7280);
-    box-shadow: none; cursor: not-allowed; transform: none;
-    opacity: .7;
+    box-shadow: none; cursor: not-allowed; transform: none; opacity: .7;
+  }
+  .site-footer {
+    position: relative; z-index: 1;
+    border-top: 1px solid var(--border);
+    text-align: center; padding: 20px;
+    font-size: 13px; color: var(--muted);
+    background: var(--glass); backdrop-filter: blur(12px);
   }
 
   @media (max-width: 640px) {
@@ -362,14 +349,13 @@
 
 <body>
 
-<!-- ════════ TOPBAR ════════ -->
+
 <nav class="topbar">
   <a href="{% url 'student_dashboard' %}" class="brand">
-    <span class="dot"></span>
-    SPESHWAY
+    <span class="dot"></span>Speshway
   </a>
 
-  <!-- Live progress in topbar -->
+  
   <div class="topbar-progress">
     <span id="topbarLabel">0 / {{ questions|length }}</span>
     <div class="topbar-prog-track">
@@ -399,10 +385,10 @@
   </div>
 </nav>
 
-<!-- ════════ PAGE ════════ -->
+
 <div class="page-wrap">
 
-  <!-- Header -->
+  
   <div class="quiz-header">
     <div class="quiz-tag"><i class="fas fa-clipboard-list"></i> Quiz</div>
     <h1 class="quiz-main-title">{{ quiz.title }}</h1>
@@ -416,7 +402,7 @@
     </div>
   </div>
 
-  <!-- Form -->
+  
   <form method="POST" id="quizForm">
     {% csrf_token %}
 
@@ -449,7 +435,7 @@
     </div>
     {% endfor %}
 
-    <!-- Submit bar -->
+    
     <div class="submit-bar">
       <div class="submit-info">
         <strong id="submitInfoText">Answer all questions</strong> to submit the quiz.
@@ -460,32 +446,32 @@
     </div>
 
   </form>
+
 </div>
+
+<footer class="site-footer">&copy; 2025 Speshway. All rights reserved.</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-  const total     = {{ questions|length }};
-  const answered  = new Set();
-
-  // Track answered questions per q-group
-  const lastSelected = {}; // qid → label el
+  const total       = {{ questions|length }};
+  const answered    = new Set();
+  const lastSelected = {};
 
   function onAnswer(qid, radio, labelId) {
-    // deselect previous choice for this question
+    // Deselect previous choice for this question
     if (lastSelected[qid]) {
       lastSelected[qid].classList.remove('selected');
     }
 
-    // select new choice
+    // Select new choice
     const label = document.getElementById(labelId);
     label.classList.add('selected');
     lastSelected[qid] = label;
 
-    // mark card as answered
+    // Mark card answered
     const card = document.getElementById('qcard-' + qid);
     if (card) card.classList.add('answered');
 
-    // track unique answered questions
     answered.add(qid);
     updateProgress();
   }
@@ -493,30 +479,24 @@
   function updateProgress() {
     const count = answered.size;
     const pct   = Math.round((count / total) * 100);
+    const left  = total - count;
 
-    // topbar
+    // Topbar strip
     document.getElementById('topbarLabel').textContent = count + ' / ' + total;
     document.getElementById('topbarFill').style.width  = pct + '%';
 
-    // answered badge
+    // Answered badge
     document.getElementById('answeredCount').textContent = count;
     const badge = document.getElementById('answeredBadge');
-    if (count === total) {
-      badge.classList.add('all-done');
-    } else {
-      badge.classList.remove('all-done');
-    }
+    count === total ? badge.classList.add('all-done') : badge.classList.remove('all-done');
 
-    // submit button
+    // Submit button + info text
     const btn = document.getElementById('submitBtn');
-    if (count === total) {
-      btn.disabled = false;
-      document.getElementById('submitInfoText').textContent = 'All questions answered';
-    } else {
-      btn.disabled = true;
-      document.getElementById('submitInfoText').textContent =
-        (total - count) + ' question' + (total - count !== 1 ? 's' : '') + ' remaining';
-    }
+    btn.disabled = count < total;
+    document.getElementById('submitInfoText').textContent =
+      count === total
+        ? 'All questions answered — ready to submit!'
+        : left + ' question' + (left !== 1 ? 's' : '') + ' remaining';
   }
 </script>
 

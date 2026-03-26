@@ -4,734 +4,492 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Course – SPESHWAY</title>
-
-    <link rel="stylesheet" href="{% static 'css/add_course.css' %}">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link
-        href="https://fonts.googleapis.com/css2?family=sora:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap"
-        rel="stylesheet">
-
-    <script>
-        const BASE_URL = "/accounts/instructor";
-        const COURSE_ID = "{{ course_id }}";
-        const PRELOAD = {{ preload| safe }};
-    </script>
-
-    <style>
-        /* ─── DESIGN SYSTEM ─── */
-        :root {
-            --ink: #0F1117;
-            --ink-soft: #2C2F3A;
-            --teal: #0D9488;
-            --teal-mid: #14B8A6;
-            --teal-glow: #5EEAD4;
-            --teal-pale: #CCFBF1;
-            --surface: #F8FFFE;
-            --card-bg: #FFFFFF;
-            --border: #D1FAF6;
-            --muted: #64748B;
-            --red: #EF4444;
-            --radius: 16px;
-            --radius-sm: 10px;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: 'DM Sans', sans-serif;
-            background: var(--surface);
-            color: var(--ink);
-            min-height: 100vh;
-        }
-
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: var(--teal-glow);
-            border-radius: 99px;
-        }
-
-        /* ─── TOPNAV ─── */
-        .topnav {
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 32px;
-            height: 64px;
-            background: rgba(255, 255, 255, .92);
-            backdrop-filter: blur(18px);
-            border-bottom: 1px solid var(--border);
-        }
-
-        .brand {
-            font-family: 'sora', sans-serif;
-            font-weight: 800;
-            font-size: 1.35rem;
-            letter-spacing: -.5px;
-            color: var(--teal);
-            text-decoration: none;
-        }
-
-        .brand span {
-            color: var(--ink);
-        }
-
-        .avatar-btn {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--teal), var(--teal-mid));
-            color: #fff;
-            border: none;
-            cursor: pointer;
-            font-family: 'sora', sans-serif;
-            font-weight: 700;
-            font-size: 1rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: box-shadow .2s, transform .15s;
-        }
-
-        .avatar-btn:hover {
-            box-shadow: 0 0 0 4px var(--teal-pale);
-            transform: scale(1.05);
-        }
-
-        .dropdown-menu {
-            border: 1px solid var(--border) !important;
-            border-radius: var(--radius) !important;
-            box-shadow: 0 12px 40px rgba(13, 148, 136, .12) !important;
-            padding: 8px !important;
-            min-width: 220px !important;
-        }
-
-        .dropdown-item {
-            border-radius: var(--radius-sm);
-            font-size: .875rem;
-            color: var(--ink-soft);
-            padding: 8px 12px;
-            transition: background .15s, color .15s;
-        }
-
-        .dropdown-item:hover {
-            background: var(--teal-pale);
-            color: var(--teal);
-        }
-
-        .dropdown-item.text-danger:hover {
-            background: #FEE2E2;
-            color: var(--red);
-        }
-
-        .dropdown-divider {
-            border-color: var(--border) !important;
-        }
-
-        /* ─── PAGE WRAP ─── */
-        .page-wrap {
-            max-width: 960px;
-            margin: 0 auto;
-            padding: 40px 24px 80px;
-        }
-
-        /* ─── BACK LINK ─── */
-        .back-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 7px;
-            color: var(--teal);
-            font-size: .85rem;
-            font-weight: 600;
-            text-decoration: none;
-            margin-bottom: 24px;
-            transition: gap .2s;
-        }
-
-        .back-link:hover {
-            gap: 10px;
-        }
-
-        /* ─── PAGE HEADER ─── */
-        .page-header {
-            margin-bottom: 32px;
-        }
-
-        .page-header h2 {
-            font-family: 'sora', sans-serif;
-            font-weight: 800;
-            font-size: 1.9rem;
-            letter-spacing: -1px;
-            color: var(--ink);
-        }
-
-        .page-header h2 span {
-            color: var(--teal);
-        }
-
-        .page-header p {
-            color: var(--muted);
-            margin-top: 6px;
-            font-size: .88rem;
-        }
-
-        /* ─── SECTION CARD ─── */
-        .section-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            overflow: hidden;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 20px rgba(13, 148, 136, .06);
-            animation: fadeUp .4s ease both;
-        }
-
-        .section-card.delay {
-            animation-delay: .1s;
-        }
-
-        @keyframes fadeUp {
-            from {
-                opacity: 0;
-                transform: translateY(14px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .card-top-bar {
-            height: 4px;
-            background: linear-gradient(90deg, var(--teal), var(--teal-glow));
-        }
-
-        .section-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 18px 24px 0;
-        }
-
-        .section-icon {
-            width: 36px;
-            height: 36px;
-            background: var(--teal-pale);
-            color: var(--teal);
-            border-radius: var(--radius-sm);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: .95rem;
-            flex-shrink: 0;
-        }
-
-        .section-title {
-            font-family: 'sora', sans-serif;
-            font-weight: 700;
-            font-size: 1rem;
-            color: var(--ink);
-        }
-
-        .section-body {
-            padding: 20px 24px 24px;
-        }
-
-        /* ─── FORM FIELDS ─── */
-        .field-group {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-        }
-
-        .field-group.single {
-            grid-template-columns: 1fr;
-        }
-
-        .field-wrap {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-            margin-bottom: 14px;
-        }
-
-        .field-wrap:last-child {
-            margin-bottom: 0;
-        }
-
-        .field-label {
-            font-size: .73rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: .7px;
-            color: var(--muted);
-        }
-
-        .field-input,
-        .field-select,
-        .field-textarea {
-            width: 100%;
-            padding: 10px 14px;
-            border: 1.5px solid var(--border);
-            border-radius: var(--radius-sm);
-            font-family: 'DM Sans', sans-serif;
-            font-size: .9rem;
-            color: var(--ink);
-            background: #fff;
-            outline: none;
-            transition: border-color .2s, box-shadow .2s;
-            appearance: none;
-        }
-
-        .field-input:focus,
-        .field-select:focus,
-        .field-textarea:focus {
-            border-color: var(--teal);
-            box-shadow: 0 0 0 3px rgba(13, 148, 136, .12);
-        }
-
-        .field-textarea {
-            resize: vertical;
-            min-height: 90px;
-            line-height: 1.5;
-        }
-
-        .select-wrap {
-            position: relative;
-        }
-
-        .select-wrap::after {
-            content: '\f107';
-            font-family: 'Font Awesome 6 Free';
-            font-weight: 900;
-            position: absolute;
-            right: 13px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--muted);
-            pointer-events: none;
-            font-size: .85rem;
-        }
-
-        /* ─── ORIGINAL MODULE BUILDER STYLES (100% unchanged) ─── */
-        #topRow {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 18px;
-            margin-top: 30px;
-        }
-
-        .builder-card {
-            width: 180px;
-            height: 160px;
-            background: #ffffff;
-            border-radius: 18px;
-            border: 3px dashed #dcdcdc;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
-            transition: 0.25s ease;
-            cursor: grab;
-        }
-
-        .builder-card:hover {
-            transform: scale(1.05);
-        }
-
-        #dropZone {
-            margin-bottom: 30px;
-        }
-
-        .card-title {
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        .module-card {
-            border-color: #6aa9ff !important;
-        }
-
-        .quiz-card {
-            border-color: #ffcf7d !important;
-        }
-
-        .assignment-card {
-            border-color: #7ee6a0 !important;
-        }
-
-        .liveclass-card {
-            border-color: #ff8fba !important;
-        }
-
-        .card-actions {
-            position: absolute;
-            bottom: 12px;
-            display: flex;
-            gap: 10px;
-        }
-
-        .open-module-btn {
-            background: #4caf50;
-            color: white;
-            border: none;
-            padding: 5px 12px;
-            font-size: 13px;
-            border-radius: 6px;
-        }
-
-        .delete-module-btn {
-            background: #ff4d4d;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            font-size: 13px;
-            border-radius: 6px;
-        }
-
-        .drop-zone {
-            width: 180px;
-            height: 160px;
-            border-radius: 18px;
-            border: 3px dashed #bfc7e6;
-            background: #eef2ff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 40px;
-            font-weight: bold;
-            color: #5b6cff;
-            cursor: pointer;
-            transition: 0.25s ease;
-        }
-
-        .drop-zone:hover {
-            transform: scale(1.08);
-            border-color: #5167ff;
-            color: #5167ff;
-        }
-
-        .drag-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            justify-content: center;
-            margin-bottom: 16px;
-        }
-
-        .draggable-btn {
-            padding: 8px 18px;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 14px;
-            cursor: grab;
-            border: none;
-            color: white;
-            user-select: none;
-        }
-
-        .module-btn {
-            background: #6aa9ff;
-        }
-
-        .quiz-btn {
-            background: #ffbf47;
-            color: #333;
-        }
-
-        .assignment-btn {
-            background: #4caf50;
-        }
-
-        .liveclass-btn {
-            background: #ff6fa8;
-        }
-
-        /* ─── ACTIONS BAR ─── */
-        .actions-bar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 12px;
-            padding: 20px 24px;
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            box-shadow: 0 4px 20px rgba(13, 148, 136, .06);
-        }
-
-        .hint {
-            display: flex;
-            align-items: center;
-            gap: 7px;
-            font-size: .82rem;
-            color: var(--muted);
-            font-weight: 500;
-        }
-
-        .hint i {
-            color: var(--teal);
-        }
-
-        .action-btns {
-            display: flex;
-            gap: 10px;
-        }
-
-        .btn-save-course {
-            display: inline-flex;
-            align-items: center;
-            gap: 7px;
-            background: var(--teal-pale);
-            color: var(--teal);
-            border: 1.5px solid var(--teal-glow);
-            border-radius: var(--radius-sm);
-            padding: 10px 22px;
-            font-size: .88rem;
-            font-weight: 700;
-            font-family: 'sora', sans-serif;
-            cursor: pointer;
-            transition: background .15s, color .15s;
-        }
-
-        .btn-save-course:hover {
-            background: var(--teal);
-            color: #fff;
-        }
-
-        .btn-publish {
-            display: inline-flex;
-            align-items: center;
-            gap: 7px;
-            background: linear-gradient(135deg, var(--teal), var(--teal-mid));
-            color: #fff;
-            border: none;
-            border-radius: var(--radius-sm);
-            padding: 10px 24px;
-            font-size: .88rem;
-            font-weight: 700;
-            font-family: 'sora', sans-serif;
-            cursor: pointer;
-            transition: opacity .2s, transform .15s;
-        }
-
-        .btn-publish:hover {
-            opacity: .88;
-            transform: translateY(-1px);
-        }
-
-        /* ─── RESPONSIVE ─── */
-        @media (max-width: 640px) {
-            .topnav {
-                padding: 0 16px;
-            }
-
-            .page-wrap {
-                padding: 24px 16px 60px;
-            }
-
-            .field-group {
-                grid-template-columns: 1fr;
-            }
-
-            .actions-bar {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .action-btns {
-                flex-direction: column;
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Create Course</title>
+
+<link rel="stylesheet" href="{% static 'css/add_course.css' %}">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+
+<script>
+  const BASE_URL = "/accounts/instructor";
+  const COURSE_ID = "{{ course_id }}";
+  const PRELOAD = {{ preload|safe }};
+</script>
+
+<style>
+:root {
+  --ink:          #0F1117;
+  --ink-soft:     #2C2F3A;
+  --teal:         #0D9488;
+  --teal-mid:     #14B8A6;
+  --teal-glow:    #5EEAD4;
+  --teal-pale:    #CCFBF1;
+  --surface:      #F0FDFA;
+  --card-bg:      #FFFFFF;
+  --border:       #C7F5EE;
+  --border-strong:#99E9DC;
+  --muted:        #64748B;
+  --muted-light:  #94A3B8;
+  --red:          #EF4444;
+  --radius:       20px;
+  --radius-sm:    12px;
+  --shadow-sm:    0 2px 8px rgba(13,148,136,.07);
+  --shadow-md:    0 6px 24px rgba(13,148,136,.11);
+  --shadow-lg:    0 16px 48px rgba(13,148,136,.15);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', sans-serif; background: var(--surface); color: var(--ink); min-height: 100vh; }
+body::before {
+  content: ''; position: fixed; inset: 0;
+  background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 40px 40px; opacity: .3; pointer-events: none; z-index: 0;
+}
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-thumb { background: var(--teal-glow); border-radius: 99px; }
+
+
+.topnav {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 32px; height: 64px;
+  background: rgba(255,255,255,.93); backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border); box-shadow: var(--shadow-sm);
+}
+.brand { font-family: 'Sora', sans-serif; font-weight: 800; font-size: 1.35rem; letter-spacing: -.5px; color: var(--teal); text-decoration: none; }
+.brand span { color: var(--ink); }
+.avatar-btn {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--teal), var(--teal-mid));
+  color: #fff; border: none; cursor: pointer;
+  font-family: 'Sora', sans-serif; font-weight: 700; font-size: 1rem;
+  display: flex; align-items: center; justify-content: center;
+  transition: box-shadow .2s, transform .15s;
+}
+.avatar-btn:hover { box-shadow: 0 0 0 4px var(--teal-pale); transform: scale(1.05); }
+.dropdown-menu { border: 1px solid var(--border) !important; border-radius: var(--radius) !important; box-shadow: var(--shadow-lg) !important; padding: 8px !important; min-width: 220px !important; }
+.dropdown-item { border-radius: var(--radius-sm); font-size: .875rem; color: var(--ink-soft); padding: 8px 12px; transition: background .15s, color .15s; }
+.dropdown-item:hover { background: var(--teal-pale); color: var(--teal); }
+.dropdown-item.text-danger:hover { background: #FEE2E2; color: var(--red); }
+.dropdown-divider { border-color: var(--border) !important; }
+
+
+.page-wrap { position: relative; z-index: 1; max-width: 980px; margin: 0 auto; padding: 40px 24px 100px; }
+
+
+.page-header { margin-bottom: 32px; }
+.eyebrow {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--teal-pale); color: var(--teal);
+  border: 1px solid var(--teal-glow); border-radius: 99px;
+  padding: 4px 12px; font-size: .71rem; font-weight: 700;
+  letter-spacing: .8px; text-transform: uppercase; margin-bottom: 10px;
+}
+.page-header h2 { font-family: 'Sora', sans-serif; font-weight: 800; font-size: 2rem; letter-spacing: -1.2px; }
+.page-header h2 span { color: var(--teal); }
+.page-header p { color: var(--muted); margin-top: 6px; font-size: .88rem; line-height: 1.6; }
+
+
+.section-card {
+  background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: var(--radius); overflow: hidden;
+  margin-bottom: 20px; box-shadow: var(--shadow-md);
+  animation: fadeUp .45s cubic-bezier(.22,.68,0,1.2) both;
+  position: relative;
+}
+.section-card.d1 { animation-delay: .08s; }
+.section-card.d2 { animation-delay: .16s; }
+@keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+.section-card::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+  background: linear-gradient(180deg, var(--teal), var(--teal-glow));
+  border-radius: 4px 0 0 4px;
+}
+.section-header { display: flex; align-items: center; gap: 12px; padding: 20px 28px 0; }
+.section-icon {
+  width: 38px; height: 38px;
+  background: linear-gradient(135deg, var(--teal-pale), #fff);
+  color: var(--teal); border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: .95rem; flex-shrink: 0; box-shadow: 0 2px 8px rgba(13,148,136,.1);
+}
+.section-title { font-family: 'Sora', sans-serif; font-weight: 700; font-size: 1rem; color: var(--ink); }
+.section-subtitle { font-size: .77rem; color: var(--muted-light); margin-top: 2px; }
+.section-body { padding: 20px 28px 28px; }
+
+
+.field-wrap { display: flex; flex-direction: column; gap: 5px; }
+.field-label { font-size: .71rem; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: var(--muted); }
+.req { color: var(--teal); }
+.field-input, .field-select, .field-textarea {
+  width: 100%; padding: 10px 14px;
+  border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+  font-family: 'DM Sans', sans-serif; font-size: .9rem; color: var(--ink);
+  background: #FAFFFE; outline: none;
+  transition: border-color .2s, box-shadow .2s, background .2s; appearance: none;
+}
+.field-input:hover, .field-select:hover, .field-textarea:hover { border-color: var(--border-strong); }
+.field-input:focus, .field-select:focus, .field-textarea:focus {
+  border-color: var(--teal); box-shadow: 0 0 0 4px rgba(13,148,136,.1); background: #fff;
+}
+.field-textarea { resize: vertical; min-height: 90px; line-height: 1.6; }
+.select-wrap { position: relative; }
+.select-wrap::after {
+  content: '\f107'; font-family: 'Font Awesome 6 Free'; font-weight: 900;
+  position: absolute; right: 13px; top: 50%; transform: translateY(-50%);
+  color: var(--muted); pointer-events: none; font-size: .82rem;
+}
+.g2  { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.gap { display: flex; flex-direction: column; gap: 16px; }
+
+
+.top-layout {
+  display: grid;
+  grid-template-columns: 1fr 260px;
+  gap: 24px;
+  align-items: start;
+}
+
+
+#thumbnailInput { display: none; }
+
+.thumbnail-upload-area {
+  position: relative; width: 100%;
+  aspect-ratio: 16/9;
+  border: 2px dashed var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, #F0FDFA, #E6FBF8);
+  overflow: hidden; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: border-color .25s, background .25s, transform .18s, box-shadow .2s;
+}
+.thumbnail-upload-area:hover {
+  border-color: var(--teal);
+  background: linear-gradient(135deg, #D1FAF6, #CCFBF1);
+  transform: translateY(-2px); box-shadow: var(--shadow-md);
+}
+.thumbnail-upload-area.dragging {
+  border-color: var(--teal); background: var(--teal-pale);
+  box-shadow: 0 0 0 5px rgba(13,148,136,.08);
+}
+.thumbnail-upload-area.has-image {
+  border-style: solid; border-color: var(--teal-glow);
+}
+
+.thumb-ph {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 8px; padding: 16px; text-align: center; pointer-events: none;
+}
+.thumb-ico {
+  width: 42px; height: 42px;
+  background: linear-gradient(135deg, var(--teal-pale), #fff);
+  border: 1.5px solid var(--border-strong); border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.15rem; color: var(--teal);
+  box-shadow: 0 3px 10px rgba(13,148,136,.12);
+  transition: transform .2s;
+}
+.thumbnail-upload-area:hover .thumb-ico { transform: scale(1.1) translateY(-2px); }
+.thumb-ph-title { font-family: 'Sora', sans-serif; font-weight: 700; font-size: .79rem; color: var(--ink); }
+.thumb-ph-sub { font-size: .71rem; color: var(--muted); }
+.thumb-ph-sub strong { color: var(--teal); }
+
+.thumb-preview-img {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; border-radius: calc(var(--radius-sm) - 2px);
+}
+.thumb-hover-overlay {
+  position: absolute; inset: 0;
+  background: rgba(15,17,23,.5); backdrop-filter: blur(2px);
+  border-radius: calc(var(--radius-sm) - 2px);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+  opacity: 0; transition: opacity .25s;
+}
+.thumbnail-upload-area.has-image:hover .thumb-hover-overlay { opacity: 1; }
+.thumb-hov-icon {
+  width: 34px; height: 34px;
+  background: rgba(255,255,255,.18); border: 1.5px solid rgba(255,255,255,.35);
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: .82rem;
+}
+.thumb-hov-text { color: #fff; font-family: 'Sora', sans-serif; font-weight: 700; font-size: .76rem; }
+.thumb-remove-btn {
+  position: absolute; top: 7px; right: 7px;
+  width: 26px; height: 26px;
+  background: rgba(239,68,68,.85); color: #fff;
+  border: none; border-radius: 50%; cursor: pointer;
+  display: none; align-items: center; justify-content: center;
+  font-size: .72rem; transition: background .15s, transform .15s; z-index: 5;
+}
+.thumbnail-upload-area.has-image .thumb-remove-btn { display: flex; }
+.thumb-remove-btn:hover { background: var(--red); transform: scale(1.1); }
+
+
+#topRow { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 8px; min-height: 50px; }
+.builder-card {
+  width: 185px; height: 150px; background: #fff; border-radius: 16px;
+  border: 2px dashed #dcdcdc;
+  display: flex; flex-direction: column; justify-content: center; align-items: center;
+  position: relative; box-shadow: 0 3px 12px rgba(0,0,0,.09);
+  transition: .22s ease; cursor: grab; padding: 12px;
+}
+.builder-card:hover { transform: scale(1.04); box-shadow: 0 7px 22px rgba(0,0,0,.13); }
+.card-title { font-size: 14px; font-weight: 700; text-align: center; margin-bottom: 10px; color: var(--ink); }
+.module-card     { border-color: #6aa9ff !important; }
+.quiz-card       { border-color: #ffc466 !important; }
+.assignment-card { border-color: #7ee6a0 !important; }
+.card-actions { display: flex; justify-content: center; gap: 7px; }
+.open-module-btn { background: #4caf50; color: #fff; border-radius: 6px; border: none; padding: 5px 10px; font-size: 12px; font-weight: 600; cursor: pointer; }
+.delete-module-btn { background: #ff4d4d; color: #fff; border-radius: 6px; border: none; padding: 5px 9px; font-size: 12px; font-weight: 600; cursor: pointer; }
+.drop-zone {
+  width: 185px; height: 150px; border-radius: 16px;
+  border: 2px dashed var(--border-strong);
+  background: linear-gradient(135deg, var(--teal-pale), #fff);
+  display: flex; justify-content: center; align-items: center;
+  font-size: 30px; font-weight: bold; color: var(--teal);
+  cursor: pointer; transition: .22s ease; box-shadow: var(--shadow-sm);
+}
+.drop-zone:hover { transform: scale(1.07); border-color: var(--teal); box-shadow: var(--shadow-md); }
+.drag-row { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 18px; margin-bottom: 10px; }
+.draggable-btn {
+  padding: 8px 17px; border-radius: 9px; font-weight: 700; font-size: 13px;
+  cursor: grab; border: none; color: white; user-select: none;
+  transition: transform .15s, box-shadow .15s;
+}
+.draggable-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 14px rgba(0,0,0,.14); }
+.module-btn     { background: linear-gradient(135deg,#4a90e2,#6aa9ff); }
+.quiz-btn       { background: linear-gradient(135deg,#f5a623,#ffcf7d); color: #333; }
+.assignment-btn { background: linear-gradient(135deg,#27ae60,#7ee6a0); }
+.note { font-size: .78rem; color: var(--muted); display: flex; align-items: center; gap: 5px; }
+
+
+.actions-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 12px; padding: 18px 28px;
+  background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: var(--radius); box-shadow: var(--shadow-md);
+  position: relative; overflow: hidden;
+}
+.actions-bar::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: linear-gradient(180deg, var(--teal), var(--teal-glow)); }
+.hint { display: flex; align-items: center; gap: 7px; font-size: .82rem; color: var(--muted); font-weight: 500; }
+.hint i { color: var(--teal); }
+.action-btns { display: flex; gap: 10px; }
+.btn-save-course {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: var(--teal-pale); color: var(--teal);
+  border: 1.5px solid var(--teal-glow); border-radius: var(--radius-sm);
+  padding: 10px 22px; font-size: .88rem; font-weight: 700;
+  font-family: 'Sora', sans-serif; cursor: pointer;
+  transition: background .15s, color .15s, transform .15s, box-shadow .15s;
+}
+.btn-save-course:hover { background: var(--teal); color: #fff; transform: translateY(-1px); box-shadow: 0 5px 18px rgba(13,148,136,.25); }
+.btn-publish {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: linear-gradient(135deg, var(--teal), var(--teal-mid));
+  color: #fff; border: none; border-radius: var(--radius-sm);
+  padding: 10px 24px; font-size: .88rem; font-weight: 700;
+  font-family: 'Sora', sans-serif; cursor: pointer;
+  box-shadow: 0 4px 14px rgba(13,148,136,.3);
+  transition: opacity .2s, transform .15s, box-shadow .2s;
+}
+.btn-publish:hover { opacity: .9; transform: translateY(-2px); box-shadow: 0 7px 24px rgba(13,148,136,.38); }
+
+@media (max-width: 760px) {
+  .top-layout { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+  .topnav { padding: 0 16px; }
+  .page-wrap { padding: 24px 16px 60px; }
+  .g2 { grid-template-columns: 1fr; }
+  .actions-bar { flex-direction: column; align-items: stretch; }
+  .action-btns { flex-direction: column; }
+  .section-header { padding: 16px 20px 0; }
+  .section-body { padding: 16px 20px 20px; }
+}
+</style>
 </head>
-
 <body>
 
-    <!-- ── TOPNAV ─── -->
-    <nav class="topnav">
-        <a href="{% url 'instructor_dashboard' %}" class="brand">SPESH<span>WAY</span></a>
-        <div class="dropdown">
-            <button class="avatar-btn" type="button" data-bs-toggle="dropdown">
-                {{ request.user.username|first|upper }}
-            </button>
-            <ul class="dropdown-menu dropdown-menu-end">
-                <li><a class="dropdown-item" href="{% url 'instructor_profile_view' %}"><i
-                            class="fa-regular fa-user me-2"></i>Profile</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor:add_course' %}"><i
-                            class="fa-solid fa-plus me-2"></i>Create New Course</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor:students_list' %}"><i
-                            class="fa-solid fa-users me-2"></i>My Students</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor:calendar_view' %}"><i
-                            class="fa-regular fa-calendar me-2"></i>My Schedules</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor_notifications' %}"><i
-                            class="fa-regular fa-bell me-2"></i>Notifications</a></li>
-                <li><a class="dropdown-item" href="#"><i class="fa-solid fa-wallet me-2"></i>Earnings & Payments</a>
-                </li>
-                <li><a class="dropdown-item" href="#"><i class="fa-regular fa-circle-question me-2"></i>Help &
-                        Support</a></li>
-                <li><a class="dropdown-item" href="{% url 'instructor_account_settings' %}"><i
-                            class="fa-solid fa-gear me-2"></i>Account Settings</a></li>
-                <li>
-                    <hr class="dropdown-divider">
-                </li>
-                <li><a class="dropdown-item text-danger" href="{% url 'logout_view' %}"><i
-                            class="fa-solid fa-right-from-bracket me-2"></i>Logout</a></li>
-            </ul>
-        </div>
-    </nav>
+<nav class="topnav">
+  <a href="{% url 'instructor_dashboard' %}" class="brand">SPESH<span>WAY</span></a>
+  <div class="dropdown">
+    <button class="avatar-btn" type="button" data-bs-toggle="dropdown">{{ request.user.username|first|upper }}</button>
+    <ul class="dropdown-menu dropdown-menu-end">
+      <li><a class="dropdown-item" href="{% url 'instructor_profile_view' %}"><i class="fa-regular fa-user me-2"></i>Profile</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor:add_course' %}"><i class="fa-solid fa-plus me-2"></i>Create New Course</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor:students_list' %}"><i class="fa-solid fa-users me-2"></i>My Students</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor:calendar_view' %}"><i class="fa-regular fa-calendar me-2"></i>My Schedules</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor_notifications' %}"><i class="fa-regular fa-bell me-2"></i>Notifications</a></li>
+      <li><a class="dropdown-item" href="#"><i class="fa-solid fa-wallet me-2"></i>Earnings & Payments</a></li>
+      <li><a class="dropdown-item" href="#"><i class="fa-regular fa-circle-question me-2"></i>Help & Support</a></li>
+      <li><a class="dropdown-item" href="{% url 'instructor_account_settings' %}"><i class="fa-solid fa-gear me-2"></i>Account Settings</a></li>
+      <li><hr class="dropdown-divider"></li>
+      <li><a class="dropdown-item text-danger" href="{% url 'logout_view' %}"><i class="fa-solid fa-right-from-bracket me-2"></i>Logout</a></li>
+    </ul>
+  </div>
+</nav>
 
-    <!-- ── PAGE ─── -->
-    <div class="page-wrap">
+<div class="page-wrap">
+
+  <div class="page-header">
+    <div class="eyebrow"><i class="fa-solid fa-wand-magic-sparkles"></i> Course Creator</div>
+    <h2>Create a new <span>Course</span></h2>
+    <p>Fill in the details below, then build your course structure with modules and quizzes.</p>
+  </div>
+
+  
+  <div class="section-card">
+    <div class="section-header">
+      <div class="section-icon"><i class="fa-solid fa-book-open"></i></div>
+      <div>
+        <div class="section-title">Course Details</div>
+        <div class="section-subtitle">Basic information &amp; course thumbnail</div>
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="top-layout">
 
         
-
-        <div class="page-header">
-            <h2>Create <span>Course</span></h2>
-            <p>Fill in the details below, then build your course structure with modules, quizzes, and more.</p>
+        <div class="gap">
+          <div class="field-wrap">
+            <label class="field-label">Course Title <span class="req">*</span></label>
+            <input id="courseTitle" class="field-input" placeholder="e.g. Complete Python Bootcamp" value="{{ course_title }}">
+          </div>
+          <div class="field-wrap">
+            <label class="field-label">Description <span class="req">*</span></label>
+            <textarea id="courseDescription" class="field-textarea" placeholder="What will students learn in this course?">{{ course_description }}</textarea>
+          </div>
+          <div class="g2">
+            <div class="field-wrap">
+              <label class="field-label">Price (₹)</label>
+              <input id="coursePrice" type="number" class="field-input" placeholder="0 for free" value="{{ course_price }}">
+            </div>
+            <div class="field-wrap">
+              <label class="field-label">Category</label>
+              <div class="select-wrap">
+                <select id="courseCategory" class="field-select">
+                  <option value="" disabled selected>Select Category</option>
+                  <option value="business"    {% if course_category == 'business'    %}selected{% endif %}>Business</option>
+                  <option value="design"      {% if course_category == 'design'      %}selected{% endif %}>Design</option>
+                  <option value="music"       {% if course_category == 'music'       %}selected{% endif %}>Music</option>
+                  <option value="programming" {% if course_category == 'programming' %}selected{% endif %}>Programming</option>
+                  <option value="others"      {% if course_category == 'others'      %}selected{% endif %}>Others</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="g2">
+            <div class="field-wrap">
+              <label class="field-label">Course Level</label>
+              <div class="select-wrap">
+                <select id="courseLevel" class="field-select">
+                  <option value="" disabled selected>Select Level</option>
+                  <option value="beginner"     {% if course_level == 'beginner'     %}selected{% endif %}>Beginner</option>
+                  <option value="intermediate" {% if course_level == 'intermediate' %}selected{% endif %}>Intermediate</option>
+                  <option value="advanced"     {% if course_level == 'advanced'     %}selected{% endif %}>Advanced</option>
+                </select>
+              </div>
+            </div>
+            <div></div>
+          </div>
         </div>
 
-        <!-- ── Course Details Card ── -->
-        <div class="section-card">
-            <div class="card-top-bar"></div>
-            <div class="section-header">
-                <div class="section-icon"><i class="fa-solid fa-book-open"></i></div>
-                <div class="section-title">Course Details</div>
+        
+        <div>
+          <div style="font-size:.71rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin-bottom:6px;">
+            Thumbnail <span class="req">*</span>
+          </div>
+          <input type="file" id="thumbnailInput" accept="image/png,image/jpeg,image/webp" onchange="handleThumbnailUpload(event)">
+          <div class="thumbnail-upload-area" id="thumbUploadArea"
+               onclick="document.getElementById('thumbnailInput').click()"
+               ondragover="thumbDragOver(event)" ondragleave="thumbDragLeave(event)" ondrop="thumbDrop(event)">
+            <div class="thumb-ph" id="thumbPlaceholder">
+              <div class="thumb-ico"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+              <div class="thumb-ph-title">Upload Thumbnail</div>
+              <div class="thumb-ph-sub"><strong>Click</strong> or drag &amp; drop</div>
             </div>
-            <div class="section-body">
-
-                <div class="field-group single">
-                    <div class="field-wrap">
-                        <label class="field-label">Course Title</label>
-                        <input id="courseTitle" class="field-input" placeholder="e.g. Complete Python Bootcamp"
-                            value="{{ course_title }}">
-                    </div>
-                </div>
-
-                <div class="field-group single">
-                    <div class="field-wrap">
-                        <label class="field-label">Description</label>
-                        <textarea id="courseDescription" class="field-textarea"
-                            placeholder="What will students learn in this course?">{{ course_description }}</textarea>
-                    </div>
-                </div>
-
-                <div class="field-group">
-                    <div class="field-wrap">
-                        <label class="field-label">Price (₹)</label>
-                        <input id="coursePrice" type="number" class="field-input" placeholder="0 for free"
-                            value="{{ course_price }}">
-                    </div>
-                    <div class="field-wrap">
-                        <label class="field-label">Category</label>
-                        <div class="select-wrap">
-                            <select id="courseCategory" class="field-select">
-                                <option value="" disabled selected>Select Category</option>
-                                <option value="business" {% if course_category == 'business' %}selected{% endif %}>
-                                    Business</option>
-                                <option value="design" {% if course_category == 'design' %}selected{% endif %}>Design
-                                </option>
-                                <option value="music" {% if course_category == 'music' %}selected{% endif %}>Music
-                                </option>
-                                <option value="programming" {% if course_category == 'programming' %}selected{% endif %}>
-                                    Programming</option>
-                                <option value="others" {% if course_category == 'others' %}selected{% endif %}>Others
-                                </option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="field-group" style="margin-bottom:0;">
-                    <div class="field-wrap" style="margin-bottom:0;">
-                        <label class="field-label">Course Level</label>
-                        <div class="select-wrap">
-                            <select id="courseLevel" class="field-select">
-                                <option value="" disabled selected>Select Level</option>
-                                <option value="beginner" {% if course_level == 'beginner' %}selected{% endif %}>Beginner
-                                </option>
-                                <option value="intermediate" {% if course_level == 'intermediate' %}selected{% endif %}>
-                                    Intermediate</option>
-                                <option value="advanced" {% if course_level == 'advanced' %}selected{% endif %}>Advanced
-                                </option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="field-wrap"></div>
-                </div>
-
+            <img id="thumbPreviewImg" class="thumb-preview-img" src="" alt="" style="display:none">
+            <div class="thumb-hover-overlay">
+              <div class="thumb-hov-icon"><i class="fa-solid fa-pen"></i></div>
+              <div class="thumb-hov-text">Change</div>
             </div>
+            <button class="thumb-remove-btn" onclick="removeThumbnail(event)"><i class="fa-solid fa-xmark"></i></button>
+          </div>
         </div>
 
-        <!-- ── Module Builder Card (original HTML preserved exactly) ── -->
-        <div class="section-card delay">
-            <div class="card-top-bar"></div>
-            <div class="section-header">
-                <div class="section-icon"><i class="fa-solid fa-cubes"></i></div>
-                <div class="section-title">Module Builder</div>
-            </div>
-            <div class="section-body">
+      </div>
+    </div>
+  </div>
 
-                <div id="moduleBuilder">
-                    <div id="topRow"></div>
-                </div>
-
-                <div class="bottom-area">
-                    <div class="drag-row">
-                        <div class="draggable-btn module-btn" draggable="true" data-type="Module">Module</div>
-                        <div class="draggable-btn quiz-btn" draggable="true" data-type="Quiz">Quiz</div>
-                        <div class="draggable-btn assignment-btn" draggable="true" data-type="Assignment">Assignment
-                        </div>
-                        <div class="draggable-btn liveclass-btn" draggable="true" data-type="Live Class">Live Class
-                        </div>
-                    </div>
-                    <div class="note">💡 Drag items onto the + box to add them</div>
-                </div>
-
-            </div>
+  
+  <div class="section-card d1">
+    <div class="section-header">
+      <div class="section-icon"><i class="fa-solid fa-cubes"></i></div>
+      <div>
+        <div class="section-title">Module Builder</div>
+        <div class="section-subtitle">Drag blocks onto the + zone to build your curriculum</div>
+      </div>
+    </div>
+    <div class="section-body">
+      <div id="moduleBuilder"><div id="topRow"></div></div>
+      <div style="margin-top:20px;">
+        <div class="drag-row">
+          <div class="draggable-btn module-btn"    draggable="true" data-type="Module"><i class="fa-solid fa-layer-group me-1"></i>Module</div>
+          <div class="draggable-btn quiz-btn"       draggable="true" data-type="Quiz"><i class="fa-solid fa-circle-question me-1"></i>Quiz</div>
+          <div class="draggable-btn assignment-btn" draggable="true" data-type="Assignment"><i class="fa-solid fa-file-pen me-1"></i>Assignment</div>
         </div>
+        <div class="note">💡 Drag items onto the <strong style="color:var(--teal)">+</strong> box to add them</div>
+      </div>
+    </div>
+  </div>
 
-        <!-- ── Actions Bar ── -->
-        <div class="actions-bar">
-            <div class="hint">
-                <i class="fa-solid fa-lightbulb"></i>
-                Drag items onto the + box to add them
-            </div>
-            <div class="action-btns">
-                <button class="btn-save-course" onclick="saveCourse()">
-                    <i class="fa-solid fa-floppy-disk"></i> Save Course
-                </button>
-                <button class="btn-publish" onclick="publishCourse()">
-                    <i class="fa-solid fa-rocket"></i> Publish
-                </button>
-            </div>
-        </div>
+  
+  <div class="actions-bar d2">
+    <div class="hint"><i class="fa-solid fa-circle-info"></i>Save course before publishing</div>
+    <div class="action-btns">
+      <button class="btn-save-course" onclick="saveCourse()"><i class="fa-solid fa-floppy-disk"></i> Save Draft</button>
+      <button class="btn-publish" onclick="publishCourse()"><i class="fa-solid fa-rocket"></i> Publish Course</button>
+    </div>
+  </div>
 
     </div>
 
-    <script src="{% static 'js/add_course.js' %}"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
+<script src="{% static 'js/add_course.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+let thumbnailFile = null;
+function handleThumbnailUpload(e) { const f = e.target.files[0]; if (f) applyThumbnail(f); }
+function applyThumbnail(file) {
+  if (file.size > 5*1024*1024) { alert('Max file size is 5 MB.'); return; }
+  thumbnailFile = file;
+  const r = new FileReader();
+  r.onload = e => {
+    document.getElementById('thumbPreviewImg').src = e.target.result;
+    document.getElementById('thumbPreviewImg').style.display = 'block';
+    document.getElementById('thumbPlaceholder').style.display = 'none';
+    document.getElementById('thumbUploadArea').classList.add('has-image');
+  };
+  r.readAsDataURL(file);
+}
+function removeThumbnail(e) {
+  e.stopPropagation(); thumbnailFile = null;
+  document.getElementById('thumbPreviewImg').src = '';
+  document.getElementById('thumbPreviewImg').style.display = 'none';
+  document.getElementById('thumbPlaceholder').style.display = 'flex';
+  document.getElementById('thumbUploadArea').classList.remove('has-image');
+  document.getElementById('thumbnailInput').value = '';
+}
+function thumbDragOver(e) { e.preventDefault(); document.getElementById('thumbUploadArea').classList.add('dragging'); }
+function thumbDragLeave() { document.getElementById('thumbUploadArea').classList.remove('dragging'); }
+function thumbDrop(e) {
+  e.preventDefault(); document.getElementById('thumbUploadArea').classList.remove('dragging');
+  const f = e.dataTransfer.files[0];
+  if (f && f.type.startsWith('image/')) applyThumbnail(f);
+}
+</script>
 </body>
 
 </html>

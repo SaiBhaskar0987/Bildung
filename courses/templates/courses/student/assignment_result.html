@@ -1,104 +1,410 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Assignment Result</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Assignment Result | Speshway</title>
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 
-<style>
-body {
-    background: #f4f6f9;
-}
+  <style>
+  :root {
+    --amber:    #d97706;
+    --amber-lt: #fef3c7;
+    --amber-md: #fde68a;
+    --rust:     #b45309;
+    --cream:    #fffbf5;
+    --parchment:#fef9f0;
+    --ink:      #1c1412;
+    --muted:    #7c6f67;
+    --border:   #e8ddd4;
+    --border-lt:#f3ede6;
+    --glass:    rgba(255,251,245,0.88);
+    --shadow:   0 8px 40px rgba(28,20,18,0.10);
+    --shadow-sm:0 4px 18px rgba(28,20,18,0.07);
+    --green:    #16a34a;
+    --green-lt: #dcfce7;
+    --green-dk: #15803d;
+    --rose:     #e11d48;
+    --rose-lt:  #ffe4e6;
+    --violet:   #7c3aed;
+  }
 
-.result-card {
-    max-width: 720px;
-    margin: auto;
-    border-radius: 20px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-}
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-.score-box {
-    font-size: 48px;
-    font-weight: 800;
-    color: #0d6efd;
-}
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: var(--cream); color: var(--ink);
+    min-height: 100vh; overflow-x: hidden;
+  }
 
-.question-box {
-    background: #f8f9fa;
-    border-radius: 12px;
-    padding: 15px;
-    margin-bottom: 12px;
-    text-align: left;
-}
-</style>
+  body::before {
+    content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 85% 10%, #fde68a55 0%, transparent 60%),
+      radial-gradient(ellipse 40% 60% at 5%  90%, #fcd34d33 0%, transparent 55%),
+      radial-gradient(ellipse 50% 40% at 50% 50%, #fff7ed   0%, transparent 80%);
+  }
+
+  body::after {
+    content: ''; position: fixed; top: -120px; right: -120px;
+    width: 480px; height: 480px;
+    border: 1.5px solid rgba(217,119,6,0.14); border-radius: 50%;
+    pointer-events: none; z-index: 0; animation: spin 50s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── TOPBAR ── */
+  .topbar {
+    position: sticky; top: 0; z-index: 999;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 48px; background: var(--glass);
+    backdrop-filter: blur(16px); border-bottom: 1px solid var(--border);
+  }
+  .brand { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 24px; letter-spacing: .04em; color: var(--ink); text-decoration: none; display: flex; align-items: center; gap: 10px; }
+  .brand .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--amber); box-shadow: 0 0 0 3px rgba(217,119,6,.2); animation: pulse 2s ease-in-out infinite; }
+  @keyframes pulse { 0%,100% { box-shadow: 0 0 0 3px rgba(217,119,6,.2); } 50% { box-shadow: 0 0 0 7px rgba(217,119,6,.07); } }
+  .topbar-right { display: flex; align-items: center; gap: 18px; }
+  .avatar-btn { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, var(--amber), var(--rust)); color: white; font-size: 18px; font-weight: 700; border: none; cursor: pointer; box-shadow: 0 4px 14px rgba(180,83,9,.35); transition: transform .2s; }
+  .avatar-btn:hover { transform: scale(1.07); }
+  .dropdown-menu { border: 1px solid var(--border) !important; border-radius: 16px !important; padding: 10px !important; min-width: 230px; box-shadow: 0 24px 60px rgba(28,20,18,.12) !important; background: white !important; }
+  .dropdown-item { border-radius: 10px; padding: 10px 14px; font-size: 13.5px; font-weight: 500; color: var(--ink); transition: background .2s, color .2s, transform .2s; }
+  .dropdown-item:hover { background: var(--amber-lt); color: var(--rust); transform: translateX(4px); }
+  .dropdown-item.logout-item { color: #dc2626; }
+  .dropdown-item.logout-item:hover { background: #fef2f2; color: #b91c1c; }
+  .dropdown-divider { border-color: var(--border) !important; margin: 6px 0 !important; }
+
+  /* ── PAGE ── */
+  .page-wrap {
+    position: relative; z-index: 1;
+    max-width: 1200px; margin: 48px auto 80px; padding: 0 28px;
+    animation: fadeUp .55s ease both;
+  }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ── SPLIT GRID ── */
+  .result-grid {
+    display: grid;
+    grid-template-columns: 360px 1fr;
+    gap: 28px;
+    align-items: start;
+  }
+
+  /* ── LEFT COLUMN ── */
+  .left-col { display: flex; flex-direction: column; gap: 18px; position: sticky; top: 90px; }
+
+  .score-card {
+    background: white; border: 1px solid var(--border);
+    border-radius: 26px; box-shadow: var(--shadow);
+    overflow: hidden; text-align: center;
+  }
+  .score-card-ribbon { height: 5px; background: linear-gradient(90deg, var(--amber), #f59e0b, var(--rust)); }
+  .score-card-inner { padding: 30px 24px 0; }
+
+  .ring-wrap { position: relative; width: 150px; height: 150px; margin: 0 auto 18px; }
+  .ring-wrap svg { transform: rotate(-90deg); }
+  .ring-bg   { fill: none; stroke: var(--border-lt); stroke-width: 11; }
+  .ring-fill { fill: none; stroke-width: 11; stroke-linecap: round; transition: stroke-dashoffset 1.5s cubic-bezier(.4,0,.2,1); }
+  .ring-label { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .ring-pct { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 40px; font-weight: 800; line-height: 1; }
+  .ring-pct-sym { font-size: 20px; font-weight: 700; color: var(--muted); }
+  .ring-sublabel { font-size: 10.5px; font-weight: 700; color: var(--muted); letter-spacing: .14em; text-transform: uppercase; font-family: 'DM Mono', monospace; margin-top: 2px; }
+
+  .assign-name { font-size: 17px; font-weight: 800; color: var(--ink); margin-bottom: 3px; line-height: 1.3; }
+  .assign-sub  { font-size: 12px; color: var(--muted); margin-bottom: 20px; }
+
+  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--border-lt); background: var(--border-lt); gap: 1px; border-radius: 0 0 26px 26px; overflow: hidden; }
+  .stat-cell { background: white; padding: 16px 10px; text-align: center; }
+  .stat-num { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 22px; font-weight: 800; line-height: 1; margin-bottom: 4px; }
+  .stat-lbl { font-size: 9.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-family: 'DM Mono', monospace; }
+  .stat-cell.c-score   .stat-num { color: var(--amber); }
+  .stat-cell.c-total   .stat-num { color: var(--violet); }
+  .stat-cell.c-status  .stat-num { font-size: 13px; color: var(--green); }
+  .stat-cell.c-status.pending .stat-num { color: var(--rust); }
+
+  .result-banner { border-radius: 18px; padding: 16px 18px; display: flex; align-items: flex-start; gap: 12px; font-size: 14px; font-weight: 700; border: 1.5px solid; }
+  .result-banner.great { background: var(--green-lt); color: var(--green-dk); border-color: #86efac; }
+  .result-banner.poor  { background: var(--rose-lt);  color: var(--rose);     border-color: #fecaca; }
+  .result-banner.pending-banner { background: var(--amber-lt); color: var(--rust); border-color: var(--amber-md); }
+  .result-banner-icon { width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+  .result-banner.great .result-banner-icon { background: rgba(22,163,74,.15); }
+  .result-banner.poor  .result-banner-icon { background: rgba(225,29,72,.12); }
+  .result-banner.pending-banner .result-banner-icon { background: rgba(217,119,6,.15); }
+  .banner-sub { font-size: 12px; font-weight: 400; opacity: .85; display: block; margin-top: 3px; line-height: 1.4; }
+
+  .back-btn { display: flex; align-items: center; justify-content: center; gap: 8px; background: linear-gradient(135deg, var(--amber), var(--rust)); color: white; border: none; padding: 13px; border-radius: 14px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; font-weight: 700; text-decoration: none; box-shadow: 0 5px 18px rgba(180,83,9,.28); transition: transform .2s, box-shadow .2s; }
+  .back-btn:hover { transform: translateY(-2px); box-shadow: 0 9px 26px rgba(180,83,9,.40); color: white; }
+
+  /* ── RIGHT COLUMN ── */
+  .right-col-header { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+  .section-tag { font-size: 10px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--amber); background: var(--amber-lt); padding: 4px 12px; border-radius: 99px; font-family: 'DM Mono', monospace; }
+  .section-title { font-size: 22px; font-weight: 800; color: var(--ink); }
+
+  /* ── ANSWER CARDS ── */
+  .answer-card {
+    background: white; border: 1px solid var(--border);
+    border-radius: 20px; box-shadow: var(--shadow-sm);
+    overflow: hidden; margin-bottom: 14px;
+    transition: transform .25s, box-shadow .25s;
+    animation: fadeUp .4s ease both;
+  }
+  .answer-card:nth-child(1) { animation-delay: .00s; }
+  .answer-card:nth-child(2) { animation-delay: .05s; }
+  .answer-card:nth-child(3) { animation-delay: .10s; }
+  .answer-card:nth-child(4) { animation-delay: .15s; }
+  .answer-card:nth-child(5) { animation-delay: .20s; }
+  .answer-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+
+  /* colour left border by score tier */
+  .answer-card.tier-high   { border-left: 4px solid var(--green); }
+  .answer-card.tier-medium { border-left: 4px solid var(--amber); }
+  .answer-card.tier-low    { border-left: 4px solid var(--rose);  }
+
+  .answer-body { padding: 18px 22px; display: flex; align-items: flex-start; gap: 14px; }
+
+  .answer-icon { width: 36px; height: 36px; flex-shrink: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; margin-top: 1px; }
+  .answer-card.tier-high   .answer-icon { background: var(--green-lt); color: var(--green); }
+  .answer-card.tier-medium .answer-icon { background: var(--amber-lt); color: var(--rust);  }
+  .answer-card.tier-low    .answer-icon { background: var(--rose-lt);  color: var(--rose);  }
+
+  .answer-content { flex: 1; min-width: 0; }
+
+  .q-counter { font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); font-family: 'DM Mono', monospace; display: block; margin-bottom: 5px; }
+  .answer-q  { font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 12px; line-height: 1.4; }
+
+  .score-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+  .a-lbl { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); flex-shrink: 0; font-family: 'DM Mono', monospace; }
+
+  .score-chip { display: inline-flex; align-items: center; gap: 5px; padding: 4px 12px; border-radius: 99px; font-size: 12px; font-weight: 700; font-family: 'DM Mono', monospace; }
+  .score-chip.high   { background: var(--green-lt); color: var(--green-dk); border: 1px solid #86efac; }
+  .score-chip.medium { background: var(--amber-lt); color: var(--rust);     border: 1px solid #fde68a; }
+  .score-chip.low    { background: var(--rose-lt);  color: var(--rose);     border: 1px solid #fecaca; }
+
+  .feedback-box { background: var(--parchment); border: 1px solid var(--border-lt); border-radius: 12px; padding: 14px 16px; border-left: 3px solid var(--amber); font-size: 13.5px; color: var(--ink); line-height: 1.65; }
+  .feedback-label { font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; font-family: 'DM Mono', monospace; }
+
+  .no-answers { background: white; border: 1.5px dashed var(--border); border-radius: 20px; padding: 48px; text-align: center; color: var(--muted); }
+
+  .site-footer { position: relative; z-index: 1; border-top: 1px solid var(--border); text-align: center; padding: 20px; font-size: 13px; color: var(--muted); background: var(--glass); backdrop-filter: blur(12px); }
+
+  @media (max-width: 960px) { .result-grid { grid-template-columns: 1fr; } .left-col { position: static; } .stat-grid { grid-template-columns: repeat(4, 1fr); } }
+  @media (max-width: 600px) { .topbar { padding: 12px 20px; } .page-wrap { margin-top: 32px; } .stat-grid { grid-template-columns: 1fr 1fr; } .answer-body { gap: 10px; } }
+  </style>
 </head>
 
 <body>
 
-<div class="container py-5">
-
-<div class="card result-card border-0 p-4 text-center">
-
-<!-- ICON -->
-<div class="mb-3" style="font-size:60px;">🎉</div>
-
-<!-- TITLE -->
-<h2 class="fw-bold mb-2">Assignment Completed</h2>
-<p class="text-muted mb-4">Your submission has been evaluated</p>
-
-<!-- SCORE -->
-<div class="mb-4">
-    <div class="score-box">
-        {{ attempt.score }} %
+<nav class="topbar">
+  <a href="{% url 'student_dashboard' %}" class="brand">
+    <span class="dot"></span>Speshway
+  </a>
+  <div class="topbar-right">
+    <div class="dropdown">
+      <button class="avatar-btn" data-bs-toggle="dropdown" aria-expanded="false">
+        {{ request.user.username|first|upper }}
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end">
+        <li><a class="dropdown-item" href="{% url 'profile_view' %}"><i class="fas fa-user fa-fw me-2" style="color:var(--amber)"></i>Profile</a></li>
+        <li><a class="dropdown-item" href="{% url 'student:my_courses' %}"><i class="fas fa-book fa-fw me-2" style="color:var(--amber)"></i>My Courses</a></li>
+        <li><a class="dropdown-item" href="{% url 'student:student_upcoming_classes' %}"><i class="fas fa-calendar fa-fw me-2" style="color:var(--amber)"></i>My Schedules</a></li>
+        <li><a class="dropdown-item" href="{% url 'student_my_activity' %}"><i class="fas fa-chart-line fa-fw me-2" style="color:var(--amber)"></i>My Activity</a></li>
+        <li><a class="dropdown-item" href="{% url 'student:my_certificates' %}"><i class="fas fa-certificate fa-fw me-2" style="color:var(--amber)"></i>My Certificates</a></li>
+        <li><a class="dropdown-item" href="{% url 'student_notifications' %}"><i class="fas fa-bell fa-fw me-2" style="color:var(--amber)"></i>Notifications</a></li>
+        <li><a class="dropdown-item" href="#"><i class="fas fa-credit-card fa-fw me-2" style="color:var(--amber)"></i>Payments</a></li>
+        <li><a class="dropdown-item" href="#"><i class="fas fa-circle-question fa-fw me-2" style="color:var(--amber)"></i>Help & Support</a></li>
+        <li><a class="dropdown-item" href="{% url 'account_settings' %}"><i class="fas fa-gear fa-fw me-2" style="color:var(--amber)"></i>Account Settings</a></li>
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item logout-item" href="{% url 'logout_view' %}"><i class="fas fa-arrow-right-from-bracket fa-fw me-2"></i>Sign Out</a></li>
+      </ul>
     </div>
-    <div class="text-muted">Total Score</div>
+  </div>
+</nav>
+
+<div class="page-wrap">
+  <div class="result-grid">
+
+    <!-- ── LEFT COLUMN ── -->
+    <aside class="left-col">
+
+      <div class="score-card">
+        <div class="score-card-ribbon"></div>
+        <div class="score-card-inner">
+
+          <div class="ring-wrap">
+            <svg viewBox="0 0 150 150" width="150" height="150">
+              <circle class="ring-bg"   cx="75" cy="75" r="60"/>
+              <circle class="ring-fill" cx="75" cy="75" r="60"
+                id="scoreRing"
+                stroke-dasharray="377"
+                stroke-dashoffset="377"
+                stroke="#d97706"/>
+            </svg>
+            <div class="ring-label">
+              <span class="ring-pct" id="ringPct">—<span class="ring-pct-sym">%</span></span>
+              <span class="ring-sublabel">Score</span>
+            </div>
+          </div>
+
+          <p class="assign-name">{{ attempt.assignment.title }}</p>
+          <p class="assign-sub">Assignment evaluated — here's your result</p>
+
+        </div>
+
+        <div class="stat-grid">
+          <div class="stat-cell c-score">
+            <div class="stat-num">{{ attempt.score }}</div>
+            <div class="stat-lbl">Score %</div>
+          </div>
+          <div class="stat-cell c-total">
+            <div class="stat-num">{{ attempt.studentanswer_set.count }}</div>
+            <div class="stat-lbl">Questions</div>
+          </div>
+          <div class="stat-cell c-status {% if attempt.status != 'COMPLETED' %}pending{% endif %}">
+            <div class="stat-num">
+              {% if attempt.status == "COMPLETED" %}Done{% else %}Pending{% endif %}
+            </div>
+            <div class="stat-lbl">Status</div>
+          </div>
+          <div class="stat-cell c-score">
+            <div class="stat-num" style="font-size:13px;">
+              {{ attempt.submitted_at|date:"M d" }}
+            </div>
+            <div class="stat-lbl">Submitted</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Result banner -->
+      {% if attempt.status == "COMPLETED" %}
+        {% if attempt.score >= 70 %}
+        <div class="result-banner great">
+          <div class="result-banner-icon"><i class="fas fa-trophy"></i></div>
+          <div>
+            <div>🎉 Great work!</div>
+            <span class="banner-sub">Your assignment has been evaluated successfully.</span>
+          </div>
+        </div>
+        {% else %}
+        <div class="result-banner poor">
+          <div class="result-banner-icon"><i class="fas fa-book-open"></i></div>
+          <div>
+            <div>Keep practising!</div>
+            <span class="banner-sub">Review the feedback below and try to improve.</span>
+          </div>
+        </div>
+        {% endif %}
+      {% else %}
+      <div class="result-banner pending-banner">
+        <div class="result-banner-icon"><i class="fas fa-clock"></i></div>
+        <div>
+          <div>⏳ Evaluation pending</div>
+          <span class="banner-sub">Your instructor hasn't graded this yet. Check back soon.</span>
+        </div>
+      </div>
+      {% endif %}
+
+      <a href="{% url 'student:student_course_detail' attempt.assignment.course.id %}" class="back-btn">
+        <i class="fas fa-arrow-left"></i> Back to Course
+      </a>
+
+    </aside>
+
+    <!-- ── RIGHT COLUMN ── -->
+    <div>
+
+      <div class="right-col-header">
+        <span class="section-tag">Evaluation</span>
+        <h2 class="section-title">Question-wise Results</h2>
+      </div>
+
+      {% for ans in attempt.studentanswer_set.all %}
+      {% with score=ans.score|default:0 %}
+
+      {% if score >= 70 %}
+      <div class="answer-card tier-high">
+        <div class="answer-body">
+          <div class="answer-icon"><i class="fas fa-check"></i></div>
+          <div class="answer-content">
+            <span class="q-counter">Q{{ forloop.counter }} of {{ attempt.studentanswer_set.count }}</span>
+            <p class="answer-q">{{ ans.question.question_text }}</p>
+            <div class="score-row">
+              <span class="a-lbl">Score</span>
+              <span class="score-chip high"><i class="fas fa-chart-simple"></i> {{ ans.score }}</span>
+            </div>
+            {% if ans.feedback %}<div class="feedback-label">Feedback</div><div class="feedback-box">{{ ans.feedback }}</div>{% endif %}
+          </div>
+        </div>
+      </div>
+
+      {% elif score >= 40 %}
+      <div class="answer-card tier-medium">
+        <div class="answer-body">
+          <div class="answer-icon"><i class="fas fa-minus"></i></div>
+          <div class="answer-content">
+            <span class="q-counter">Q{{ forloop.counter }} of {{ attempt.studentanswer_set.count }}</span>
+            <p class="answer-q">{{ ans.question.question_text }}</p>
+            <div class="score-row">
+              <span class="a-lbl">Score</span>
+              <span class="score-chip medium"><i class="fas fa-chart-simple"></i> {{ ans.score }}</span>
+            </div>
+            {% if ans.feedback %}<div class="feedback-label">Feedback</div><div class="feedback-box">{{ ans.feedback }}</div>{% endif %}
+          </div>
+        </div>
+      </div>
+
+      {% else %}
+      <div class="answer-card tier-low">
+        <div class="answer-body">
+          <div class="answer-icon"><i class="fas fa-xmark"></i></div>
+          <div class="answer-content">
+            <span class="q-counter">Q{{ forloop.counter }} of {{ attempt.studentanswer_set.count }}</span>
+            <p class="answer-q">{{ ans.question.question_text }}</p>
+            <div class="score-row">
+              <span class="a-lbl">Score</span>
+              <span class="score-chip low"><i class="fas fa-chart-simple"></i> {{ ans.score }}</span>
+            </div>
+            {% if ans.feedback %}<div class="feedback-label">Feedback</div><div class="feedback-box">{{ ans.feedback }}</div>{% endif %}
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      {% endwith %}
+      {% empty %}
+      <div class="no-answers">
+        <i class="fas fa-file-slash" style="font-size:36px;color:var(--amber);opacity:.4;display:block;margin-bottom:12px;"></i>
+        <p style="font-size:14px;">No answers found for this submission.</p>
+      </div>
+      {% endfor %}
+
+    </div>
+
+  </div>
 </div>
 
-<!-- STATUS -->
-<div class="mb-4">
-{% if attempt.status == "COMPLETED" %}
-    <span class="badge bg-success px-4 py-2">COMPLETED</span>
-{% else %}
-    <span class="badge bg-warning px-4 py-2">IN PROGRESS</span>
-{% endif %}
-</div>
+<footer class="site-footer">&copy; 2025 Speshway. All rights reserved.</footer>
 
-<!-- ============================== -->
-<!-- QUESTION WISE RESULT (NEW) -->
-<!-- ============================== -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  const score = {{ attempt.score|default:0 }};
+  const ring  = document.getElementById('scoreRing');
 
-<div class="mb-4">
+  document.getElementById('ringPct').innerHTML =
+    `${score}<span class="ring-pct-sym">%</span>`;
 
-<h4 class="fw-bold mb-3">Question Wise Evaluation</h4>
+  ring.setAttribute('stroke',
+    score >= 70 ? '#16a34a' : score >= 40 ? '#d97706' : '#e11d48'
+  );
 
-{% for ans in attempt.studentanswer_set.all %}
-<div class="question-box">
-
-    <p><strong>Question:</strong><br>
-       {{ ans.question.question_text }}</p>
-
-    <p><strong>Score:</strong> {{ ans.score }}</p>
-
-    <p><strong>Feedback:</strong><br>
-       {{ ans.feedback }}</p>
-
-</div>
-{% empty %}
-<p>No answers found.</p>
-{% endfor %}
-
-</div>
-
-<!-- ACTION -->
-<a href="{% url 'student:my_courses' %}"
-   class="btn btn-primary btn-lg px-5 rounded-pill shadow-sm">
-⬅ Back to My Courses
-</a>
-
-</div>
-
-</div>
-
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      ring.style.strokeDashoffset = 377 - (377 * score / 100);
+    }, 150);
+  });
+</script>
 </body>
 </html>

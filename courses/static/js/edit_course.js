@@ -37,7 +37,6 @@ function renderStructure() {
         if (item.type === "Module") item.title = `Module ${m++}`;
         if (item.type === "Quiz") item.title = `Quiz ${q++}`;
         if (item.type === "Assignment") item.title = `Assignment ${a++}`;
-        if (item.type === "Live Class") item.title = `Live Class ${l++}`;
 
         row.insertAdjacentHTML("beforeend", generateCardHTML(item, index));
     });
@@ -57,7 +56,6 @@ function generateCardHTML(item, index) {
             ${item.type === "Module" ? "module-card" : ""}
             ${item.type === "Quiz" ? "quiz-card" : ""}
             ${item.type === "Assignment" ? "assignment-card" : ""}
-            ${item.type === "Live Class" ? "liveclass-card" : ""}
         " draggable="true" data-index="${index}">
 
             <div class="card-title">${item.title}</div>
@@ -245,8 +243,6 @@ function openAssignment(index) {
         alert("Please save the course first!");
         return;
     }
-
-    // If assignment does not exist yet, create it
     if (!item.assignment_id) {
 
         fetch(`/courses/assignment/create/`, {
@@ -264,10 +260,8 @@ function openAssignment(index) {
                 return;
             }
 
-            // Store assignment id in structure
             structure[index].assignment_id = data.assignment_id;
 
-            // Save course structure, then redirect
             saveCourse(() => {
                 window.location.href =
                     `${BASE_URL}/courses/${courseId}/assignment/${data.assignment_id}/edit/`;

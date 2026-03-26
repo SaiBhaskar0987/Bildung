@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Course Progress – SPESHWAY</title>
+<title>Course Progress</title>
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -39,7 +39,7 @@ body {
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-thumb { background: var(--teal-glow); border-radius: 99px; }
 
-/* ─── TOPNAV ─── */
+
 .topnav {
   position: sticky; top: 0; z-index: 100;
   display: flex; align-items: center; justify-content: space-between;
@@ -80,14 +80,14 @@ body {
 .dropdown-item.text-danger:hover { background: #FEE2E2; color: var(--red); }
 .dropdown-divider { border-color: var(--border) !important; }
 
-/* ─── PAGE WRAP ─── */
+
 .page-wrap {
   max-width: 960px;
   margin: 0 auto;
   padding: 40px 24px 80px;
 }
 
-/* ─── BACK LINK ─── */
+
 .back-link {
   display: inline-flex; align-items: center; gap: 7px;
   color: var(--teal); font-size: .85rem; font-weight: 600;
@@ -96,7 +96,7 @@ body {
 }
 .back-link:hover { gap: 10px; }
 
-/* ─── PAGE HEADER ─── */
+
 .page-header { margin-bottom: 28px; }
 .page-header h2 {
   font-family: 'sora', sans-serif;
@@ -106,7 +106,7 @@ body {
 .page-header h2 span { color: var(--teal); }
 .page-header p { color: var(--muted); margin-top: 5px; font-size: .88rem; }
 
-/* ─── SECTION CARD ─── */
+
 .section-card {
   background: var(--card-bg);
   border: 1px solid var(--border);
@@ -140,7 +140,7 @@ body {
   font-weight: 700; font-size: 1rem; color: var(--ink);
 }
 
-/* ─── TABLE ─── */
+
 .teal-table {
   width: 100%; border-collapse: collapse;
   font-size: .88rem;
@@ -164,7 +164,7 @@ body {
   color: var(--ink-soft); vertical-align: middle;
 }
 
-/* Avatar chip */
+
 .student-chip {
   display: inline-flex; align-items: center; gap: 10px;
 }
@@ -178,10 +178,10 @@ body {
 }
 .student-name { font-weight: 600; color: var(--ink); }
 
-/* Counters */
+
 .count-cell { font-family: 'sora', sans-serif; font-weight: 700; color: var(--ink-soft); }
 
-/* Progress bar */
+
 .progress-bar-wrap {
   display: flex; align-items: center; gap: 10px;
   min-width: 180px;
@@ -207,7 +207,7 @@ body {
 .progress-pct.mid  { color: #D97706; }
 .progress-pct.low  { color: var(--red); }
 
-/* Empty state */
+
 .empty-state {
   display: flex; flex-direction: column;
   align-items: center; padding: 52px 24px;
@@ -224,7 +224,7 @@ body {
 </head>
 <body>
 
-<!-- ── TOPNAV ─── -->
+
 <nav class="topnav">
   <a href="{% url 'instructor_dashboard' %}" class="brand">SPESH<span>WAY</span></a>
   <div class="dropdown">
@@ -246,7 +246,7 @@ body {
   </div>
 </nav>
 
-<!-- ── PAGE ─── -->
+
 <div class="page-wrap">
 
   

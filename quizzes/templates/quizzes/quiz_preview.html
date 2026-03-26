@@ -58,7 +58,7 @@
 
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* ════════ TOPBAR ════════ */
+  
   .topbar {
     position: sticky; top: 0; z-index: 999;
     display: flex; align-items: center; justify-content: space-between;
@@ -126,7 +126,7 @@
   .dropdown-item.logout-item:hover { background: #fef2f2; color: #b91c1c; }
   .dropdown-divider { border-color: var(--border); margin: 6px 0; }
 
-  /* ════════ PAGE ════════ */
+  
   .page-wrap {
     position: relative; z-index: 1;
     max-width: 800px;
@@ -140,7 +140,7 @@
     to   { opacity: 1; transform: translateY(0); }
   }
 
-  /* ── Header ── */
+  
   .quiz-header {
     display: flex; align-items: flex-start;
     justify-content: space-between; gap: 20px;
@@ -172,7 +172,7 @@
 
   .quiz-subtitle i { color: var(--amber); }
 
-  /* Edit mode banner */
+  
   .edit-banner {
     display: none;
     background: linear-gradient(135deg, var(--amber), var(--rust));
@@ -184,7 +184,7 @@
 
   .edit-banner.active { display: flex; }
 
-  /* ── Question card ── */
+  
   .q-card {
     background: white;
     border: 1px solid var(--border);
@@ -206,7 +206,7 @@
     background: linear-gradient(90deg, var(--amber), #f59e0b, var(--rust));
   }
 
-  /* edit mode — amber left border instead */
+  
   .q-card.editing {
     border-color: var(--amber);
     box-shadow: 0 0 0 3px rgba(217,119,6,.12), var(--shadow);
@@ -218,7 +218,7 @@
 
   .q-body { padding: 24px 28px 20px; }
 
-  /* Question number + text */
+  
   .q-num-row {
     display: flex; align-items: flex-start; gap: 14px;
     margin-bottom: 18px;
@@ -253,7 +253,7 @@
     box-shadow: 0 0 0 3px rgba(217,119,6,.14);
   }
 
-  /* ── Choice rows ── */
+  
   .choices-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
 
   .choice-item {
@@ -268,7 +268,7 @@
     border-color: #86efac;
   }
 
-  /* view mode */
+  
   .choice-view {
     display: flex; align-items: center; gap: 10px;
     font-size: 14.5px; color: var(--ink);
@@ -295,7 +295,7 @@
     flex-shrink: 0;
   }
 
-  /* edit mode */
+  
   .choice-edit {
     display: none;
   }
@@ -332,7 +332,7 @@
     box-shadow: 0 0 0 3px rgba(217,119,6,.14);
   }
 
-  /* ════════ ACTION BAR ════════ */
+  
   .action-bar {
     background: white; border: 1px solid var(--border);
     border-radius: 20px; padding: 20px 28px;
@@ -386,7 +386,7 @@
 
   .btn-back:hover { color: var(--rust); }
 
-  /* ── Responsive ── */
+  
   @media (max-width: 640px) {
     .topbar { padding: 12px 20px; }
     .q-body { padding: 18px 16px 14px; }
@@ -399,7 +399,7 @@
 
 <body>
 
-<!-- ════════ TOPBAR ════════ -->
+
 <nav class="topbar">
   <a href="{% url 'student_dashboard' %}" class="brand">
     <span class="dot"></span>
@@ -428,16 +428,16 @@
   </div>
 </nav>
 
-<!-- ════════ PAGE ════════ -->
+
 <div class="page-wrap">
 
-  <!-- Edit mode banner (hidden until edit clicked) -->
+  
   <div class="edit-banner" id="editBanner">
     <i class="fas fa-pen-to-square"></i>
     You are now editing this quiz. Make your changes and hit Save, or Cancel to discard.
   </div>
 
-  <!-- Header -->
+  
   <div class="quiz-header">
     <div class="quiz-header-left">
       <div class="quiz-tag"><i class="fas fa-eye"></i> Preview</div>
@@ -449,7 +449,7 @@
     </div>
   </div>
 
-  <!-- Form -->
+  
   <form method="post" id="quizForm">
     {% csrf_token %}
 
@@ -457,7 +457,7 @@
     <div class="q-card" id="qcard-{{ forloop.counter }}">
       <div class="q-body">
 
-        <!-- Question row -->
+        
         <div class="q-num-row">
           <div class="q-num">{{ forloop.counter }}</div>
 
@@ -470,12 +470,12 @@
           >{{ q.question_text }}</textarea>
         </div>
 
-        <!-- Choices -->
+        
         <ul class="choices-list">
           {% for c in q.choices.all %}
           <li class="choice-item {% if c.is_correct %}correct{% endif %}">
 
-            <!-- View mode -->
+            
             <div class="choice-view view-mode">
               <span class="choice-dot"></span>
               <span class="choice-text">{{ c.text }}</span>
@@ -484,7 +484,7 @@
               {% endif %}
             </div>
 
-            <!-- Edit mode -->
+            
             <div class="choice-edit edit-mode">
               <div class="choice-edit-inner">
                 <label class="radio-label">
@@ -513,7 +513,7 @@
     </div>
     {% endfor %}
 
-    <!-- Action bar -->
+    
     <div class="action-bar">
       <button type="button" class="btn-edit-quiz" id="editBtn">
         <i class="fas fa-pen"></i> Edit Quiz

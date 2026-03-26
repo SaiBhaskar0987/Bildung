@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Course Overview – SPESHWAY</title>
+<title>Course Overview</title>
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=sora:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 
 <style>
-/* ─── DESIGN SYSTEM ─── */
+
 :root {
   --ink:       #0F1117;
   --ink-soft:  #2C2F3A;
@@ -42,7 +42,7 @@ body {
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-thumb { background: var(--teal-glow); border-radius: 99px; }
 
-/* ─── TOPNAV ─── */
+
 .topnav {
   position: sticky; top: 0; z-index: 100;
   display: flex; align-items: center; justify-content: space-between;
@@ -83,14 +83,14 @@ body {
 .dropdown-item.text-danger:hover { background: #FEE2E2; color: var(--red); }
 .dropdown-divider { border-color: var(--border) !important; }
 
-/* ─── PAGE WRAP ─── */
+
 .page-wrap {
   max-width: 1060px;
   margin: 0 auto;
   padding: 40px 24px 80px;
 }
 
-/* ─── BACK LINK ─── */
+
 .back-link {
   display: inline-flex; align-items: center; gap: 7px;
   color: var(--teal); font-size: .85rem; font-weight: 600;
@@ -99,7 +99,7 @@ body {
 }
 .back-link:hover { gap: 10px; }
 
-/* ─── PAGE HEADER ─── */
+
 .page-header { margin-bottom: 28px; }
 .page-header h2 {
   font-family: 'sora', sans-serif;
@@ -109,7 +109,7 @@ body {
 .page-header h2 span { color: var(--teal); }
 .page-header p { color: var(--muted); margin-top: 5px; font-size: .88rem; }
 
-/* ─── TAB NAV ─── */
+
 .tab-nav {
   display: flex; flex-wrap: wrap; gap: 8px;
   margin-bottom: 24px;
@@ -135,7 +135,7 @@ body {
 }
 .tab-btn .tab-icon { font-size: .9rem; }
 
-/* ─── SECTION CARD ─── */
+
 .section-card {
   background: var(--card-bg);
   border: 1px solid var(--border);
@@ -169,7 +169,7 @@ body {
   font-weight: 700; font-size: 1rem; color: var(--ink);
 }
 
-/* ─── TABLES ─── */
+
 .teal-table {
   width: 100%; border-collapse: collapse;
   font-size: .88rem;
@@ -194,7 +194,7 @@ body {
   padding: 11px 16px; color: var(--ink-soft); vertical-align: middle;
 }
 
-/* Progress bar */
+
 .progress-bar-wrap {
   display: flex; align-items: center; gap: 10px;
 }
@@ -214,7 +214,7 @@ body {
   min-width: 36px;
 }
 
-/* Empty state */
+
 .empty-state {
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
@@ -230,7 +230,7 @@ body {
 }
 .empty-state p { font-size: .88rem; color: var(--muted); }
 
-/* ─── QUESTION CARDS ─── */
+
 .q-card {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -263,7 +263,7 @@ body {
 .q-meta strong { color: var(--ink-soft); }
 .q-time { font-size: .74rem; color: var(--muted); }
 
-/* Replies thread */
+
 .replies-thread {
   margin-top: 14px;
   padding-left: 16px;
@@ -305,7 +305,7 @@ body {
 .reply-text { font-size: .86rem; color: var(--ink-soft); margin-bottom: 3px; }
 .reply-time { font-size: .73rem; color: var(--muted); }
 
-/* Reply form */
+
 .reply-form { margin-top: 14px; }
 .reply-input-row { display: flex; gap: 8px; }
 .reply-input {
@@ -325,7 +325,7 @@ body {
 }
 .btn-reply:hover { opacity: .88; }
 
-/* ─── REVIEW CARDS ─── */
+
 .review-card {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -343,13 +343,13 @@ body {
 .review-meta { font-size: .76rem; color: var(--muted); }
 .review-meta strong { color: var(--ink-soft); }
 
-/* Section body padding */
+
 .section-body { padding: 20px 22px 24px; }
 </style>
 </head>
 <body>
 
-<!-- ── TOPNAV ─── -->
+
 <nav class="topnav">
   <a href="{% url 'instructor_dashboard' %}" class="brand">SPESH<span>WAY</span></a>
   <div class="dropdown">
@@ -371,7 +371,7 @@ body {
   </div>
 </nav>
 
-<!-- ── PAGE ─── -->
+
 <div class="page-wrap">
 
    
@@ -380,7 +380,7 @@ body {
     <p>{{ course.title }}</p>
   </div>
 
-  <!-- ── TAB NAV ── -->
+  
   <div class="tab-nav">
     <button class="tab-btn" data-section="progress">
       <i class="tab-icon fa-solid fa-chart-line"></i> Progress
@@ -399,7 +399,7 @@ body {
     </button>
   </div>
 
-  <!-- ── PROGRESS ── -->
+  
   <div id="progress" class="review-section section-card">
     <div class="card-top-bar"></div>
     <div class="section-header">
@@ -444,7 +444,7 @@ body {
     </div>
   </div>
 
-  <!-- ── COMPLETED ── -->
+  
   <div id="completed" class="review-section section-card d-none">
     <div class="card-top-bar"></div>
     <div class="section-header">
@@ -478,7 +478,7 @@ body {
     {% endif %}
   </div>
 
-  <!-- ── CERTIFICATES ── -->
+  
   <div id="downloaded" class="review-section section-card d-none">
     <div class="card-top-bar" style="background:linear-gradient(90deg,#3B82F6,#93C5FD);"></div>
     <div class="section-header">
@@ -512,7 +512,7 @@ body {
     {% endif %}
   </div>
 
-  <!-- ── QUESTIONS ── -->
+  
   <div id="questions" class="review-section section-card d-none">
     <div class="card-top-bar"></div>
     <div class="section-header">
@@ -583,7 +583,7 @@ body {
     </div>
   </div>
 
-  <!-- ── REVIEWS ── -->
+  
   <div id="reviews" class="review-section section-card d-none">
     <div class="card-top-bar" style="background:linear-gradient(90deg,#F59E0B,#FDE68A);"></div>
     <div class="section-header">
@@ -623,7 +623,7 @@ body {
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-/* ── Tab logic (100% original, unchanged) ── */
+
 function activateTab(sectionId) {
   document.querySelectorAll(".review-section")
     .forEach(sec => sec.classList.add("d-none"));

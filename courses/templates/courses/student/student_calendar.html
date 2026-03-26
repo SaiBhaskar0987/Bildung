@@ -1,207 +1,539 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Schedules</title>
+  <meta charset="UTF-8">
+  <title>My Schedules</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
 
-    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
-<style>
-    #calendar {
-        max-width: 100%;
-        margin: 0 auto;
-        font-size: 0.9rem;
-    }
+  <style>
+  :root {
+    --amber:      #d97706;
+    --amber-lt:   #fef3c7;
+    --amber-md:   #fde68a;
+    --rust:       #b45309;
+    --cream:      #fffbf5;
+    --parchment:  #fef9f0;
+    --ink:        #1c1412;
+    --ink-lt:     #4b3a32;
+    --muted:      #7c6f67;
+    --border:     #e8ddd4;
+    --border-lt:  #f3ede6;
+    --glass:      rgba(255,251,245,0.88);
+    --shadow:     0 8px 40px rgba(28,20,18,0.10);
+    --shadow-lg:  0 24px 60px rgba(28,20,18,0.14);
+    --green:      #16a34a;
+    --green-lt:   #dcfce7;
+    --green-dk:   #15803d;
+    --violet:     #7c3aed;
+    --violet-lt:  #ede9fe;
+  }
 
-    .fc .fc-toolbar-title {
-        font-size: 1.2rem;
-        font-weight: 600;
-    }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    .fc-daygrid-day-frame {
-        border-radius: 10px;
-    }
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
 
-    .fc-daygrid-day.fc-day-today {
-        background-color: rgba(13, 110, 253, 0.15) !important;
-        border-radius: 8px;
-    }
+  body::before {
+    content: '';
+    position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 85% 10%, #fde68a55 0%, transparent 60%),
+      radial-gradient(ellipse 40% 60% at 5%  90%, #fcd34d33 0%, transparent 55%),
+      radial-gradient(ellipse 50% 40% at 50% 50%, #fff7ed   0%, transparent 80%);
+  }
 
-    .fc-event {
-        border-radius: 8px !important;
-        padding: 4px 6px !important;
-        font-size: 0.8rem !important;
-        cursor: pointer;
-        border-width: 1px !important;
-        border-style: solid !important;
-    }
+  body::after {
+    content: '';
+    position: fixed; top: -120px; right: -120px;
+    width: 480px; height: 480px;
+    border: 1.5px solid rgba(217,119,6,0.14);
+    border-radius: 50%;
+    pointer-events: none; z-index: 0;
+    animation: spin 50s linear infinite;
+  }
 
-    .live-class-event {
-        background-color: #0d6efd !important;
-        border-color: #0d6efd !important;
-    }
+  @keyframes spin { to { transform: rotate(360deg); } }
 
-    .event-class {
-        background-color: #198754 !important;
-        border-color: #198754 !important;
-    }
+  
+  .topbar {
+    position: sticky; top: 0; z-index: 999;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 48px;
+    background: var(--glass); backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+  }
+  .brand { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 24px; letter-spacing: .04em; color: var(--ink); text-decoration: none; display: flex; align-items: center; gap: 10px; }
+  .brand .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--amber); box-shadow: 0 0 0 3px rgba(217,119,6,.2); animation: dotPulse 2s ease-in-out infinite; }
+  @keyframes dotPulse { 0%,100% { box-shadow: 0 0 0 3px rgba(217,119,6,.2); } 50% { box-shadow: 0 0 0 7px rgba(217,119,6,.07); } }
+  .topbar-right { display: flex; align-items: center; gap: 18px; }
+  .avatar-btn { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, var(--amber), var(--rust)); color: white; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 18px; font-weight: 700; border: none; cursor: pointer; box-shadow: 0 4px 14px rgba(180,83,9,.35); transition: transform .2s, box-shadow .2s; }
+  .avatar-btn:hover { transform: scale(1.07); box-shadow: 0 6px 20px rgba(180,83,9,.45); }
+  .dropdown-menu { border: 1px solid var(--border) !important; border-radius: 16px !important; padding: 10px !important; min-width: 230px; box-shadow: 0 24px 60px rgba(28,20,18,.12) !important; background: white !important; animation: dropIn .18s ease; }
+  @keyframes dropIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+  .dropdown-item { border-radius: 10px; padding: 10px 14px; font-size: 13.5px; font-weight: 500; color: var(--ink); transition: background .2s, color .2s, transform .2s; }
+  .dropdown-item:hover { background: var(--amber-lt); color: var(--rust); transform: translateX(4px); }
+  .dropdown-item.logout-item { color: #dc2626; }
+  .dropdown-item.logout-item:hover { background: #fef2f2; color: #b91c1c; }
+  .dropdown-divider { border-color: var(--border) !important; margin: 6px 0 !important; }
 
-</style>
+  
+  .page-wrap { position: relative; z-index: 1; max-width: 1200px; margin: 40px auto 80px; padding: 0 28px; animation: fadeUp .55s ease both; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: translateY(0); } }
 
+  .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; flex-wrap: wrap; gap: 14px; }
+  .page-heading { display: flex; align-items: center; gap: 14px; }
+  .page-tag { font-size: 10px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--amber); background: var(--amber-lt); padding: 4px 12px; border-radius: 99px; font-family: 'DM Mono', monospace; }
+  .page-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 32px; font-weight: 800; color: var(--ink); }
+
+  
+  .today-strip {
+    background: linear-gradient(135deg, var(--amber) 0%, var(--rust) 100%);
+    border-radius: 20px; padding: 20px 28px; margin-bottom: 28px;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 16px; flex-wrap: wrap; position: relative; overflow: hidden;
+  }
+  .today-strip::before { content: ''; position: absolute; top: -50px; right: -50px; width: 200px; height: 200px; border-radius: 50%; background: rgba(255,255,255,.08); pointer-events: none; }
+  .today-left { position: relative; z-index: 1; }
+  .today-label { font-size: 11px; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; color: rgba(255,255,255,.7); margin-bottom: 4px; font-family: 'DM Mono', monospace; }
+  .today-date { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 22px; font-weight: 800; color: white; line-height: 1; }
+  .today-stats { display: flex; gap: 12px; flex-wrap: wrap; position: relative; z-index: 1; }
+  .today-stat { background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.22); border-radius: 12px; padding: 10px 18px; text-align: center; backdrop-filter: blur(4px); }
+  .today-stat-num { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 22px; font-weight: 800; color: white; line-height: 1; }
+  .today-stat-lbl { font-size: 11px; color: rgba(255,255,255,.75); margin-top: 2px; font-weight: 600; letter-spacing: .04em; }
+
+  
+  .main-grid { display: grid; grid-template-columns: 1fr 320px; gap: 24px; align-items: start; }
+
+  
+  .calendar-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 26px;
+    box-shadow: var(--shadow);
+    overflow: visible;   
+  }
+  .calendar-card-ribbon { height: 5px; background: linear-gradient(90deg, var(--amber), #f59e0b, var(--rust)); border-radius: 26px 26px 0 0; }
+  .calendar-card-topbar { display: flex; align-items: center; justify-content: space-between; padding: 18px 24px 0; gap: 12px; flex-wrap: wrap; }
+  .calendar-card-topbar-title { font-size: 16px; font-weight: 700; color: var(--ink); }
+  .legend { display: flex; gap: 10px; flex-wrap: wrap; }
+  .legend-item { display: inline-flex; align-items: center; gap: 6px; background: var(--parchment); border: 1px solid var(--border); border-radius: 99px; padding: 4px 12px; font-size: 12px; font-weight: 600; color: var(--ink); }
+  .legend-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+  .calendar-inner { padding: 16px 20px 24px; }
+
+  .fc .fc-toolbar { margin-bottom: 14px !important; }
+  .fc .fc-toolbar-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 17px; font-weight: 800; color: var(--ink); }
+
+  .fc .fc-button-primary {
+    background: white !important; border: 1.5px solid var(--border) !important;
+    color: var(--ink) !important; border-radius: 10px !important;
+    padding: 6px 14px !important; box-shadow: none !important;
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+    font-weight: 600 !important; font-size: 13px !important;
+    transition: all .2s !important;
+  }
+  .fc .fc-button-primary:hover { background: var(--amber-lt) !important; border-color: var(--amber) !important; color: var(--rust) !important; }
+  .fc .fc-button-primary:not(:disabled):active,
+  .fc .fc-button-primary:not(:disabled).fc-button-active { background: var(--amber) !important; border-color: var(--amber) !important; color: white !important; box-shadow: 0 3px 10px rgba(180,83,9,.25) !important; }
+  .fc .fc-button:focus { box-shadow: none !important; outline: none !important; }
+
+  .fc .fc-col-header-cell { background: var(--parchment); border-color: var(--border-lt) !important; padding: 6px 0 !important; }
+  .fc .fc-col-header-cell-cushion { font-family: 'DM Mono', monospace; font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); text-decoration: none !important; }
+  
+  .fc td, .fc th { border-color: var(--border-lt) !important; }
+  .fc .fc-daygrid-day { background: #fff !important; transition: background .15s; }
+  .fc .fc-daygrid-day:hover { background: var(--parchment) !important; }
+  .fc .fc-day-today { background: var(--amber-lt) !important; }
+  .fc .fc-day-other { background: #fff !important; opacity: .5; }
+  
+  .fc .fc-daygrid-day-frame { min-height: 80px !important; }
+
+  .fc .fc-day-today .fc-daygrid-day-number {
+    background: var(--amber) !important;
+    color: white !important;
+    border-radius: 50% !important;
+    width: 26px; height: 26px;
+    display: inline-flex !important; align-items: center; justify-content: center;
+    font-weight: 800 !important; font-size: 12px !important;
+    margin: 3px !important;
+  }
+  .fc .fc-daygrid-day-number { color: var(--ink-lt) !important; font-size: 12px !important; font-weight: 600 !important; text-decoration: none !important; padding: 4px 6px !important; }
+  .fc .fc-day-other .fc-daygrid-day-number { color: var(--border) !important; }
+
+  
+  .fc * { box-shadow: none !important; }
+  
+  .fc .fc-event {
+    border-radius: 6px !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    cursor: pointer;
+    border: none !important;           
+    padding: 3px 7px !important;       
+    margin: 1px 2px 2px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    line-height: 1.4 !important;
+    display: block !important;
+  }
+  .fc .fc-event:hover { opacity: .88; transform: translateY(-1px); }
+
+  .fc .live-class-event {
+    background: #d97706 !important;     
+    color: var(--rust) !important;
+    border-left: 3px solid var(--amber) !important;
+  }
+
+  .fc .event-class {
+    background: #16a34a !important;     
+    color: var(--green-dk) !important;
+    border-left: 3px solid var(--green) !important;
+  }
+
+  .fc .fc-more-link { color: var(--amber) !important; font-weight: 700 !important; font-size: 11px !important; text-decoration: none !important; }
+
+  .sidebar { display: flex; flex-direction: column; gap: 20px; }
+
+  .stat-strip { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .stat-chip { background: white; border: 1px solid var(--border); border-radius: 18px; padding: 18px 16px; text-align: center; box-shadow: var(--shadow); position: relative; overflow: hidden; transition: transform .2s, box-shadow .2s; }
+  .stat-chip:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+  .stat-chip::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+  .stat-chip:nth-child(1)::before { background: linear-gradient(90deg, var(--amber), #f59e0b); }
+  .stat-chip:nth-child(2)::before { background: linear-gradient(90deg, var(--green), #4ade80); }
+  .stat-chip:nth-child(3)::before { background: linear-gradient(90deg, var(--violet), #a855f7); }
+  .stat-chip:nth-child(4)::before { background: linear-gradient(90deg, #0284c7, #38bdf8); }
+  .stat-chip-icon { font-size: 20px; margin-bottom: 8px; }
+  .stat-chip:nth-child(1) .stat-chip-icon { color: var(--amber); }
+  .stat-chip:nth-child(2) .stat-chip-icon { color: var(--green); }
+  .stat-chip:nth-child(3) .stat-chip-icon { color: var(--violet); }
+  .stat-chip:nth-child(4) .stat-chip-icon { color: #0284c7; }
+  .stat-chip-num { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 26px; font-weight: 800; color: var(--ink); line-height: 1; margin-bottom: 3px; }
+  .stat-chip-lbl { font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-family: 'DM Mono', monospace; }
+
+  
+  .upcoming-card { background: white; border: 1px solid var(--border); border-radius: 22px; overflow: hidden; box-shadow: var(--shadow); }
+  .upcoming-ribbon { height: 4px; background: linear-gradient(90deg, var(--amber), #f59e0b, var(--rust)); }
+  .upcoming-header { padding: 16px 20px 12px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border-lt); }
+  .upcoming-header-icon { width: 32px; height: 32px; border-radius: 10px; background: var(--amber-lt); color: var(--rust); display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+  .upcoming-header h3 { font-size: 14px; font-weight: 800; color: var(--ink); }
+  .upcoming-header span { font-size: 11px; color: var(--muted); font-weight: 500; }
+  .upcoming-list { padding: 8px 12px 12px; }
+
+  .event-row { display: flex; align-items: flex-start; gap: 12px; padding: 10px 10px; border-radius: 14px; cursor: pointer; transition: background .2s, transform .2s; margin-bottom: 2px; }
+  .event-row:hover { background: var(--parchment); transform: translateX(3px); }
+  .event-row:last-child { margin-bottom: 0; }
+  .event-row-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+  .event-row-dot.live  { background: var(--amber); box-shadow: 0 0 0 3px rgba(217,119,6,.18); }
+  .event-row-dot.event { background: var(--green);  box-shadow: 0 0 0 3px rgba(22,163,74,.18); }
+  .event-row-body { flex: 1; min-width: 0; }
+  .event-row-title { font-size: 13px; font-weight: 700; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 2px; }
+  .event-row-sub { font-size: 11px; color: var(--muted); display: flex; gap: 8px; flex-wrap: wrap; }
+  .event-row-sub span { display: flex; align-items: center; gap: 3px; }
+  .event-row-badge { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 99px; flex-shrink: 0; margin-top: 2px; white-space: nowrap; font-family: 'DM Mono', monospace; }
+  .event-row-badge.live  { background: var(--amber-lt); color: var(--rust); }
+  .event-row-badge.event { background: var(--green-lt);  color: var(--green-dk); }
+
+  .upcoming-empty { padding: 28px 16px; text-align: center; color: var(--muted); }
+  .upcoming-empty i { font-size: 28px; color: var(--amber); opacity: .4; display: block; margin-bottom: 10px; }
+  .upcoming-empty p { font-size: 13px; }
+
+  
+  .modal-content { border: 1px solid var(--border); border-radius: 24px; overflow: hidden; box-shadow: var(--shadow-lg); }
+  .modal-header { background: linear-gradient(135deg, var(--amber), var(--rust)); border-bottom: none; padding: 20px 26px; position: relative; overflow: hidden; }
+  .modal-header::before { content: ''; position: absolute; top: -40px; right: -40px; width: 140px; height: 140px; border-radius: 50%; background: rgba(255,255,255,.08); pointer-events: none; }
+  .modal-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 18px; font-weight: 800; color: white; position: relative; z-index: 1; }
+  .modal-type-badge { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: rgba(255,255,255,.8); background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.25); padding: 2px 10px; border-radius: 99px; display: inline-block; margin-bottom: 6px; position: relative; z-index: 1; font-family: 'DM Mono', monospace; }
+  .btn-close-white { filter: brightness(0) invert(1); opacity: .8; }
+  .modal-body { padding: 24px 26px; }
+  .modal-field { display: flex; align-items: flex-start; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--border-lt); }
+  .modal-field:last-child { border-bottom: none; }
+  .modal-field-icon { width: 34px; height: 34px; border-radius: 10px; background: var(--amber-lt); color: var(--rust); display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; }
+  .modal-field-body { flex: 1; }
+  .modal-field-label { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 2px; font-family: 'DM Mono', monospace; }
+  .modal-field-value { font-size: 14px; font-weight: 600; color: var(--ink); }
+  .modal-footer { border-top: 1px solid var(--border-lt); padding: 16px 26px; background: var(--parchment); gap: 10px; }
+  .btn-join { display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(135deg, var(--amber), var(--rust)); color: white; border: none; padding: 11px 26px; border-radius: 12px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; font-weight: 700; text-decoration: none; transition: transform .2s, box-shadow .2s; }
+  .btn-join:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(180,83,9,.40); color: white; }
+  .btn-close-modal { background: white; color: var(--muted); border: 1.5px solid var(--border); padding: 10px 22px; border-radius: 12px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: background .2s, color .2s, border-color .2s; }
+  .btn-close-modal:hover { background: var(--amber-lt); color: var(--rust); border-color: var(--amber); }
+
+  .site-footer { position: relative; z-index: 1; border-top: 1px solid var(--border); background: var(--glass); backdrop-filter: blur(12px); text-align: center; padding: 20px; font-size: 13px; color: var(--muted); }
+
+  @media (max-width: 900px) { .main-grid { grid-template-columns: 1fr; } .sidebar { display: grid; grid-template-columns: 1fr 1fr; } .upcoming-card { grid-column: 1 / -1; } }
+  @media (max-width: 600px) { .topbar { padding: 12px 20px; } .page-wrap { margin-top: 28px; } .stat-strip { grid-template-columns: 1fr 1fr; } .sidebar { grid-template-columns: 1fr; } .calendar-inner { padding: 10px; } }
+  </style>
 </head>
 
-<body class="bg-light">
+<body>
 
-    <div class="d-flex justify-content-between align-items-center p-3 bg-white shadow-sm">
-        <a href="{% url 'student_dashboard' %}" class="text-decoration-none text-dark">
-            <h3 class="m-0 fw-bold">Speshway</h3>
-        </a>
+<nav class="topbar">
+  <a href="{% url 'student_dashboard' %}" class="brand">
+    <span class="dot"></span>Speshway
+  </a>
+  <div class="topbar-right">
+    <div class="dropdown">
+      <button class="avatar-btn" data-bs-toggle="dropdown" aria-expanded="false">
+        {{ request.user.username|first|upper }}
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end">
+        <li><a class="dropdown-item" href="{% url 'profile_view' %}"><i class="fas fa-user fa-fw me-2" style="color:var(--amber)"></i>Profile</a></li>
+        <li><a class="dropdown-item" href="{% url 'student:my_courses' %}"><i class="fas fa-book fa-fw me-2" style="color:var(--amber)"></i>My Courses</a></li>
+        <li><a class="dropdown-item" href="{% url 'student:student_upcoming_classes' %}"><i class="fas fa-calendar fa-fw me-2" style="color:var(--amber)"></i>My Schedules</a></li>
+        <li><a class="dropdown-item" href="{% url 'student_my_activity' %}"><i class="fas fa-chart-line fa-fw me-2" style="color:var(--amber)"></i>My Activity</a></li>
+        <li><a class="dropdown-item" href="{% url 'student:my_certificates' %}"><i class="fas fa-certificate fa-fw me-2" style="color:var(--amber)"></i>My Certificates</a></li>
+        <li><a class="dropdown-item" href="{% url 'student_notifications' %}"><i class="fas fa-bell fa-fw me-2" style="color:var(--amber)"></i>Notifications</a></li>
+        <li><a class="dropdown-item" href="#"><i class="fas fa-credit-card fa-fw me-2" style="color:var(--amber)"></i>Payments</a></li>
+        <li><a class="dropdown-item" href="#"><i class="fas fa-circle-question fa-fw me-2" style="color:var(--amber)"></i>Help & Support</a></li>
+        <li><a class="dropdown-item" href="{% url 'account_settings' %}"><i class="fas fa-gear fa-fw me-2" style="color:var(--amber)"></i>Account Settings</a></li>
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item logout-item" href="{% url 'logout_view' %}"><i class="fas fa-arrow-right-from-bracket fa-fw me-2"></i>Sign Out</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
 
-        <div class="d-flex align-items-center gap-3">
-            <h4 class="m-0">Hello, {{ user.first_name }} {{ user.last_name }}</h4>
+<div class="page-wrap">
 
-            <div class="dropdown">
-                <button class="btn rounded-circle shadow"
-                        style="background:gray;color:white;width:45px;height:45px;"
-                        type="button" data-bs-toggle="dropdown">
-                    {{ request.user.username|first|upper }}
-                </button>
+  <div class="page-header">
+    <div class="page-heading">
+      <span class="page-tag">Calendar</span>
+      <h1 class="page-title">My Schedules</h1>
+    </div>
+  </div>
 
-                <ul class="dropdown-menu dropdown-menu-end">
-                    <li><a class="dropdown-item" href="{% url 'profile_view' %}">Profile</a></li>
-                    <li><a class="dropdown-item" href="{% url 'student:my_courses' %}">My Courses</a></li>
-                    <li><a class="dropdown-item" href="{% url 'student:student_upcoming_classes' %}">My_schedules</a></li>
-                    <li><a class="dropdown-item" href="{% url 'student_my_activity' %}">My activity</a></li>
-                    <li><a class="dropdown-item" href="{% url 'student:my_certificates' %}">My Certificates</a></li>
-                    <li><a class="dropdown-item" href="{% url 'student_notifications' %}">Notifications</a></li>
-                    <li><a class="dropdown-item" href="#">Payments</a></li>
-                    <li><a class="dropdown-item" href="#">Help and Support</a></li>      
-                    <li><a class="dropdown-item" href="{% url 'account_settings' %}">Account Settings</a></li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item text-danger" href="{% url 'logout_view' %}">Logout</a></li>
-                </ul>
-            </div>
+  <div class="today-strip">
+    <div class="today-left">
+      <div class="today-label">Today</div>
+      <div class="today-date" id="todayDateStr">—</div>
+    </div>
+  </div>
+
+  <div class="main-grid">
+
+    
+    <div class="calendar-card">
+      <div class="calendar-card-ribbon"></div>
+      <div class="calendar-card-topbar">
+        <span class="calendar-card-topbar-title">Monthly View</span>
+        <div class="legend">
+          <span class="legend-item"><span class="legend-dot" style="background:var(--amber);"></span> Live Class</span>
+          <span class="legend-item"><span class="legend-dot" style="background:var(--green);"></span> Event</span>
         </div>
+      </div>
+      <div class="calendar-inner">
+        <div id="calendar"></div>
+      </div>
     </div>
 
-    <div class="container py-4">
-        <div class="text-center mb-4">
-            <h3 class="text-primary">🗓 Upcoming Live Classes and Events</h3>
-        </div>
+    <aside class="sidebar">
 
-        <div class="shadow-sm border-0 p-4 mx-auto" style="max-width: 500px;">
-            <div id="calendar"></div>
+      <div class="stat-strip">
+        <div class="stat-chip">
+          <div class="stat-chip-icon"><i class="fas fa-video"></i></div>
+          <div class="stat-chip-num" id="statLive">—</div>
+          <div class="stat-chip-lbl">Live Classes</div>
         </div>
+        <div class="stat-chip">
+          <div class="stat-chip-icon"><i class="fas fa-calendar-check"></i></div>
+          <div class="stat-chip-num" id="statEvents">—</div>
+          <div class="stat-chip-lbl">Events</div>
+        </div>
+        <div class="stat-chip">
+          <div class="stat-chip-icon"><i class="fas fa-clock-rotate-left"></i></div>
+          <div class="stat-chip-num" id="statThisMonth">—</div>
+          <div class="stat-chip-lbl">This Month</div>
+        </div>
+        <div class="stat-chip">
+          <div class="stat-chip-icon"><i class="fas fa-bolt"></i></div>
+          <div class="stat-chip-num" id="statNext7">—</div>
+          <div class="stat-chip-lbl">Next 7 Days</div>
+        </div>
+      </div>
+
+      <div class="upcoming-card">
+        <div class="upcoming-ribbon"></div>
+        <div class="upcoming-header">
+          <div class="upcoming-header-icon"><i class="fas fa-calendar-days"></i></div>
+          <div>
+            <h3>Upcoming</h3>
+            <span>Next sessions</span>
+          </div>
+        </div>
+        <div class="upcoming-list" id="upcomingList">
+          <div class="upcoming-empty">
+            <i class="fas fa-calendar-xmark"></i>
+            <p>No upcoming events</p>
+          </div>
+        </div>
+      </div>
+
+    </aside>
+
+  </div>
+</div>
+
+<footer class="site-footer">&copy; 2025 Speshway. All rights reserved.</footer>
+
+
+<div class="modal fade" id="classModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" style="max-width:480px;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div style="position:relative;z-index:1;flex:1;">
+          <div class="modal-type-badge" id="modalTypeBadge">Live Class</div>
+          <h5 class="modal-title" id="classModalLabel">Class Details</h5>
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-field">
+          <div class="modal-field-icon"><i class="fas fa-graduation-cap"></i></div>
+          <div class="modal-field-body">
+            <div class="modal-field-label">Course</div>
+            <div class="modal-field-value" id="modalCourseTitle">—</div>
+          </div>
+        </div>
+        <div class="modal-field">
+          <div class="modal-field-icon"><i class="fas fa-book-open"></i></div>
+          <div class="modal-field-body">
+            <div class="modal-field-label">Topic</div>
+            <div class="modal-field-value" id="modalTopic">—</div>
+          </div>
+        </div>
+        <div class="modal-field">
+          <div class="modal-field-icon"><i class="fas fa-chalkboard-user"></i></div>
+          <div class="modal-field-body">
+            <div class="modal-field-label">Instructor</div>
+            <div class="modal-field-value" id="modalInstructor">—</div>
+          </div>
+        </div>
+        <div class="modal-field">
+          <div class="modal-field-icon"><i class="fas fa-clock"></i></div>
+          <div class="modal-field-body">
+            <div class="modal-field-label">Date & Time</div>
+            <div class="modal-field-value" id="modalTime">—</div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <a id="modalCourseLink" href="#" class="btn-join"><i class="fas fa-video"></i> Join Class</a>
+        <button type="button" class="btn-close-modal" data-bs-dismiss="modal">Close</button>
+      </div>
     </div>
+  </div>
+</div>
 
-    <!-- MODAL -->
-    <div class="modal fade" id="classModal" tabindex="-1" aria-labelledby="classModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content rounded-4 shadow">
-
-                <div class="modal-header bg-primary text-white rounded-top-4">
-                    <h5 class="modal-title" id="classModalLabel">Live Class Details</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-
-                <div class="modal-body">
-                    <h6 class="fw-bold text-primary" id="modalCourseTitle"></h6>
-
-                    <p class="text-muted mb-2">
-                        <strong>Topic:</strong> <span id="modalTopic"></span>
-                    </p>
-
-                    <p class="text-muted mb-2">
-                        <strong>Instructor:</strong> <span id="modalInstructor"></span>
-                    </p>
-
-                    <p class="text-muted mb-0">
-                        <strong>Date & Time:</strong> <span id="modalTime"></span>
-                    </p>
-                </div>
-
-                <div class="modal-footer">
-                    <a id="modalCourseLink" href="#" class="btn btn-outline-primary">Join</a>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
-
-            </div>
-        </div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
 
-    const calendarEl = document.getElementById('calendar');
-    const events = JSON.parse('{{ events_json|safe }}');  
+  const allEvents = JSON.parse('{{ events_json|safe }}');
+  const now       = new Date();
 
-    const calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: 'dayGridMonth',
-        height: 500,
+  // Today date string
+  const todayEl = document.getElementById('todayDateStr');
+  if (todayEl) todayEl.textContent = now.toLocaleDateString([], { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
-        headerToolbar: {
-            left: 'prev,next',
-            center: 'title',
-            right: ''
-        },
+  // Stats
+  const liveClasses   = allEvents.filter(e => e.extendedProps?.type === 'live_class');
+  const otherEvents   = allEvents.filter(e => e.extendedProps?.type !== 'live_class');
+  const thisMonthEvts = allEvents.filter(e => { const d = new Date(e.start); return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear(); });
+  const next7Evts     = allEvents.filter(e => { const d = new Date(e.start); const diff = (d - now) / 86400000; return diff >= 0 && diff <= 7; });
 
-        events: events,
+  document.getElementById('statLive').textContent      = liveClasses.length;
+  document.getElementById('statEvents').textContent    = otherEvents.length;
+  document.getElementById('statThisMonth').textContent = thisMonthEvts.length;
+  document.getElementById('statNext7').textContent     = next7Evts.length;
 
-        eventDisplay: "block",
+  // Upcoming list
+  const upcomingList  = document.getElementById('upcomingList');
+  const upcoming      = allEvents.filter(e => new Date(e.start) >= now);
+  const sortedUpcoming = upcoming.slice().sort((a,b) => new Date(a.start)-new Date(b.start)).slice(0,8);
 
-        eventContent: info => ({
-            html: `<div style="font-weight:600;">${info.event.title}</div>`
-        }),
-
-        eventClick: function(info) {
-            const props = info.event.extendedProps;
-            const date = new Date(info.event.start);
-
-            const modal = new bootstrap.Modal(document.getElementById('classModal'));
-
-            document.getElementById('modalCourseTitle').textContent = props.course_name;
-
-            document.getElementById('modalTopic').textContent = props.topic || props.event_title || "N/A";
-
-            // Instructor
-            document.getElementById('modalInstructor').textContent =
-                props.instructor || "N/A";
-
-            document.getElementById('modalTime').textContent =
-                date.toLocaleString([], {
-                    weekday: 'long',
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
-
-            const joinBtn = document.getElementById('modalCourseLink');
-
-            if (props.type === "live_class") {
-                joinBtn.textContent = "Join Class";
-                joinBtn.className = "btn btn-success";
-                joinBtn.href = props.join_link || "#";
-
-            } else {
-                joinBtn.textContent = "Event Details";
-                joinBtn.className = "btn btn-primary";
-                joinBtn.href = props.event_link || "#";
-            }
-
-            modal.show();
-        }
+  if (sortedUpcoming.length > 0) {
+    upcomingList.innerHTML = '';
+    sortedUpcoming.forEach(evt => {
+      const d = new Date(evt.start);
+      const isLive = evt.extendedProps?.type === 'live_class';
+      const row = document.createElement('div');
+      row.className = 'event-row';
+      row.innerHTML = `
+        <span class="event-row-dot ${isLive ? 'live' : 'event'}"></span>
+        <div class="event-row-body">
+          <div class="event-row-title">${evt.title}</div>
+          <div class="event-row-sub">
+            <span><i class="fas fa-calendar" style="color:var(--amber);font-size:10px;"></i> ${d.toLocaleDateString([], {month:'short',day:'numeric'})}</span>
+            <span><i class="fas fa-clock" style="color:var(--amber);font-size:10px;"></i> ${d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</span>
+          </div>
+        </div>
+        <span class="event-row-badge ${isLive ? 'live' : 'event'}">${isLive ? 'Live' : 'Event'}</span>
+      `;
+      row.addEventListener('click', () => openModal(evt));
+      upcomingList.appendChild(row);
     });
+  }
 
-    calendar.render();
+  function openModal(evt) {
+    const props  = evt.extendedProps || {};
+    const start  = new Date(evt.start);
+    const isLive = props.type === 'live_class';
+    document.getElementById('modalTypeBadge').textContent   = isLive ? '🔴 Live Class' : '📅 Event';
+    document.getElementById('modalCourseTitle').textContent = props.course_name || '—';
+    document.getElementById('modalTopic').textContent       = props.topic || props.event_title || '—';
+    document.getElementById('modalInstructor').textContent  = props.instructor || '—';
+    document.getElementById('modalTime').textContent        = start.toLocaleString([], {weekday:'long',year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+    const joinBtn = document.getElementById('modalCourseLink');
+    joinBtn.innerHTML = isLive ? '<i class="fas fa-video"></i> Join Class' : '<i class="fas fa-arrow-right"></i> Event Details';
+    joinBtn.href = (isLive ? props.join_link : props.event_link) || '#';
+    new bootstrap.Modal(document.getElementById('classModal')).show();
+  }
+
+  // Calendar
+  const calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
+    initialView: 'dayGridMonth',
+    height: 'auto',
+    fixedWeekCount: false,          
+    showNonCurrentDates: false,     
+    headerToolbar: { left: 'prev,next today', center: 'title', right: '' },
+    buttonText: { today: 'Today' },
+    events: allEvents,
+    eventDisplay: 'block',
+    dayMaxEvents: 3,
+
+    eventClassNames: info =>
+      info.event.extendedProps.type === 'live_class' ? ['live-class-event'] : ['event-class'],
+
+    
+    eventContent: info => ({
+      html: `<span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;">
+               <i class="fas ${info.event.extendedProps.type === 'live_class' ? 'fa-video' : 'fa-calendar-check'}"
+                  style="font-size:9px;margin-right:3px;opacity:.8;"></i>${info.event.title}
+             </span>`
+    }),
+
+    eventClick: function(info) {
+      openModal({
+        title: info.event.title,
+        start: info.event.start,
+        extendedProps: info.event.extendedProps
+      });
+    }
+  });
+
+  calendar.render();
 });
 </script>
-
 </body>
 </html>

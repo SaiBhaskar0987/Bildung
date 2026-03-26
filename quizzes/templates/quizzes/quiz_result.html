@@ -5,34 +5,39 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{ quiz.title }} — Result | SPESHWAY</title>
+  <title>{{ quiz.title }} — Result | Speshway</title>
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 
   <style>
   :root {
     --amber:    #d97706;
     --amber-lt: #fef3c7;
+    --amber-md: #fde68a;
     --rust:     #b45309;
     --cream:    #fffbf5;
+    --parchment:#fef9f0;
     --ink:      #1c1412;
     --muted:    #7c6f67;
     --border:   #e8ddd4;
-    --glass:    rgba(255,251,245,0.82);
+    --border-lt:#f3ede6;
+    --glass:    rgba(255,251,245,0.88);
     --shadow:   0 8px 40px rgba(28,20,18,0.10);
+    --shadow-sm:0 4px 18px rgba(28,20,18,0.07);
     --green:    #16a34a;
     --green-lt: #dcfce7;
+    --green-dk: #15803d;
     --rose:     #e11d48;
     --rose-lt:  #ffe4e6;
+    --violet:   #7c3aed;
   }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
-    /* FIX: font name with spaces must be quoted */
-    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     background: var(--cream);
     color: var(--ink);
     min-height: 100vh;
@@ -41,27 +46,24 @@
 
   body::before {
     content: '';
-    position: fixed; inset: 0;
+    position: fixed; inset: 0; pointer-events: none; z-index: 0;
     background:
       radial-gradient(ellipse 60% 50% at 85% 10%, #fde68a55 0%, transparent 60%),
-      radial-gradient(ellipse 40% 60% at 5% 90%,  #fcd34d33 0%, transparent 55%),
+      radial-gradient(ellipse 40% 60% at 5%  90%, #fcd34d33 0%, transparent 55%),
       radial-gradient(ellipse 50% 40% at 50% 50%, #fff7ed   0%, transparent 80%);
-    pointer-events: none; z-index: 0;
   }
 
   body::after {
     content: '';
     position: fixed; top: -120px; right: -120px;
-    width: 420px; height: 420px;
-    border: 1.5px solid rgba(217,119,6,0.18);
+    width: 480px; height: 480px;
+    border: 1.5px solid rgba(217,119,6,0.14);
     border-radius: 50%;
     pointer-events: none; z-index: 0;
-    animation: spin 40s linear infinite;
+    animation: spin 50s linear infinite;
   }
 
   @keyframes spin { to { transform: rotate(360deg); } }
-
-  /* ════════ TOPBAR ════════ */
   .topbar {
     position: sticky; top: 0; z-index: 999;
     display: flex; align-items: center; justify-content: space-between;
@@ -72,9 +74,9 @@
   }
 
   .brand {
-    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
-    font-weight: 700; font-size: 26px;
-    letter-spacing: .06em; color: var(--ink);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 800; font-size: 24px;
+    letter-spacing: .04em; color: var(--ink);
     text-decoration: none;
     display: flex; align-items: center; gap: 10px;
   }
@@ -96,45 +98,37 @@
   .avatar-btn {
     width: 44px; height: 44px; border-radius: 50%;
     background: linear-gradient(135deg, var(--amber), var(--rust));
-    color: white; font-family: 'Cormorant Garamond', serif;
-    font-size: 18px; font-weight: 700;
+    color: white; font-size: 18px; font-weight: 700;
     border: none; cursor: pointer;
     box-shadow: 0 4px 14px rgba(180,83,9,.35);
-    transition: transform .2s, box-shadow .2s;
+    transition: transform .2s;
   }
 
-  .avatar-btn:hover { transform: scale(1.07); box-shadow: 0 6px 20px rgba(180,83,9,.45); }
+  .avatar-btn:hover { transform: scale(1.07); }
 
   .dropdown-menu {
-    border: 1px solid var(--border); border-radius: 16px;
-    padding: 10px; min-width: 230px;
-    box-shadow: 0 24px 60px rgba(28,20,18,0.12);
-    background: white; animation: dropIn .18s ease;
-  }
-
-  @keyframes dropIn {
-    from { opacity: 0; transform: translateY(-8px); }
-    to   { opacity: 1; transform: translateY(0); }
+    border: 1px solid var(--border) !important;
+    border-radius: 16px !important;
+    padding: 10px !important; min-width: 230px;
+    box-shadow: 0 24px 60px rgba(28,20,18,.12) !important;
+    background: white !important;
   }
 
   .dropdown-item {
     border-radius: 10px; padding: 10px 14px;
     font-size: 13.5px; font-weight: 500; color: var(--ink);
-    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
     transition: background .2s, color .2s, transform .2s;
   }
 
   .dropdown-item:hover { background: var(--amber-lt); color: var(--rust); transform: translateX(4px); }
   .dropdown-item.logout-item { color: #dc2626; }
   .dropdown-item.logout-item:hover { background: #fef2f2; color: #b91c1c; }
-  .dropdown-divider { border-color: var(--border); margin: 6px 0; }
-
-  /* ════════ PAGE ════════ */
+  .dropdown-divider { border-color: var(--border) !important; margin: 6px 0 !important; }
   .page-wrap {
     position: relative; z-index: 1;
-    max-width: 760px;
-    margin: 52px auto 80px;
-    padding: 0 24px;
+    max-width: 1200px;
+    margin: 48px auto 80px;
+    padding: 0 28px;
     animation: fadeUp .55s ease both;
   }
 
@@ -143,151 +137,191 @@
     to   { opacity: 1; transform: translateY(0); }
   }
 
-  /* ════════ SCORE CARD ════════ */
+  /* ══════════════════════════════════
+     SPLIT GRID
+  ══════════════════════════════════ */
+  .result-grid {
+    display: grid;
+    grid-template-columns: 360px 1fr;
+    gap: 28px;
+    align-items: start;
+  }
+
+  /* ══════════════════════════════════
+     LEFT COLUMN
+  ══════════════════════════════════ */
+  .left-col {
+    display: flex; flex-direction: column; gap: 18px;
+    position: sticky; top: 90px;
+  }
+
   .score-card {
     background: white;
     border: 1px solid var(--border);
     border-radius: 26px;
     box-shadow: var(--shadow);
     overflow: hidden;
-    margin-bottom: 32px;
     text-align: center;
   }
 
-  .score-card-header {
-    padding: 36px 32px 28px;
-    position: relative; overflow: hidden;
-  }
-
-  .score-card-header::before {
-    content: ''; display: block; height: 5px;
+  .score-card-ribbon {
+    height: 5px;
     background: linear-gradient(90deg, var(--amber), #f59e0b, var(--rust));
-    position: absolute; top: 0; left: 0; right: 0;
   }
 
-  /* Score ring SVG */
-  .score-ring-wrap {
-    position: relative; width: 130px; height: 130px; margin: 0 auto 18px;
+  .score-card-inner { padding: 30px 24px 0; }
+  .ring-wrap {
+    position: relative; width: 150px; height: 150px;
+    margin: 0 auto 18px;
   }
 
-  .score-ring-wrap svg { transform: rotate(-90deg); }
-  .ring-bg-path  { fill: none; stroke: var(--border); stroke-width: 9; }
-  .ring-fill-path {
-    fill: none; stroke-width: 9; stroke-linecap: round;
-    transition: stroke-dashoffset 1.4s cubic-bezier(.4,0,.2,1);
+  .ring-wrap svg { transform: rotate(-90deg); }
+
+  .ring-bg {
+    fill: none; stroke: var(--border-lt); stroke-width: 11;
   }
 
-  .score-ring-label {
+  .ring-fill {
+    fill: none; stroke-width: 11; stroke-linecap: round;
+    transition: stroke-dashoffset 1.5s cubic-bezier(.4,0,.2,1);
+  }
+
+  .ring-label {
     position: absolute; inset: 0;
     display: flex; flex-direction: column;
     align-items: center; justify-content: center;
   }
 
-  .score-big {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 36px; font-weight: 700; line-height: 1;
+  .ring-pct {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 40px; font-weight: 800; line-height: 1;
   }
 
-  .score-denom {
-    font-size: 12px; font-weight: 600; color: var(--muted);
-    letter-spacing: .1em; text-transform: uppercase;
+  .ring-pct-sym { font-size: 20px; font-weight: 700; color: var(--muted); }
+
+  .ring-sublabel {
+    font-size: 10.5px; font-weight: 700; color: var(--muted);
+    letter-spacing: .14em; text-transform: uppercase;
+    font-family: 'DM Mono', monospace; margin-top: 2px;
   }
 
-  .quiz-result-title {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 30px; font-weight: 700; color: var(--ink);
-    margin-bottom: 4px; line-height: 1.1;
+  .quiz-name {
+    font-size: 17px; font-weight: 800; color: var(--ink);
+    margin-bottom: 3px; line-height: 1.3;
   }
 
-  .quiz-result-sub {
-    font-size: 13.5px; color: var(--muted); margin-bottom: 22px;
+  .quiz-sub {
+    font-size: 12px; color: var(--muted); margin-bottom: 20px;
+  }
+  .stat-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    border-top: 1px solid var(--border-lt);
+    background: var(--border-lt);
+    gap: 1px; border-radius: 0 0 26px 26px; overflow: hidden;
   }
 
-  /* Stat chips */
-  .score-stats {
-    display: flex; justify-content: center; gap: 10px;
-    flex-wrap: wrap; padding: 0 24px 24px;
+  .stat-cell {
+    background: white; padding: 16px 10px; text-align: center;
   }
 
-  .stat-chip {
-    display: inline-flex; align-items: center; gap: 7px;
-    background: #fffbf2; border: 1px solid var(--border);
-    border-radius: 99px; padding: 7px 16px;
-    font-size: 13px; font-weight: 600; color: var(--ink);
+  .stat-num {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 22px; font-weight: 800; line-height: 1; margin-bottom: 4px;
   }
 
-  .stat-chip i { font-size: 12px; }
-  .stat-chip.correct-chip i { color: var(--green); }
-  .stat-chip.wrong-chip   i { color: var(--rose); }
-  .stat-chip.pct-chip     i { color: var(--amber); }
-  .stat-chip.attempts-chip i { color: #6366f1; }
-  .stat-chip.pass-chip    i { color: var(--rust); }
-
-  /* Result message banner */
-  .result-message {
-    margin: 0 28px 28px;
-    border-radius: 14px; padding: 14px 18px;
-    display: flex; align-items: center; gap: 12px;
-    font-size: 14px; font-weight: 600;
-    text-align: left;
+  .stat-lbl {
+    font-size: 9.5px; font-weight: 700; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--muted);
+    font-family: 'DM Mono', monospace;
   }
 
-  .result-message.great { background: var(--green-lt); color: var(--green); border: 1px solid #86efac; }
-  .result-message.ok    { background: var(--amber-lt); color: var(--rust);  border: 1px solid #fde68a; }
-  .result-message.poor  { background: var(--rose-lt);  color: var(--rose);  border: 1px solid #fecaca; }
-
-  .result-message i { font-size: 20px; flex-shrink: 0; }
-  .result-message .msg-sub { font-size: 13px; font-weight: 400; opacity: .85; display: block; margin-top: 2px; }
-
-  /* ── Retry / no-attempts notice (from page 1) ── */
-  .attempts-banner {
-    margin: 0 28px 28px;
-    border-radius: 14px; padding: 12px 18px;
-    display: flex; align-items: center; gap: 10px;
-    font-size: 13px; font-weight: 600;
-    border: 1px solid var(--border);
-    background: #f9f5ff; color: #7c3aed;
+  .stat-cell.c-correct .stat-num { color: var(--green); }
+  .stat-cell.c-wrong   .stat-num { color: var(--rose); }
+  .stat-cell.c-attempt .stat-num { color: var(--violet); }
+  .stat-cell.c-pass    .stat-num { color: var(--rust); }
+  .result-banner {
+    border-radius: 18px; padding: 16px 18px;
+    display: flex; align-items: flex-start; gap: 12px;
+    font-size: 14px; font-weight: 700; border: 1.5px solid;
   }
 
-  .attempts-banner i { font-size: 16px; flex-shrink: 0; }
+  .result-banner.great { background: var(--green-lt); color: var(--green-dk); border-color: #86efac; }
+  .result-banner.poor  { background: var(--rose-lt);  color: var(--rose);     border-color: #fecaca; }
 
-  /* ════════ ANSWERS LIST ════════ */
-  .answers-head {
+  .result-banner-icon {
+    width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; font-size: 16px;
+  }
+
+  .result-banner.great .result-banner-icon { background: rgba(22,163,74,.15); }
+  .result-banner.poor  .result-banner-icon { background: rgba(225,29,72,.12); }
+
+  .banner-sub { font-size: 12px; font-weight: 400; opacity: .85; display: block; margin-top: 3px; line-height: 1.4; }
+  .back-btn {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    background: linear-gradient(135deg, var(--amber), var(--rust));
+    color: white; border: none;
+    padding: 13px; border-radius: 14px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 14px; font-weight: 700; text-decoration: none;
+    box-shadow: 0 5px 18px rgba(180,83,9,.28);
+    transition: transform .2s, box-shadow .2s;
+  }
+
+  .back-btn:hover { transform: translateY(-2px); box-shadow: 0 9px 26px rgba(180,83,9,.40); color: white; }
+
+  /* ══════════════════════════════════
+     RIGHT COLUMN
+  ══════════════════════════════════ */
+  .right-col-header {
     display: flex; align-items: center; gap: 14px;
-    margin-bottom: 20px;
+    margin-bottom: 16px;
   }
 
-  .answers-head .tag {
-    font-size: 11px; font-weight: 600;
-    letter-spacing: .18em; text-transform: uppercase;
+  .section-tag {
+    font-size: 10px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase;
     color: var(--amber); background: var(--amber-lt);
-    padding: 4px 12px; border-radius: 99px; flex-shrink: 0;
+    padding: 4px 12px; border-radius: 99px;
+    font-family: 'DM Mono', monospace;
   }
 
-  .answers-head h2 {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 26px; font-weight: 700; color: var(--ink);
+  .section-title {
+    font-size: 22px; font-weight: 800; color: var(--ink);
+  }
+  .filter-row { display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap; }
+
+  .fpill {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 6px 14px; border-radius: 99px;
+    font-size: 11.5px; font-weight: 700;
+    border: 1.5px solid var(--border);
+    background: white; color: var(--muted);
+    cursor: pointer; transition: all .2s;
+    font-family: 'DM Mono', monospace;
   }
 
-  /* Answer card */
+  .fpill:hover { border-color: var(--amber); background: var(--amber-lt); color: var(--rust); }
+  .fpill.f-all     { border-color: var(--amber); background: var(--amber-lt); color: var(--rust); }
+  .fpill.f-correct { border-color: #86efac; background: var(--green-lt); color: var(--green-dk); }
+  .fpill.f-wrong   { border-color: #fecaca; background: var(--rose-lt); color: var(--rose); }
   .answer-card {
     background: white;
     border: 1px solid var(--border);
-    border-radius: 18px;
-    box-shadow: var(--shadow);
+    border-radius: 20px;
+    box-shadow: var(--shadow-sm);
     overflow: hidden;
     margin-bottom: 14px;
+    transition: transform .25s, box-shadow .25s;
     animation: fadeUp .4s ease both;
-    transition: transform .25s;
   }
 
-  .answer-card:nth-child(2) { animation-delay:.05s; }
-  .answer-card:nth-child(3) { animation-delay:.10s; }
-  .answer-card:nth-child(4) { animation-delay:.15s; }
-  .answer-card:nth-child(5) { animation-delay:.20s; }
+  .answer-card:nth-child(1) { animation-delay: .00s; }
+  .answer-card:nth-child(2) { animation-delay: .05s; }
+  .answer-card:nth-child(3) { animation-delay: .10s; }
+  .answer-card:nth-child(4) { animation-delay: .15s; }
+  .answer-card:nth-child(5) { animation-delay: .20s; }
 
-  .answer-card:hover { transform: translateY(-2px); }
-
+  .answer-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
   .answer-card.correct-card { border-left: 4px solid var(--green); }
   .answer-card.wrong-card   { border-left: 4px solid var(--rose); }
 
@@ -297,201 +331,303 @@
   }
 
   .answer-icon {
-    width: 34px; height: 34px; flex-shrink: 0; border-radius: 50%;
+    width: 36px; height: 36px; flex-shrink: 0; border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
-    font-size: 14px; margin-top: 2px;
+    font-size: 14px; margin-top: 1px;
   }
 
   .answer-card.correct-card .answer-icon { background: var(--green-lt); color: var(--green); }
   .answer-card.wrong-card   .answer-icon { background: var(--rose-lt);  color: var(--rose); }
 
-  .answer-content { flex: 1; }
+  .answer-content { flex: 1; min-width: 0; }
+
+  .q-counter {
+    font-size: 10px; font-weight: 700; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--muted);
+    font-family: 'DM Mono', monospace; display: block; margin-bottom: 5px;
+  }
 
   .answer-q {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 17px; font-weight: 700; color: var(--ink);
-    margin-bottom: 10px; line-height: 1.3;
+    font-size: 15px; font-weight: 700; color: var(--ink);
+    margin-bottom: 12px; line-height: 1.4;
   }
 
-  /* Your answer row */
-  .answer-choice-row {
+  .answer-row {
     display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
-    font-size: 13.5px; margin-bottom: 0;
+    font-size: 13.5px;
   }
 
-  .answer-label {
-    font-size: 11px; font-weight: 700; letter-spacing: .1em;
+  .a-lbl {
+    font-size: 10px; font-weight: 700; letter-spacing: .1em;
     text-transform: uppercase; color: var(--muted); flex-shrink: 0;
+    font-family: 'DM Mono', monospace;
   }
 
-  .answer-choice-text { font-weight: 600; }
-  .answer-card.correct-card .answer-choice-text { color: var(--green); }
-  .answer-card.wrong-card   .answer-choice-text { color: var(--rose); }
+  .a-text { font-weight: 700; flex: 1; }
+  .answer-card.correct-card .a-text { color: var(--green); }
+  .answer-card.wrong-card   .a-text { color: var(--rose); }
 
   .result-pill {
     display: inline-flex; align-items: center; gap: 4px;
-    font-size: 11px; font-weight: 700; letter-spacing: .07em;
-    padding: 3px 10px; border-radius: 99px; flex-shrink: 0; margin-left: auto;
+    font-size: 10px; font-weight: 700;
+    padding: 3px 10px; border-radius: 99px; flex-shrink: 0;
+    font-family: 'DM Mono', monospace;
   }
 
-  .answer-card.correct-card .result-pill { background: var(--green-lt); color: var(--green); border: 1px solid #86efac; }
-  .answer-card.wrong-card   .result-pill { background: var(--rose-lt);  color: var(--rose);  border: 1px solid #fecaca; }
-
-  /* ── Correct-answer hint (from page 1) ── */
+  .answer-card.correct-card .result-pill { background: var(--green-lt); color: var(--green-dk); border: 1px solid #86efac; }
+  .answer-card.wrong-card   .result-pill { background: var(--rose-lt);  color: var(--rose);     border: 1px solid #fecaca; }
   .correct-hint {
-    display: flex; align-items: center; gap: 7px;
-    margin-top: 8px;
-    padding: 8px 12px;
-    background: var(--green-lt);
-    border: 1px solid #86efac;
-    border-radius: 10px;
-    font-size: 13px; font-weight: 600; color: var(--green);
+    display: flex; align-items: center; gap: 8px;
+    margin-top: 10px; padding: 10px 14px;
+    background: var(--green-lt); border: 1px solid #86efac;
+    border-radius: 11px;
+    font-size: 13px; font-weight: 600; color: var(--green-dk);
   }
 
   .correct-hint i { font-size: 12px; flex-shrink: 0; }
-  .correct-hint .hint-label {
-    font-size: 11px; font-weight: 700; letter-spacing: .08em;
-    text-transform: uppercase; color: #15803d; margin-right: 4px;
-  }
 
-  /* ── Back button ── */
-  .back-btn {
-    display: inline-flex; align-items: center; gap: 9px;
-    background: linear-gradient(135deg, var(--amber), var(--rust));
-    color: white; border: none;
-    padding: 13px 30px; border-radius: 14px;
-    font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 700;
-    text-decoration: none; margin-top: 32px;
-    box-shadow: 0 6px 20px rgba(180,83,9,.30);
-    transition: transform .2s, box-shadow .2s;
+  .hint-lbl {
+    font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--green-dk); margin-right: 4px; font-family: 'DM Mono', monospace;
   }
-
-  .back-btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 28px rgba(180,83,9,.42);
-    color: white;
+  .site-footer {
+    position: relative; z-index: 1;
+    border-top: 1px solid var(--border);
+    text-align: center; padding: 20px;
+    font-size: 13px; color: var(--muted);
+    background: var(--glass); backdrop-filter: blur(12px);
+  }
+  @media (max-width: 960px) {
+    .result-grid { grid-template-columns: 1fr; }
+    .left-col { position: static; }
+    .stat-grid { grid-template-columns: repeat(4, 1fr); }
   }
 
   @media (max-width: 600px) {
     .topbar { padding: 12px 20px; }
-    .page-wrap { margin-top: 36px; }
-    .score-stats { gap: 8px; }
+    .page-wrap { margin-top: 32px; }
+    .stat-grid { grid-template-columns: 1fr 1fr; }
     .answer-body { gap: 10px; }
-    .result-message { margin: 0 16px 24px; }
-    .attempts-banner { margin: 0 16px 24px; }
   }
   </style>
 </head>
 
 <body>
 
-<div class="d-flex justify-content-between align-items-center p-3 bg-white shadow-sm sticky-top">
-    <a href="{% url 'student_dashboard' %}" class="text-decoration-none text-dark">
-        <h3 class="m-0 fw-bold">Bildung</h3>
-    </a>
 
-    <div class="d-flex align-items-center gap-3">
-        <h6 class="m-0 text-muted">
-            Hello, <strong>{{ user.first_name }} {{ user.last_name }}</strong>
-        </h6>
-
-        <div class="dropdown">
-            <button class="btn rounded-circle shadow-sm"
-                    style="background:#6c757d;color:white;width:45px;height:45px;"
-                    data-bs-toggle="dropdown">
-                {{ request.user.username|first|upper }}
-            </button>
-
-            <ul class="dropdown-menu dropdown-menu-end">
-           <li><a class="dropdown-item" href="{% url 'profile_view' %}">Profile</a></li>
-            <li><a class="dropdown-item" href="{% url 'student:my_courses' %}">My Courses</a></li>
-            <li><a class="dropdown-item" href="{% url 'student_my_activity' %}">My activity</a></li>
-            <li><a class="dropdown-item" href="{% url 'student:student_upcoming_classes' %}">My_schedules</a></li>
-            <li><a class="dropdown-item" href="{% url 'student:my_certificates' %}">My Certificates</a></li>
-            <li><a class="dropdown-item" href="{% url 'student_notifications' %}">Notifications</a></li>
-            <li><a class="dropdown-item" href="#">Payments</a></li>
-            <li><a class="dropdown-item" href="#">Help and Support</a></li>
-            <li><a class="dropdown-item" href="{% url 'account_settings' %}">Account Settings</a></li>
-            <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item text-danger" href="{% url 'logout_view' %}">Logout</a></li>
-            </ul>
-        </div>
-    </div>
-</div>
-
-      <h1 class="quiz-result-title">{{ quiz.title }}</h1>
-      <p class="quiz-result-sub">Quiz complete — here's how you did</p>
-
-    </div>
-
-            <span class="score-badge
-                {% if passed %}
-                    bg-success text-white
-                {% else %}
-                    bg-danger text-white
-                {% endif %}
-            ">
-                {{ percent }}%
-            </span>
-        </div>
-
-        <div class="px-4 pb-4">
-            <p class="mb-1"><strong>Score:</strong> {{ result.score }} / {{ total_questions }}</p>
-            <p class="mb-1"><strong>Attempts Used:</strong> {{ attempts }} / 3</p>
-            <p class="mb-1"><strong>Passing Score:</strong> {{ pass_percent }}%</p>
-
-            {% if passed %}
-                <div class="alert alert-success mt-3 mb-0">
-                    ✅ Congratulations! You passed the quiz.
-                </div>
-            {% else %}
-                <div class="alert alert-danger mt-3 mb-0">
-                    ❌ You did not pass. Try again to unlock the next module.
-                </div>
-            {% endif %}
-        </div>
-    </div>
-
-    {% for a in answers %}
-    <div class="card shadow-sm mb-3 question-card
-        {% if passed and a.choice.is_correct %}correct
-        {% elif passed and not a.choice.is_correct %}wrong
-        {% endif %}
-    ">
-        <div class="card-body">
-            <h6 class="fw-bold mb-2">
-                Q{{ forloop.counter }}. {{ a.question.question_text }}
-            </h6>
-
-            <p class="mb-0">
-                <strong>Your Answer:</strong> {{ a.choice.text }}
-
-                {% if passed %}
-                    {% if a.choice.is_correct %}
-                        <span class="ms-2 text-success fw-bold">✔ Correct</span>
-                    {% else %}
-                        <span class="ms-2 text-danger fw-bold">✖ Incorrect</span>
-                        <br>
-                        <small class="text-success">
-                            Correct Answer: {{ a.correct_choice.text }}
-                        </small>
-                    {% endif %}
-                {% endif %}
-            </p>
-        </div>
-    </div>
-    {% endfor %}
-
-  <!-- Back to course -->
-  <a href="{% url 'student:student_course_detail' course_id %}" class="back-btn">
-    <i class="fas fa-arrow-left"></i> Back to Course
+<nav class="topbar">
+  <a href="{% url 'student_dashboard' %}" class="brand">
+    <span class="dot"></span>Speshway
   </a>
+  <div class="topbar-right">
+    <div class="dropdown">
+      <button class="avatar-btn" data-bs-toggle="dropdown" aria-expanded="false">
+        {{ request.user.username|first|upper }}
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end">
+        <li><a class="dropdown-item" href="{% url 'profile_view' %}"><i class="fas fa-user fa-fw me-2" style="color:var(--amber)"></i>Profile</a></li>
+        <li><a class="dropdown-item" href="{% url 'student:my_courses' %}"><i class="fas fa-book fa-fw me-2" style="color:var(--amber)"></i>My Courses</a></li>
+        <li><a class="dropdown-item" href="{% url 'student:student_upcoming_classes' %}"><i class="fas fa-calendar fa-fw me-2" style="color:var(--amber)"></i>My Schedules</a></li>
+        <li><a class="dropdown-item" href="{% url 'student_my_activity' %}"><i class="fas fa-chart-line fa-fw me-2" style="color:var(--amber)"></i>My Activity</a></li>
+        <li><a class="dropdown-item" href="{% url 'student:my_certificates' %}"><i class="fas fa-certificate fa-fw me-2" style="color:var(--amber)"></i>My Certificates</a></li>
+        <li><a class="dropdown-item" href="{% url 'student_notifications' %}"><i class="fas fa-bell fa-fw me-2" style="color:var(--amber)"></i>Notifications</a></li>
+        <li><a class="dropdown-item" href="#"><i class="fas fa-credit-card fa-fw me-2" style="color:var(--amber)"></i>Payments</a></li>
+        <li><a class="dropdown-item" href="#"><i class="fas fa-circle-question fa-fw me-2" style="color:var(--amber)"></i>Help & Support</a></li>
+        <li><a class="dropdown-item" href="{% url 'account_settings' %}"><i class="fas fa-gear fa-fw me-2" style="color:var(--amber)"></i>Account Settings</a></li>
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item logout-item" href="{% url 'logout_view' %}"><i class="fas fa-arrow-right-from-bracket fa-fw me-2"></i>Sign Out</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
 
+
+<div class="page-wrap">
+  <div class="result-grid">
+
+    
+    <aside class="left-col">
+
+      <div class="score-card">
+        <div class="score-card-ribbon"></div>
+        <div class="score-card-inner">
+
+          
+          <div class="ring-wrap">
+            <svg viewBox="0 0 150 150" width="150" height="150">
+              <circle class="ring-bg"   cx="75" cy="75" r="60"/>
+              <circle class="ring-fill" cx="75" cy="75" r="60"
+                id="scoreRing"
+                stroke-dasharray="377"
+                stroke-dashoffset="377"
+                stroke="#d97706"/>
+            </svg>
+            <div class="ring-label">
+              <span class="ring-pct" id="ringPct">—<span class="ring-pct-sym">%</span></span>
+              <span class="ring-sublabel">Score</span>
+            </div>
+          </div>
+
+          <p class="quiz-name">{{ quiz.title }}</p>
+          <p class="quiz-sub">Quiz complete — here's how you did</p>
+
+        </div>
+
+        
+        <div class="stat-grid">
+          <div class="stat-cell c-correct">
+            <div class="stat-num">{{ result.score }}</div>
+            <div class="stat-lbl">Correct</div>
+          </div>
+          <div class="stat-cell c-wrong">
+            <div class="stat-num" id="wrongNum">—</div>
+            <div class="stat-lbl">Wrong</div>
+          </div>
+          <div class="stat-cell c-attempt">
+            <div class="stat-num">{{ attempts }}/3</div>
+            <div class="stat-lbl">Attempts</div>
+          </div>
+          <div class="stat-cell c-pass">
+            <div class="stat-num">{{ pass_percent }}%</div>
+            <div class="stat-lbl">Pass Mark</div>
+          </div>
+        </div>
+      </div>
+
+      
+      {% if passed %}
+      <div class="result-banner great">
+        <div class="result-banner-icon"><i class="fas fa-trophy"></i></div>
+        <div>
+          <div>🎉 You passed!</div>
+          <span class="banner-sub">Outstanding — you've unlocked the next module.</span>
+        </div>
+      </div>
+      {% else %}
+      <div class="result-banner poor">
+        <div class="result-banner-icon"><i class="fas fa-book-open"></i></div>
+        <div>
+          <div>❌ Not passed this time.</div>
+          <span class="banner-sub">
+            {% if attempts < 3 %}
+              You have {{ 3|add:"-"|add:attempts }} attempt{{ 3|add:"-"|add:attempts|pluralize }} remaining.
+            {% else %}
+              All 3 attempts used. Contact your instructor.
+            {% endif %}
+          </span>
+        </div>
+      </div>
+      {% endif %}
+
+      
+      <a href="{% url 'student:student_course_detail' course_id %}" class="back-btn">
+        <i class="fas fa-arrow-left"></i> Back to Course
+      </a>
+
+    </aside>
+
+    
+    <div>
+
+      <div class="right-col-header">
+        <span class="section-tag">Breakdown</span>
+        <h2 class="section-title">Answer Review</h2>
+      </div>
+
+      
+      <div class="filter-row">
+        <button class="fpill f-all" onclick="filterCards('all',this)">
+          <i class="fas fa-list"></i> All ({{ total_questions }})
+        </button>
+        <button class="fpill" onclick="filterCards('correct',this)">
+          <i class="fas fa-check"></i> Correct ({{ result.score }})
+        </button>
+        <button class="fpill" onclick="filterCards('wrong',this)">
+          <i class="fas fa-xmark"></i> Wrong (<span id="wrongCount">—</span>)
+        </button>
+      </div>
+
+      
+      <div id="cardList">
+        {% for a in answers %}
+        <div class="answer-card {% if a.choice.is_correct %}correct-card{% else %}wrong-card{% endif %}"
+             data-r="{% if a.choice.is_correct %}correct{% else %}wrong{% endif %}">
+          <div class="answer-body">
+
+            <div class="answer-icon">
+              {% if a.choice.is_correct %}
+                <i class="fas fa-check"></i>
+              {% else %}
+                <i class="fas fa-xmark"></i>
+              {% endif %}
+            </div>
+
+            <div class="answer-content">
+              <span class="q-counter">Q{{ forloop.counter }} of {{ total_questions }}</span>
+              <p class="answer-q">{{ a.question.question_text }}</p>
+
+              <div class="answer-row">
+                <span class="a-lbl">Your answer</span>
+                <span class="a-text">{{ a.choice.text }}</span>
+                <span class="result-pill">
+                  {% if a.choice.is_correct %}
+                    <i class="fas fa-check"></i> Correct
+                  {% else %}
+                    <i class="fas fa-xmark"></i> Wrong
+                  {% endif %}
+                </span>
+              </div>
+
+              {% if not a.choice.is_correct %}
+              <div class="correct-hint">
+                <i class="fas fa-circle-check"></i>
+                <span class="hint-lbl">Correct:</span>
+                {{ a.correct_choice.text }}
+              </div>
+              {% endif %}
+
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+    </div>
+
+  </div>
 </div>
 
-<footer class="text-center mt-5 mb-4">
-    <p class="text-muted small">&copy; 2025 Bildung. All rights reserved.</p>
-</footer>
+<footer class="site-footer">&copy; 2025 Speshway. All rights reserved.</footer>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  const score = {{ result.score }};
+  const total = {{ total_questions }};
+  const pct   = total > 0 ? Math.round((score / total) * 100) : 0;
+  const wrong = total - score;
+  document.getElementById('ringPct').innerHTML =
+    `${pct}<span class="ring-pct-sym">%</span>`;
+  document.getElementById('wrongNum').textContent  = wrong;
+  document.getElementById('wrongCount').textContent = wrong;
+  const ring = document.getElementById('scoreRing');
+  ring.setAttribute('stroke', pct >= 80 ? '#16a34a' : pct >= 50 ? '#d97706' : '#e11d48');
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      ring.style.strokeDashoffset = 377 - (377 * pct / 100);
+    }, 150);
+  });
+  function filterCards(type, btn) {
+    document.querySelectorAll('.fpill').forEach(p =>
+      p.classList.remove('f-all','f-correct','f-wrong')
+    );
+    if (type === 'all')     btn.classList.add('f-all');
+    if (type === 'correct') btn.classList.add('f-correct');
+    if (type === 'wrong')   btn.classList.add('f-wrong');
+
+    document.querySelectorAll('#cardList .answer-card').forEach(c => {
+      c.style.display = (type === 'all' || c.dataset.r === type) ? '' : 'none';
+    });
+  }
+</script>
 </body>
 </html>

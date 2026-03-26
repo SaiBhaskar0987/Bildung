@@ -12,7 +12,6 @@
 <link rel="stylesheet" type="text/css" href="{% static 'student_dashboard/style.css' %}">
 
 <style>
-/* ── DESIGN TOKENS (Amber / Rust palette — matches account settings) ── */
 :root {
   --amber:        #d97706;
   --amber-lt:     #fef3c7;
@@ -33,14 +32,10 @@
   --shadow-card:  0 4px 24px rgba(28,20,18,.08);
   --shadow-hover: 0 12px 40px rgba(180,83,9,.18);
   --transition:   all .28s cubic-bezier(.4,0,.2,1);
-
-  /* accent aliases */
   --accent:       var(--amber);
   --accent-dark:  var(--rust);
   --accent-glow:  rgba(217,119,6,.22);
 }
-
-/* ── BASE ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body {
   font-family: 'DM Sans', sans-serif;
@@ -50,8 +45,6 @@ body {
 }
 h1,h2,h3,h4,h5,h6 { font-family: 'Sora', sans-serif; }
 a { text-decoration: none; }
-
-/* warm ambient background — matches settings page */
 body::before {
   content: '';
   position: fixed; inset: 0;
@@ -71,8 +64,6 @@ body::after {
   animation: bgSpin 50s linear infinite;
 }
 @keyframes bgSpin { to { transform: rotate(360deg); } }
-
-/* ── TOPBAR ── */
 .topbar {
   position: sticky; top: 0; z-index: 1000;
   background: var(--glass);
@@ -95,8 +86,6 @@ body::after {
   color: #fff; box-shadow: 0 4px 12px rgba(180,83,9,.3);
 }
 .topbar-right { display: flex; align-items: center; gap: 18px; }
-
-/* topbar search */
 .topbar-search { position: relative; }
 .topbar-search input {
   background: rgba(28,20,18,.05); border: 1.5px solid var(--border);
@@ -111,8 +100,6 @@ body::after {
   box-shadow: 0 0 0 3px rgba(217,119,6,.12);
 }
 .srch-icon { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 13px; }
-
-/* notif bell */
 .notif-bell-btn {
   width: 40px; height: 40px; border-radius: 50%;
   background: #fff; border: 1.5px solid var(--border);
@@ -133,8 +120,6 @@ body::after {
   display: flex; align-items: center; justify-content: center;
   border: 2px solid var(--cream);
 }
-
-/* avatar */
 .avatar-btn {
   width: 40px; height: 40px; border-radius: 50%;
   background: linear-gradient(135deg, var(--amber), var(--rust));
@@ -144,8 +129,6 @@ body::after {
   box-shadow: 0 4px 14px rgba(180,83,9,.3);
 }
 .avatar-btn:hover { transform: scale(1.08); box-shadow: 0 6px 20px rgba(180,83,9,.4); }
-
-/* dropdown */
 .dropdown-menu {
   border-radius: 16px; border: 1px solid var(--border);
   box-shadow: 0 24px 60px rgba(28,20,18,.12); padding: 8px;
@@ -159,8 +142,6 @@ body::after {
 .dropdown-item:hover { background: var(--amber-lt); color: var(--rust); transform: translateX(4px); }
 .dropdown-item.text-danger { color: #dc2626; }
 .dropdown-item.text-danger:hover { background: #fef2f2; color: #b91c1c; transform: translateX(4px); }
-
-/* ── NOTIFICATION PANEL (warm dark) ── */
 .notif-panel {
   width: 400px !important;
   padding: 0; overflow: hidden;
@@ -199,7 +180,23 @@ body::after {
   min-width: 20px; height: 20px; border-radius: 10px; padding: 0 5px;
   font-family: 'Sora', sans-serif;
 }
-.np-list { padding: 8px 0; }
+.np-list {
+  padding: 8px 0;
+  max-height: 320px;   
+  overflow-y: auto;    
+}
+.np-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.np-list::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.2);
+  border-radius: 6px;
+}
+
+.np-list::-webkit-scrollbar-track {
+  background: transparent;
+}
 .notif-item {
   padding: 12px 18px; display: flex; gap: 12px; align-items: flex-start;
   cursor: pointer; position: relative; transition: background .2s ease;
@@ -521,8 +518,6 @@ body::after {
 .afu-1 { animation-delay:.08s; }
 .afu-2 { animation-delay:.16s; }
 .afu-3 { animation-delay:.24s; }
-
-/* ── RESPONSIVE ── */
 @media (max-width:768px) {
   .topbar { padding:0 16px; }
   .topbar-search { display:none !important; }
@@ -571,9 +566,9 @@ body::after {
           </div>
           <a href="{% url 'student_notifications' %}" class="np-view-all">View All</a>
         </div>
-        <!-- List -->
+        
         <div class="np-list" id="notifList"></div>
-        <!-- Footer -->
+        
         <div class="np-footer">
           <button id="markAllBtn" class="np-mark-all">
             <i class="fas fa-check-double"></i> Mark all as read
@@ -582,7 +577,7 @@ body::after {
       </div>
     </div>
 
-    <!-- Avatar Dropdown -->
+    
     <div class="dropdown">
       <button class="avatar-btn" data-bs-toggle="dropdown">{{ request.user.username|first|upper }}</button>
       <ul class="dropdown-menu dropdown-menu-end">
@@ -612,7 +607,7 @@ body::after {
 
   <div class="hero-inner">
 
-    <!-- LEFT: TEXT -->
+    
     <div class="hero-text afu">
       <div class="hero-eyebrow">
         <span class="dot"></span>
@@ -640,17 +635,17 @@ body::after {
       </div>
     </div>
 
-    <!-- RIGHT: ANIMATED VISUAL -->
+    
     <div class="hero-visual afu afu-2">
 
-      <!-- orbit rings -->
+      
       <div class="orbit orbit-1"></div>
       <div class="orbit orbit-2"></div>
 
-      <!-- central orb -->
+      
       <div class="orb">🎓</div>
 
-      <!-- floating icon nodes -->
+      
       <div class="fnode" title="Video Lessons">🎬</div>
       <div class="fnode" title="Certificates">📜</div>
       <div class="fnode" title="Quizzes">📝</div>
@@ -658,14 +653,14 @@ body::after {
       <div class="fnode" title="Code Practice">💻</div>
       <div class="fnode" title="Community">🌐</div>
 
-      <!-- mini progress card -->
+      
       <div class="hero-mini-card">
         <div class="hmc-label">Your Avg. Progress</div>
         <div class="hmc-bar"><div class="hmc-fill"></div></div>
         <div class="hmc-pct">Keep going! 🔥</div>
       </div>
 
-      <!-- streak badge -->
+      
       <div class="hero-streak">
         <span class="streak-icon">⚡</span>
         <div class="streak-val">Day 7</div>
@@ -711,7 +706,7 @@ body::after {
 <div class="page-content">
 
 
-  <!-- ── CONTINUE LEARNING ── -->
+  
   {% if continue_courses %}
   <div style="margin-bottom:52px;" class="afu afu-1">
     <div class="sec-head">
@@ -744,7 +739,7 @@ body::after {
   {% endif %}
 
 
-  <!-- ── CATEGORIES ── -->
+  
   <div style="margin-bottom:36px;" class="afu afu-2">
     <div class="sec-head">
       <span class="sec-title">Popular Categories</span>
@@ -764,7 +759,7 @@ body::after {
   </div>
 
 
-  <!-- ── FEATURED COURSES ── -->
+  
   <div style="margin-bottom:52px;" class="afu afu-3">
     <div class="sec-head">
       <span class="sec-title">Featured Courses</span>
@@ -798,7 +793,7 @@ style="background-image: url('{% if course.thumbnail %}{{ course.thumbnail.url }
   </div>
 
 
-  <!-- ── RECOMMENDED COURSES ── -->
+  
   {% if recommended_courses %}
   <div class="afu">
     <div class="sec-head">
@@ -837,7 +832,7 @@ style="background-image:url('{% if course.thumbnail %}{{ course.thumbnail.url }}
   {% endif %}
 
 
-</div><!-- /page-content -->
+</div>
 
 
 <!-- ═══════════════════════════════════════
@@ -854,7 +849,7 @@ style="background-image:url('{% if course.thumbnail %}{{ course.thumbnail.url }}
 <div id="aiChatBtn" class="floating-btn" title="AI Assistant">🤖</div>
 <div id="noteBtn"   class="floating-btn" title="Quick Notes">📝</div>
 
-<!-- AI CHAT -->
+
 <div id="aiChatBox" class="chatbox">
   <div class="chat-header">
     <span><i class="fas fa-robot me-2"></i>AI Assistant</span>
@@ -869,7 +864,7 @@ style="background-image:url('{% if course.thumbnail %}{{ course.thumbnail.url }}
   </div>
 </div>
 
-<!-- NOTEPAD -->
+
 <div id="noteBox" class="chatbox">
   <div class="chat-header">
     <span><i class="fas fa-pen me-2"></i>Quick Notes</span>
@@ -893,7 +888,7 @@ style="background-image:url('{% if course.thumbnail %}{{ course.thumbnail.url }}
 ═══════════════════════════════════════ -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- NOTIFICATIONS -->
+
 <script>
 document.addEventListener("DOMContentLoaded", function () {
   function loadNotifications() {
@@ -963,7 +958,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 </script>
 
-<!-- CATEGORY FILTER -->
+
 <script>
 let activeCategory = null;
 function filterCategory(button) {
@@ -987,7 +982,7 @@ function filterCategory(button) {
 }
 </script>
 
-<!-- AI CHAT -->
+
 <script>
 function getCSRFToken() {
   return document.cookie.split("; ")
@@ -1037,7 +1032,7 @@ function formatAIResponse(text) {
 }
 </script>
 
-<!-- NOTEPAD -->
+
 <script>
 const NOTE_KEY = "quickNoteData";
 const MAX_SIZE = 800 * 1024 * 1024;
@@ -1089,7 +1084,7 @@ document.getElementById("aiChatBtn").onclick = toggleAIChat;
 document.getElementById("noteBtn").onclick   = toggleNote;
 </script>
 
-<!-- HORIZONTAL MOUSE WHEEL SCROLL -->
+
 <script>
 document.addEventListener("DOMContentLoaded", function () {
   function enableHScroll(id) {
@@ -1107,7 +1102,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 </script>
 
-<!-- HERO CANVAS PARTICLES -->
+
 <script>
 (function() {
   const canvas = document.getElementById('heroCanvas');

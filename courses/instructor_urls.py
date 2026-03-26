@@ -66,12 +66,8 @@ urlpatterns = [
     path("course/<int:course_id>/quiz/<int:quiz_id>/save/", views.save_quiz, name="save_quiz"),
     path("quiz/<int:quiz_id>/question/add/", views.add_quiz_question, name="add_quiz_question"),
     path("course/<int:course_id>/quiz/<int:quiz_id>/edit/", views.edit_quiz, name="edit_quiz"),
-   path(
-    "quiz/<int:quiz_id>/inline-preview/",
-    views.quiz_inline_preview,
-    name="quiz_inline_preview"
-)
-
+    path("quiz/<int:quiz_id>/inline-preview/", views.quiz_inline_preview, name="quiz_inline_preview"),
+    path("assignment/<int:assignment_id>/inline-preview/", views.assignment_inline_preview, name="assignment_inline_preview"),
 
 ]
     

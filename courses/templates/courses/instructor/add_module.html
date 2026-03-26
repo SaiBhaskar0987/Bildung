@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Add Module – SPESHWAY</title>
+<title>Add Module</title>
 
 <link rel="stylesheet" href="{% static 'css/add_course.css' %}">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -18,7 +18,7 @@
 </script>
 
 <style>
-/* ─── DESIGN SYSTEM ─── */
+
 :root {
   --ink:       #0F1117;
   --ink-soft:  #2C2F3A;
@@ -47,7 +47,7 @@ body {
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-thumb { background: var(--teal-glow); border-radius: 99px; }
 
-/* ─── TOPNAV ─── */
+
 .topnav {
   position: sticky; top: 0; z-index: 100;
   display: flex; align-items: center; justify-content: space-between;
@@ -88,14 +88,14 @@ body {
 .dropdown-item.text-danger:hover { background: #FEE2E2; color: var(--red); }
 .dropdown-divider { border-color: var(--border) !important; }
 
-/* ─── PAGE WRAP ─── */
+
 .page-wrap {
   max-width: 860px;
   margin: 0 auto;
   padding: 40px 24px 80px;
 }
 
-/* ─── BACK LINK ─── */
+
 .back-link {
   display: inline-flex; align-items: center; gap: 7px;
   color: var(--teal); font-size: .85rem; font-weight: 600;
@@ -104,7 +104,7 @@ body {
 }
 .back-link:hover { gap: 10px; }
 
-/* ─── PAGE HEADER ─── */
+
 .page-header { margin-bottom: 28px; }
 .page-header h2 {
   font-family: 'sane', sans-serif;
@@ -114,7 +114,7 @@ body {
 .page-header h2 span { color: var(--teal); }
 .page-header p { color: var(--muted); margin-top: 5px; font-size: .88rem; }
 
-/* ─── SECTION CARD ─── */
+
 .section-card {
   background: var(--card-bg);
   border: 1px solid var(--border);
@@ -151,7 +151,7 @@ body {
 }
 .section-body { padding: 22px 24px 26px; }
 
-/* ─── FORM FIELDS ─── */
+
 .field-wrap { display: flex; flex-direction: column; gap: 5px; margin-bottom: 16px; }
 .field-wrap:last-child { margin-bottom: 0; }
 .field-label {
@@ -174,7 +174,7 @@ body {
 }
 .field-textarea { resize: vertical; min-height: 90px; line-height: 1.5; }
 
-/* ─── LECTURES SECTION HEADER ─── */
+
 .lectures-header {
   display: flex; align-items: center; justify-content: space-between;
   margin-bottom: 16px;
@@ -191,7 +191,7 @@ body {
   padding: 2px 8px; border-radius: 99px;
 }
 
-/* ─── LECTURE CARD ─── */
+
 .lecture-card {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -233,7 +233,7 @@ body {
 }
 .delete-lecture-btn:hover { background: var(--red); color: #fff; }
 
-/* Lecture inner fields */
+
 .lecture-body { display: flex; flex-direction: column; gap: 10px; }
 
 .lecture-field-label {
@@ -256,7 +256,7 @@ body {
   box-shadow: 0 0 0 3px rgba(13,148,136,.1);
 }
 
-/* File upload */
+
 .upload-wrap {
   display: flex; flex-direction: column; gap: 4px;
 }
@@ -281,7 +281,7 @@ body {
 .lecture-video-input:focus,
 .lecture-file-input:focus { border-color: var(--teal); outline: none; }
 
-/* ─── ADD LECTURE BUTTON ─── */
+
 .btn-add-lecture {
   display: flex; align-items: center; justify-content: center; gap: 8px;
   width: 100%; padding: 12px;
@@ -300,7 +300,7 @@ body {
   transform: translateY(-1px);
 }
 
-/* ─── ACTIONS BAR ─── */
+
 .actions-bar {
   display: flex; align-items: center; justify-content: space-between;
   flex-wrap: wrap; gap: 12px;
@@ -341,7 +341,7 @@ body {
 }
 .btn-back:hover { background: var(--teal); color: #fff; }
 
-/* ─── RESPONSIVE ─── */
+
 @media (max-width: 640px) {
   .topnav { padding: 0 16px; }
   .page-wrap { padding: 24px 16px 60px; }
@@ -352,7 +352,7 @@ body {
 </head>
 <body>
 
-<!-- ── TOPNAV ─── -->
+
 <nav class="topnav">
   <a href="{% url 'instructor_dashboard' %}" class="brand">SPESH<span>WAY</span></a>
   <div class="dropdown">
@@ -374,7 +374,7 @@ body {
   </div>
 </nav>
 
-<!-- ── PAGE ─── -->
+
 <div class="page-wrap">
 
   <a href="{% url 'instructor_dashboard' %}" class="back-link">
@@ -386,7 +386,7 @@ body {
     <p>Define your module details and add lectures with video or PDF content.</p>
   </div>
 
-  <!-- ── Module Details ── -->
+  
   <div class="section-card">
     <div class="card-top-bar"></div>
     <div class="section-header">
@@ -407,7 +407,7 @@ body {
     </div>
   </div>
 
-  <!-- ── Lectures ── -->
+  
   <div class="section-card delay">
     <div class="card-top-bar"></div>
     <div class="section-header">
@@ -475,7 +475,7 @@ body {
     </div>
   </div>
 
-  <!-- ── Actions ── -->
+  
   <div class="actions-bar">
     <div class="hint">
       <i class="fa-solid fa-lightbulb"></i>

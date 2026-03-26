@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Edit Live Class – SPESHWAY</title>
+<title>Edit Live Class</title>
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -39,7 +39,7 @@ body {
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-thumb { background: var(--teal-glow); border-radius: 99px; }
 
-/* ─── TOPNAV ─── */
+
 .topnav {
   position: sticky; top: 0; z-index: 100;
   display: flex; align-items: center; justify-content: space-between;
@@ -80,14 +80,14 @@ body {
 .dropdown-item.text-danger:hover { background: #FEE2E2; color: var(--red); }
 .dropdown-divider { border-color: var(--border) !important; }
 
-/* ─── PAGE WRAP ─── */
+
 .page-wrap {
   max-width: 680px;
   margin: 0 auto;
   padding: 40px 24px 80px;
 }
 
-/* ─── BACK LINK ─── */
+
 .back-link {
   display: inline-flex; align-items: center; gap: 7px;
   color: var(--teal); font-size: .85rem; font-weight: 600;
@@ -96,7 +96,7 @@ body {
 }
 .back-link:hover { gap: 10px; }
 
-/* ─── PAGE HEADER ─── */
+
 .page-header { margin-bottom: 28px; }
 .page-header h2 {
   font-family: 'sora', sans-serif;
@@ -106,7 +106,7 @@ body {
 .page-header h2 span { color: var(--teal); }
 .page-header p { color: var(--muted); margin-top: 5px; font-size: .88rem; }
 
-/* ─── FORM CARD ─── */
+
 .form-card {
   background: var(--card-bg);
   border: 1px solid var(--border);
@@ -140,7 +140,7 @@ body {
   font-weight: 700; font-size: 1rem; color: var(--ink);
 }
 
-/* ─── FORM BODY ─── */
+
 .form-body { padding: 26px 24px 28px; }
 
 .field-wrap { display: flex; flex-direction: column; gap: 5px; margin-bottom: 18px; }
@@ -166,7 +166,7 @@ body {
 .field-input[type="date"],
 .field-input[type="time"] { color-scheme: light; }
 
-/* URL input with prefix icon */
+
 .input-icon-wrap { position: relative; }
 .input-icon-wrap .input-icon {
   position: absolute; left: 13px; top: 50%; transform: translateY(-50%);
@@ -176,10 +176,10 @@ body {
 
 .form-divider { height: 1px; background: var(--border); margin: 22px 0; }
 
-/* Date + Time side by side */
+
 .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 
-/* ─── BUTTONS ─── */
+
 .btn-row {
   display: flex; gap: 10px; flex-wrap: wrap;
   padding: 0 24px 24px;
@@ -213,7 +213,7 @@ body {
 </head>
 <body>
 
-<!-- ── TOPNAV ─── -->
+
 <nav class="topnav">
   <a href="{% url 'instructor_dashboard' %}" class="brand">SPESH<span>WAY</span></a>
   <div class="dropdown">
@@ -235,7 +235,7 @@ body {
   </div>
 </nav>
 
-<!-- ── PAGE ─── -->
+
 <div class="page-wrap">
 
   <a href="{% url 'instructor:calendar_view' %}" class="back-link">

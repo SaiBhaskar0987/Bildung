@@ -14,6 +14,7 @@
   :root {
     --amber:    #d97706;
     --amber-lt: #fef3c7;
+    --amber-md: #fde68a;
     --rust:     #b45309;
     --cream:    #fffbf5;
     --parchment:#fef9f0;
@@ -30,7 +31,6 @@
     --rose:     #e11d48;
     --rose-lt:  #ffe4e6;
     --violet:   #7c3aed;
-    --violet-lt:#ede9fe;
   }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -39,10 +39,7 @@
     font-family: 'Plus Jakarta Sans', sans-serif;
     background: var(--cream); color: var(--ink);
     min-height: 100vh; overflow-x: hidden;
-    display: flex; flex-direction: column;
   }
-
-  .page-wrap { flex: 1; }
 
   body::before {
     content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
@@ -54,248 +51,148 @@
 
   body::after {
     content: ''; position: fixed; top: -120px; right: -120px;
-    width: 420px; height: 420px;
+    width: 480px; height: 480px;
     border: 1.5px solid rgba(217,119,6,0.14); border-radius: 50%;
     pointer-events: none; z-index: 0; animation: spin 50s linear infinite;
   }
 
   @keyframes spin { to { transform: rotate(360deg); } }
 
+  /* ── TOPBAR ── */
   .topbar {
     position: sticky; top: 0; z-index: 999;
     display: flex; align-items: center; justify-content: space-between;
     padding: 14px 48px; background: var(--glass);
     backdrop-filter: blur(16px); border-bottom: 1px solid var(--border);
   }
-
-  .brand {
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-weight: 800; font-size: 24px; letter-spacing: .04em; color: var(--ink);
-    text-decoration: none; display: flex; align-items: center; gap: 10px;
-  }
-
-  .brand .dot {
-    width: 9px; height: 9px; border-radius: 50%; background: var(--amber);
-    box-shadow: 0 0 0 3px rgba(217,119,6,.2); animation: pulse 2s ease-in-out infinite;
-  }
-
-  @keyframes pulse {
-    0%,100% { box-shadow: 0 0 0 3px rgba(217,119,6,.2); }
-    50%      { box-shadow: 0 0 0 7px rgba(217,119,6,.07); }
-  }
-
+  .brand { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 24px; letter-spacing: .04em; color: var(--ink); text-decoration: none; display: flex; align-items: center; gap: 10px; }
+  .brand .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--amber); box-shadow: 0 0 0 3px rgba(217,119,6,.2); animation: pulse 2s ease-in-out infinite; }
+  @keyframes pulse { 0%,100% { box-shadow: 0 0 0 3px rgba(217,119,6,.2); } 50% { box-shadow: 0 0 0 7px rgba(217,119,6,.07); } }
   .topbar-right { display: flex; align-items: center; gap: 18px; }
-
-  .avatar-btn {
-    width: 44px; height: 44px; border-radius: 50%;
-    background: linear-gradient(135deg, var(--amber), var(--rust));
-    color: white; font-size: 18px; font-weight: 700;
-    border: none; cursor: pointer; box-shadow: 0 4px 14px rgba(180,83,9,.35);
-    transition: transform .2s;
-  }
-
+  .avatar-btn { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, var(--amber), var(--rust)); color: white; font-size: 18px; font-weight: 700; border: none; cursor: pointer; box-shadow: 0 4px 14px rgba(180,83,9,.35); transition: transform .2s; }
   .avatar-btn:hover { transform: scale(1.07); }
-
-  .dropdown-menu {
-    border: 1px solid var(--border) !important; border-radius: 16px !important;
-    padding: 10px !important; min-width: 230px;
-    box-shadow: 0 24px 60px rgba(28,20,18,.12) !important; background: white !important;
-  }
-
-  .dropdown-item {
-    border-radius: 10px; padding: 10px 14px;
-    font-size: 13.5px; font-weight: 500; color: var(--ink);
-    transition: background .2s, color .2s, transform .2s;
-  }
-
+  .dropdown-menu { border: 1px solid var(--border) !important; border-radius: 16px !important; padding: 10px !important; min-width: 230px; box-shadow: 0 24px 60px rgba(28,20,18,.12) !important; background: white !important; }
+  .dropdown-item { border-radius: 10px; padding: 10px 14px; font-size: 13.5px; font-weight: 500; color: var(--ink); transition: background .2s, color .2s, transform .2s; }
   .dropdown-item:hover { background: var(--amber-lt); color: var(--rust); transform: translateX(4px); }
   .dropdown-item.logout-item { color: #dc2626; }
   .dropdown-item.logout-item:hover { background: #fef2f2; color: #b91c1c; }
   .dropdown-divider { border-color: var(--border) !important; margin: 6px 0 !important; }
 
+  /* ── PAGE ── */
   .page-wrap {
     position: relative; z-index: 1;
-    max-width: 740px; margin: 48px auto 80px; padding: 0 24px;
+    max-width: 1200px; margin: 48px auto 80px; padding: 0 28px;
     animation: fadeUp .55s ease both;
   }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: translateY(0); } }
 
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(22px); }
-    to   { opacity: 1; transform: translateY(0); }
+  /* ── SPLIT GRID ── */
+  .result-grid {
+    display: grid;
+    grid-template-columns: 360px 1fr;
+    gap: 28px;
+    align-items: start;
   }
-  .score-hero {
+
+  /* ── LEFT COLUMN ── */
+  .left-col { display: flex; flex-direction: column; gap: 18px; position: sticky; top: 90px; }
+
+  .score-card {
     background: white; border: 1px solid var(--border);
-    border-radius: 28px; overflow: hidden;
-    box-shadow: var(--shadow); margin-bottom: 28px;
-    text-align: center;
+    border-radius: 26px; box-shadow: var(--shadow);
+    overflow: hidden; text-align: center;
   }
+  .score-card-ribbon { height: 5px; background: linear-gradient(90deg, var(--amber), #f59e0b, var(--rust)); }
+  .score-card-inner { padding: 30px 24px 0; }
 
-  .score-hero-ribbon {
-    height: 5px;
-    background: linear-gradient(90deg, var(--amber), #f59e0b, var(--rust));
-  }
+  .ring-wrap { position: relative; width: 150px; height: 150px; margin: 0 auto 18px; }
+  .ring-wrap svg { transform: rotate(-90deg); }
+  .ring-bg   { fill: none; stroke: var(--border-lt); stroke-width: 11; }
+  .ring-fill { fill: none; stroke-width: 11; stroke-linecap: round; transition: stroke-dashoffset 1.5s cubic-bezier(.4,0,.2,1); }
+  .ring-label { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .ring-pct { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 40px; font-weight: 800; line-height: 1; }
+  .ring-pct-sym { font-size: 20px; font-weight: 700; color: var(--muted); }
+  .ring-sublabel { font-size: 10.5px; font-weight: 700; color: var(--muted); letter-spacing: .14em; text-transform: uppercase; font-family: 'DM Mono', monospace; margin-top: 2px; }
 
-  .score-hero-body { padding: 40px 36px; }
-  .score-ring-wrap {
-    position: relative; width: 140px; height: 140px;
-    margin: 0 auto 22px;
-  }
+  .assign-name { font-size: 17px; font-weight: 800; color: var(--ink); margin-bottom: 3px; line-height: 1.3; }
+  .assign-sub  { font-size: 12px; color: var(--muted); margin-bottom: 20px; }
 
-  .score-ring-wrap svg { transform: rotate(-90deg); }
-  .ring-bg   { fill: none; stroke: var(--border); stroke-width: 10; }
-  .ring-fill {
-    fill: none; stroke-width: 10; stroke-linecap: round;
-    transition: stroke-dashoffset 1.4s cubic-bezier(.4,0,.2,1);
-  }
+  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--border-lt); background: var(--border-lt); gap: 1px; border-radius: 0 0 26px 26px; overflow: hidden; }
+  .stat-cell { background: white; padding: 16px 10px; text-align: center; }
+  .stat-num { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 22px; font-weight: 800; line-height: 1; margin-bottom: 4px; }
+  .stat-lbl { font-size: 9.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-family: 'DM Mono', monospace; }
+  .stat-cell.c-score   .stat-num { color: var(--amber); }
+  .stat-cell.c-total   .stat-num { color: var(--violet); }
+  .stat-cell.c-status  .stat-num { font-size: 13px; color: var(--green); }
+  .stat-cell.c-status.pending .stat-num { color: var(--rust); }
 
-  .score-ring-label {
-    position: absolute; inset: 0;
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-  }
+  .result-banner { border-radius: 18px; padding: 16px 18px; display: flex; align-items: flex-start; gap: 12px; font-size: 14px; font-weight: 700; border: 1.5px solid; }
+  .result-banner.great { background: var(--green-lt); color: var(--green-dk); border-color: #86efac; }
+  .result-banner.poor  { background: var(--rose-lt);  color: var(--rose);     border-color: #fecaca; }
+  .result-banner.pending-banner { background: var(--amber-lt); color: var(--rust); border-color: var(--amber-md); }
+  .result-banner-icon { width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+  .result-banner.great .result-banner-icon { background: rgba(22,163,74,.15); }
+  .result-banner.poor  .result-banner-icon { background: rgba(225,29,72,.12); }
+  .result-banner.pending-banner .result-banner-icon { background: rgba(217,119,6,.15); }
+  .banner-sub { font-size: 12px; font-weight: 400; opacity: .85; display: block; margin-top: 3px; line-height: 1.4; }
 
-  .score-big {
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 34px; font-weight: 800; line-height: 1;
-  }
+  .back-btn { display: flex; align-items: center; justify-content: center; gap: 8px; background: linear-gradient(135deg, var(--amber), var(--rust)); color: white; border: none; padding: 13px; border-radius: 14px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; font-weight: 700; text-decoration: none; box-shadow: 0 5px 18px rgba(180,83,9,.28); transition: transform .2s, box-shadow .2s; }
+  .back-btn:hover { transform: translateY(-2px); box-shadow: 0 9px 26px rgba(180,83,9,.40); color: white; }
 
-  .score-denom {
-    font-size: 12px; font-weight: 600; color: var(--muted);
-    letter-spacing: .1em; text-transform: uppercase;
-    font-family: 'DM Mono', monospace;
-  }
+  /* ── RIGHT COLUMN ── */
+  .right-col-header { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+  .section-tag { font-size: 10px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--amber); background: var(--amber-lt); padding: 4px 12px; border-radius: 99px; font-family: 'DM Mono', monospace; }
+  .section-title { font-size: 22px; font-weight: 800; color: var(--ink); }
 
-  .result-title {
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 24px; font-weight: 800; color: var(--ink);
-    margin-bottom: 6px;
-  }
-
-  .result-sub { font-size: 14px; color: var(--muted); margin-bottom: 20px; }
-
-  .status-pill {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 6px 18px; border-radius: 99px;
-    font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
-    font-family: 'DM Mono', monospace;
-  }
-
-  .status-pill.completed {
-    background: var(--green-lt); color: var(--green-dk);
-    border: 1px solid #86efac;
-  }
-
-  .status-pill.in-progress {
-    background: var(--amber-lt); color: var(--rust);
-    border: 1px solid var(--amber);
-  }
-  .section-header {
-    display: flex; align-items: center; gap: 14px; margin-bottom: 20px;
-  }
-
-  .section-tag {
-    font-size: 10px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase;
-    color: var(--amber); background: var(--amber-lt);
-    padding: 4px 12px; border-radius: 99px; font-family: 'DM Mono', monospace;
-  }
-
-  .section-title {
-    font-size: 22px; font-weight: 800; color: var(--ink);
-  }
+  /* ── ANSWER CARDS ── */
   .answer-card {
     background: white; border: 1px solid var(--border);
-    border-radius: 20px; overflow: hidden; box-shadow: var(--shadow-sm);
-    margin-bottom: 16px;
+    border-radius: 20px; box-shadow: var(--shadow-sm);
+    overflow: hidden; margin-bottom: 14px;
+    transition: transform .25s, box-shadow .25s;
     animation: fadeUp .4s ease both;
   }
+  .answer-card:nth-child(1) { animation-delay: .00s; }
+  .answer-card:nth-child(2) { animation-delay: .05s; }
+  .answer-card:nth-child(3) { animation-delay: .10s; }
+  .answer-card:nth-child(4) { animation-delay: .15s; }
+  .answer-card:nth-child(5) { animation-delay: .20s; }
+  .answer-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
 
-  .answer-card:nth-child(2) { animation-delay: .06s; }
-  .answer-card:nth-child(3) { animation-delay: .12s; }
+  /* colour left border by score tier */
+  .answer-card.tier-high   { border-left: 4px solid var(--green); }
+  .answer-card.tier-medium { border-left: 4px solid var(--amber); }
+  .answer-card.tier-low    { border-left: 4px solid var(--rose);  }
 
-  .answer-card-top { height: 3px; }
-  .answer-card-top.high   { background: linear-gradient(90deg, var(--green), #4ade80); }
-  .answer-card-top.medium { background: linear-gradient(90deg, var(--amber), #f59e0b); }
-  .answer-card-top.low    { background: linear-gradient(90deg, var(--rose), #fb7185); }
+  .answer-body { padding: 18px 22px; display: flex; align-items: flex-start; gap: 14px; }
 
-  .answer-card-body { padding: 22px 26px; }
+  .answer-icon { width: 36px; height: 36px; flex-shrink: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; margin-top: 1px; }
+  .answer-card.tier-high   .answer-icon { background: var(--green-lt); color: var(--green); }
+  .answer-card.tier-medium .answer-icon { background: var(--amber-lt); color: var(--rust);  }
+  .answer-card.tier-low    .answer-icon { background: var(--rose-lt);  color: var(--rose);  }
 
-  .answer-q-header {
-    display: flex; align-items: flex-start; gap: 12px; margin-bottom: 14px;
-  }
+  .answer-content { flex: 1; min-width: 0; }
 
-  .answer-q-num {
-    width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
-    background: var(--amber-lt); color: var(--rust);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 13px; font-weight: 800;
-  }
+  .q-counter { font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); font-family: 'DM Mono', monospace; display: block; margin-bottom: 5px; }
+  .answer-q  { font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 12px; line-height: 1.4; }
 
-  .answer-q-text {
-    font-size: 15px; font-weight: 700; color: var(--ink); line-height: 1.4;
-  }
+  .score-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+  .a-lbl { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); flex-shrink: 0; font-family: 'DM Mono', monospace; }
 
-  .answer-meta-row {
-    display: flex; align-items: center; gap: 12px;
-    margin-bottom: 12px; flex-wrap: wrap;
-  }
-
-  .score-chip {
-    display: inline-flex; align-items: center; gap: 5px;
-    padding: 4px 12px; border-radius: 99px;
-    font-size: 12px; font-weight: 700; font-family: 'DM Mono', monospace;
-  }
-
+  .score-chip { display: inline-flex; align-items: center; gap: 5px; padding: 4px 12px; border-radius: 99px; font-size: 12px; font-weight: 700; font-family: 'DM Mono', monospace; }
   .score-chip.high   { background: var(--green-lt); color: var(--green-dk); border: 1px solid #86efac; }
   .score-chip.medium { background: var(--amber-lt); color: var(--rust);     border: 1px solid #fde68a; }
   .score-chip.low    { background: var(--rose-lt);  color: var(--rose);     border: 1px solid #fecaca; }
 
-  .feedback-box {
-    background: var(--parchment); border: 1px solid var(--border-lt);
-    border-radius: 12px; padding: 14px 16px;
-    border-left: 3px solid var(--amber);
-    font-size: 14px; color: var(--ink); line-height: 1.65;
-  }
+  .feedback-box { background: var(--parchment); border: 1px solid var(--border-lt); border-radius: 12px; padding: 14px 16px; border-left: 3px solid var(--amber); font-size: 13.5px; color: var(--ink); line-height: 1.65; }
+  .feedback-label { font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; font-family: 'DM Mono', monospace; }
 
-  .feedback-label {
-    font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
-    color: var(--muted); margin-bottom: 6px;
-    font-family: 'DM Mono', monospace;
-  }
-  .back-btn {
-    display: inline-flex; align-items: center; gap: 9px;
-    background: linear-gradient(135deg, var(--amber), var(--rust));
-    color: white; border: none;
-    padding: 14px 32px; border-radius: 14px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 15px; font-weight: 700; text-decoration: none;
-    box-shadow: 0 6px 20px rgba(180,83,9,.30);
-    transition: transform .2s, box-shadow .2s;
-    margin-top: 8px;
-  }
+  .no-answers { background: white; border: 1.5px dashed var(--border); border-radius: 20px; padding: 48px; text-align: center; color: var(--muted); }
 
-  .back-btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 28px rgba(180,83,9,.42);
-    color: white;
-  }
+  .site-footer { position: relative; z-index: 1; border-top: 1px solid var(--border); text-align: center; padding: 20px; font-size: 13px; color: var(--muted); background: var(--glass); backdrop-filter: blur(12px); }
 
-  .no-answers {
-    background: white; border: 1.5px dashed var(--border);
-    border-radius: 20px; padding: 48px; text-align: center; color: var(--muted);
-  }
-
-  .site-footer {
-    position: relative; z-index: 1; border-top: 1px solid var(--border);
-    text-align: center; padding: 20px; font-size: 13px; color: var(--muted);
-    background: var(--glass); backdrop-filter: blur(12px);
-  }
-
-  @media (max-width: 600px) {
-    .topbar { padding: 12px 20px; }
-    .page-wrap { margin-top: 32px; }
-    .score-hero-body { padding: 28px 20px; }
-    .answer-card-body { padding: 18px 18px; }
-  }
+  @media (max-width: 960px) { .result-grid { grid-template-columns: 1fr; } .left-col { position: static; } .stat-grid { grid-template-columns: repeat(4, 1fr); } }
+  @media (max-width: 600px) { .topbar { padding: 12px 20px; } .page-wrap { margin-top: 32px; } .stat-grid { grid-template-columns: 1fr 1fr; } .answer-body { gap: 10px; } }
   </style>
 </head>
 
@@ -328,100 +225,185 @@
 </nav>
 
 <div class="page-wrap">
+  <div class="result-grid">
 
-  
-  <div class="score-hero">
-    <div class="score-hero-ribbon"></div>
-    <div class="score-hero-body">
+    <!-- ── LEFT COLUMN ── -->
+    <aside class="left-col">
 
-      <div class="score-ring-wrap">
-        <svg viewBox="0 0 140 140" width="140" height="140">
-          <circle class="ring-bg"   cx="70" cy="70" r="56"/>
-          <circle class="ring-fill" cx="70" cy="70" r="56"
-            id="scoreRing"
-            stroke-dasharray="352"
-            stroke-dashoffset="352"
-            stroke="#d97706"/>
-        </svg>
-        <div class="score-ring-label">
-          <span class="score-big" id="scoreBig">{{ attempt.score }}</span>
-          <span class="score-denom">Score %</span>
+      <div class="score-card">
+        <div class="score-card-ribbon"></div>
+        <div class="score-card-inner">
+
+          <div class="ring-wrap">
+            <svg viewBox="0 0 150 150" width="150" height="150">
+              <circle class="ring-bg"   cx="75" cy="75" r="60"/>
+              <circle class="ring-fill" cx="75" cy="75" r="60"
+                id="scoreRing"
+                stroke-dasharray="377"
+                stroke-dashoffset="377"
+                stroke="#d97706"/>
+            </svg>
+            <div class="ring-label">
+              <span class="ring-pct" id="ringPct">—<span class="ring-pct-sym">%</span></span>
+              <span class="ring-sublabel">Score</span>
+            </div>
+          </div>
+
+          <p class="assign-name">{{ attempt.assignment.title }}</p>
+          <p class="assign-sub">Assignment evaluated — here's your result</p>
+
+        </div>
+
+        <div class="stat-grid">
+          <div class="stat-cell c-score">
+            <div class="stat-num">{{ attempt.score }}</div>
+            <div class="stat-lbl">Score %</div>
+          </div>
+          <div class="stat-cell c-total">
+            <div class="stat-num">{{ attempt.studentanswer_set.count }}</div>
+            <div class="stat-lbl">Questions</div>
+          </div>
+          <div class="stat-cell c-status {% if attempt.status != 'COMPLETED' %}pending{% endif %}">
+            <div class="stat-num">
+              {% if attempt.status == "COMPLETED" %}Done{% else %}Pending{% endif %}
+            </div>
+            <div class="stat-lbl">Status</div>
+          </div>
+          <div class="stat-cell c-score">
+            <div class="stat-num" style="font-size:13px;">
+              {{ attempt.submitted_at|date:"M d" }}
+            </div>
+            <div class="stat-lbl">Submitted</div>
+          </div>
         </div>
       </div>
 
-      <h1 class="result-title">Assignment Completed</h1>
-      <p class="result-sub">Your submission has been evaluated</p>
-
+      <!-- Result banner -->
       {% if attempt.status == "COMPLETED" %}
-      <span class="status-pill completed"><i class="fas fa-check-circle"></i> Completed</span>
+        {% if attempt.score >= 70 %}
+        <div class="result-banner great">
+          <div class="result-banner-icon"><i class="fas fa-trophy"></i></div>
+          <div>
+            <div>🎉 Great work!</div>
+            <span class="banner-sub">Your assignment has been evaluated successfully.</span>
+          </div>
+        </div>
+        {% else %}
+        <div class="result-banner poor">
+          <div class="result-banner-icon"><i class="fas fa-book-open"></i></div>
+          <div>
+            <div>Keep practising!</div>
+            <span class="banner-sub">Review the feedback below and try to improve.</span>
+          </div>
+        </div>
+        {% endif %}
       {% else %}
-      <span class="status-pill in-progress"><i class="fas fa-clock"></i> In Progress</span>
+      <div class="result-banner pending-banner">
+        <div class="result-banner-icon"><i class="fas fa-clock"></i></div>
+        <div>
+          <div>⏳ Evaluation pending</div>
+          <span class="banner-sub">Your instructor hasn't graded this yet. Check back soon.</span>
+        </div>
+      </div>
       {% endif %}
 
-    </div>
-  </div>
+      <a href="{% url 'student:student_course_detail' attempt.assignment.course.id %}" class="back-btn">
+        <i class="fas fa-arrow-left"></i> Back to Course
+      </a>
 
-  
-  <div class="section-header">
-    <span class="section-tag">Evaluation</span>
-    <h2 class="section-title">Question-wise Results</h2>
-  </div>
+    </aside>
 
-  {% for ans in attempt.studentanswer_set.all %}
-  {% with score=ans.score|default:0 %}
-  <div class="answer-card">
-    <div class="answer-card-top {% if score >= 70 %}high{% elif score >= 40 %}medium{% else %}low{% endif %}"></div>
-    <div class="answer-card-body">
+    <!-- ── RIGHT COLUMN ── -->
+    <div>
 
-      <div class="answer-q-header">
-        <div class="answer-q-num">{{ forloop.counter }}</div>
-        <p class="answer-q-text">{{ ans.question.question_text }}</p>
+      <div class="right-col-header">
+        <span class="section-tag">Evaluation</span>
+        <h2 class="section-title">Question-wise Results</h2>
       </div>
 
-      <div class="answer-meta-row">
-        <span class="score-chip {% if score >= 70 %}high{% elif score >= 40 %}medium{% else %}low{% endif %}">
-          <i class="fas fa-chart-simple"></i> Score: {{ ans.score }}
-        </span>
+      {% for ans in attempt.studentanswer_set.all %}
+      {% with score=ans.score|default:0 %}
+
+      {% if score >= 70 %}
+      <div class="answer-card tier-high">
+        <div class="answer-body">
+          <div class="answer-icon"><i class="fas fa-check"></i></div>
+          <div class="answer-content">
+            <span class="q-counter">Q{{ forloop.counter }} of {{ attempt.studentanswer_set.count }}</span>
+            <p class="answer-q">{{ ans.question.question_text }}</p>
+            <div class="score-row">
+              <span class="a-lbl">Score</span>
+              <span class="score-chip high"><i class="fas fa-chart-simple"></i> {{ ans.score }}</span>
+            </div>
+            {% if ans.feedback %}<div class="feedback-label">Feedback</div><div class="feedback-box">{{ ans.feedback }}</div>{% endif %}
+          </div>
+        </div>
       </div>
 
-      {% if ans.feedback %}
-      <div class="feedback-label">Feedback</div>
-      <div class="feedback-box">{{ ans.feedback }}</div>
+      {% elif score >= 40 %}
+      <div class="answer-card tier-medium">
+        <div class="answer-body">
+          <div class="answer-icon"><i class="fas fa-minus"></i></div>
+          <div class="answer-content">
+            <span class="q-counter">Q{{ forloop.counter }} of {{ attempt.studentanswer_set.count }}</span>
+            <p class="answer-q">{{ ans.question.question_text }}</p>
+            <div class="score-row">
+              <span class="a-lbl">Score</span>
+              <span class="score-chip medium"><i class="fas fa-chart-simple"></i> {{ ans.score }}</span>
+            </div>
+            {% if ans.feedback %}<div class="feedback-label">Feedback</div><div class="feedback-box">{{ ans.feedback }}</div>{% endif %}
+          </div>
+        </div>
+      </div>
+
+      {% else %}
+      <div class="answer-card tier-low">
+        <div class="answer-body">
+          <div class="answer-icon"><i class="fas fa-xmark"></i></div>
+          <div class="answer-content">
+            <span class="q-counter">Q{{ forloop.counter }} of {{ attempt.studentanswer_set.count }}</span>
+            <p class="answer-q">{{ ans.question.question_text }}</p>
+            <div class="score-row">
+              <span class="a-lbl">Score</span>
+              <span class="score-chip low"><i class="fas fa-chart-simple"></i> {{ ans.score }}</span>
+            </div>
+            {% if ans.feedback %}<div class="feedback-label">Feedback</div><div class="feedback-box">{{ ans.feedback }}</div>{% endif %}
+          </div>
+        </div>
+      </div>
       {% endif %}
 
+      {% endwith %}
+      {% empty %}
+      <div class="no-answers">
+        <i class="fas fa-file-slash" style="font-size:36px;color:var(--amber);opacity:.4;display:block;margin-bottom:12px;"></i>
+        <p style="font-size:14px;">No answers found for this submission.</p>
+      </div>
+      {% endfor %}
+
     </div>
-  </div>
-  {% endwith %}
-  {% empty %}
-  <div class="no-answers">
-    <i class="fas fa-file-slash" style="font-size:36px;color:var(--amber);opacity:.4;display:block;margin-bottom:12px;"></i>
-    <p style="font-size:14px;">No answers found.</p>
-  </div>
-  {% endfor %}
 
-  <div style="text-align:center;margin-top:32px;">
-    <a href="{% url 'student:my_courses' %}" class="back-btn">
-      <i class="fas fa-arrow-left"></i> Back to My Courses
-    </a>
   </div>
-
 </div>
 
 <footer class="site-footer">&copy; 2025 Speshway. All rights reserved.</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-  const score  = {{ attempt.score|default:0 }};
-  const circ   = 352;
-  const offset = circ - (circ * score / 100);
-  const ring   = document.getElementById('scoreRing');
+  const score = {{ attempt.score|default:0 }};
+  const ring  = document.getElementById('scoreRing');
+
+  document.getElementById('ringPct').innerHTML =
+    `${score}<span class="ring-pct-sym">%</span>`;
 
   ring.setAttribute('stroke',
     score >= 70 ? '#16a34a' : score >= 40 ? '#d97706' : '#e11d48'
   );
 
   window.addEventListener('load', () => {
-    setTimeout(() => { ring.style.strokeDashoffset = offset; }, 150);
+    setTimeout(() => {
+      ring.style.strokeDashoffset = 377 - (377 * score / 100);
+    }, 150);
   });
 </script>
 </body>

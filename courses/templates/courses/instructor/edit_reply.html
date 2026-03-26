@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Edit Reply – SPESHWAY</title>
+<title>Edit Reply</title>
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -39,7 +39,7 @@ body {
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-thumb { background: var(--teal-glow); border-radius: 99px; }
 
-/* ─── TOPNAV ─── */
+
 .topnav {
   position: sticky; top: 0; z-index: 100;
   display: flex; align-items: center; justify-content: space-between;
@@ -80,14 +80,14 @@ body {
 .dropdown-item.text-danger:hover { background: #FEE2E2; color: var(--red); }
 .dropdown-divider { border-color: var(--border) !important; }
 
-/* ─── PAGE: centred single card ─── */
+
 .page-wrap {
   min-height: calc(100vh - 64px);
   display: flex; align-items: center; justify-content: center;
   padding: 40px 24px;
 }
 
-/* ─── FORM CARD ─── */
+
 .form-card {
   background: var(--card-bg);
   border: 1px solid var(--border);
@@ -122,7 +122,7 @@ body {
   font-weight: 700; font-size: 1rem; color: var(--ink);
 }
 
-/* ─── CONTEXT PILL — shows the original question ─── */
+
 .context-pill {
   margin: 20px 24px 0;
   background: var(--surface);
@@ -135,7 +135,7 @@ body {
 }
 .context-pill strong { color: var(--ink-soft); font-size: .78rem; display: block; margin-bottom: 3px; }
 
-/* ─── FORM BODY ─── */
+
 .form-body { padding: 20px 24px 6px; }
 
 .field-wrap { display: flex; flex-direction: column; gap: 5px; }
@@ -158,7 +158,7 @@ body {
   box-shadow: 0 0 0 3px rgba(13,148,136,.12);
 }
 
-/* ─── BUTTONS ─── */
+
 .btn-row {
   display: flex; gap: 10px; flex-wrap: wrap;
   padding: 18px 24px 24px;
@@ -191,7 +191,7 @@ body {
 </head>
 <body>
 
-<!-- ── TOPNAV ─── -->
+
 <nav class="topnav">
   <a href="{% url 'instructor_dashboard' %}" class="brand">SPESH<span>WAY</span></a>
   <div class="dropdown">
@@ -213,7 +213,7 @@ body {
   </div>
 </nav>
 
-<!-- ── PAGE ─── -->
+
 <div class="page-wrap">
   <div class="form-card">
     <div class="card-top-bar"></div>
@@ -222,7 +222,7 @@ body {
       <div class="card-header-title">Edit Reply</div>
     </div>
 
-    <!-- Original question context -->
+    
     <div class="context-pill">
       <strong><i class="fa-regular fa-circle-question me-1"></i> Original Question</strong>
       {{ reply.question.question }}
